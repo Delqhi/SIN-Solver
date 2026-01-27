@@ -1,0 +1,3 @@
+- Created user manual for Infrastructure & Coordination (Supabase + Task System).
+- Followed CEO-grade tone: helpful, non-technical, focused on stability and organization.
+- Grouped technical components into a single "Foundation" concept for the user.

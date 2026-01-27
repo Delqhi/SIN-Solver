@@ -1,0 +1,12 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Install dependencies for MCP and SSE
+RUN npm install @modelcontextprotocol/sdk express zod
+
+# Copy plugins
+COPY . .
+
+# Run the SSE server
+CMD ["node", "plugin-system/sse-server.js"]

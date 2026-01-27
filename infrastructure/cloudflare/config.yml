@@ -1,0 +1,38 @@
+tunnel: SIN-Solver
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  # Zimmer-11: Dashboard (Frontend)
+  - hostname: dashboard.sin-solver.example.com
+    service: http://172.20.0.60:3000
+
+  # Zimmer-13: API Coordinator
+  - hostname: api.sin-solver.example.com
+    service: http://172.20.0.31:8000
+
+  # Zimmer-18: Survey Worker
+  - hostname: survey.sin-solver.example.com
+    service: http://172.20.0.80:8018
+
+  # Zimmer-19: Captcha Worker
+  - hostname: captcha.sin-solver.example.com
+    service: http://172.20.0.81:8019
+
+  # Zimmer-01: N8N Orchestrator
+  - hostname: n8n.sin-solver.example.com
+    service: http://172.20.0.10:5678
+
+  # Zimmer-05: Steel Browser (WebSocket)
+  - hostname: steel.sin-solver.example.com
+    service: http://172.20.0.20:3000
+
+  # Zimmer-15: SurfSense
+  - hostname: surfsense.sin-solver.example.com
+    service: http://172.20.0.60:3000
+
+  # Zimmer-16: Supabase Studio
+  - hostname: supabase.sin-solver.example.com
+    service: http://172.20.0.70:3000
+
+  # Catch-all (404)
+  - service: http_status:404

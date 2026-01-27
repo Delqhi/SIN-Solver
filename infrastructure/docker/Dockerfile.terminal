@@ -1,0 +1,20 @@
+FROM tsl0922/ttyd:latest
+
+# Install Python and tools (Debian based)
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    curl \
+    git \
+    bash \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up workspace
+WORKDIR /workspace
+
+# Set Python Path
+ENV PYTHONPATH=/workspace
+
+# Default command
+ENTRYPOINT ["ttyd", "-W", "-p", "8080", "bash"]

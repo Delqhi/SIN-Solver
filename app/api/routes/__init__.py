@@ -1,0 +1,11 @@
+from .solve import router as solve
+from .auth import router as auth
+from .health import router as health
+from .resources import router as resources
+from .system import router as system
+from .workers import router as workers
+from .steel import router as steel
+from .chat import router as chat
+from .docs import router as docs
+from .pentest import router as pentest
+from .secrets import router as secrets

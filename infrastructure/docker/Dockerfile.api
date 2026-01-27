@@ -1,0 +1,27 @@
+# Base Image: Python 3.11 Slim (Leichtgewichtig & Modern)
+FROM python:3.11-slim
+
+# Environment Variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+# System Dependencies (Minimal für Playwright & Networking)
+WORKDIR /app
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python Dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Application Code
+COPY . .
+
+# Default Command (wird in docker-compose überschrieben)
+CMD ["python", "app/main.py"]

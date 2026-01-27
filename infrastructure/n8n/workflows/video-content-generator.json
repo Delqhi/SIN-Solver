@@ -1,0 +1,260 @@
+{
+  "name": "SIN-Solver Video Content Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 6 }]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "video-generate",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 500],
+      "webhookId": "video-generate"
+    },
+    {
+      "parameters": {},
+      "id": "merge-triggers",
+      "name": "Merge Triggers",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://zimmer-21-video-generator:8021/api/queue",
+        "options": {}
+      },
+      "id": "get-queue",
+      "name": "Get Video Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "condition-has-videos",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": "0",
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-has-queue",
+      "name": "Has Pending Videos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "queue",
+        "options": {}
+      },
+      "id": "split-queue",
+      "name": "Split Queue Items",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://zimmer-21-video-generator:8021/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ topic: $json.topic, contentType: $json.content_type || 'educational', platform: $json.platform ? $json.platform[0] : 'tiktok', autoPost: true, platforms: $json.platform || ['tiktok'] }) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "generate-video",
+      "name": "Generate Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://zimmer-21-video-generator:8021/api/jobs/{{ $json.jobId }}",
+        "options": {}
+      },
+      "id": "poll-job-status",
+      "name": "Poll Job Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "condition-complete",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "complete",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "if-complete",
+      "name": "Is Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "id": "wait-retry",
+      "name": "Wait 10s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1850, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://zimmer-09-clawdbot:8080/api/notify",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "message", "value": "✅ Video generiert: {{ $json.topic || 'Unknown' }}" },
+            { "name": "type", "value": "success" },
+            { "name": "details", "value": "={{ JSON.stringify({ jobId: $json.jobId, duration: $json.duration, videoPath: $json.videoPath }) }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "notify-success",
+      "name": "Notify Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1850, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "condition-failed",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "failed",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-failed",
+      "name": "Is Failed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2050, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://zimmer-09-clawdbot:8080/api/alert",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "message", "value": "❌ Video-Generierung fehlgeschlagen" },
+            { "name": "type", "value": "error" },
+            { "name": "details", "value": "={{ JSON.stringify({ jobId: $json.jobId, error: $json.error }) }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "notify-failure",
+      "name": "Notify Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 300]
+    },
+    {
+      "parameters": {},
+      "id": "no-op-empty",
+      "name": "No Pending Videos",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1050, 500]
+    },
+    {
+      "parameters": {
+        "maxTries": 30,
+        "waitBetweenTries": 10000
+      },
+      "id": "retry-counter",
+      "name": "Retry Counter",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2050, 500],
+      "notes": "Max 30 retries (5 min total)"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": { "main": [[{ "node": "Merge Triggers", "type": "main", "index": 0 }]] },
+    "Webhook Trigger": { "main": [[{ "node": "Merge Triggers", "type": "main", "index": 1 }]] },
+    "Merge Triggers": { "main": [[{ "node": "Get Video Queue", "type": "main", "index": 0 }]] },
+    "Get Video Queue": { "main": [[{ "node": "Has Pending Videos?", "type": "main", "index": 0 }]] },
+    "Has Pending Videos?": {
+      "main": [
+        [{ "node": "Split Queue Items", "type": "main", "index": 0 }],
+        [{ "node": "No Pending Videos", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Queue Items": { "main": [[{ "node": "Generate Video", "type": "main", "index": 0 }]] },
+    "Generate Video": { "main": [[{ "node": "Poll Job Status", "type": "main", "index": 0 }]] },
+    "Poll Job Status": { "main": [[{ "node": "Is Complete?", "type": "main", "index": 0 }]] },
+    "Is Complete?": {
+      "main": [
+        [{ "node": "Notify Success", "type": "main", "index": 0 }],
+        [{ "node": "Wait 10s", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait 10s": { "main": [[{ "node": "Is Failed?", "type": "main", "index": 0 }]] },
+    "Is Failed?": {
+      "main": [
+        [{ "node": "Notify Failure", "type": "main", "index": 0 }],
+        [{ "node": "Poll Job Status", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1",
+  "meta": { "templateCredsSetupCompleted": true },
+  "tags": ["video", "content", "tts", "social-media", "sin-solver"]
+}

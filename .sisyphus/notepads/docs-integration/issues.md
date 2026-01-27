@@ -1,0 +1,1 @@
+- [CRITICAL] Dashboard at port 3001 fails to connect to API at port 8080 (net::ERR_CONNECTION_REFUSED). Dashboard renders error overlay blocking UI.

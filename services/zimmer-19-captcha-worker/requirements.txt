@@ -1,0 +1,43 @@
+# Zimmer-19 Captcha Worker - FREE Self-Hosted Captcha Solving
+# 100% FREE - NO PAID SERVICES
+
+# Core Framework
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
+pydantic==2.6.1
+python-multipart==0.0.9
+
+# ddddocr - Chinese OCR library (FREE, MIT License)
+# Supports: OCR, slider, click captcha
+ddddocr==1.4.11
+
+# OpenAI Whisper - Audio captcha transcription (FREE, MIT License)
+openai-whisper==20231117
+stable-ts==2.15.10
+
+# Image Processing
+Pillow==10.2.0
+numpy==1.26.4
+opencv-python-headless==4.9.0.80
+
+# HTTP Client
+httpx==0.26.0
+aiohttp==3.9.3
+
+# Redis for caching
+redis==5.0.1
+
+# Logging
+python-json-logger==2.0.7
+
+# YOLO for image classification (hCaptcha challenges)
+ultralytics==8.1.8
+
+# Audio processing
+pydub==0.25.1
+soundfile==0.12.1
+librosa==0.10.1
+
+# Optional: Additional OCR
+easyocr==1.7.1
+pytesseract==0.3.10

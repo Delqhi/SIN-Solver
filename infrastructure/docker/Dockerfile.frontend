@@ -1,0 +1,21 @@
+# Base Image: Node 20 Alpine (Best Practice 2026)
+FROM node:20-alpine
+
+# CEO-MANDAT: Dashboard runs in development mode for now
+ENV NODE_ENV=development
+
+WORKDIR /app
+
+# Install Agent-Browser CLI
+RUN npm install -g agent-browser
+
+# Dependencies
+COPY package.json* ./
+# Install ALL dependencies
+RUN npm install
+
+# Application Code
+COPY . .
+
+# Default Command
+CMD ["npm", "run", "dev"]

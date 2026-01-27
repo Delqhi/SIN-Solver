@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white font-inter;
+  }
+  
+  input:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+@layer components {
+  .sidebar-item {
+    @apply transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-slate-900/50 border border-slate-800 rounded-lg transition-all;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

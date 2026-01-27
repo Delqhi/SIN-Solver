@@ -1,0 +1,17 @@
+{
+  "name": "sin-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for SIN-Solver",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "axios": "^1.7.9",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
+    "uuid": "^11.0.4",
+    "dotenv": "^16.4.7"
+  }
+}

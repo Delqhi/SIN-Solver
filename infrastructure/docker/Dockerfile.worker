@@ -1,0 +1,26 @@
+# Base Image: Playwright Official (Enthält Browser-Dependencies)
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+
+# Environment
+ENV PYTHONUNBUFFERED=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# System Dependencies
+WORKDIR /app
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libpq-dev \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python Dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Application Code
+COPY . .
+
+# Default Command
+CMD ["python", "app/core/CEO_STEEL_MASTER_WORKER.py"]

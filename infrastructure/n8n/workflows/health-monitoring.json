@@ -1,0 +1,115 @@
+{
+  "name": "SIN-Solver Health Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] }
+      },
+      "id": "health-schedule",
+      "name": "Health Check Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "split-batch",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const services = [\n  { name: 'Redis', url: 'http://zimmer-speicher-redis:6379' },\n  { name: 'Postgres', url: 'http://zimmer-archiv-postgres:5432' },\n  { name: 'Steel Browser', url: 'http://zimmer-05-steel-tarnkappe:3000/health' },\n  { name: 'n8n', url: 'http://zimmer-01-n8n-manager:5678/healthz' },\n  { name: 'API Coordinator', url: 'http://zimmer-13-api-koordinator:8000/health' },\n  { name: 'Dashboard', url: 'http://zimmer-11-dashboard-zentrale:80/health' },\n  { name: 'Clawdbot', url: 'http://zimmer-09-clawdbot:8080/health' },\n  { name: 'Survey Worker', url: 'http://zimmer-18-survey-worker:8018/health' },\n  { name: 'Captcha Worker', url: 'http://zimmer-19-captcha-worker:8019/health' },\n  { name: 'QA', url: 'http://zimmer-08-qa-pruefer:8080/health' },\n  { name: 'Evolution', url: 'http://zimmer-12-evolution-optimizer:8080/health' },\n  { name: 'MCP Plugins', url: 'http://zimmer-17-sin-plugins:8000/health' }\n];\nreturn services.map(s => ({ json: s }));"
+      },
+      "id": "get-services",
+      "name": "Get Services List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [250, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "check-health",
+      "name": "Check Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "unhealthy",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "healthy",
+              "operator": { "type": "string", "operation": "notEquals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-unhealthy",
+      "name": "IF Unhealthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://zimmer-09-clawdbot:8080/api/alert",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "message", "value": "SERVICE DOWN: {{ $('Get Services List').item.json.name }}" },
+            { "name": "severity", "value": "critical" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-alert",
+      "name": "Send Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {},
+      "id": "healthy-noop",
+      "name": "Healthy - No Action",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1050, 400]
+    }
+  ],
+  "connections": {
+    "Health Check Schedule": { "main": [[{ "node": "Get Services List", "type": "main", "index": 0 }]] },
+    "Get Services List": { "main": [[{ "node": "Split In Batches", "type": "main", "index": 0 }]] },
+    "Split In Batches": { "main": [[{ "node": "Check Health", "type": "main", "index": 0 }]] },
+    "Check Health": { "main": [[{ "node": "IF Unhealthy", "type": "main", "index": 0 }]] },
+    "IF Unhealthy": {
+      "main": [
+        [{ "node": "Send Alert", "type": "main", "index": 0 }],
+        [{ "node": "Healthy - No Action", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1",
+  "meta": { "templateCredsSetupCompleted": true },
+  "tags": ["health", "monitoring", "sin-solver"]
+}

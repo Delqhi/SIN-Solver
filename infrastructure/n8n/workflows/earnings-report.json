@@ -1,0 +1,93 @@
+{
+  "name": "SIN-Solver Daily Earnings Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 20 * * *" }] }
+      },
+      "id": "daily-schedule",
+      "name": "Daily 8 PM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://zimmer-18-survey-worker:8018/api/earnings/today",
+        "options": {}
+      },
+      "id": "get-earnings",
+      "name": "Get Today Earnings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://zimmer-18-survey-worker:8018/api/surveys/completed/today",
+        "options": {}
+      },
+      "id": "get-completed",
+      "name": "Get Completed Surveys",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 500]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] },
+        "options": {}
+      },
+      "id": "merge-data",
+      "name": "Merge Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const earnings = $input.first().json;\nconst surveys = $input.last().json;\n\nconst report = `\n📊 TÄGLICHER BERICHT - ${new Date().toLocaleDateString('de-DE')}\n\n💰 EINNAHMEN HEUTE: €${earnings.total || 0}\n📋 SURVEYS ABGESCHLOSSEN: ${surveys.count || 0}\n⏱️ DURCHSCHNITTLICHE ZEIT: ${surveys.avgTime || 'N/A'} min\n\n🏆 TOP PLATTFORMEN:\n${(earnings.byPlatform || []).map(p => `  • ${p.name}: €${p.amount}`).join('\\n')}\n\n📈 GESAMT DIESEN MONAT: €${earnings.monthTotal || 0}\n`;\n\nreturn [{ json: { message: report, type: 'success' } }];"
+      },
+      "id": "format-report",
+      "name": "Format Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://zimmer-09-clawdbot:8080/api/notify",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "message", "value": "={{ $json.message }}" },
+            { "name": "type", "value": "={{ $json.type }}" },
+            { "name": "providers", "value": "[\"all\"]" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-report",
+      "name": "Send Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 400]
+    }
+  ],
+  "connections": {
+    "Daily 8 PM": { "main": [[{ "node": "Get Today Earnings", "type": "main", "index": 0 }, { "node": "Get Completed Surveys", "type": "main", "index": 0 }]] },
+    "Get Today Earnings": { "main": [[{ "node": "Merge Data", "type": "main", "index": 0 }]] },
+    "Get Completed Surveys": { "main": [[{ "node": "Merge Data", "type": "main", "index": 1 }]] },
+    "Merge Data": { "main": [[{ "node": "Format Report", "type": "main", "index": 0 }]] },
+    "Format Report": { "main": [[{ "node": "Send Report", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1",
+  "meta": { "templateCredsSetupCompleted": true },
+  "tags": ["earnings", "report", "daily", "sin-solver"]
+}

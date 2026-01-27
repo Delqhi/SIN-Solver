@@ -1,0 +1,30 @@
+{
+  "name": "zimmer-21-video-generator",
+  "version": "1.0.0",
+  "description": "AI-powered video content generator for SIN-Solver",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0",
+    "edge-tts": "^1.0.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "@supabase/supabase-js": "^2.39.0",
+    "axios": "^1.6.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "SIN-Solver Team",
+  "license": "Delqhi Proprietary"
+}

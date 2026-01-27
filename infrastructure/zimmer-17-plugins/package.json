@@ -1,0 +1,14 @@
+{
+  "name": "sin-plugins-mcp",
+  "version": "1.0.0",
+  "description": "SIN-Plugins Hub MCP Server",
+  "main": "plugin-system/sse-server.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "express": "^4.18.2",
+    "zod": "^3.22.4"
+  },
+  "scripts": {
+    "start": "node plugin-system/sse-server.js"
+  }
+}
