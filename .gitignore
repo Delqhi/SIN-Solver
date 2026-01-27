@@ -8,3 +8,9 @@ __pycache__/
 venv/
 .venv/
 *.tar.gz
+# Large model files - download separately
+models/*.pt
+models/*.onnx
+models/*.bin
+*.pt
+*.onnx
