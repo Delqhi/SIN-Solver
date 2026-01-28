@@ -2,6 +2,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dashboard/.next",
   "installCommand": "npm install",
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "https://codeserver-api.delqhi.com",
+      "NEXT_PUBLIC_CODESERVER_API_URL": "https://codeserver-api.delqhi.com",
+      "NEXT_PUBLIC_ENVIRONMENT": "production"
+    }
+  },
   "headers": [
     {
       "source": "/api/(.*)",

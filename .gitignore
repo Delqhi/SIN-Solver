@@ -22,3 +22,4 @@ dashboard/.next/
 out/
 # Build outputs
 *.tsbuildinfo
+.env.production
