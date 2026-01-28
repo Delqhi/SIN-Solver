@@ -235,29 +235,43 @@ const AIChat: React.FC<{
     }
 
     try {
-      const response = await fetch(`${apiUrl}/chat/`, {
+      // Route free-text chat through the /api/code endpoint (AI coding assistant)
+      const response = await fetch(`${CODESERVER_API_URL}/api/code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: messages.map(m => ({ role: m.role, content: m.content }))
+          prompt: currentInput,
+          context: messages.slice(-5).map(m => `${m.role}: ${m.content}`).join('\n')
         })
       });
 
       if (response.ok) {
         const data = await response.json();
-        setMessages(prev => [...prev, {
-          role: 'ai',
-          content: data.content,
-          timestamp: Date.now(),
-          status: 'success'
-        }]);
+        // For async tasks, show task ID and instructions
+        if (data.task_id) {
+          setMessages(prev => [...prev, {
+            role: 'ai',
+            content: `🚀 Task queued!\n\n📋 Task ID: ${data.task_id}\n\n💡 Use \`/code-status ${data.task_id}\` to check progress.\n\n⏳ Processing your request...`,
+            timestamp: Date.now(),
+            status: 'success',
+            isCode: true
+          }]);
+        } else {
+          setMessages(prev => [...prev, {
+            role: 'ai',
+            content: data.content || data.message || JSON.stringify(data, null, 2),
+            timestamp: Date.now(),
+            status: 'success'
+          }]);
+        }
       } else {
-        throw new Error('API Error');
+        const errorData = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errorData}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: '❌ Connection lost. Retrying...',
+        content: `❌ Error: ${error.message}\n\n💡 Try using a slash command like \`/code <your request>\` for coding tasks.`,
         timestamp: Date.now(),
         status: 'error'
       }]);
