@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Plus, Search, PanelLeft, Home as HomeIcon, MessageSquare, X, Terminal, Box, Activity, RefreshCw, Play, Pause } from 'lucide-react';
+import { Plus, Search, PanelLeft, Home as HomeIcon, MessageSquare, X, Terminal, Box, Activity, RefreshCw, Play, Pause, Eye } from 'lucide-react';
 import FooterTerminal from '../components/FooterTerminal';
 import AIChat from '../components/AIChat';
 import Documentation from './docs';
@@ -27,6 +27,7 @@ export default function SINSolverCockpit() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [dockerStatus, setDockerStatus] = useState('Checking...');
   const [mounted, setMounted] = useState(false);
+  const [isLiveMissionOpen, setIsLiveMissionOpen] = useState(false);
 
   const fetchStatus = async () => {
     try {
@@ -190,16 +191,23 @@ export default function SINSolverCockpit() {
         </button>
       )}
 
-      {/* Footer Status Bar */}
-      <div className="fixed bottom-0 left-0 right-0 h-10 bg-slate-900/95 border-t border-slate-800 flex items-center justify-between px-6 text-xs text-slate-400 z-30">
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => setIsTerminalOpen(!isTerminalOpen)}
-            className="flex items-center gap-2 cursor-pointer hover:text-slate-200 transition-colors"
-          >
-            <Terminal size={12} />
-            Terminal
-          </button>
+       {/* Footer Status Bar */}
+       <div className="fixed bottom-0 left-0 right-0 h-10 bg-slate-900/95 border-t border-slate-800 flex items-center justify-between px-6 text-xs text-slate-400 z-30">
+         <div className="flex items-center gap-6">
+           <button
+             onClick={() => setIsLiveMissionOpen(!isLiveMissionOpen)}
+             className="flex items-center gap-2 cursor-pointer hover:text-slate-200 transition-colors"
+           >
+             <Eye size={12} />
+             Live Missions
+           </button>
+           <button
+             onClick={() => setIsTerminalOpen(!isTerminalOpen)}
+             className="flex items-center gap-2 cursor-pointer hover:text-slate-200 transition-colors"
+           >
+             <Terminal size={12} />
+             Terminal
+           </button>
           <div className="flex items-center gap-2">
             <Box size={12} color={dockerStatus === 'Healthy' ? '#10b981' : '#ef4444'} />
             Fleet: {dockerStatus}
@@ -208,9 +216,9 @@ export default function SINSolverCockpit() {
         <span>Orchestrator v2.0</span>
       </div>
 
-      {/* Terminal */}
-      <FooterTerminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(!isTerminalOpen)} />
-      <LiveMissionView isOpen={false} onClose={() => {}} />
+       {/* Terminal */}
+       <FooterTerminal isOpen={isTerminalOpen} onToggle={() => setIsTerminalOpen(!isTerminalOpen)} />
+       <LiveMissionView isOpen={isLiveMissionOpen} onClose={() => setIsLiveMissionOpen(false)} />
     </div>
   );
 }
