@@ -1,0 +1,205 @@
+{
+  "name": "02-Cross-Service-Health-Check",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://room-02-tresor-api:8201/health",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "2",
+      "name": "Check Vault API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT 1 as healthy, NOW() as checked_at",
+        "options": {}
+      },
+      "id": "3",
+      "name": "Check PostgreSQL",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [450, 400],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "SIN-Solver PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "health_check_test"
+      },
+      "id": "4",
+      "name": "Check Redis",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [450, 600],
+      "credentials": {
+        "redis": {
+          "id": "2",
+          "name": "SIN-Solver Redis"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "vault_status",
+              "value": "={{ $node['Check Vault API'].json.status || 'failed' }}"
+            },
+            {
+              "name": "postgres_status",
+              "value": "={{ $node['Check PostgreSQL'].json.healthy ? 'healthy' : 'failed' }}"
+            },
+            {
+              "name": "redis_status",
+              "value": "={{ $node['Check Redis'].json ? 'healthy' : 'failed' }}"
+            },
+            {
+              "name": "checked_at",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO health_checks (service_name, status, checked_at) VALUES ('vault', '{{ $json.vault_status }}', NOW()), ('postgres', '{{ $json.postgres_status }}', NOW()), ('redis', '{{ $json.redis_status }}', NOW()) ON CONFLICT DO NOTHING",
+        "options": {}
+      },
+      "id": "6",
+      "name": "Log to Database",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [900, 400],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "SIN-Solver PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Vault API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check PostgreSQL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Vault API": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check PostgreSQL": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Redis": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Log to Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "monitoring",
+      "createdAt": "2026-01-28T00:00:00.000Z",
+      "updatedAt": "2026-01-28T00:00:00.000Z"
+    },
+    {
+      "name": "health-check",
+      "createdAt": "2026-01-28T00:00:00.000Z",
+      "updatedAt": "2026-01-28T00:00:00.000Z"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "1"
+}

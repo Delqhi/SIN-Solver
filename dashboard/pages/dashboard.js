@@ -8,31 +8,29 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [timestamp, setTimestamp] = useState(new Date());
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchDashboardData = async () => {
+    setRefreshing(true);
+    try {
+      const docsResponse = await fetch('/api/docs');
+      const docsData = await docsResponse.json();
+      setStats(docsData);
+
+      const servicesResponse = await fetch('/api/services');
+      const servicesData = await servicesResponse.json();
+      setServices(servicesData.services);
+
+      setTimestamp(new Date());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const docsResponse = await fetch('/api/docs');
-        const docsData = await docsResponse.json();
-        setStats(docsData);
-
-        const healthResponse = await fetch('/api/health');
-        const healthData = await healthResponse.json();
-
-        setServices([
-          { name: 'n8n Orchestrator', status: 'healthy', port: 5678, icon: '⚙️' },
-          { name: 'CodeServer API', status: 'healthy', port: 8041, icon: '💻' },
-          { name: 'Redis Cache', status: 'healthy', port: 6379, icon: '⚡' },
-          { name: 'PostgreSQL', status: 'healthy', port: 5432, icon: '🗄️' },
-        ]);
-
-        setTimestamp(new Date());
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
     
     const interval = setInterval(fetchDashboardData, 30000);
@@ -78,7 +76,7 @@ export default function Dashboard() {
 
   const healthyServices = services.filter(s => s.status === 'healthy').length;
   const totalServices = services.length;
-  const healthPercentage = Math.round((healthyServices / totalServices) * 100);
+  const healthPercentage = totalServices > 0 ? Math.round((healthyServices / totalServices) * 100) : 0;
 
   return (
     <>
@@ -108,14 +106,26 @@ export default function Dashboard() {
 
         <main className="max-w-7xl mx-auto p-8">
           <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">System Health</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">System Health</h2>
+              <button 
+                onClick={fetchDashboardData}
+                disabled={refreshing}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition border border-slate-600 ${refreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <span className={refreshing ? 'animate-spin' : ''}>🔄</span>
+                {refreshing ? 'Refreshing...' : 'Refresh Status'}
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-gradient-to-br from-slate-700 to-slate-600 p-6 rounded-lg border border-slate-500">
                 <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">
                   Overall Status
                 </h3>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-bold text-green-400">{healthPercentage}%</p>
+                  <p className={`text-4xl font-bold ${
+                    healthPercentage === 100 ? 'text-green-400' : healthPercentage > 50 ? 'text-yellow-400' : 'text-red-400'
+                  }`}>{healthPercentage}%</p>
                   <p className="text-slate-400">Healthy</p>
                 </div>
                 <p className="text-xs text-slate-400 mt-3">
@@ -147,9 +157,11 @@ export default function Dashboard() {
                 <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">
                   API Status
                 </h3>
-                <p className="text-4xl font-bold text-green-500">OK</p>
+                <p className={`text-4xl font-bold ${healthPercentage === 100 ? 'text-green-500' : 'text-yellow-500'}`}>
+                  {healthPercentage === 100 ? 'OK' : 'WARN'}
+                </p>
                 <p className="text-xs text-slate-400 mt-3">
-                  All endpoints responding
+                  {healthPercentage === 100 ? 'All endpoints responding' : 'Some services are down'}
                 </p>
               </div>
             </div>
@@ -164,6 +176,7 @@ export default function Dashboard() {
                     <th className="px-6 py-4 text-left font-semibold">Service</th>
                     <th className="px-6 py-4 text-left font-semibold">Status</th>
                     <th className="px-6 py-4 text-left font-semibold">Port</th>
+                    <th className="px-6 py-4 text-left font-semibold">Last Check</th>
                     <th className="px-6 py-4 text-left font-semibold">Action</th>
                   </tr>
                 </thead>
@@ -177,15 +190,21 @@ export default function Dashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center w-fit gap-2 ${
                           service.status === 'healthy' 
-                            ? 'bg-green-900 text-green-300' 
-                            : 'bg-red-900 text-red-300'
+                            ? 'bg-green-900/50 text-green-400 border border-green-700' 
+                            : 'bg-red-900/50 text-red-400 border border-red-700'
                         }`}>
-                          {service.status === 'healthy' ? '✓' : '✗'} {service.status}
+                          <span className={`w-2 h-2 rounded-full ${
+                            service.status === 'healthy' ? 'bg-green-400 animate-pulse' : 'bg-red-400'
+                          }`}></span>
+                          {service.status.toUpperCase()}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-300">{service.port}</td>
+                      <td className="px-6 py-4 text-xs text-slate-400">
+                        {service.lastChecked ? new Date(service.lastChecked).toLocaleTimeString() : 'N/A'}
+                      </td>
                       <td className="px-6 py-4">
                         <button className="px-3 py-1 bg-slate-600 hover:bg-slate-500 rounded text-sm font-semibold transition">
                           View

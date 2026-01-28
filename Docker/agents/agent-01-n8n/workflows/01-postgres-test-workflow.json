@@ -1,0 +1,99 @@
+{
+  "name": "01-PostgreSQL-Connection-Test",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT current_database() as database, current_user as user, version() as version, NOW() as timestamp",
+        "options": {}
+      },
+      "id": "2",
+      "name": "PostgreSQL Query",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [450, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "SIN-Solver PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "SUCCESS"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "name": "database_info",
+              "value": "={{ JSON.stringify($json) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3",
+      "name": "Set Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL Query": {
+      "main": [
+        [
+          {
+            "node": "Set Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "test",
+      "createdAt": "2026-01-28T00:00:00.000Z",
+      "updatedAt": "2026-01-28T00:00:00.000Z"
+    },
+    {
+      "name": "database",
+      "createdAt": "2026-01-28T00:00:00.000Z",
+      "updatedAt": "2026-01-28T00:00:00.000Z"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "1"
+}

@@ -1,0 +1,274 @@
+{
+  "name": "03-Agent-Task-Execution",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "execute-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "sin-solver-agent-exec"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "task_id",
+              "value": "={{ $json.body.task_id || $now.toMillis() }}"
+            },
+            {
+              "name": "agent_type",
+              "value": "={{ $json.body.agent || 'steel-browser' }}"
+            },
+            {
+              "name": "task_type",
+              "value": "={{ $json.body.type || 'browse' }}"
+            },
+            {
+              "name": "target_url",
+              "value": "={{ $json.body.url || '' }}"
+            },
+            {
+              "name": "instructions",
+              "value": "={{ $json.body.instructions || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2",
+      "name": "Parse Request",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_tasks (task_id, agent_type, task_type, target_url, instructions, status, created_at) VALUES ('{{ $json.task_id }}', '{{ $json.agent_type }}', '{{ $json.task_type }}', '{{ $json.target_url }}', '{{ $json.instructions }}', 'pending', NOW()) RETURNING id",
+        "options": {}
+      },
+      "id": "3",
+      "name": "Log Task Start",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [650, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "SIN-Solver PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.agent_type }}",
+              "operation": "equals",
+              "value2": "steel-browser"
+            }
+          ]
+        }
+      },
+      "id": "4",
+      "name": "Route by Agent",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3000/v1/sessions",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "sessionId",
+              "value": "={{ $json.task_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "5",
+      "name": "Call Steel Browser",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-06-skyvern-solver:8030/api/v1/tasks",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.target_url }}"
+            },
+            {
+              "name": "navigation_goal",
+              "value": "={{ $json.instructions }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "6",
+      "name": "Call Skyvern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE agent_tasks SET status = 'completed', result = '{{ JSON.stringify($json) }}', completed_at = NOW() WHERE task_id = '{{ $node['Parse Request'].json.task_id }}'",
+        "options": {}
+      },
+      "id": "7",
+      "name": "Log Task Complete",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1250, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "SIN-Solver PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, task_id: $node['Parse Request'].json.task_id, status: 'completed', result: $json }) }}"
+      },
+      "id": "8",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Request": {
+      "main": [
+        [
+          {
+            "node": "Log Task Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Task Start": {
+      "main": [
+        [
+          {
+            "node": "Route by Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Agent": {
+      "main": [
+        [
+          {
+            "node": "Call Steel Browser",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Skyvern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Steel Browser": {
+      "main": [
+        [
+          {
+            "node": "Log Task Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Skyvern": {
+      "main": [
+        [
+          {
+            "node": "Log Task Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Task Complete": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "agent",
+      "createdAt": "2026-01-28T00:00:00.000Z",
+      "updatedAt": "2026-01-28T00:00:00.000Z"
+    },
+    {
+      "name": "automation",
+      "createdAt": "2026-01-28T00:00:00.000Z",
+      "updatedAt": "2026-01-28T00:00:00.000Z"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "1"
+}
