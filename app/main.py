@@ -37,10 +37,10 @@ app.include_router(secrets.router, prefix="/secrets", tags=["secrets"])
 async def startup():
     logger.info("🚀 Orchestrator starting up...")
     
-    # 🔥 ENTERPRISE 2026: Synchronize secrets with Zimmer-13 (API Koordinator)
+    # 🔥 ENTERPRISE 2026: Synchronize secrets with Room-13 (API Koordinator)
     import os
     if os.getenv("ROLE") != "orchestrator":
-        await settings.fetch_secrets_from_zimmer13()
+        await settings.fetch_secrets_from_room13()
     
     await RedisCache.get_instance()
     

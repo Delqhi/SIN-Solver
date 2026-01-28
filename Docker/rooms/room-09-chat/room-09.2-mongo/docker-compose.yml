@@ -1,0 +1,26 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+volumes:
+  rocket_chat_mongodb_data:
+
+services:
+  room-09.2-mongodb-storage:
+    image: mongo:7.0
+    container_name: room-09.2-mongodb-storage
+    restart: unless-stopped
+    volumes:
+      - rocket_chat_mongodb_data:/data/db
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.92
+    ports:
+      - "27017:27017"
+    command: mongod --oplogSize 128
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

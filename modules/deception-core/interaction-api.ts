@@ -107,10 +107,8 @@ export class InteractionAPI {
       // 3. Capture State After
       const state_after = await this.captureState();
 
-      // 4. DeceptionHunter Analysis
-      // Mocking page content for analysis as we don't have a real DOM
-      const mockPageContent = `<html><body><button id="${target}">Click Me</button></body></html>`;
-      const analysisResult = this.deception_hunter.runFullAnalysis(mockPageContent, state_before, state_after);
+       // 4. DeceptionHunter Analysis
+       const analysisResult = this.deception_hunter.runFullAnalysis('', state_before, state_after);
 
       // 5. Calculate Confidence & Update State
       const finalConfidence = analysisResult.confidence;
@@ -187,17 +185,13 @@ export class InteractionAPI {
   /**
    * Captures a snapshot of the current system state.
    */
-  private async captureState(): Promise<Record<string, unknown>> {
-    const currentState = this.state_machine.getState();
-    return {
-      state_name: currentState.name,
-      timestamp: Date.now(),
-      mock_data: {
-        random_seed: Math.random(),
-        system_load: 0.12
-      }
-    };
-  }
+   private async captureState(): Promise<Record<string, unknown>> {
+     const currentState = this.state_machine.getState();
+     return {
+       state_name: currentState.name,
+       timestamp: Date.now()
+     };
+   }
 
   /**
    * Returns the full audit trail.

@@ -1,0 +1,27 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+services:
+  room-09.5-chat-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sin-chat-mcp-server:latest
+    container_name: room-09.5-chat-mcp-server
+    restart: unless-stopped
+    environment:
+      - PORT=8000
+      - ROCKETCHAT_URL=http://room-09.1-rocketchat-app:3000
+      - ROCKETCHAT_USER_ID=admin
+      - ROCKETCHAT_AUTH_TOKEN=password
+      - ROCKETCHAT_ADMIN_USER_ID=admin
+      - ROCKETCHAT_ADMIN_AUTH_TOKEN=password
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.96
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

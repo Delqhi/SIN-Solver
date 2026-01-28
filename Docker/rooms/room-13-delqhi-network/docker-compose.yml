@@ -1,0 +1,118 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+volumes:
+  meilisearch_data:
+
+services:
+  room-13-delqhi-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    image: sin-delqhi-api:latest
+    container_name: room-13-delqhi-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3000
+      - DATABASE_URL=postgresql://${DB_USER:-delqhi_admin}:${DB_PASSWORD:-delqhi-db-2026}@room-12-delqhi-db:5432/${DB_NAME:-delqhi}
+      - REDIS_URL=redis://room-12-delqhi-redis:6379/0
+      - SUPABASE_URL=http://room-12-delqhi-rest:3000
+      - SUPABASE_ANON_KEY=${ANON_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      - API_DOMAIN=${API_DOMAIN:-localhost:8130}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3130}
+      - MCP_API_URL=${MCP_API_URL:-http://room-13-delqhi-mcp:8213}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.130
+    ports:
+      - "8130:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  room-13-delqhi-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: sin-delqhi-frontend:latest
+    container_name: room-13-delqhi-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - NEXT_PUBLIC_API_URL=http://room-13-delqhi-api:3000
+      - NEXT_PUBLIC_API_EXTERNAL_URL=${NEXT_PUBLIC_API_EXTERNAL_URL:-http://localhost:8130}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3130}
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-http://localhost:8112}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY:-}
+      - NEXT_PUBLIC_ENVIRONMENT=${NEXT_PUBLIC_ENVIRONMENT:-production}
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.131
+    ports:
+      - "3130:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://172.20.0.131:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  room-13-delqhi-mcp:
+    build:
+      context: ./mcp
+      dockerfile: Dockerfile
+    image: sin-delqhi-mcp:latest
+    container_name: room-13-delqhi-mcp
+    restart: "no" # Disabled until SSE migration (currently stdio-only)
+    # restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=8213
+      - API_BASE_URL=http://room-13-delqhi-api:3000
+      - API_KEY=${MCP_API_KEY:-change-me-in-production}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - MEILISEARCH_URL=http://room-13-delqhi-search:7700
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.132
+    ports:
+      - "8213:8213"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8213/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  room-13-delqhi-search:
+    image: getmeili/meilisearch:v1.6
+    container_name: room-13-delqhi-search
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_MASTER_KEY:-change-me-in-production}
+      - MEILI_ENV=${MEILI_ENV:-production}
+    volumes:
+      - meilisearch_data:/meili_data
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.133
+    ports:
+      - "7700:7700"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:7700/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

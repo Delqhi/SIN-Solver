@@ -1,0 +1,25 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+services:
+  room-05-generator-video:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sin-generator-video:latest
+    container_name: room-05-generator-video
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=8205
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.205
+    ports:
+      - "8205:8205"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8205/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -6,9 +6,9 @@ services:
   # EBENE 5: INFRASTRUKTUR (Fundament)
   # ==========================================
   
-  zimmer-speicher-redis:
+  room-04-redis-cache:
     image: redis:7.2-alpine
-    container_name: Zimmer-Speicher-Redis
+    container_name: room-04-redis-cache
     command: redis-server --save 60 1 --loglevel warning
     ports: ["6379:6379"]
     volumes: [redis_data:/data]
@@ -21,9 +21,9 @@ services:
       timeout: 3s
       retries: 5
 
-  zimmer-archiv-postgres:
+  room-03-postgres-master:
     image: postgres:15-alpine
-    container_name: Zimmer-Archiv-Postgres
+    container_name: room-03-postgres-master
     environment:
       POSTGRES_DB: sin_solver_production
       POSTGRES_USER: ceo_admin
@@ -39,9 +39,9 @@ services:
       timeout: 5s
       retries: 5
 
-  zimmer-10-postgres-bibliothek:
+  room-10-postgres-knowledge:
     image: postgres:15-alpine
-    container_name: Zimmer-10-Postgres-Bibliothek
+    container_name: room-10-postgres-knowledge
     environment:
       POSTGRES_DB: knowledge_base
       POSTGRES_USER: librarian
@@ -59,9 +59,9 @@ services:
   # EBENE 4: BROWSER (The Muscle)
   # ==========================================
 
-  zimmer-05-steel-tarnkappe:
+  agent-05-steel-browser:
     image: ghcr.io/steel-dev/steel-browser:latest
-    container_name: Zimmer-05-Steel-Tarnkappe
+    container_name: agent-05-steel-browser
     ports: 
       - "3000:3000"
       - "9222:9222"
@@ -85,9 +85,9 @@ services:
   # EBENE 3: MANAGEMENT & WORKFLOW
   # ==========================================
 
-  zimmer-01-n8n-manager:
+  agent-01-n8n-orchestrator:
     image: n8nio/n8n:latest
-    container_name: Zimmer-01-n8n-Manager
+    container_name: agent-01-n8n-orchestrator
     ports: ["5678:5678"]
     environment:
       N8N_SECURE_COOKIE: "false"
@@ -105,21 +105,21 @@ services:
       timeout: 10s
       retries: 5
 
-  zimmer-13-api-koordinator:
+  room-13-fastapi-coordinator:
     build:
-      context: ./services/zimmer-13-api-coordinator
+      context: ./services/room-13-fastapi-coordinator
       dockerfile: Dockerfile
-    container_name: Zimmer-13-API-Koordinator
+    container_name: room-13-fastapi-coordinator
     env_file: .env
     environment:
-      POSTGRES_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
+      POSTGRES_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-default-key-change}
       JWT_SECRET: ${JWT_SECRET:-default-jwt-secret-change}
     ports: ["8000:8000"]
     depends_on:
-      zimmer-speicher-redis: { condition: service_healthy }
-      zimmer-archiv-postgres: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.31
@@ -133,17 +133,17 @@ services:
   # EBENE 2: INTERFACES
   # ==========================================
 
-  zimmer-11-dashboard-zentrale:
+  room-11-dashboard-cockpit:
     build:
-      context: ./services/zimmer-11-dashboard
+      context: ./services/room-11-dashboard-cockpit
       dockerfile: Dockerfile
-    container_name: Zimmer-11-Dashboard-Zentrale
+    container_name: room-11-dashboard-cockpit
     environment:
       NODE_ENV: production
-      API_URL: http://zimmer-13-api-koordinator:8000
+      API_URL: http://room-13-fastapi-coordinator:8000
     ports: ["3001:80"]
     depends_on:
-      zimmer-13-api-koordinator: { condition: service_healthy }
+      room-13-fastapi-coordinator: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.40
@@ -153,23 +153,23 @@ services:
       timeout: 10s
       retries: 3
 
-  zimmer-04-opencode-sekretaer:
+  agent-04-opencode-secretary:
     build:
-      context: ./services/zimmer-04-opencode
+      context: ./services/agent-04-opencode-secretary
       dockerfile: Dockerfile
-    container_name: Zimmer-04-OpenCode-Sekretaer
+    container_name: agent-04-opencode-secretary
     environment:
       NODE_ENV: production
       PORT: 9000
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
     ports: ["3002:9000"]
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-speicher-redis: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.41
@@ -183,11 +183,11 @@ services:
   # EBENE 1: AGENTS & WORKERS
   # ==========================================
 
-  zimmer-03-agentzero-chefcoder:
+  agent-03-agentzero-coder:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.agentzero
-    container_name: Zimmer-03-AgentZero-ChefCoder
+    container_name: agent-03-agentzero-coder
     command: python app/core/CEO_STEEL_MASTER_WORKER.py
     ports: ["5001:8000"]
     environment:
@@ -199,9 +199,9 @@ services:
       haus-netzwerk:
         ipv4_address: 172.20.0.50
 
-  zimmer-06-skyvern-auge:
+  agent-06-skyvern-solver:
     image: skyvern/skyvern:latest
-    container_name: Zimmer-06-Skyvern-Auge
+    container_name: agent-06-skyvern-solver
     ports: ["8002:8000"]
     environment:
       DATABASE_STRING: postgresql+asyncpg://librarian:secure-knowledge-2026@172.20.0.12:5432/knowledge_base
@@ -210,16 +210,16 @@ services:
       LLM_KEY: OPENAI
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
-      zimmer-10-postgres-bibliothek: { condition: service_healthy }
+      room-10-postgres-knowledge: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.51
 
-  zimmer-07-stagehand-detektiv:
+  agent-07-stagehand-research:
     build:
       context: .
       dockerfile: infrastructure/docker/Dockerfile.worker
-    container_name: Zimmer-07-Stagehand-Detektiv
+    container_name: agent-07-stagehand-research
     command: python app/core/CEO_STEEL_MASTER_WORKER.py
     ports: ["8003:8000"]
     environment:
@@ -230,22 +230,22 @@ services:
       haus-netzwerk:
         ipv4_address: 172.20.0.54
 
-  zimmer-14-worker-arbeiter:
+  solver-14-worker-automation:
     build:
-      context: ./services/zimmer-14-worker
+      context: ./services/solver-14-worker-automation
       dockerfile: Dockerfile
     restart: always
     environment:
       NODE_ENV: production
       PORT: 8080
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
-      STEEL_CDP_URL: ws://zimmer-05-steel-tarnkappe:3000/
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      STEEL_CDP_URL: ws://agent-05-steel-browser:3000/
       CONCURRENT_TASKS: 3
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-speicher-redis: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
     networks: [haus-netzwerk]
     deploy:
       replicas: 5
@@ -255,20 +255,20 @@ services:
       timeout: 10s
       retries: 3
 
-  zimmer-02-chronos-stratege:
+  agent-02-chronos-scheduler:
     build:
-      context: ./services/zimmer-02-chronos
+      context: ./services/agent-02-chronos-scheduler
       dockerfile: Dockerfile
-    container_name: Zimmer-02-Chronos-Stratege
+    container_name: agent-02-chronos-scheduler
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      API_BRAIN_URL: http://zimmer-13-api-koordinator:8000
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      API_BRAIN_URL: http://room-13-fastapi-coordinator:8000
     ports: ["3001:3001"]
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-13-api-koordinator: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-13-fastapi-coordinator: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.52
@@ -278,23 +278,23 @@ services:
       timeout: 10s
       retries: 3
 
-  zimmer-09-clawdbot-bote:
+  agent-09-clawdbot-messenger:
     build:
-      context: ./services/zimmer-09-clawdbot
+      context: ./services/agent-09-clawdbot-messenger
       dockerfile: Dockerfile
-    container_name: Zimmer-09-ClawdBot-Bote
+    container_name: agent-09-clawdbot-messenger
     environment:
       NODE_ENV: production
       PORT: 8080
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
     ports: ["8004:8080"]
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-speicher-redis: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.55
@@ -304,22 +304,22 @@ services:
       timeout: 10s
       retries: 3
 
-  # Zimmer 08: QA-Prüfer (Automated Testing & Quality Assurance)
-  zimmer-08-qa-pruefer:
+  # Agent 08: Playwright Tester (Automated Testing & Quality Assurance)
+  agent-08-playwright-tester:
     build:
-      context: ./services/zimmer-08-qa
+      context: ./services/agent-08-playwright-tester
       dockerfile: Dockerfile
-    container_name: Zimmer-08-QA-Pruefer
+    container_name: agent-08-playwright-tester
     environment:
       NODE_ENV: production
       PORT: 8080
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
     ports: ["8005:8080"]
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-speicher-redis: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.56
@@ -329,21 +329,21 @@ services:
       timeout: 10s
       retries: 3
 
-  zimmer-17-sin-plugins:
+  room-17-sin-plugins:
     build:
-      context: ./services/zimmer-17-mcp
+      context: ./services/room-17-sin-plugins
       dockerfile: Dockerfile
-    container_name: Zimmer-17-SIN-Plugins
+    container_name: room-17-sin-plugins
     environment:
       NODE_ENV: production
       PORT: 8000
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
     ports: ["8006:8000"]
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-speicher-redis: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.57
@@ -353,21 +353,21 @@ services:
       timeout: 10s
       retries: 3
 
-  zimmer-12-evolution-optimizer:
+  agent-12-evolution-optimizer:
     build:
-      context: ./services/zimmer-12-evolution
+      context: ./services/agent-12-evolution-optimizer
       dockerfile: Dockerfile
-    container_name: Zimmer-12-Evolution-Optimizer
+    container_name: agent-12-evolution-optimizer
     environment:
       NODE_ENV: production
       PORT: 8080
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@zimmer-archiv-postgres:5432/sin_solver_production
-      REDIS_URL: redis://zimmer-speicher-redis:6379
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
     ports: ["8007:8080"]
     depends_on:
-      zimmer-archiv-postgres: { condition: service_healthy }
-      zimmer-speicher-redis: { condition: service_healthy }
+      room-03-postgres-master: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.53
@@ -377,17 +377,17 @@ services:
       timeout: 10s
       retries: 3
 
-  zimmer-18-survey-worker:
+  solver-18-survey-worker:
     build:
-      context: ./services/zimmer-18-survey-worker
+      context: ./services/solver-18-survey-worker
       dockerfile: Dockerfile
-    container_name: Zimmer-18-Survey-Worker
+    container_name: solver-18-survey-worker
     environment:
       NODE_ENV: production
       PORT: 8018
-      REDIS_URL: redis://zimmer-speicher-redis:6379
-      API_COORDINATOR_URL: http://zimmer-13-api-koordinator:8000
-      STEEL_CDP_URL: ws://zimmer-05-steel-tarnkappe:3000/
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      STEEL_CDP_URL: ws://agent-05-steel-browser:3000/
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       MISTRAL_API_KEY: ${MISTRAL_API_KEY}
       OPENCODE_ZEN_API_KEY: ${OPENCODE_ZEN_API_KEY}
@@ -396,8 +396,8 @@ services:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
     ports: ["8018:8018"]
     depends_on:
-      zimmer-speicher-redis: { condition: service_healthy }
-      zimmer-05-steel-tarnkappe: { condition: service_healthy }
+      room-04-redis-cache: { condition: service_healthy }
+      agent-05-steel-browser: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.80
@@ -407,10 +407,10 @@ services:
       timeout: 10s
       retries: 3
 
-  # Zimmer 15 (AI Research Knowledge Base)
-  zimmer-15-surfsense-archiv:
+  # Room 15 (AI Research Knowledge Base)
+  room-15-surfsense-archiv:
     image: ghcr.io/modsetter/surfsense:latest
-    container_name: Zimmer-15-SurfSense-Archiv
+    container_name: room-15-surfsense-archiv
     ports: ["3003:3000", "8000:8000"]
     environment:
       NEXT_PUBLIC_BACKEND_URL: http://192.168.178.21:8000
@@ -425,13 +425,13 @@ services:
       timeout: 5s
       retries: 3
 
-  # Zimmer 16: Supabase Studio (Database GUI)
-  zimmer-16-supabase-studio:
+  # Room 16: Supabase Studio (Database GUI)
+  room-16-supabase-studio:
     image: supabase/studio:latest
-    container_name: Zimmer-16-Supabase-Studio
+    container_name: room-16-supabase-studio
     ports: ["3004:3000"]
     environment:
-      STUDIO_PG_META_URL: http://zimmer-16-pg-meta:8080/pg
+      STUDIO_PG_META_URL: http://room-16-pg-meta:8080/pg
       POSTGRES_PASSWORD: secure_ceo_password_2026
       SUPABASE_URL: http://172.20.0.11:8000
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
@@ -440,10 +440,10 @@ services:
       haus-netzwerk:
         ipv4_address: 172.20.0.70
 
-  # Zimmer 16.1: PG-META (Requirement for Studio)
-  zimmer-16-pg-meta:
+  # Room 16.1: PG-META (Requirement for Studio)
+  room-16-pg-meta:
     image: supabase/postgres-meta:v0.95.1
-    container_name: Zimmer-16-PG-Meta
+    container_name: room-16-pg-meta
     environment:
       PG_META_DB_URL: postgres://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production
     networks:

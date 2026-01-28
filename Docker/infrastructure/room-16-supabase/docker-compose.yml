@@ -1,0 +1,28 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+services:
+  # Supabase needs multiple services (Studio, Kong, GoTrue, etc.)
+  # For simplicity in this V18.3 step, we start with the Studio/Kong interface mapping to Room-03
+  # A full Supabase stack is complex - this is the "Lite" integration for now.
+  
+  room-16-supabase-studio:
+    image: supabase/studio:latest
+    container_name: room-16-supabase-studio
+    restart: unless-stopped
+    environment:
+      - SUPABASE_URL=http://room-16-supabase-kong:8000
+      - STUDIO_PG_META_URL=http://room-16-supabase-meta:8080
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sin-solver-2026}
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.16
+    ports:
+      - "54323:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s

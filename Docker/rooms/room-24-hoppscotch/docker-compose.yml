@@ -1,0 +1,23 @@
+version: "3.8"
+
+networks:
+  haus-netzwerk:
+    external: true
+
+services:
+  room-24-hoppscotch:
+    image: hoppscotch/hoppscotch:latest
+    container_name: room-24-hoppscotch
+    restart: unless-stopped
+    ports:
+      - "3024:3000"
+    environment:
+      - ENABLE_SUBPATH_BASED_ACCESS=true
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.95
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

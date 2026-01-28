@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 router = APIRouter()
 
 # Internal Docker URL for backend-to-backend communication
-STEEL_INTERNAL_URL = "http://Zimmer-05-Steel-Tarnkappe:3000"
+STEEL_INTERNAL_URL = "http://agent-05-steel-browser:3000"
 
 @router.get("/sessions")
 async def get_sessions(request: Request):
@@ -27,8 +27,8 @@ async def get_sessions(request: Request):
             viewer_host = request_host
             
             # If internal, use the container name
-            if request_host in ["Zimmer-13-API-Koordinator", "172.20.0.31", "localhost", "127.0.0.1"]:
-                viewer_host = "Zimmer-05-Steel-Tarnkappe"
+            if request_host in ["room-13-api-coordinator", "172.20.0.31", "localhost", "127.0.0.1"]:
+                viewer_host = "agent-05-steel-browser"
                 
             processed_sessions = []
             for session in sessions:

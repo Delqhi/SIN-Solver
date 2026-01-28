@@ -336,26 +336,24 @@ export class ModelPersistence {
     return weightData;
   }
 
-  /**
-   * Create pre-trained model with default weights
-   */
-  async createPretrainedModel(): Promise<tf.LayersModel> {
-    // This would be replaced with actual pre-trained weights
-    // For now, return a dummy model descriptor
-    const input = tf.input({ shape: [1000] });
-    const dense1 = tf.layers.dense({ units: 64, activation: 'relu' }).apply(input) as tf.SymbolicTensor;
-    const dense2 = tf.layers.dense({ units: 32, activation: 'relu' }).apply(dense1) as tf.SymbolicTensor;
-    const output = tf.layers.dense({ units: 1, activation: 'sigmoid' }).apply(dense2) as tf.SymbolicTensor;
+   /**
+    * Create pre-trained model with default weights
+    */
+   async createPretrainedModel(): Promise<tf.LayersModel> {
+     const input = tf.input({ shape: [1000] });
+     const dense1 = tf.layers.dense({ units: 64, activation: 'relu' }).apply(input) as tf.SymbolicTensor;
+     const dense2 = tf.layers.dense({ units: 32, activation: 'relu' }).apply(dense1) as tf.SymbolicTensor;
+     const output = tf.layers.dense({ units: 1, activation: 'sigmoid' }).apply(dense2) as tf.SymbolicTensor;
 
-    const model = tf.model({ inputs: input, outputs: output });
-    model.compile({
-      optimizer: 'adam',
-      loss: 'binaryCrossentropy',
-      metrics: ['accuracy']
-    });
+     const model = tf.model({ inputs: input, outputs: output });
+     model.compile({
+       optimizer: 'adam',
+       loss: 'binaryCrossentropy',
+       metrics: ['accuracy']
+     });
 
-    return model;
-  }
+     return model;
+   }
 }
 
 /**

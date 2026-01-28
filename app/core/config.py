@@ -52,9 +52,9 @@ class Settings(BaseSettings):
             raise ValueError("Database URL must use asyncpg driver")
         return v
 
-    async def fetch_secrets_from_zimmer13(self):
+    async def fetch_secrets_from_room13(self):
         if self.debug:
-            logger.info("Debug mode: Skipping secret retrieval from Zimmer-13")
+            logger.info("Debug mode: Skipping secret retrieval from Room-13")
             return
 
         if self.role == "orchestrator":
@@ -72,11 +72,11 @@ class Settings(BaseSettings):
                     self.mistral_api_key = secrets.get("MISTRAL_API_KEY", self.mistral_api_key)
                     self.gemini_api_key = secrets.get("GEMINI_API_KEY", self.gemini_api_key)
                     self.groq_api_key = secrets.get("GROQ_API_KEY", self.groq_api_key)
-                    logger.info("Successfully synchronized FREE API keys with Zimmer-13")
+                    logger.info("Successfully synchronized FREE API keys with Room-13")
                 else:
-                    logger.warning(f"Failed to fetch secrets from Zimmer-13: {response.status_code}")
+                    logger.warning(f"Failed to fetch secrets from Room-13: {response.status_code}")
         except Exception as e:
-            logger.error(f"Error connecting to Zimmer-13 for secrets: {str(e)}")
+            logger.error(f"Error connecting to Room-13 for secrets: {str(e)}")
 
     class Config:
         env_file = ".env"

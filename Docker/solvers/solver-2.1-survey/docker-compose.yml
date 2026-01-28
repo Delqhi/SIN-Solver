@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   solver-2.1-survey-worker:
-    image: sin-solver-zimmer-18-survey-worker:latest
+    image: sin-solver-solver-2.1-survey-worker:latest
     container_name: solver-2.1-survey-worker
     ports:
       - "8018:8000"
@@ -34,11 +34,11 @@ services:
         - CMD
         - curl
         - -f
-        - http://localhost:8000/health
+        - http://localhost:8018/health
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
     logging:
       driver: json-file
       options:

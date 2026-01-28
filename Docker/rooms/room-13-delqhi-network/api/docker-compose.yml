@@ -1,0 +1,49 @@
+networks:
+  sin-network:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.0.0/16
+services:
+  room-13-delqhi-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: room-13-delqhi-api
+    environment:
+      CORS_ORIGINS: http://localhost:3130,https://delqhi.delqhi.com
+      DB_HOST: room-03-archiv-postgres
+      DB_NAME: sin_solver
+      DB_PASSWORD: ${DB_PASSWORD:-sin-solver-2026}
+      DB_PORT: 5432
+      DB_USER: sin_admin
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      MEILISEARCH_HOST: http://room-13-delqhi-search:7700
+      MEILISEARCH_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-}
+      NODE_ENV: production
+      PORT: 3000
+      REDIS_HOST: room-04-memory-redis
+      REDIS_PORT: 6379
+    healthcheck:
+      interval: 30s
+      retries: 3
+      start_period: 5s
+      test:
+      - CMD
+      - wget
+      - --no-verbose
+      - --tries=1
+      - --spider
+      - http://localhost:3000/health
+      timeout: 10s
+    logging:
+      driver: json-file
+      options:
+        max-file: '3'
+        max-size: 10m
+    networks:
+    - sin-network
+    ports:
+    - 3000:3000
+    restart: unless-stopped
+version: '3.9'

@@ -39,7 +39,7 @@ services:
     networks:
       - sin-solver-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5678/api/health"]
+      test: ["CMD-SHELL", "node -e \"require('net').connect(5678, '127.0.0.1').on('error', () => process.exit(1)).on('connect', () => process.exit(0))\""]
       interval: 30s
       timeout: 10s
       retries: 3

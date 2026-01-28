@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-dark-text;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-full font-bold transition-colors;
+  }
+  .btn-primary {
+    @apply bg-delqhi-500 hover:bg-delqhi-600 text-white;
+  }
+  .btn-outline {
+    @apply border border-dark-border hover:bg-dark-card text-dark-text;
+  }
+  .input {
+    @apply bg-transparent border border-dark-border rounded-lg px-4 py-2 focus:outline-none focus:border-delqhi-500;
+  }
+  .card {
+    @apply bg-dark-card border border-dark-border rounded-xl p-4;
+  }
+}

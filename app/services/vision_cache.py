@@ -13,7 +13,7 @@ from typing import Optional, Tuple
 logger = logging.getLogger("VisionCache")
 
 class VisionCache:
-    def __init__(self, db_path: str = ".opencode/zimmer10_records.db"):
+    def __init__(self, db_path: str = ".opencode/room10_records.db"):
         self.db_path = db_path
         self._init_db()
 

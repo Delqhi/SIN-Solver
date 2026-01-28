@@ -1,0 +1,176 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+volumes:
+  delqhi_db_data:
+  delqhi_storage_data:
+  nocodb_data:
+
+services:
+  room-12-delqhi-db:
+    image: supabase/postgres:15.1.1.78
+    container_name: room-12-delqhi-db
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-delqhi_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-delqhi-db-2026}
+      POSTGRES_DB: ${POSTGRES_DB:-delqhi}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    volumes:
+      - delqhi_db_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.120
+    ports:
+      - "5412:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U delqhi_admin -d delqhi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  room-12-delqhi-api:
+    image: supabase/gotrue:v2.151.0
+    container_name: room-12-delqhi-api
+    restart: unless-stopped
+    depends_on:
+      room-12-delqhi-db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL:-http://localhost:8112}
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://delqhi_admin:${POSTGRES_PASSWORD:-delqhi-db-2026}@room-12-delqhi-db:5432/delqhi?search_path=auth
+      GOTRUE_SITE_URL: ${SITE_URL:-http://localhost:3130}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS:-}
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      GOTRUE_JWT_EXP: ${JWT_EXPIRY:-3600}
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP:-true}
+      GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM:-true}
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.121
+    ports:
+      - "9999:9999"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9999/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  room-12-delqhi-rest:
+    image: postgrest/postgrest:v12.2.3
+    container_name: room-12-delqhi-rest
+    restart: unless-stopped
+    depends_on:
+      room-12-delqhi-db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://delqhi_admin:${POSTGRES_PASSWORD:-delqhi-db-2026}@room-12-delqhi-db:5432/delqhi
+      PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS:-public,storage}
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.122
+    ports:
+      - "3112:3000"
+
+  room-12-delqhi-realtime:
+    image: supabase/realtime:v2.30.34
+    container_name: room-12-delqhi-realtime
+    restart: unless-stopped
+    depends_on:
+      room-12-delqhi-db:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      DB_HOST: room-12-delqhi-db
+      DB_PORT: 5432
+      DB_USER: delqhi_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-delqhi-db-2026}
+      DB_NAME: delqhi
+      DB_SSL: "false"
+      SLOT_NAME: supabase_realtime_rls
+      TEMPORARY_SLOT: "true"
+      SECRET_KEY_BASE: ${REALTIME_SECRET:-super-secret-realtime-key-with-at-least-32-characters}
+      ERL_AFLAGS: -proto_dist inet_tcp
+      DNS_NODES: "''"
+      RLIMIT_NOFILE: "10000"
+      APP_NAME: realtime
+      SELF_HOST: "true"
+      FLY_APP_NAME: realtime
+      FLY_ALLOC_ID: local
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.123
+    ports:
+      - "4012:4000"
+
+  room-12-delqhi-storage:
+    image: supabase/storage-api:v1.10.1
+    container_name: room-12-delqhi-storage
+    restart: unless-stopped
+    depends_on:
+      room-12-delqhi-db:
+        condition: service_healthy
+    environment:
+      ANON_KEY: ${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.placeholder}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSJ9.placeholder}
+      DATABASE_URL: postgres://delqhi_admin:${POSTGRES_PASSWORD:-delqhi-db-2026}@room-12-delqhi-db:5432/delqhi
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: local
+      GLOBAL_S3_BUCKET: stub
+      POSTGREST_URL: http://room-12-delqhi-rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+    volumes:
+      - delqhi_storage_data:/var/lib/storage
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.124
+    ports:
+      - "5012:5000"
+
+  room-12-delqhi-studio:
+    image: supabase/studio:20240729-ce42139
+    container_name: room-12-delqhi-studio
+    restart: unless-stopped
+    depends_on:
+      room-12-delqhi-api:
+        condition: service_healthy
+    environment:
+      STUDIO_PG_META_URL: http://room-12-delqhi-meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-delqhi-db-2026}
+      DEFAULT_ORGANIZATION_NAME: Delqhi Network
+      DEFAULT_PROJECT_NAME: Delqhi Social
+      SUPABASE_URL: http://room-12-delqhi-kong:8000
+      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL:-http://localhost:8112}
+      SUPABASE_ANON_KEY: ${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.placeholder}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSJ9.placeholder}
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.125
+    ports:
+      - "3012:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s

@@ -44,7 +44,7 @@ async def run_demo():
     success = await controller.initialize(stealth_mode=True, use_local_browser=False)
     
     if not success:
-        logger.error("❌ Failed to connect to Steel. Ensure 'docker-compose up zimmer-05-steel-tarnkappe' is running.")
+        logger.error("❌ Failed to connect to Steel. Ensure 'docker-compose up agent-05-steel-browser' is running.")
         return
 
     try:

@@ -25,7 +25,7 @@ class RalphStressTester:
         logger.info("🚀 [CEO] INITIALIZING INFINITE RALPH-LOOP STRESS TEST")
         
         from app.core.config import settings
-        await settings.fetch_secrets_from_zimmer13()
+        await settings.fetch_secrets_from_room13()
         
         router = await get_solver_router()
         advanced = get_advanced_solver()

@@ -17,7 +17,7 @@ services:
     networks:
       - sin-solver-network
     healthcheck:
-      test: ["CMD", "sh", "-c", "vault status 2>/dev/null || exit 1"]
+      test: ["CMD-SHELL", "VAULT_ADDR=http://127.0.0.1:8200 vault status || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10

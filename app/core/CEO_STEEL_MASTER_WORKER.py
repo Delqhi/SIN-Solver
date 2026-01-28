@@ -62,8 +62,8 @@ class SteelMasterWorker:
     async def setup(self):
         self.add_log(f"🚀 [CEO] Initializing {self.role.upper()} mission stack...")
         
-        # 🔥 ENTERPRISE 2026: Synchronize secrets with Zimmer-13 (API Koordinator)
-        await settings.fetch_secrets_from_zimmer13()
+        # 🔥 ENTERPRISE 2026: Synchronize secrets with Room-13 (API Koordinator)
+        await settings.fetch_secrets_from_room13()
         
         return await self.controller.initialize(stealth_mode=True)
 

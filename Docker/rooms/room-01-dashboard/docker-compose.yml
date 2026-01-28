@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   room-01-dashboard-cockpit:
-    image: sin-solver/dashboard:latest
+    build:
+      context: ../../../dashboard
+      dockerfile: Dockerfile
+    image: sin-solver/dashboard:local
     container_name: room-01-dashboard-cockpit
     environment:
       NODE_ENV: production
