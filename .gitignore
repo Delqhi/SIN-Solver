@@ -14,3 +14,11 @@ models/*.onnx
 models/*.bin
 *.pt
 *.onnx
+.vercel
+.env*.local
+# Next.js build cache and artifacts
+dashboard/.next/
+.next/
+out/
+# Build outputs
+*.tsbuildinfo

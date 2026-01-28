@@ -10,6 +10,35 @@ No existing line in ANY document or configuration file (e.g., Agents.md, opencod
 
 ---
 
+### 0.8 THE ANTI-MONOLITH & NAMING LAW (SUPREME MANDATE 2026)
+
+**🚨 STOPP IMMEDIATELY: NO MORE MONOLITHIC DOCKER-COMPOSE FILES!**
+The creation of single, massive `docker-compose.yml` files containing all services is **STRICTLY FORBIDDEN**.
+Every service MUST have its own isolated directory and `docker-compose.yml`.
+
+**🚨 NAMING CONVENTION (ABSOLUTE LAW): 4-PART STRUCTURE**
+Every container MUST follow this exact naming schema:
+`{CATEGORY}-{NUMBER}-{INTEGRATION}-{ROLE}`
+
+| Part | Description | Examples |
+| :--- | :--- | :--- |
+| **1. CATEGORY** | The type of unit | `agent`, `room`, `solver`, `builder` |
+| **2. NUMBER** | Unique ID (2 digits) | `01`, `06`, `20.5` |
+| **3. INTEGRATION** | The core tech/project | `skyvern`, `n8n`, `postgres`, `video-gen` |
+| **4. ROLE** | The functional role | `webagent`, `orchestrator`, `storage`, `mcp` |
+
+**✅ CORRECT EXAMPLES:**
+- `agent-06-skyvern-solver` (Agent, Nr 06, Skyvern Tech, Solver Role)
+- `room-03-postgres-storage` (Room, Nr 03, Postgres Tech, Storage Role)
+- `room-20.5-video-gen-mcp` (Room, Nr 20.5, Video Gen Tech, MCP Role)
+
+**❌ FORBIDDEN EXAMPLES:**
+- `skyvern` (Too short)
+- `sin-zimmer-06` (Old schema)
+- `agent-06-skyvern` (Missing Role)
+
+---
+
 ## 🔒 SUPREME OPERATIONAL MANDATES
 
 ### 0. THE MODULAR SWARM SYSTEM (MANDATORY)
@@ -30,32 +59,40 @@ When files are consolidated, refactored, or recreated based on existing ones, yo
 
 ---
 
-## 🏘️ THE 23-ROOM EMPIRE (OFFICIAL MAPPING - V17.10)
-| Room | Role | Intern IP | Port |
+## 🏘️ THE 23-ROOM EMPIRE (MODULAR V18.3 STRUCTURE)
+
+**🚨 ARCHITECTURE UPDATE 2026-01-27:**
+The monolithic `docker-compose.yml` has been abolished.
+The infrastructure is now split into modular directories under `/Docker/`:
+- `/Docker/infrastructure/` (Core: Postgres, Redis, Vault, Supabase, NocoDB)
+- `/Docker/agents/` (AI Workers: Zero, Steel, Skyvern, n8n)
+- `/Docker/rooms/` (Interfaces: Dashboard, Chat)
+- `/Docker/solvers/` (Task Workers: Captcha, Survey)
+- `/Docker/builders/` (Content: Website)
+
+### Official Container Mapping (V18.3 Compliant)
+
+| Directory | Service Name | Port | Role |
 | :--- | :--- | :--- | :--- |
-| **01** | **n8n Orchestrator** | `172.20.0.10` | 5678 |
-| **02** | **Chronos-Stratege** | `172.20.0.2` | 3001 |
-| **03** | **Agent Zero (Code)** | `172.20.0.50` | 8000 |
-| **04** | **Opencode-Sekretaer** | `172.20.0.4` | 9000 |
-| **05** | **Steel Stealth** | `172.20.0.20` | 3000 |
-| **06** | **Skyvern Auge** | `172.20.0.30` | 8000 |
-| **07** | **Stagehand Detektiv** | `172.20.0.7` | 3000 |
-| **08** | **QA-Prüfer** | `172.20.0.8` | 8080 |
-| **09** | **Clawdbot-Bote** | `172.20.0.9` | 8080 |
-| **10** | **Postgres Bibliothek** | `172.20.0.10` | 5432 |
-| **11** | **Dashboard Zentrale** | `172.20.0.60` | 3000 |
-| **12** | **Evolution Optimizer** | `172.20.0.12` | 8080 |
-| **13** | **API Brain (Vault)** | `172.20.0.31` | 8000 |
-| **14** | **Worker Arbeiter** | `172.20.0.14` | 8080 |
-| **15** | **Surfsense Archiv** | `172.20.0.15` | 6333 |
-| **16** | **Supabase Zimmer** | `172.20.0.16` | 5432 |
-| **17** | **SIN-Plugins (MCP)** | `172.20.0.40` | 8000 |
-| **18** | **Survey Worker** | `172.20.0.80` | 8018 |
-| **19** | **Captcha Worker** | `172.20.0.81` | 8019 |
-| **20** | **Website Worker** | `172.20.0.82` | 8020 |
-| **20.3** | **SIN-Social-MCP** | `172.20.0.203` | 8203 |
-| **20.4** | **SIN-Deep-Research-MCP** | `172.20.0.204` | 8204 |
-| **20.5** | **SIN-Video-Gen-MCP** | `172.20.0.205` | 8205 |
+| **AGENTS** | | | |
+| `agents/agent-01-n8n` | `agent-01-n8n-orchestrator` | 5678 | Workflow Engine |
+| `agents/agent-03-agentzero` | `agent-03-agentzero-coder` | 8050 | AI Coder |
+| `agents/agent-05-steel` | `agent-05-steel-browser` | 3005 | Stealth Browser |
+| `agents/agent-06-skyvern` | `agent-06-skyvern-solver` | 8030 | Visual Solver |
+| **INFRASTRUCTURE** | | | |
+| `rooms/room-03-postgres` | `room-03-postgres-master` | 5432 | Primary DB |
+| `rooms/room-04-redis` | `room-04-redis-cache` | 6379 | System Cache |
+| `rooms/room-16-supabase` | `room-16-supabase-studio` | 54323 | DB Backend UI |
+| `rooms/room-21-nocodb` | `room-21-nocodb-ui` | 8090 | No-Code DB UI |
+| **ROOMS** | | | |
+| `rooms/room-01-dashboard` | `room-01-dashboard-cockpit` | 3011 | Central Dashboard |
+| `rooms/room-09-chat` | `room-09.1-rocketchat-app` | 3009 | Chat Server |
+| `rooms/room-09-chat` | `room-09.5-chat-mcp-server` | - | AI Chat Bridge |
+
+**Naming Convention:** `{CATEGORY}-{NUMBER}-{INTEGRATION}-{ROLE}`
+Example: `agent-06-skyvern-solver`
+
+---
 
 ### 📊 Zimmer-20.5: SIN-Video-Gen-MCP (NEW 2026-01-27)
 | Component | Description |
