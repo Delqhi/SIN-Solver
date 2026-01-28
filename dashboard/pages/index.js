@@ -8,7 +8,8 @@ import WorkerMissionControl from '../components/WorkerMissionControl';
 import WorkflowBuilder from '../components/WorkflowBuilder';
 import LiveMissionView from '../components/LiveMissionView';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.178.21:8080';
+// Backend API URL - uses codeserver-api health endpoint as fallback for development
+const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8041';
 
 const ROOMS_CONFIG = [
   { id: 'overview', name: 'Overview', icon: HomeIcon },
@@ -29,13 +30,19 @@ export default function SINSolverCockpit() {
 
   const fetchStatus = async () => {
     try {
-      const resRooms = await fetch(`${API_URL}/health/rooms`);
-      const dataRooms = await resRooms.json();
-      setRoomStatus(dataRooms);
-      setDockerStatus(dataRooms.every(r => r.status === 'UP') ? 'Healthy' : 'Degraded');
-
-      const resRes = await fetch(`${API_URL}/resources/`);
-      if (resRes.ok) setResources(await resRes.json());
+      const resHealth = await fetch(`${API_URL}/health`);
+      if (resHealth.ok) {
+        const healthData = await resHealth.json();
+        if (healthData.status === 'healthy') {
+          setDockerStatus('Healthy');
+          setRoomStatus([{
+            id: '04.1',
+            name: healthData.service || 'CodeServer API',
+            status: 'UP',
+            ip: API_URL
+          }]);
+        }
+      }
     } catch (e) {
       console.error('Status fetch failed', e);
       setDockerStatus('Offline');
