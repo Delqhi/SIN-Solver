@@ -12,6 +12,24 @@ import LiveMissionView from '../components/LiveMissionView';
 // Backend API URL - uses codeserver-api health endpoint as fallback for development
 const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8041';
 
+// Demo mode configuration - activates when API is unreachable
+const DEMO_MODE_CONFIG = {
+  enabled: true, // Enable demo mode when API unavailable
+  services: [
+    { id: '01', name: 'n8n Orchestrator', status: 'UP', ip: '172.20.0.10:5678' },
+    { id: '03', name: 'Agent Zero', status: 'UP', ip: '172.20.0.50:8000' },
+    { id: '05', name: 'Steel Browser', status: 'UP', ip: '172.20.0.20:3000' },
+    { id: '06', name: 'Skyvern Solver', status: 'UP', ip: '172.20.0.30:8000' },
+    { id: '10', name: 'Postgres DB', status: 'UP', ip: '172.20.0.100:5432' },
+    { id: '13', name: 'API Brain', status: 'UP', ip: '172.20.0.31:8000' },
+  ],
+  resources: {
+    cpu_usage: 23,
+    memory_usage: 45,
+    estimated_capacity: 847
+  }
+};
+
 const ROOMS_CONFIG = [
   { id: 'overview', name: 'Overview', icon: HomeIcon },
   { id: 'mission-control', name: 'Worker Missions', icon: Plus },
@@ -30,26 +48,51 @@ export default function SINSolverCockpit() {
   const [dockerStatus, setDockerStatus] = useState('Checking...');
   const [mounted, setMounted] = useState(false);
   const [isLiveMissionOpen, setIsLiveMissionOpen] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   const fetchStatus = async () => {
     try {
-      const resHealth = await fetch(`${API_URL}/health`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
+      const resHealth = await fetch(`${API_URL}/health`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
       if (resHealth.ok) {
         const healthData = await resHealth.json();
         if (healthData.status === 'healthy') {
           setDockerStatus('Healthy');
+          setIsDemoMode(false);
           setRoomStatus([{
             id: '04.1',
             name: healthData.service || 'CodeServer API',
             status: 'UP',
             ip: API_URL
           }]);
+          if (healthData.resources) {
+            setResources(healthData.resources);
+          }
+          return;
         }
       }
+      activateDemoMode();
     } catch (e) {
-      console.error('Status fetch failed', e);
-      setDockerStatus('Offline');
+      if (e.name !== 'AbortError') {
+        console.warn('API unavailable, activating demo mode');
+      }
+      activateDemoMode();
     }
+  };
+
+  const activateDemoMode = () => {
+    if (!DEMO_MODE_CONFIG.enabled) {
+      setDockerStatus('Offline');
+      return;
+    }
+    setIsDemoMode(true);
+    setDockerStatus('Demo');
+    setRoomStatus(DEMO_MODE_CONFIG.services);
+    setResources(DEMO_MODE_CONFIG.resources);
   };
 
   const toggleAutoWork = async () => {
@@ -222,8 +265,9 @@ export default function SINSolverCockpit() {
              Terminal
            </button>
           <div className="flex items-center gap-2">
-            <Box size={12} color={dockerStatus === 'Healthy' ? '#10b981' : '#ef4444'} />
+            <Box size={12} color={dockerStatus === 'Healthy' ? '#10b981' : dockerStatus === 'Demo' ? '#f59e0b' : '#ef4444'} />
             Fleet: {dockerStatus}
+            {isDemoMode && <span className="text-amber-500 text-[10px] px-1.5 py-0.5 bg-amber-500/10 rounded ml-1">DEMO</span>}
           </div>
         </div>
         <span>Orchestrator v2.0</span>
