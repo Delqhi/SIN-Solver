@@ -1,5 +1,63 @@
 # SIN-Solver: Last Changes Log
 
+## 2026-01-28: CONSOLIDATION & MANDATE 0.0 ENFORCEMENT (V18.0)
+<!-- [TIMESTAMP: 2026-01-28 23:10] [ACTION: Single Source of Truth - Dual Directory Consolidation] -->
+
+### 🚨 CRITICAL: DUAL DIRECTORY CONSOLIDATION
+
+**Status:** CONSOLIDATED ✅  
+**Reference Ticket:** `ts-ticket-11.md` (troubleshooting/)  
+**Compliance:** MANDATE 0.0, MANDATE 0.7, RULE -1.5
+
+#### The Problem Solved
+Two SIN-Solver directories existed, violating MANDATE 0.0 (Single Source of Truth):
+- **DEPRECATED:** `/Users/jeremy/dev/sin-code/SIN-Solver/` (~500KB, archive-only)
+- **PRIMARY:** `/Users/jeremy/dev/SIN-Solver/` (2.4GB+, this project - ACTIVE)
+
+#### Action Taken
+Consolidated to single master project per MANDATE 0.0 (Immutability Law):
+
+**Documentation Created:**
+1. ✅ `/Users/jeremy/dev/sin-code/troubleshooting/ts-ticket-11.md` - Full RCA + resolution
+2. ✅ `/Users/jeremy/dev/SIN-Solver/userprompts.md` - Consolidation intent logbook (THIS PROJECT)
+3. ✅ `/Users/jeremy/dev/sin-code/SIN-Solver/userprompts.md` - Deprecation notice logbook
+4. ⏳ `/Users/jeremy/dev/SIN-Solver/lastchanges.md` - This file (consolidation section)
+5. ⏳ `/Users/jeremy/dev/sin-code/SIN-Solver/lastchanges.md` - Updated deprecation notice
+6. ⏳ `.tasks/tasks-system.json` (both projects) - Migration task tracked
+
+#### Status of Deprecated Copy
+- **Location:** `/Users/jeremy/dev/sin-code/SIN-Solver/`
+- **Action:** ARCHIVED - Do not work here
+- **Timeline:** 30-day verification period (2026-01-28 to 2026-02-28)
+- **Cleanup:** Will be renamed `_old` on 2026-02-28, deleted 2026-03-01+
+- **Reference:** See `/Users/jeremy/dev/sin-code/SIN-Solver/userprompts.md`
+
+#### Mandate Compliance
+- ✅ **MANDATE 0.0** (Immutability): Deprecated copy archived, not deleted
+- ✅ **MANDATE 0.7** (Safe Migration): Full protocol followed with 30-day verification
+- ✅ **RULE -1.5** (userprompts.md): Logbooks created in both projects
+- ✅ **MANDATE 0.6** (Ticketing): Dedicated migration ticket ts-ticket-11.md
+
+#### User Intent Documented
+Per user request (2026-01-28 22:45):
+> "alles muss zu /Users/jeremy/dev/SIN-Solver !!! und wieso existieren zwei sin-solver verzeichnisse... das ist doch falsch! da das extreme radikale veränderung ist schreibe das in tasks-system, in lastchanges.md und userprompts.md von beiden projekte"
+
+**All coders now understand:**
+- This project (`/Users/jeremy/dev/SIN-Solver/`) is the SINGLE SOURCE OF TRUTH
+- The deprecated copy in `/sin-code/` is ARCHIVED and will be deleted
+- Consolidation is intentional per MANDATE 0.0
+
+#### Next Phase
+- ✅ Create migration ticket (DONE)
+- ✅ Create userprompts.md logbooks (DONE)
+- ✅ Update lastchanges.md sections (IN PROGRESS)
+- ⏳ Update tasks-system.json in both projects
+- ⏳ Verify consolidation complete
+- 📋 30-day archive period (2026-01-28 to 2026-02-28)
+- 📋 Cleanup and final deletion (2026-03-01+)
+
+---
+
 ## 2026-01-27: Templates + Auth + Services Expansion (V17.11)
 <!-- [TIMESTAMP: 2026-01-27 01:15] [ACTION: Templates + Auth + Forum Bot + Video Generator] -->
 
