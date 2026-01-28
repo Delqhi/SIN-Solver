@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   solver-2.1-survey-worker:
-    image: sin-solver/survey-worker:latest
+    image: sin-solver-zimmer-18-survey-worker:latest
     container_name: solver-2.1-survey-worker
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "8018:8000"
     environment:
@@ -24,14 +21,7 @@ services:
       - AI_PROVIDER=${AI_PROVIDER:-opencode}
       - OPENCODE_API_KEY=${OPENCODE_API_KEY}
       - CAPTCHA_SOLVER_URL=http://solver-1.1-captcha-worker:8000
-      - BROWSER_POOL_SIZE=${SURVEY_BROWSER_POOL:-3}
-    depends_on:
-      room-03-postgres-master:
-        condition: service_healthy
-      room-04-redis-cache:
-        condition: service_healthy
-      solver-1.1-captcha-worker:
-        condition: service_healthy
+       - BROWSER_POOL_SIZE=${SURVEY_BROWSER_POOL:-3}
     networks:
       - sin-solver-network
     volumes:

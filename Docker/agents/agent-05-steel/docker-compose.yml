@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   agent-05-steel-browser:
-    image: browser-use/agent-steel:latest
+    image: ghcr.io/steel-dev/steel-browser:latest
     container_name: agent-05-steel-browser
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "3005:3000"
       - "9222:9222"  # Chrome DevTools Protocol
@@ -27,11 +24,6 @@ services:
       - BROWSER_TIMEOUT=${AGENT_05_BROWSER_TIMEOUT:-30000}
       - USER_AGENT_ROTATION=true
       - PROXY_ROTATION=false
-    depends_on:
-      room-03-postgres-master:
-        condition: service_healthy
-      room-04-redis-cache:
-        condition: service_healthy
     networks:
       - sin-solver-network
     volumes:

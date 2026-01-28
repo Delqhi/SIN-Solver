@@ -1,0 +1,43 @@
+🚀 SIN-Solver Docker Stack Startup
+📍 Working directory: /Users/jeremy/dev/SIN-Solver/Docker
+
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 1: Core Infrastructure Services[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
+
+[0;34m▶ Starting PostgreSQL Master (room-03)...[0m
+time="2026-01-28T09:54:39+01:00" level=warning msg="/Users/jeremy/dev/SIN-Solver/Docker/infrastructure/room-03-postgres/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container room-03-postgres-master  Running
+[0;32m✓ PostgreSQL Master (room-03) started[0m
+[0;34m▶ Starting Redis Cache (room-04)...[0m
+time="2026-01-28T09:54:47+01:00" level=warning msg="/Users/jeremy/dev/SIN-Solver/Docker/infrastructure/room-04-redis/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container room-04-redis-cache  Running
+[0;32m✓ Redis Cache (room-04) started[0m
+
+[0;34m═══════════════════════════════════════════════════════════[0m
+[0;34mPHASE 2: Agent Worker Services[0m
+[0;34m═══════════════════════════════════════════════════════════[0m
+
+[0;34m▶ Starting n8n Orchestrator (agent-01)...[0m
+time="2026-01-28T09:54:58+01:00" level=warning msg="/Users/jeremy/dev/SIN-Solver/Docker/agents/agent-01-n8n/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container agent-01-n8n-orchestrator  Recreate
+ Container agent-01-n8n-orchestrator  Recreated
+ Container agent-01-n8n-orchestrator  Starting
+ Container agent-01-n8n-orchestrator  Started
+[0;32m✓ n8n Orchestrator (agent-01) started[0m
+[0;34m▶ Starting Agent Zero Code Generator (agent-03)...[0m
+time="2026-01-28T09:55:39+01:00" level=warning msg="/Users/jeremy/dev/SIN-Solver/Docker/agents/agent-03-agentzero/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ agent-03-agentzero-coder Pulling 
+ agent-03-agentzero-coder Warning pull access denied for agent-zero, repository does not exist or may require 'docker login'
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [agent-03-agentzero-coder internal] load build definition from Dockerfile
+#1 DONE 0.1s
+
+#1 [agent-03-agentzero-coder internal] load build definition from Dockerfile
+#1 transferring dockerfile:
+#1 transferring dockerfile: 2B 0.0s done
+#1 DONE 0.6s
+failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory

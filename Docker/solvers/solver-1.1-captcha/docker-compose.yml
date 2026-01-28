@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   solver-1.1-captcha-worker:
-    image: sin-solver/captcha-worker:latest
+    image: sin-solver-zimmer-19-captcha-worker:latest
     container_name: solver-1.1-captcha-worker
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "8019:8000"
     environment:
@@ -22,12 +19,7 @@ services:
       - SOLVE_TIMEOUT=${SOLVER_1_1_TIMEOUT:-15}
       - OCR_MODEL=${OCR_MODEL:-ddddocr}
       - VISION_FALLBACK=${VISION_FALLBACK:-gemini}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-    depends_on:
-      room-03-postgres-master:
-        condition: service_healthy
-      room-04-redis-cache:
-        condition: service_healthy
+       - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
       - sin-solver-network
     volumes:

@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   agent-06-skyvern-solver:
-    image: skyvern:latest
+    image: skyvern/skyvern:latest
     container_name: agent-06-skyvern-solver
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "8030:8000"
     environment:
@@ -24,11 +21,6 @@ services:
       - TASK_TIMEOUT=${AGENT_06_TASK_TIMEOUT:-120}
       - LLM_PROVIDER=${LLM_PROVIDER:-openai}
       - PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
-    depends_on:
-      room-03-postgres-master:
-        condition: service_healthy
-      room-04-redis-cache:
-        condition: service_healthy
     networks:
       - sin-solver-network
     volumes:

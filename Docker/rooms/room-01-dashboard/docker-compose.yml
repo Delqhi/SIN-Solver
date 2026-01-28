@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   room-01-dashboard-cockpit:
-    build:
-      context: ../../../dashboard
-      dockerfile: Dockerfile
+    image: sin-solver/dashboard:latest
     container_name: room-01-dashboard-cockpit
     environment:
       NODE_ENV: production
@@ -15,12 +13,7 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:3011
       NEXT_PUBLIC_WS_URL: ws://localhost:3011
     ports:
-      - "${DASHBOARD_PORT:-3011}:3011"
-    depends_on:
-      room-03-postgres-master:
-        condition: service_healthy
-      room-04-redis-cache:
-        condition: service_healthy
+       - "${DASHBOARD_PORT:-3011}:3011"
     networks:
       - sin-solver-network
     healthcheck:

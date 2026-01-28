@@ -2,11 +2,8 @@ version: '3.9'
 
 services:
   agent-03-agentzero-coder:
-    image: agent-zero:latest
+    image: frdel/agent-zero:latest
     container_name: agent-03-agentzero-coder
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "8050:8000"
     environment:
@@ -22,11 +19,6 @@ services:
       - AGENT_VERSION=1.0.0
       - MAX_WORKERS=${AGENT_03_MAX_WORKERS:-4}
       - MEMORY_LIMIT=${AGENT_03_MEMORY_LIMIT:-4gb}
-    depends_on:
-      room-03-postgres-master:
-        condition: service_healthy
-      room-04-redis-cache:
-        condition: service_healthy
     networks:
       - sin-solver-network
     volumes:
