@@ -48,51 +48,51 @@ class GeminiSolver:
             try:
                 prompt = custom_prompt or self._get_image_prompt(captcha_type)
             
-            # Detect image type from base64
-            mime_type = "image/png"
-            if image_base64.startswith("/9j/"):
-                mime_type = "image/jpeg"
-            elif image_base64.startswith("R0lGOD"):
-                mime_type = "image/gif"
+                # Detect image type from base64
+                mime_type = "image/png"
+                if image_base64.startswith("/9j/"):
+                    mime_type = "image/jpeg"
+                elif image_base64.startswith("R0lGOD"):
+                    mime_type = "image/gif"
 
-            # Create parts for the request
-            content = [
-                prompt,
-                types.Part.from_bytes(
-                    data=base64.b64decode(image_base64),
-                    mime_type=mime_type
+                # Create parts for the request
+                content = [
+                    prompt,
+                    types.Part.from_bytes(
+                        data=base64.b64decode(image_base64),
+                        mime_type=mime_type
+                    )
+                ]
+
+                # Make API request (async)
+                response = await self.client.aio.models.generate_content(
+                    model=model,
+                    contents=content,
+                    config=types.GenerateContentConfig(
+                        temperature=0.0,
+                        max_output_tokens=200 if high_tier else 100
+                    )
                 )
-            ]
 
-            # Make API request (async)
-            response = await self.client.aio.models.generate_content(
-                model=model,
-                contents=content,
-                config=types.GenerateContentConfig(
-                    temperature=0.0,
-                    max_output_tokens=200 if high_tier else 100
-                )
-            )
+                solution_text = response.text.strip()
+                solution = self._extract_solution(solution_text, captcha_type)
+                
+                time_ms = int((time.time() - start_time) * 1000)
+                confidence = self._calculate_confidence(solution, response)
 
-            solution_text = response.text.strip()
-            solution = self._extract_solution(solution_text, captcha_type)
-            
-            time_ms = int((time.time() - start_time) * 1000)
-            confidence = self._calculate_confidence(solution, response)
+                self.stats["successes"] += 1
+                self.stats["total_time_ms"] += time_ms
 
-            self.stats["successes"] += 1
-            self.stats["total_time_ms"] += time_ms
+                logger.info(f"Gemini ({model}) solved CAPTCHA in {time_ms}ms: '{solution}' (confidence: {confidence})")
 
-            logger.info(f"Gemini ({model}) solved CAPTCHA in {time_ms}ms: '{solution}' (confidence: {confidence})")
-
-            return {
-                "success": True,
-                "solution": solution,
-                "confidence": confidence,
-                "time_ms": time_ms,
-                "solver_used": model,
-                "cost": 0.001 if high_tier else 0.0
-            }
+                return {
+                    "success": True,
+                    "solution": solution,
+                    "confidence": confidence,
+                    "time_ms": time_ms,
+                    "solver_used": model,
+                    "cost": 0.001 if high_tier else 0.0
+                }
 
             except Exception as e:
                 time_ms = int((time.time() - start_time) * 1000)
