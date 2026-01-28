@@ -3,15 +3,16 @@ import { Play, Pause, Activity, TrendingUp, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function WorkerMissionControl({ isAutoWorkActive }) {
-  const [stats, setStats] = useState(null);
-  const [workers, setWorkers] = useState([]);
-  const [loading, setLoading] = useState(true);
+   const [stats, setStats] = useState(null);
+   const [workers, setWorkers] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8080';
 
-  const fetchTelemetry = async () => {
-    try {
-      const [resStats, resWorkers] = await Promise.all([
-        fetch('http://192.168.178.21:8080/analytics/dashboard'),
-        fetch('http://192.168.178.21:8080/workers/')
+   const fetchTelemetry = async () => {
+     try {
+       const [resStats, resWorkers] = await Promise.all([
+         fetch(`${API_URL}/analytics/dashboard`),
+         fetch(`${API_URL}/workers/`)
       ]);
       
       if (resStats.ok) setStats(await resStats.json());

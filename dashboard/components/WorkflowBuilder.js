@@ -22,7 +22,7 @@ const initialEdges = [
 ];
 
 export default function WorkflowBuilder() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.178.21:8080';
+   const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8080';
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 

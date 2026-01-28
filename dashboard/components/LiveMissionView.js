@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Eye, ExternalLink, X, Maximize, MonitorPlay } from 'lucide-react';
 
 export default function LiveMissionView({ isOpen, onClose }) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.178.21:8080';
+   const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8080';
   const HOST = API_URL.split(':').slice(0, 2).join(':');
 
   const [sessions, setSessions] = useState([]);

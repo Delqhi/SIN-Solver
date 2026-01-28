@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { Terminal, X } from 'lucide-react';
 
+const TERMINAL_URL = process.env.NEXT_PUBLIC_TERMINAL_URL || 'http://localhost:7681';
+
 export default function FooterTerminal({ isOpen, onToggle }) {
   const iframeRef = useRef(null);
 
@@ -81,14 +83,14 @@ export default function FooterTerminal({ isOpen, onToggle }) {
         </div>
       </div>
 
-      {/* Terminal Iframe */}
-      <div style={{ flex: 1, position: 'relative' }}>
-        <iframe 
-          ref={iframeRef}
-          src="http://192.168.178.21:7681" 
-          style={{ width: '100%', height: '100%', border: 'none' }}
-          title="Terminal"
-        />
+       {/* Terminal Iframe */}
+       <div style={{ flex: 1, position: 'relative' }}>
+         <iframe 
+           ref={iframeRef}
+           src={TERMINAL_URL} 
+           style={{ width: '100%', height: '100%', border: 'none' }}
+           title="Terminal"
+         />
       </div>
     </div>
   );
