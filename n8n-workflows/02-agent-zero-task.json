@@ -1,0 +1,168 @@
+{
+  "name": "Agent Zero Integration Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "agent-task",
+        "responseMode": "responseNode",
+        "responseData": "first"
+      },
+      "id": "webhook_trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "agent-task-webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-03-agentzero-coder:8000/api/execute",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "task",
+              "value": "{{ $node.webhook_trigger.json.task || 'Analyze the current date and time' }}"
+            },
+            {
+              "name": "timeout",
+              "value": "30"
+            }
+          ]
+        }
+      },
+      "id": "call_agent_zero",
+      "name": "HTTP Request: Agent Zero",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "agent_executions",
+        "columns": "task_input,agent_response,status,execution_timestamp",
+        "executeQuery": false,
+        "values": "{{ $node.webhook_trigger.json.task }}\n{{ $node.call_agent_zero.json.result }}\nsuccess\n{{ $now.toISOString() }}"
+      },
+      "id": "postgres_store_result",
+      "name": "PostgreSQL: Store Agent Result",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "credentials": {
+        "postgres": "postgres_docker"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, task_input, agent_response, status FROM agent_executions ORDER BY execution_timestamp DESC LIMIT 5",
+        "database": "sin_solver"
+      },
+      "id": "postgres_fetch_results",
+      "name": "PostgreSQL: Fetch Recent Results",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        850,
+        300
+      ],
+      "credentials": {
+        "postgres": "postgres_docker"
+      }
+    },
+    {
+      "parameters": {
+        "respondWithOutput": true
+      },
+      "id": "response_node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "call_agent_zero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call_agent_zero": {
+      "main": [
+        [
+          {
+            "node": "postgres_store_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postgres_store_result": {
+      "main": [
+        [
+          {
+            "node": "postgres_fetch_results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postgres_fetch_results": {
+      "main": [
+        [
+          {
+            "node": "response_node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    "agent-zero",
+    "integration",
+    "ai-worker"
+  ],
+  "pinData": {},
+  "versionId": "1"
+}

@@ -1,0 +1,257 @@
+{
+  "name": "Full Orchestration Workflow - SIN Solver",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "orchestration",
+        "responseMode": "responseNode",
+        "responseData": "first"
+      },
+      "id": "webhook_trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "orchestration-webhook"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": true,
+        "jsCode": "const operation = $input.first().json.operation || 'default';\nconst requestId = $input.first().json.requestId || Math.random().toString(36).substring(7);\n\nreturn {\n  operation: operation,\n  requestId: requestId,\n  timestamp: new Date().toISOString(),\n  payload: $input.first().json\n};"
+      },
+      "id": "prepare_execution",
+      "name": "Code: Prepare Execution",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        350,
+        300
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "command": "GET",
+        "key": "{{ $node.prepare_execution.json.requestId }}",
+        "options": {}
+      },
+      "id": "redis_check_cache",
+      "name": "Redis: Check Cache",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        600,
+        150
+      ],
+      "credentials": {
+        "redis": "redis_docker"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-03-agentzero-coder:8000/api/execute",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "task",
+              "value": "{{ $node.prepare_execution.json.payload.task || 'Process the following operation: ' + $node.prepare_execution.json.operation }}"
+            },
+            {
+              "name": "requestId",
+              "value": "{{ $node.prepare_execution.json.requestId }}"
+            },
+            {
+              "name": "timeout",
+              "value": "60"
+            }
+          ]
+        }
+      },
+      "id": "call_agent_zero",
+      "name": "HTTP Request: Agent Zero",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        600,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "SET",
+        "key": "{{ $node.prepare_execution.json.requestId }}",
+        "value": "{{ JSON.stringify($node.call_agent_zero.json) }}",
+        "options": {
+          "EX": "3600"
+        }
+      },
+      "id": "redis_cache_result",
+      "name": "Redis: Cache Result",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ],
+      "credentials": {
+        "redis": "redis_docker"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "orchestration_log",
+        "columns": "request_id,operation,input_data,agent_response,cache_hit,status,created_at",
+        "executeQuery": false,
+        "values": "{{ $node.prepare_execution.json.requestId }}\n{{ $node.prepare_execution.json.operation }}\n{{ JSON.stringify($node.prepare_execution.json.payload) }}\n{{ JSON.stringify($node.call_agent_zero.json) }}\nfalse\nsuccess\n{{ $now.toISOString() }}"
+      },
+      "id": "postgres_log_execution",
+      "name": "PostgreSQL: Log Execution",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ],
+      "credentials": {
+        "postgres": "postgres_docker"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": true,
+        "jsCode": "const result = $input.first().json;\nconst agentResponse = $node.call_agent_zero.json || {};\n\nreturn {\n  success: true,\n  requestId: $node.prepare_execution.json.requestId,\n  operation: $node.prepare_execution.json.operation,\n  executionTime: new Date() - new Date($node.prepare_execution.json.timestamp),\n  agentOutput: agentResponse.result || agentResponse,\n  cacheStored: true,\n  databaseLogged: true,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "format_response",
+      "name": "Code: Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        300
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWithOutput": true
+      },
+      "id": "response_node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "prepare_execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_execution": {
+      "main": [
+        [
+          {
+            "node": "redis_check_cache",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "call_agent_zero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call_agent_zero": {
+      "main": [
+        [
+          {
+            "node": "redis_cache_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "redis_cache_result": {
+      "main": [
+        [
+          {
+            "node": "postgres_log_execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postgres_log_execution": {
+      "main": [
+        [
+          {
+            "node": "format_response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format_response": {
+      "main": [
+        [
+          {
+            "node": "response_node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    "orchestration",
+    "production",
+    "full-chain",
+    "redis",
+    "agent-zero",
+    "postgresql"
+  ],
+  "pinData": {},
+  "versionId": "1"
+}

@@ -1,0 +1,148 @@
+{
+  "name": "PostgreSQL Test Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "postgres-test",
+        "responseMode": "responseNode",
+        "responseData": "first"
+      },
+      "id": "webhook_trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "postgres-test-webhook"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS workflow_test (\n  id SERIAL PRIMARY KEY,\n  test_name VARCHAR(255) NOT NULL,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)",
+        "database": "sin_solver"
+      },
+      "id": "postgres_create_table",
+      "name": "PostgreSQL: Create Table",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        350,
+        150
+      ],
+      "credentials": {
+        "postgres": "postgres_docker"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "workflow_test",
+        "columns": "test_name",
+        "executeQuery": false,
+        "values": "n8n Test - {{ $now.toISOString() }}"
+      },
+      "id": "postgres_insert",
+      "name": "PostgreSQL: Insert Record",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        350,
+        300
+      ],
+      "credentials": {
+        "postgres": "postgres_docker"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM workflow_test ORDER BY id DESC LIMIT 10",
+        "database": "sin_solver"
+      },
+      "id": "postgres_select",
+      "name": "PostgreSQL: Select Records",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ],
+      "credentials": {
+        "postgres": "postgres_docker"
+      }
+    },
+    {
+      "parameters": {
+        "respondWithOutput": true
+      },
+      "id": "response_node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "postgres_create_table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postgres_create_table": {
+      "main": [
+        [
+          {
+            "node": "postgres_insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postgres_insert": {
+      "main": [
+        [
+          {
+            "node": "postgres_select",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "postgres_select": {
+      "main": [
+        [
+          {
+            "node": "response_node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    "test",
+    "postgresql",
+    "database"
+  ],
+  "pinData": {},
+  "versionId": "1"
+}

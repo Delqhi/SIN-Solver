@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Plus, Search, PanelLeft, Home as HomeIcon, MessageSquare, X, Terminal, Box, Activity, RefreshCw, Play, Pause, Eye } from 'lucide-react';
+import Link from 'next/link';
+import { Plus, Search, PanelLeft, Home as HomeIcon, MessageSquare, X, Terminal, Box, Activity, RefreshCw, Play, Pause, Eye, Shield } from 'lucide-react';
 import FooterTerminal from '../components/FooterTerminal';
 import AIChat from '../components/AIChat';
 import Documentation from './docs';
@@ -15,6 +16,7 @@ const ROOMS_CONFIG = [
   { id: 'overview', name: 'Overview', icon: HomeIcon },
   { id: 'mission-control', name: 'Worker Missions', icon: Plus },
   { id: 'workflow-builder', name: 'Workflow Architect', icon: Plus },
+  { id: 'vault', name: 'Vault Secrets', icon: Shield, href: '/vault' },
 ];
 
 export default function SINSolverCockpit() {
@@ -102,18 +104,29 @@ export default function SINSolverCockpit() {
         <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           {isSidebarOpen && <div className="px-3 py-2 text-xs font-bold text-slate-500 uppercase">COMMAND ROOMS</div>}
           {ROOMS_CONFIG.map(room => (
-            <button
-              key={room.id}
-              onClick={() => setActiveRoomId(room.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
-                activeRoomId === room.id
-                  ? 'bg-slate-800 text-white'
-                  : 'text-slate-400 hover:bg-slate-800/50'
-              }`}
-            >
-              {<room.icon size={18} />}
-              {isSidebarOpen && <span>{room.name}</span>}
-            </button>
+            room.href ? (
+              <Link
+                key={room.id}
+                href={room.href}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all text-slate-400 hover:bg-slate-800/50`}
+              >
+                {<room.icon size={18} />}
+                {isSidebarOpen && <span>{room.name}</span>}
+              </Link>
+            ) : (
+              <button
+                key={room.id}
+                onClick={() => setActiveRoomId(room.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
+                  activeRoomId === room.id
+                    ? 'bg-slate-800 text-white'
+                    : 'text-slate-400 hover:bg-slate-800/50'
+                }`}
+              >
+                {<room.icon size={18} />}
+                {isSidebarOpen && <span>{room.name}</span>}
+              </button>
+            )
           ))}
         </nav>
 

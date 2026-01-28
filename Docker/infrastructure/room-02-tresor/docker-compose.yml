@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
+  # HashiCorp Vault - Secrets Management
   room-02-tresor-vault:
-    image: vault:latest
+    image: hashicorp/vault:latest
     container_name: room-02-tresor-vault
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID:-s.root2026SINSolver}
@@ -18,7 +17,7 @@ services:
     networks:
       - sin-solver-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "-k", "https://localhost:8200/v1/sys/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8200/v1/sys/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -30,6 +29,63 @@ services:
         max-size: "10m"
         max-file: "5"
     command: server -dev
+
+  # Vault API Wrapper - FastAPI REST Service
+  room-02-tresor-api:
+    build:
+      context: ./vault-api-wrapper
+      dockerfile: Dockerfile
+    container_name: room-02-tresor-api
+    environment:
+      VAULT_ADDR: http://room-02-tresor-vault:8200
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:-s.root2026SINSolver}
+      VAULT_MOUNT_PATH: sin-solver
+      # Database secrets (for init)
+      POSTGRES_HOST: room-03-postgres-master
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: sin_solver
+      REDIS_HOST: room-04-redis-cache
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # n8n secrets
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_USER_MANAGEMENT_JWT_SECRET: ${N8N_USER_MANAGEMENT_JWT_SECRET}
+      N8N_HOST: http://agent-01-n8n-orchestrator:5678
+      N8N_API_KEY: ${N8N_API_KEY:-}
+      # OpenCode
+      OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
+      OPENCODE_BASE_URL: https://api.opencode.ai/v1
+      # Vercel (for sync)
+      VERCEL_TOKEN: ${VERCEL_TOKEN:-}
+      VERCEL_PROJECT_ID: ${VERCEL_PROJECT_ID:-}
+      VERCEL_TEAM_ID: ${VERCEL_TEAM_ID:-}
+      # GitHub
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPO: ${GITHUB_REPO:-}
+      # CodeServer
+      CODESERVER_API_URL: ${CODESERVER_API_URL:-}
+      CODESERVER_API_KEY: ${CODESERVER_API_KEY:-}
+    ports:
+      - "8201:8201"
+    depends_on:
+      room-02-tresor-vault:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8201/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 networks:
   sin-solver-network:
