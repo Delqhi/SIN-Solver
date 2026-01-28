@@ -1,0 +1,40 @@
+# Large files and directories
+models/
+venv/
+.venv/
+*.tar.gz
+*.pt
+*.onnx
+*.bin
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+app/
+alembic/
+
+# Development
+.git/
+.pytest_cache/
+.mypy_cache/
+*.log
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Documentation (not needed for frontend)
+Docs/
+*.md
+!README.md
+
+# Binary and data
+bin/
+data/
+*.sqlite
+*.db
+
+# IDE
+.idea/
+.vscode/

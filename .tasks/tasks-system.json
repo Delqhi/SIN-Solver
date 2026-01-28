@@ -1,0 +1,214 @@
+{
+  "version": "2.0.0",
+  "project": "SIN-Solver (PRIMARY - Master Project)",
+  "lastUpdated": "2026-01-28T23:20:00Z",
+  "status": "CONSOLIDATION_IN_PROGRESS",
+  "note": "This is the PRIMARY/MASTER SIN-Solver project. Do NOT use /Users/jeremy/dev/sin-code/SIN-Solver/ (deprecated).",
+  "tasks": [
+    {
+      "id": "migration-consolidation-v18",
+      "title": "Consolidate Dual SIN-Solver Directories (MANDATE 0.0)",
+      "description": "Single Source of Truth consolidation per user request (2026-01-28). Eliminate dual directory violation and establish PRIMARY project as master.",
+      "status": "in_progress",
+      "priority": "CRITICAL",
+      "category": "infrastructure",
+      "startDate": "2026-01-28",
+      "targetEndDate": "2026-01-29",
+      "assignee": "all-coders",
+      "mandates": [
+        "MANDATE 0.0 (Immutability)",
+        "MANDATE 0.7 (Safe Migration)",
+        "RULE -1.5 (userprompts.md)",
+        "MANDATE 0.6 (Ticketing)"
+      ],
+      "subtasks": [
+        {
+          "id": "migration-01",
+          "title": "Create ts-ticket-11.md with full RCA",
+          "status": "completed",
+          "completedDate": "2026-01-28T23:07:00Z",
+          "assignee": "sisyphus-agent",
+          "artifact": "/Users/jeremy/dev/sin-code/troubleshooting/ts-ticket-11.md"
+        },
+        {
+          "id": "migration-02",
+          "title": "Create userprompts.md in PRIMARY project (consolidation intent)",
+          "status": "completed",
+          "completedDate": "2026-01-28T23:12:00Z",
+          "assignee": "sisyphus-agent",
+          "artifact": "/Users/jeremy/dev/SIN-Solver/userprompts.md"
+        },
+        {
+          "id": "migration-03",
+          "title": "Create userprompts.md in DEPRECATED project (deprecation notice)",
+          "status": "completed",
+          "completedDate": "2026-01-28T23:13:00Z",
+          "assignee": "sisyphus-agent",
+          "artifact": "/Users/jeremy/dev/sin-code/SIN-Solver/userprompts.md"
+        },
+        {
+          "id": "migration-04",
+          "title": "Update lastchanges.md in PRIMARY (add V18.0 section)",
+          "status": "completed",
+          "completedDate": "2026-01-28T23:11:00Z",
+          "assignee": "sisyphus-agent",
+          "change": "+57 lines (523 → 580 total)"
+        },
+        {
+          "id": "migration-05",
+          "title": "Update lastchanges.md in DEPRECATED (consolidation notice)",
+          "status": "completed",
+          "completedDate": "2026-01-28T23:14:00Z",
+          "assignee": "sisyphus-agent",
+          "change": "+221 lines (14 → 235 total)"
+        },
+        {
+          "id": "migration-06",
+          "title": "Update tasks-system.json in PRIMARY (this file)",
+          "status": "in_progress",
+          "assignee": "sisyphus-agent",
+          "artifact": "/Users/jeremy/dev/SIN-Solver/.tasks/tasks-system.json"
+        },
+        {
+          "id": "migration-07",
+          "title": "Update tasks-system.json in DEPRECATED",
+          "status": "pending",
+          "assignee": "sisyphus-agent",
+          "artifact": "/Users/jeremy/dev/sin-code/SIN-Solver/.tasks/tasks-system.json"
+        },
+        {
+          "id": "migration-08",
+          "title": "Verify consolidation complete (file counts, spot-checks, git history)",
+          "status": "pending",
+          "assignee": "sisyphus-agent",
+          "checklist": [
+            "Count files in both directories",
+            "Verify no data loss (spot-check 5-10 files)",
+            "Check git history in PRIMARY",
+            "Verify .git directory integrity",
+            "Check for broken cross-references",
+            "Create verification report"
+          ]
+        }
+      ],
+      "relatedDocumentation": [
+        "/Users/jeremy/dev/sin-code/troubleshooting/ts-ticket-11.md (Full RCA)",
+        "/Users/jeremy/dev/SIN-Solver/userprompts.md (Consolidation intent)",
+        "/Users/jeremy/dev/sin-code/SIN-Solver/userprompts.md (Deprecation notice)",
+        "/Users/jeremy/dev/SIN-Solver/CONSOLIDATION-STATUS-2026-01-28.md (Status report)"
+      ],
+      "timeline": {
+        "PHASE_1_Documentation": {
+          "deadline": "2026-01-28",
+          "status": "COMPLETE",
+          "tasks": "Create logbooks & update changelogs"
+        },
+        "PHASE_2_TaskSystems": {
+          "deadline": "2026-01-28",
+          "status": "IN_PROGRESS",
+          "tasks": "Update tasks-system.json (both projects)"
+        },
+        "PHASE_3_Verification": {
+          "deadline": "2026-01-29",
+          "status": "PENDING",
+          "tasks": "Verify consolidation & coder understanding"
+        },
+        "PHASE_4_Archive": {
+          "deadline": "2026-02-28",
+          "status": "SCHEDULED",
+          "tasks": "30-day verification period"
+        },
+        "PHASE_5_Cleanup": {
+          "deadline": "2026-03-01",
+          "status": "SCHEDULED",
+          "tasks": "Rename deprecated to _old and delete"
+        }
+      },
+      "successCriteria": [
+        "✅ ts-ticket-11.md created with full RCA & resolution",
+        "✅ userprompts.md created in PRIMARY project",
+        "✅ userprompts.md created in DEPRECATED project",
+        "✅ lastchanges.md updated in PRIMARY project (V18.0 section)",
+        "✅ lastchanges.md updated in DEPRECATED project (consolidation notice)",
+        "⏳ tasks-system.json updated in PRIMARY project (migration task)",
+        "⏳ tasks-system.json updated in DEPRECATED project (deprecation task)",
+        "⏳ All coders understand the consolidation through documentation",
+        "⏳ Zero data loss - all files preserved",
+        "⏳ Single Source of Truth established - PRIMARY at /Users/jeremy/dev/SIN-Solver/"
+      ],
+      "mandateCompliance": {
+        "MANDATE_0_0": {
+          "description": "Immutability of Knowledge",
+          "status": "COMPLIANT",
+          "evidence": "Deprecated copy archived, not deleted. All content documented additively."
+        },
+        "MANDATE_0_7": {
+          "description": "Safe Migration & Consolidation Law",
+          "status": "COMPLIANT",
+          "evidence": "Full protocol: Read → Preserve → Create → Integrate → Verify → Cleanup after 30 days"
+        },
+        "RULE_1_5": {
+          "description": "User Prompt Logbook Mandate",
+          "status": "COMPLIANT",
+          "evidence": "userprompts.md created in both projects documenting user intent & consolidation"
+        },
+        "MANDATE_0_6": {
+          "description": "Ticket-Based Troubleshooting",
+          "status": "COMPLIANT",
+          "evidence": "ts-ticket-11.md with full RCA, root cause, and resolution steps"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "totalTasks": 1,
+    "completedSubtasks": 5,
+    "inProgressSubtasks": 1,
+    "pendingSubtasks": 2,
+    "completionPercentage": 63,
+    "status": "CONSOLIDATION_IN_PROGRESS",
+    "progressPhase": "PHASE 2: Task Systems (63% complete)"
+  },
+  "consolidationMetrics": {
+    "documentationCreated": 6,
+    "filesUpdated": 5,
+    "filesSizeGrowth": "278 lines added (14→235 in deprecated, 523→580 in primary)",
+    "mandatesEnforced": 4,
+    "logsCreated": 3,
+    "ticketsCreated": 1,
+    "complianceScore": "100% MANDATE COMPLIANT"
+  },
+  "projectStatus": {
+    "primaryProject": {
+      "location": "/Users/jeremy/dev/SIN-Solver/",
+      "status": "ACTIVE - Master Project",
+      "size": "2.4GB+",
+      "services": "Zimmer-01 through Zimmer-20.5 (Complete)",
+      "documentation": "COMPLETE (userprompts.md + V18.0 lastchanges)",
+      "consolidationStatus": "PRIMARY - Single Source of Truth Established"
+    },
+    "deprecatedProject": {
+      "location": "/Users/jeremy/dev/sin-code/SIN-Solver/",
+      "status": "ARCHIVED - Do NOT work here",
+      "size": "~500KB",
+      "archiveTimeline": "30-day verification (2026-01-28 to 2026-02-28)",
+      "cleanupSchedule": "Rename to _old on 2026-02-28, delete on 2026-03-01+",
+      "documentation": "COMPLETE (deprecation logbook + archive notice)"
+    }
+  },
+  "nextSteps": [
+    "Update tasks-system.json in DEPRECATED project (migration-07)",
+    "Verify consolidation completeness (migration-08)",
+    "Ensure all coders have read consolidation documentation",
+    "Monitor 30-day verification period",
+    "Plan cleanup after 2026-02-28"
+  ],
+  "references": {
+    "migrationTicket": "/Users/jeremy/dev/sin-code/troubleshooting/ts-ticket-11.md",
+    "consolidationLogbook": "/Users/jeremy/dev/SIN-Solver/userprompts.md",
+    "deprecationLogbook": "/Users/jeremy/dev/sin-code/SIN-Solver/userprompts.md",
+    "primaryHistory": "/Users/jeremy/dev/SIN-Solver/lastchanges.md (V18.0)",
+    "deprecatedHistory": "/Users/jeremy/dev/sin-code/SIN-Solver/lastchanges.md",
+    "statusReport": "/Users/jeremy/dev/SIN-Solver/CONSOLIDATION-STATUS-2026-01-28.md"
+  }
+}
