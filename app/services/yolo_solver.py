@@ -31,12 +31,6 @@ class YOLOSolver:
             logger.error("❌ ultralytics not installed. YOLO detection disabled.")
 
     def detect_objects(self, image_path: str, target_classes: List[str] = None, confidence_threshold: float = 0.25) -> List[Dict[str, Any]]:
-        # CEO Simulation for testing loop reliability
-        # Matches against filename or presence of file to be path-agnostic
-        if "demo_step1.png" in os.path.basename(image_path) or image_path.endswith("demo_step1.png"):
-            logger.info("🎯 YOLO SIMULATION TRIGGERED for demo_step1.png")
-            return [{"label": "puzzle_piece", "confidence": 0.99, "box_2d": [100, 100, 200, 200]}, 
-                    {"label": "gap", "confidence": 0.99, "box_2d": [100, 500, 200, 600]}]
         if not self.model:
             return []
             

@@ -1,40 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Plus, Search, PanelLeft, Home as HomeIcon, MessageSquare, X, Terminal, Box, Activity, RefreshCw, Play, Pause, Eye, Shield } from 'lucide-react';
+import { Plus, Search, PanelLeft, Home as HomeIcon, MessageSquare, X, Terminal, Box, Activity, RefreshCw, Play, Pause, Eye, Shield, Settings as SettingsIcon } from 'lucide-react';
 import FooterTerminal from '../components/FooterTerminal';
 import AIChat from '../components/AIChat';
 import Documentation from './docs';
 import WorkerMissionControl from '../components/WorkerMissionControl';
 import WorkflowBuilder from '../components/WorkflowBuilder';
 import LiveMissionView from '../components/LiveMissionView';
+import Settings from '../components/Settings';
 
 // Backend API URL - uses codeserver-api health endpoint as fallback for development
 const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8041';
 
-// Demo mode configuration - activates when API is unreachable
-const DEMO_MODE_CONFIG = {
-  enabled: true, // Enable demo mode when API unavailable
-  services: [
-    { id: '01', name: 'n8n Orchestrator', status: 'UP', ip: '172.20.0.10:5678' },
-    { id: '03', name: 'Agent Zero', status: 'UP', ip: '172.20.0.50:8000' },
-    { id: '05', name: 'Steel Browser', status: 'UP', ip: '172.20.0.20:3000' },
-    { id: '06', name: 'Skyvern Solver', status: 'UP', ip: '172.20.0.30:8000' },
-    { id: '10', name: 'Postgres DB', status: 'UP', ip: '172.20.0.100:5432' },
-    { id: '13', name: 'API Brain', status: 'UP', ip: '172.20.0.31:8000' },
-  ],
-  resources: {
-    cpu_usage: 23,
-    memory_usage: 45,
-    estimated_capacity: 847
-  }
-};
+// Demo mode - DISABLED by default per MANDATE 0.1 (NO MOCKS IN PRODUCTION)
+// Only enable for local development when backend is unavailable
+const DEMO_MODE_ENABLED = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
+// Fallback service configuration - only used when DEMO_MODE_ENABLED is true
+const FALLBACK_SERVICES = [
+    // AI Agents (4)
+    { id: '01', name: 'n8n Orchestrator', status: 'UP', ip: 'localhost:5678', icon: '⚙️', category: 'AI Agents' },
+    { id: '02', name: 'Agent Zero', status: 'UP', ip: 'localhost:8050', icon: '🤖', category: 'AI Agents' },
+    { id: '03', name: 'Steel Browser', status: 'UP', ip: 'localhost:3005', icon: '🌐', category: 'AI Agents' },
+    { id: '04', name: 'Skyvern Solver', status: 'UP', ip: 'localhost:8030', icon: '👁️', category: 'AI Agents' },
+    // Infrastructure (7)
+    { id: '05', name: 'PostgreSQL', status: 'UP', ip: 'localhost:5432', icon: '🐘', category: 'Infrastructure' },
+    { id: '06', name: 'Redis Cache', status: 'UP', ip: 'localhost:6379', icon: '⚡', category: 'Infrastructure' },
+    { id: '07', name: 'Vault', status: 'UP', ip: 'localhost:8200', icon: '🔐', category: 'Infrastructure' },
+    { id: '08', name: 'NocoDB', status: 'UP', ip: 'localhost:8090', icon: '📊', category: 'Infrastructure' },
+    { id: '09', name: 'Video Gen', status: 'UP', ip: 'localhost:8205', icon: '🎬', category: 'Infrastructure' },
+    { id: '10', name: 'MCP Plugins', status: 'UP', ip: 'localhost:8040', icon: '🔌', category: 'Infrastructure' },
+    { id: '11', name: 'Supabase', status: 'UP', ip: 'localhost:54323', icon: '📦', category: 'Infrastructure' },
+    // Task Solvers (2)
+    { id: '12', name: 'Captcha Worker', status: 'UP', ip: 'localhost:8019', icon: '🧩', category: 'Task Solvers' },
+    { id: '13', name: 'Survey Worker', status: 'UP', ip: 'localhost:8018', icon: '📝', category: 'Task Solvers' },
+    // Communication (4)
+    { id: '14', name: 'RocketChat', status: 'UP', ip: 'localhost:3009', icon: '💬', category: 'Communication' },
+    { id: '15', name: 'MongoDB', status: 'UP', ip: 'localhost:27017', icon: '🍃', category: 'Communication' },
+    { id: '16', name: 'Chat MCP', status: 'UP', ip: 'localhost:8119', icon: '🤖', category: 'Communication' },
+    { id: '17', name: 'Hoppscotch', status: 'UP', ip: 'localhost:3024', icon: '🧪', category: 'Communication' },
+    // Delqhi Database (6)
+    { id: '18', name: 'Delqhi DB', status: 'UP', ip: 'localhost:5412', icon: '🗄️', category: 'Delqhi DB' },
+    { id: '19', name: 'Auth API', status: 'UP', ip: 'localhost:9999', icon: '🔑', category: 'Delqhi DB' },
+    { id: '20', name: 'REST API', status: 'UP', ip: 'localhost:3112', icon: '🔌', category: 'Delqhi DB' },
+    { id: '21', name: 'Realtime', status: 'UP', ip: 'localhost:4012', icon: '⚡', category: 'Delqhi DB' },
+    { id: '22', name: 'Storage', status: 'UP', ip: 'localhost:5012', icon: '📁', category: 'Delqhi DB' },
+    { id: '23', name: 'Studio', status: 'UP', ip: 'localhost:3012', icon: '🎨', category: 'Delqhi DB' },
+    // Delqhi Network (4)
+    { id: '24', name: 'Delqhi API', status: 'UP', ip: 'localhost:8130', icon: '🔌', category: 'Delqhi Net' },
+    { id: '25', name: 'Delqhi Web', status: 'UP', ip: 'localhost:3130', icon: '🌐', category: 'Delqhi Net' },
+    { id: '26', name: 'Delqhi MCP', status: 'UP', ip: 'localhost:8213', icon: '🤖', category: 'Delqhi Net' },
+    { id: '27', name: 'Meilisearch', status: 'UP', ip: 'localhost:7700', icon: '🔍', category: 'Delqhi Net' },
+    // Dashboard
+    { id: '28', name: 'Dashboard', status: 'UP', ip: 'localhost:3011', icon: '📊', category: 'Dashboard' }
+];
 
 const ROOMS_CONFIG = [
   { id: 'overview', name: 'Overview', icon: HomeIcon },
   { id: 'mission-control', name: 'Worker Missions', icon: Plus },
   { id: 'workflow-builder', name: 'Workflow Architect', icon: Plus },
   { id: 'vault', name: 'Vault Secrets', icon: Shield, href: '/vault' },
+  { id: 'settings', name: 'Settings', icon: SettingsIcon },
 ];
 
 export default function SINSolverCockpit() {
@@ -53,46 +80,62 @@ export default function SINSolverCockpit() {
   const fetchStatus = async () => {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      const resHealth = await fetch(`${API_URL}/health`, { signal: controller.signal });
+      const resServices = await fetch('/api/services', { signal: controller.signal });
       clearTimeout(timeoutId);
       
-      if (resHealth.ok) {
-        const healthData = await resHealth.json();
-        if (healthData.status === 'healthy') {
-          setDockerStatus('Healthy');
-          setIsDemoMode(false);
-          setRoomStatus([{
-            id: '04.1',
-            name: healthData.service || 'CodeServer API',
-            status: 'UP',
-            ip: API_URL
-          }]);
-          if (healthData.resources) {
-            setResources(healthData.resources);
-          }
-          return;
+      if (resServices.ok) {
+        const data = await resServices.json();
+        setDockerStatus('Healthy');
+        setIsDemoMode(false);
+        
+        const mappedServices = data.services.map((s, idx) => ({
+          id: (idx + 1).toString().padStart(2, '0'),
+          name: s.name,
+          status: s.status === 'healthy' ? 'UP' : 'DOWN',
+          ip: `localhost:${s.port}`,
+          icon: s.icon,
+          category: s.category
+        }));
+        
+        setRoomStatus(mappedServices);
+        
+        if (data.summary) {
+          setResources({
+            cpu_usage: Math.round((data.summary.healthy / data.summary.total) * 100),
+            memory_usage: data.summary.total,
+            estimated_capacity: data.summary.healthy
+          });
         }
+        return;
       }
       activateDemoMode();
     } catch (e) {
       if (e.name !== 'AbortError') {
-        console.warn('API unavailable, activating demo mode');
+        console.warn('Services API unavailable, activating demo mode');
       }
       activateDemoMode();
     }
   };
 
   const activateDemoMode = () => {
-    if (!DEMO_MODE_CONFIG.enabled) {
+    if (!DEMO_MODE_ENABLED) {
+      // MANDATE 0.1: No fake data in production - show real offline state
       setDockerStatus('Offline');
+      setRoomStatus([]);
+      setResources(null);
       return;
     }
+    // Demo mode only active when explicitly enabled via env var
     setIsDemoMode(true);
     setDockerStatus('Demo');
-    setRoomStatus(DEMO_MODE_CONFIG.services);
-    setResources(DEMO_MODE_CONFIG.resources);
+    setRoomStatus(FALLBACK_SERVICES);
+    setResources({
+      cpu_usage: 0,
+      memory_usage: 0,
+      estimated_capacity: 0
+    });
   };
 
   const toggleAutoWork = async () => {
@@ -212,24 +255,66 @@ export default function SINSolverCockpit() {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto bg-gradient-to-b from-black to-slate-950">
           {activeRoomId === 'overview' && (
-            <div className="p-8 max-w-6xl">
-              <h1 className="text-3xl font-bold mb-8">Empire State.</h1>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-8 max-w-7xl">
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">Empire State</h1>
+                <p className="text-slate-400">
+                  {roomStatus.length > 0 ? (
+                    <>
+                      <span className="text-emerald-400 font-bold">{roomStatus.filter(s => s.status === 'UP').length}</span> of {roomStatus.length} services healthy
+                      {isDemoMode && <span className="text-amber-500 ml-2">(Demo Mode)</span>}
+                    </>
+                  ) : (
+                    'Loading services...'
+                  )}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {roomStatus.map(s => (
-                  <div key={s.id} className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 hover:border-slate-700 transition-all">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold text-slate-500">NODE {s.id}</span>
-                      <div className={`w-2 h-2 rounded-full ${s.status === 'UP' ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-red-500'}`}></div>
+                  <div key={s.id} className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 hover:border-slate-600 transition-all group">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-2xl">{s.icon || '🔹'}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                        s.status === 'UP' 
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                          : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      }`}>
+                        {s.status === 'UP' ? 'ONLINE' : 'OFFLINE'}
+                      </span>
                     </div>
-                    <h3 className="font-semibold">{s.name}</h3>
-                    <p className="text-sm text-orange-500 mt-2">{s.ip}</p>
+                    <h3 className="font-semibold text-sm mb-1 truncate">{s.name}</h3>
+                    <p className="text-xs text-slate-500 mb-2">{s.category}</p>
+                    <p className="text-xs text-orange-500/80 font-mono">{s.ip}</p>
                   </div>
                 ))}
               </div>
+              
+              {roomStatus.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-slate-800">
+                  <h2 className="text-lg font-semibold mb-4 text-slate-300">Category Overview</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {Array.from(new Set(roomStatus.map(s => s.category))).map(category => {
+                      const catServices = roomStatus.filter(s => s.category === category);
+                      const healthyCount = catServices.filter(s => s.status === 'UP').length;
+                      return (
+                        <div key={category} className="bg-slate-900/30 border border-slate-800 rounded-lg p-3">
+                          <p className="text-xs text-slate-500 mb-1">{category}</p>
+                          <p className="text-lg font-bold">
+                            <span className="text-emerald-400">{healthyCount}</span>
+                            <span className="text-slate-600">/{catServices.length}</span>
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           {activeRoomId === 'mission-control' && <WorkerMissionControl isAutoWorkActive={isAutoWorkActive} />}
           {activeRoomId === 'workflow-builder' && <WorkflowBuilder />}
+          {activeRoomId === 'settings' && <Settings />}
         </div>
       </main>
 

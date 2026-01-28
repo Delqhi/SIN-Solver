@@ -1,12 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Activity, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Play, Pause, Activity, TrendingUp, AlertTriangle, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function WorkerMissionControl({ isAutoWorkActive }) {
    const [stats, setStats] = useState(null);
    const [workers, setWorkers] = useState([]);
    const [loading, setLoading] = useState(true);
+   const [scaling, setScaling] = useState(false);
+   const [notification, setNotification] = useState(null);
    const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8080';
+
+   const showNotification = (message, type = 'success') => {
+     setNotification({ message, type });
+     setTimeout(() => setNotification(null), 4000);
+   };
+
+   const handleScaleFleet = async () => {
+     setScaling(true);
+     try {
+       const res = await fetch(`${API_URL}/api/workers/scale`, {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ action: 'scale_up', count: 1 })
+       });
+       if (res.ok) {
+         const data = await res.json();
+         showNotification(`Fleet scaled: ${data.message || 'Worker added successfully'}`, 'success');
+         fetchTelemetry(); // Refresh worker list
+       } else {
+         const error = await res.json().catch(() => ({ error: 'Scale operation failed' }));
+         showNotification(error.error || 'Failed to scale fleet', 'error');
+       }
+     } catch (e) {
+       console.error('Scale fleet error:', e);
+       showNotification('Error connecting to Orchestrator', 'error');
+     } finally {
+       setScaling(false);
+     }
+   };
 
    const fetchTelemetry = async () => {
      try {
@@ -34,7 +65,24 @@ export default function WorkerMissionControl({ isAutoWorkActive }) {
   const chartData = stats?.history || []; // We might need to map history to chart format
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1400px', margin: '0 auto', height: '100%', overflowY: 'auto' }}>
+    <div style={{ padding: '40px', maxWidth: '1400px', margin: '0 auto', height: '100%', overflowY: 'auto', position: 'relative' }}>
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          background: notification.type === 'success' ? '#10b981' : '#ef4444',
+          color: '#fff',
+          fontWeight: '600',
+          fontSize: '13px',
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }}>
+          {notification.message}
+        </div>
+      )}
       <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '8px' }}>Mission Control</h1>
@@ -98,11 +146,12 @@ export default function WorkerMissionControl({ isAutoWorkActive }) {
                {workers.length === 0 && <p style={{ textAlign: 'center', color: '#444', fontSize: '12px' }}>No workers detected in fleet.</p>}
             </div>
             <button 
-              onClick={() => alert('Scale command sent to Orchestrator.')}
-              style={{ width: '100%', marginTop: '16px', padding: '10px', background: '#222', border: '1px solid #333', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
+              onClick={handleScaleFleet}
+              disabled={scaling}
+              style={{ width: '100%', marginTop: '16px', padding: '10px', background: scaling ? '#333' : '#222', border: '1px solid #333', color: '#fff', borderRadius: '6px', cursor: scaling ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
-               + Scale Worker Fleet
-            </button>
+               {scaling ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Scaling...</> : '+ Scale Worker Fleet'}
+             </button>
          </div>
       </div>
     </div>

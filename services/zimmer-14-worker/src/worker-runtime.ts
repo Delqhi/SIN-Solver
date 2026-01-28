@@ -306,11 +306,49 @@ export class WorkerRuntime {
     }
   }
 
-  private async executeCaptcha(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
-    this.logger.info({ payload }, 'Executing CAPTCHA task');
-    await this.delay(2000);
-    return { solution: 'simulated-captcha-solution', confidence: 0.95 };
-  }
+   private async executeCaptcha(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
+     this.logger.info({ payload }, 'Executing CAPTCHA task');
+     
+     try {
+       // Extract image data from payload
+       const imageData = payload.image || payload.imageBase64;
+       if (!imageData) {
+         throw new Error('No image data provided in payload');
+       }
+
+       // Call real captcha solver service
+       const solverUrl = process.env.CAPTCHA_SOLVER_URL || 'http://solver-1.1-captcha-solver:8019/solve';
+       const response = await axios.post(solverUrl, {
+         image: imageData,
+         type: payload.type || 'text',
+       }, {
+         timeout: 30000,
+         headers: { 'Content-Type': 'application/json' },
+       });
+
+       // Validate response structure
+       if (!response.data || typeof response.data.solution !== 'string') {
+         throw new Error('Invalid response from captcha solver service');
+       }
+
+       this.logger.info({
+         solution: response.data.solution,
+         confidence: response.data.confidence,
+       }, 'CAPTCHA solved successfully');
+
+       return {
+         solution: response.data.solution,
+         confidence: response.data.confidence || 0.95,
+       };
+     } catch (error) {
+       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+       this.logger.error({
+         error: errorMessage,
+         payload,
+       }, 'CAPTCHA solving failed');
+       throw new Error(`Captcha solver service error: ${errorMessage}`);
+     }
+   }
 
   private async executeScrape(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
     const { url, selector } = payload as { url: string; selector?: string };

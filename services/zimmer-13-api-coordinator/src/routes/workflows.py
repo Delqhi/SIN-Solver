@@ -9,13 +9,45 @@ from datetime import datetime
 from pydantic import BaseModel
 import logging
 import uuid
+import redis
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/workflows", tags=["workflows"])
 
-# In-memory storage (will be replaced with Redis persistence)
-workflows_db: Dict[str, Dict] = {}
+# Redis client initialization with fallback to localhost
+REDIS_HOST = os.getenv("REDIS_HOST", "room-04-redis-cache")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_DB = 1
+
+try:
+    redis_client = redis.Redis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        db=REDIS_DB,
+        decode_responses=True,
+        socket_connect_timeout=5
+    )
+    redis_client.ping()
+    logger.info(f"Connected to Redis at {REDIS_HOST}:{REDIS_PORT} (db={REDIS_DB})")
+except Exception as e:
+    logger.error(f"Failed to connect to Redis: {e}")
+    # Fallback to localhost
+    try:
+        redis_client = redis.Redis(
+            host="localhost",
+            port=6379,
+            db=REDIS_DB,
+            decode_responses=True,
+            socket_connect_timeout=5
+        )
+        redis_client.ping()
+        logger.info("Connected to Redis at localhost:6379 (fallback)")
+    except Exception as e2:
+        logger.error(f"Failed to connect to Redis fallback: {e2}")
+        raise
 
 
 class WorkflowStep(BaseModel):
@@ -74,7 +106,8 @@ async def create_workflow(workflow: WorkflowCreate):
         "status": "active"
     }
     
-    workflows_db[workflow_id] = workflow_data
+    redis_client.set(f"workflow:{workflow_id}", json.dumps(workflow_data))
+    redis_client.sadd("workflow:all", workflow_id)
     logger.info(f"Created workflow: {workflow.name} ({workflow_id})")
     
     return workflow_data
@@ -88,13 +121,17 @@ async def list_workflows(
     search: Optional[str] = None
 ):
     """List all workflows with pagination"""
-    workflows = list(workflows_db.values())
+    workflow_ids = redis_client.smembers("workflow:all")
+    workflows = []
     
-    # Filter by enabled status
+    for wid in workflow_ids:
+        workflow_json = redis_client.get(f"workflow:{wid}")
+        if workflow_json:
+            workflows.append(json.loads(workflow_json))
+    
     if enabled_only:
         workflows = [w for w in workflows if w.get("enabled", True)]
     
-    # Search by name or description
     if search:
         search_lower = search.lower()
         workflows = [
@@ -103,10 +140,8 @@ async def list_workflows(
             or search_lower in (w.get("description") or "").lower()
         ]
     
-    # Sort by created_at descending
     workflows.sort(key=lambda x: x.get("created_at", ""), reverse=True)
     
-    # Paginate
     total = len(workflows)
     workflows = workflows[skip:skip + limit]
     
@@ -121,19 +156,21 @@ async def list_workflows(
 @router.get("/{workflow_id}")
 async def get_workflow(workflow_id: str):
     """Get workflow by ID"""
-    if workflow_id not in workflows_db:
+    workflow_json = redis_client.get(f"workflow:{workflow_id}")
+    if not workflow_json:
         raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
     
-    return workflows_db[workflow_id]
+    return json.loads(workflow_json)
 
 
 @router.put("/{workflow_id}")
 async def update_workflow(workflow_id: str, update: WorkflowUpdate):
     """Update workflow"""
-    if workflow_id not in workflows_db:
+    workflow_json = redis_client.get(f"workflow:{workflow_id}")
+    if not workflow_json:
         raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
     
-    workflow = workflows_db[workflow_id]
+    workflow = json.loads(workflow_json)
     
     if update.name is not None:
         workflow["name"] = update.name
@@ -150,6 +187,7 @@ async def update_workflow(workflow_id: str, update: WorkflowUpdate):
     
     workflow["updated_at"] = datetime.utcnow().isoformat()
     
+    redis_client.set(f"workflow:{workflow_id}", json.dumps(workflow))
     logger.info(f"Updated workflow: {workflow_id}")
     return workflow
 
@@ -157,10 +195,13 @@ async def update_workflow(workflow_id: str, update: WorkflowUpdate):
 @router.delete("/{workflow_id}")
 async def delete_workflow(workflow_id: str):
     """Delete workflow"""
-    if workflow_id not in workflows_db:
+    workflow_json = redis_client.get(f"workflow:{workflow_id}")
+    if not workflow_json:
         raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
     
-    workflow = workflows_db.pop(workflow_id)
+    workflow = json.loads(workflow_json)
+    redis_client.delete(f"workflow:{workflow_id}")
+    redis_client.srem("workflow:all", workflow_id)
     logger.info(f"Deleted workflow: {workflow['name']} ({workflow_id})")
     
     return {"status": "deleted", "workflow_id": workflow_id}
@@ -169,22 +210,21 @@ async def delete_workflow(workflow_id: str):
 @router.post("/{workflow_id}/execute")
 async def execute_workflow(workflow_id: str, execute: WorkflowExecute):
     """Execute a workflow"""
-    if workflow_id not in workflows_db:
+    workflow_json = redis_client.get(f"workflow:{workflow_id}")
+    if not workflow_json:
         raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
     
-    workflow = workflows_db[workflow_id]
+    workflow = json.loads(workflow_json)
     
     if not workflow.get("enabled", True):
         raise HTTPException(status_code=400, detail="Workflow is disabled")
     
     execution_id = str(uuid.uuid4())
     
-    # Update execution stats
     workflow["execution_count"] = workflow.get("execution_count", 0) + 1
     workflow["last_executed_at"] = datetime.utcnow().isoformat()
     
-    # TODO: Implement actual workflow execution with step-by-step processing
-    # For now, return execution info
+    redis_client.set(f"workflow:{workflow_id}", json.dumps(workflow))
     
     result = {
         "execution_id": execution_id,
@@ -205,12 +245,15 @@ async def execute_workflow(workflow_id: str, execute: WorkflowExecute):
 @router.post("/{workflow_id}/toggle")
 async def toggle_workflow(workflow_id: str):
     """Toggle workflow enabled/disabled"""
-    if workflow_id not in workflows_db:
+    workflow_json = redis_client.get(f"workflow:{workflow_id}")
+    if not workflow_json:
         raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
     
-    workflow = workflows_db[workflow_id]
+    workflow = json.loads(workflow_json)
     workflow["enabled"] = not workflow.get("enabled", True)
     workflow["updated_at"] = datetime.utcnow().isoformat()
+    
+    redis_client.set(f"workflow:{workflow_id}", json.dumps(workflow))
     
     status = "enabled" if workflow["enabled"] else "disabled"
     logger.info(f"Toggled workflow {workflow_id}: {status}")
@@ -221,10 +264,11 @@ async def toggle_workflow(workflow_id: str):
 @router.post("/{workflow_id}/duplicate")
 async def duplicate_workflow(workflow_id: str, new_name: Optional[str] = None):
     """Duplicate a workflow"""
-    if workflow_id not in workflows_db:
+    workflow_json = redis_client.get(f"workflow:{workflow_id}")
+    if not workflow_json:
         raise HTTPException(status_code=404, detail=f"Workflow not found: {workflow_id}")
     
-    original = workflows_db[workflow_id]
+    original = json.loads(workflow_json)
     new_id = str(uuid.uuid4())
     
     duplicate = {
@@ -237,7 +281,8 @@ async def duplicate_workflow(workflow_id: str, new_name: Optional[str] = None):
         "last_executed_at": None
     }
     
-    workflows_db[new_id] = duplicate
+    redis_client.set(f"workflow:{new_id}", json.dumps(duplicate))
+    redis_client.sadd("workflow:all", new_id)
     logger.info(f"Duplicated workflow {workflow_id} to {new_id}")
     
     return duplicate

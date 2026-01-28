@@ -37,36 +37,6 @@ const SERVICES_CONFIG = {
   ],
 };
 
-// Mock secrets data (will be replaced with API calls)
-const MOCK_SECRETS = [
-  { path: 'sin-solver/postgres', keys: ['username', 'password', 'host', 'port', 'database'], lastUpdated: '2026-01-28T10:00:00Z' },
-  { path: 'sin-solver/redis', keys: ['password', 'host', 'port'], lastUpdated: '2026-01-28T10:00:00Z' },
-  { path: 'sin-solver/n8n', keys: ['encryption_key', 'jwt_secret'], lastUpdated: '2026-01-28T10:00:00Z' },
-  { path: 'sin-solver/opencode', keys: ['api_key', 'base_url'], lastUpdated: '2026-01-28T10:00:00Z' },
-  { path: 'sin-solver/vercel', keys: ['token', 'project_id'], lastUpdated: '2026-01-28T10:00:00Z' },
-];
-
-// Service Status Card Component
-function ServiceStatusCard({ service, status }) {
-  const Icon = service.icon;
-  const isHealthy = status === 'healthy' || status === 'UP';
-  
-  return (
-    <div className={`p-3 rounded-lg border ${isHealthy ? 'bg-gray-800/50 border-gray-700' : 'bg-red-900/20 border-red-800'}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon size={16} className={isHealthy ? 'text-blue-400' : 'text-red-400'} />
-          <span className="text-sm font-medium text-white">{service.name}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">:{service.port}</span>
-          <div className={`w-2 h-2 rounded-full ${isHealthy ? 'bg-green-500' : 'bg-red-500'}`} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Service Category Section
 function ServiceCategory({ title, services, statuses }) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -170,7 +140,9 @@ function SyncStatusCard({ title, lastSync, status, onSync, isLoading }) {
 
 export default function VaultDashboard() {
   const [mounted, setMounted] = useState(false);
-  const [secrets, setSecrets] = useState(MOCK_SECRETS);
+  const [secrets, setSecrets] = useState([]);
+  const [isLoadingSecrets, setIsLoadingSecrets] = useState(true);
+  const [secretsError, setSecretsError] = useState(null);
   const [serviceStatuses, setServiceStatuses] = useState({});
   const [syncStatuses, setSyncStatuses] = useState({
     vercel: { lastSync: null, status: 'unknown' },
@@ -181,6 +153,110 @@ export default function VaultDashboard() {
     n8n: false,
     all: false,
   });
+  // Modal states for CRUD operations
+  const [editingSecret, setEditingSecret] = useState(null);
+  const [deletingSecret, setDeletingSecret] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [operationStatus, setOperationStatus] = useState({ type: null, message: '' });
+
+  // Fetch secrets from real Vault API
+  const fetchSecrets = async () => {
+    setIsLoadingSecrets(true);
+    setSecretsError(null);
+    try {
+      const res = await fetch(`${VAULT_API_URL}/api/secrets`);
+      if (res.ok) {
+        const data = await res.json();
+        // Transform API response to expected format
+        const formattedSecrets = Array.isArray(data) ? data : (data.secrets || []);
+        setSecrets(formattedSecrets.map(s => ({
+          path: s.path || s.name || s.key,
+          keys: s.keys || Object.keys(s.data || {}),
+          lastUpdated: s.lastUpdated || s.updated_at || new Date().toISOString(),
+          ...s
+        })));
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setSecretsError(errorData.message || `Failed to fetch secrets (${res.status})`);
+      }
+    } catch (e) {
+      console.error('Failed to fetch secrets', e);
+      setSecretsError(`Connection error: ${e.message}`);
+    } finally {
+      setIsLoadingSecrets(false);
+    }
+  };
+
+  // Handle edit secret - calls real Vault API
+  const handleEditSecret = async (secret, newData) => {
+    setOperationStatus({ type: 'loading', message: 'Updating secret...' });
+    try {
+      const res = await fetch(`${VAULT_API_URL}/api/secrets/${encodeURIComponent(secret.path)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newData),
+      });
+      if (res.ok) {
+        setOperationStatus({ type: 'success', message: 'Secret updated successfully' });
+        setEditingSecret(null);
+        await fetchSecrets(); // Refresh list
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setOperationStatus({ type: 'error', message: errorData.message || 'Failed to update secret' });
+      }
+    } catch (e) {
+      setOperationStatus({ type: 'error', message: `Error: ${e.message}` });
+    }
+    // Clear status after 3 seconds
+    setTimeout(() => setOperationStatus({ type: null, message: '' }), 3000);
+  };
+
+  // Handle delete secret - calls real Vault API
+  const handleDeleteSecret = async (secret) => {
+    setOperationStatus({ type: 'loading', message: 'Deleting secret...' });
+    try {
+      const res = await fetch(`${VAULT_API_URL}/api/secrets/${encodeURIComponent(secret.path)}`, {
+        method: 'DELETE',
+        headers: { 'X-Confirm-Deletion': 'true' },
+      });
+      if (res.ok) {
+        setOperationStatus({ type: 'success', message: 'Secret deleted successfully' });
+        setDeletingSecret(null);
+        await fetchSecrets(); // Refresh list
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setOperationStatus({ type: 'error', message: errorData.message || 'Failed to delete secret' });
+      }
+    } catch (e) {
+      setOperationStatus({ type: 'error', message: `Error: ${e.message}` });
+    }
+    // Clear status after 3 seconds
+    setTimeout(() => setOperationStatus({ type: null, message: '' }), 3000);
+  };
+
+  // Handle add new secret - calls real Vault API
+  const handleAddSecret = async (newSecret) => {
+    setOperationStatus({ type: 'loading', message: 'Creating secret...' });
+    try {
+      const res = await fetch(`${VAULT_API_URL}/api/secrets/${encodeURIComponent(newSecret.path)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: newSecret.data }),
+      });
+      if (res.ok) {
+        setOperationStatus({ type: 'success', message: 'Secret created successfully' });
+        setShowAddModal(false);
+        await fetchSecrets(); // Refresh list
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setOperationStatus({ type: 'error', message: errorData.message || 'Failed to create secret' });
+      }
+    } catch (e) {
+      setOperationStatus({ type: 'error', message: `Error: ${e.message}` });
+    }
+    // Clear status after 3 seconds
+    setTimeout(() => setOperationStatus({ type: null, message: '' }), 3000);
+  };
 
   // Fetch service statuses
   const fetchServiceStatuses = async () => {
@@ -255,6 +331,7 @@ export default function VaultDashboard() {
   useEffect(() => {
     setMounted(true);
     fetchServiceStatuses();
+    fetchSecrets();
     const interval = setInterval(fetchServiceStatuses, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -346,7 +423,10 @@ export default function VaultDashboard() {
                   <Key size={18} className="text-yellow-400" />
                   Secrets ({secrets.length})
                 </h2>
-                <button className="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                <button 
+                  onClick={() => setShowAddModal(true)}
+                  className="px-3 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
                   <Plus size={14} />
                   Add Secret
                 </button>
@@ -367,8 +447,8 @@ export default function VaultDashboard() {
                       <SecretRow 
                         key={idx} 
                         secret={secret}
-                        onEdit={(s) => console.log('Edit', s)}
-                        onDelete={(s) => console.log('Delete', s)}
+                        onEdit={(s) => setEditingSecret(s)}
+                        onDelete={(s) => setDeletingSecret(s)}
                       />
                     ))}
                   </tbody>
@@ -413,6 +493,158 @@ export default function VaultDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Operation Status Notification */}
+        {operationStatus.type && (
+          <div className={`fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 ${
+            operationStatus.type === 'success' ? 'bg-green-600' :
+            operationStatus.type === 'error' ? 'bg-red-600' :
+            'bg-blue-600'
+          }`}>
+            {operationStatus.type === 'loading' && <RefreshCw size={16} className="animate-spin" />}
+            {operationStatus.type === 'success' && <Check size={16} />}
+            {operationStatus.type === 'error' && <X size={16} />}
+            <span className="text-sm font-medium">{operationStatus.message}</span>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deletingSecret && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold text-white mb-2">Delete Secret</h3>
+              <p className="text-gray-400 mb-4">
+                Are you sure you want to delete <span className="font-mono text-red-400">{deletingSecret.path}</span>? 
+                This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeletingSecret(null)}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteSecret(deletingSecret)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Secret Modal */}
+        {editingSecret && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-lg w-full mx-4">
+              <h3 className="text-lg font-semibold text-white mb-4">Edit Secret</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Path</label>
+                  <input
+                    type="text"
+                    value={editingSecret.path}
+                    disabled
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-400 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Keys (JSON)</label>
+                  <textarea
+                    id="edit-secret-data"
+                    defaultValue={JSON.stringify(editingSecret.data || {}, null, 2)}
+                    rows={6}
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm font-mono"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-6">
+                <button
+                  onClick={() => setEditingSecret(null)}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const textarea = document.getElementById('edit-secret-data');
+                    try {
+                      const data = JSON.parse(textarea.value);
+                      handleEditSecret(editingSecret, { data });
+                    } catch (e) {
+                      setOperationStatus({ type: 'error', message: 'Invalid JSON format' });
+                      setTimeout(() => setOperationStatus({ type: null, message: '' }), 3000);
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Secret Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-lg w-full mx-4">
+              <h3 className="text-lg font-semibold text-white mb-4">Add New Secret</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Path</label>
+                  <input
+                    type="text"
+                    id="add-secret-path"
+                    placeholder="e.g., api/openai"
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Data (JSON)</label>
+                  <textarea
+                    id="add-secret-data"
+                    placeholder='{"API_KEY": "your-key-here"}'
+                    rows={6}
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm font-mono"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-6">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const pathInput = document.getElementById('add-secret-path');
+                    const dataInput = document.getElementById('add-secret-data');
+                    const path = pathInput.value.trim();
+                    if (!path) {
+                      setOperationStatus({ type: 'error', message: 'Path is required' });
+                      setTimeout(() => setOperationStatus({ type: null, message: '' }), 3000);
+                      return;
+                    }
+                    try {
+                      const data = JSON.parse(dataInput.value || '{}');
+                      handleAddSecret({ path, data });
+                    } catch (e) {
+                      setOperationStatus({ type: 'error', message: 'Invalid JSON format' });
+                      setTimeout(() => setOperationStatus({ type: null, message: '' }), 3000);
+                    }
+                  }}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Create Secret
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
