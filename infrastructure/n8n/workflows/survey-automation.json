@@ -16,7 +16,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "http://zimmer-18-survey-worker:8018/api/status",
+        "url": "http://solver-18-survey-worker:8018/api/status",
         "options": {}
       },
       "id": "check-survey-status",
@@ -50,7 +50,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "http://zimmer-18-survey-worker:8018/api/surveys/available",
+        "url": "http://solver-18-survey-worker:8018/api/surveys/available",
         "options": {}
       },
       "id": "get-available-surveys",
@@ -62,7 +62,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-18-survey-worker:8018/api/surveys/start",
+        "url": "http://solver-18-survey-worker:8018/api/surveys/start",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -81,7 +81,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-09-clawdbot:8080/api/notify",
+        "url": "http://agent-09-clawdbot-messenger:8080/api/notify",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [

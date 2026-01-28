@@ -37,7 +37,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "http://zimmer-21-video-generator:8021/api/queue",
+        "url": "http://builder-21-video-generator:8021/api/queue",
         "options": {}
       },
       "id": "get-queue",
@@ -82,7 +82,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-21-video-generator:8021/api/generate",
+        "url": "http://builder-21-video-generator:8021/api/generate",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ topic: $json.topic, contentType: $json.content_type || 'educational', platform: $json.platform ? $json.platform[0] : 'tiktok', autoPost: true, platforms: $json.platform || ['tiktok'] }) }}",
@@ -99,7 +99,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=http://zimmer-21-video-generator:8021/api/jobs/{{ $json.jobId }}",
+        "url": "=http://builder-21-video-generator:8021/api/jobs/{{ $json.jobId }}",
         "options": {}
       },
       "id": "poll-job-status",
@@ -144,7 +144,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-09-clawdbot:8080/api/notify",
+        "url": "http://agent-09-clawdbot-messenger:8080/api/notify",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -186,7 +186,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-09-clawdbot:8080/api/alert",
+        "url": "http://agent-09-clawdbot-messenger:8080/api/alert",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [

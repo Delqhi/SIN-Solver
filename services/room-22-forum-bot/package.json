@@ -1,5 +1,5 @@
 {
-  "name": "zimmer-22-forum-bot",
+  "name": "room-22-forum-bot",
   "version": "1.0.0",
   "description": "AI-powered forum and community automation bot",
   "main": "src/index.js",

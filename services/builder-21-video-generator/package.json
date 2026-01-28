@@ -1,5 +1,5 @@
 {
-  "name": "zimmer-21-video-generator",
+  "name": "builder-21-video-generator",
   "version": "1.0.0",
   "description": "AI-powered video content generator for SIN-Solver",
   "main": "src/index.js",

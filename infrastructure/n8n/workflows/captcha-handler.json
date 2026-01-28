@@ -39,7 +39,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-19-captcha-worker:8019/api/solve/recaptcha",
+        "url": "http://solver-19-captcha-solver:8019/api/solve/recaptcha",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -59,7 +59,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-19-captcha-worker:8019/api/solve/hcaptcha",
+        "url": "http://solver-19-captcha-solver:8019/api/solve/hcaptcha",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -79,7 +79,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-18-survey-worker:8018/api/captcha/solved",
+        "url": "http://solver-18-survey-worker:8018/api/captcha/solved",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [

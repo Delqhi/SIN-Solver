@@ -14,7 +14,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "http://zimmer-18-survey-worker:8018/api/earnings/today",
+        "url": "http://solver-18-survey-worker:8018/api/earnings/today",
         "options": {}
       },
       "id": "get-earnings",
@@ -26,7 +26,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "http://zimmer-18-survey-worker:8018/api/surveys/completed/today",
+        "url": "http://solver-18-survey-worker:8018/api/surveys/completed/today",
         "options": {}
       },
       "id": "get-completed",
@@ -60,7 +60,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-09-clawdbot:8080/api/notify",
+        "url": "http://agent-09-clawdbot-messenger:8080/api/notify",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [

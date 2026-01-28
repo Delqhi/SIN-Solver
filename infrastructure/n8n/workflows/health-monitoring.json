@@ -24,7 +24,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const services = [\n  { name: 'Redis', url: 'http://zimmer-speicher-redis:6379' },\n  { name: 'Postgres', url: 'http://zimmer-archiv-postgres:5432' },\n  { name: 'Steel Browser', url: 'http://zimmer-05-steel-tarnkappe:3000/health' },\n  { name: 'n8n', url: 'http://zimmer-01-n8n-manager:5678/healthz' },\n  { name: 'API Coordinator', url: 'http://zimmer-13-api-koordinator:8000/health' },\n  { name: 'Dashboard', url: 'http://zimmer-11-dashboard-zentrale:80/health' },\n  { name: 'Clawdbot', url: 'http://zimmer-09-clawdbot:8080/health' },\n  { name: 'Survey Worker', url: 'http://zimmer-18-survey-worker:8018/health' },\n  { name: 'Captcha Worker', url: 'http://zimmer-19-captcha-worker:8019/health' },\n  { name: 'QA', url: 'http://zimmer-08-qa-pruefer:8080/health' },\n  { name: 'Evolution', url: 'http://zimmer-12-evolution-optimizer:8080/health' },\n  { name: 'MCP Plugins', url: 'http://zimmer-17-sin-plugins:8000/health' }\n];\nreturn services.map(s => ({ json: s }));"
+        "jsCode": "const services = [\n  { name: 'Redis', url: 'http://room-04-redis-cache:6379' },\n  { name: 'Postgres', url: 'http://room-03-postgres-master:5432' },\n  { name: 'Steel Browser', url: 'http://agent-05-steel-browser:3000/health' },\n  { name: 'n8n', url: 'http://agent-01-n8n-orchestrator:5678/healthz' },\n  { name: 'API Coordinator', url: 'http://room-13-fastapi-coordinator:8000/health' },\n  { name: 'Dashboard', url: 'http://room-11-dashboard-cockpit:80/health' },\n  { name: 'Clawdbot', url: 'http://agent-09-clawdbot-messenger:8080/health' },\n  { name: 'Survey Worker', url: 'http://solver-18-survey-worker:8018/health' },\n  { name: 'Captcha Worker', url: 'http://solver-19-captcha-solver:8019/health' },\n  { name: 'QA', url: 'http://agent-08-playwright-tester:8080/health' },\n  { name: 'Evolution', url: 'http://agent-12-evolution-optimizer:8080/health' },\n  { name: 'MCP Plugins', url: 'http://room-17-sin-plugins:8000/health' }\n];\nreturn services.map(s => ({ json: s }));"
       },
       "id": "get-services",
       "name": "Get Services List",
@@ -70,7 +70,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://zimmer-09-clawdbot:8080/api/alert",
+        "url": "http://agent-09-clawdbot-messenger:8080/api/alert",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
