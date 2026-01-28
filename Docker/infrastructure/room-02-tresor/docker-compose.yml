@@ -4,7 +4,7 @@ services:
     image: hashicorp/vault:latest
     container_name: room-02-tresor-vault
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID:-s.root2026SINSolver}
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID:-root2026SINSolver}
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
       VAULT_LOG_LEVEL: ${VAULT_LOG_LEVEL:-info}
     ports:
@@ -17,10 +17,10 @@ services:
     networks:
       - sin-solver-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8200/v1/sys/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD", "sh", "-c", "vault status 2>/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
       start_period: 60s
     restart: unless-stopped
     logging:
@@ -38,7 +38,7 @@ services:
     container_name: room-02-tresor-api
     environment:
       VAULT_ADDR: http://room-02-tresor-vault:8200
-      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:-s.root2026SINSolver}
+      VAULT_TOKEN: ${VAULT_DEV_ROOT_TOKEN_ID:-root2026SINSolver}
       VAULT_MOUNT_PATH: sin-solver
       # Database secrets (for init)
       POSTGRES_HOST: room-03-postgres-master
@@ -70,8 +70,7 @@ services:
     ports:
       - "8201:8201"
     depends_on:
-      room-02-tresor-vault:
-        condition: service_healthy
+      - room-02-tresor-vault
     networks:
       - sin-solver-network
     healthcheck:
