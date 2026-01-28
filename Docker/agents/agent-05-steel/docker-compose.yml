@@ -1,0 +1,79 @@
+version: '3.9'
+
+services:
+  agent-05-steel-browser:
+    image: browser-use/agent-steel:latest
+    container_name: agent-05-steel-browser
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3000"
+      - "9222:9222"  # Chrome DevTools Protocol
+    environment:
+      - NODE_ENV=production
+      - BROWSER_TYPE=chrome
+      - STEALTH_MODE=true
+      - CDP_PORT=9222
+      - CDP_HOST=0.0.0.0
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@room-03-postgres-master:5432/${DB_NAME}
+      - REDIS_URL=redis://room-04-redis-cache:6379
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - AGENT_NAME=agent-05-steel
+      - AGENT_ID=05
+      - AGENT_ROLE=browser-automation
+      - AGENT_VERSION=1.0.0
+      - MAX_CONCURRENT_BROWSERS=${AGENT_05_MAX_BROWSERS:-3}
+      - BROWSER_TIMEOUT=${AGENT_05_BROWSER_TIMEOUT:-30000}
+      - USER_AGENT_ROTATION=true
+      - PROXY_ROTATION=false
+    depends_on:
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    volumes:
+      - agent-05-data:/app/data
+      - agent-05-profiles:/root/.config/google-chrome
+      - agent-05-downloads:/tmp/downloads
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:3000/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=agent-05-steel"
+    labels:
+      - "com.sin-solver.service=agent"
+      - "com.sin-solver.agent-number=05"
+      - "com.sin-solver.agent-role=browser-automation"
+      - "com.sin-solver.version=1.0"
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+
+volumes:
+  agent-05-data:
+    driver: local
+  agent-05-profiles:
+    driver: local
+  agent-05-downloads:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

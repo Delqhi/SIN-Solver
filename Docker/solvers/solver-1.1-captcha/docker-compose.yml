@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  solver-1.1-captcha-worker:
+    image: sin-solver/captcha-worker:latest
+    container_name: solver-1.1-captcha-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8019:8000"
+    environment:
+      - PYTHON_ENV=production
+      - CAPTCHA_LOG_LEVEL=${LOG_LEVEL:-info}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@room-03-postgres-master:5432/${DB_NAME}
+      - REDIS_URL=redis://room-04-redis-cache:6379
+      - SOLVER_NAME=captcha-worker
+      - SOLVER_ID=1.1
+      - SOLVER_ROLE=captcha-solving
+      - SOLVER_VERSION=1.0.0
+      - MAX_CONCURRENT_SOLVES=${SOLVER_1_1_MAX_CONCURRENT:-10}
+      - SOLVE_TIMEOUT=${SOLVER_1_1_TIMEOUT:-15}
+      - OCR_MODEL=${OCR_MODEL:-ddddocr}
+      - VISION_FALLBACK=${VISION_FALLBACK:-gemini}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    volumes:
+      - solver-1.1-data:/app/data
+      - solver-1.1-models:/app/models
+      - solver-1.1-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:8000/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=solver-1.1-captcha"
+    labels:
+      - "com.sin-solver.service=solver"
+      - "com.sin-solver.solver-id=1.1"
+      - "com.sin-solver.solver-role=captcha-solving"
+      - "com.sin-solver.version=1.0"
+
+volumes:
+  solver-1.1-data:
+    driver: local
+  solver-1.1-models:
+    driver: local
+  solver-1.1-logs:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

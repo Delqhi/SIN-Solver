@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  room-03-postgres-master:
+    image: postgres:15-alpine
+    container_name: room-03-postgres-master
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sinsolveradmin}
+      POSTGRES_DB: ${DB_NAME:-sin_solver_prod}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    driver: bridge
+    name: sin-solver-network
+
+volumes:
+  postgres_data:
+    driver: local
