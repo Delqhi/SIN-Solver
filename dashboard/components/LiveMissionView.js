@@ -12,7 +12,7 @@ export default function LiveMissionView({ isOpen, onClose }) {
   const fetchSessions = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/steel/sessions`);
+      const res = await fetch(`${API_URL}/api/steel/sessions`);
       if (res.ok) {
           const sessionsData = await res.json();
           // Adjust URLs for external dashboard access

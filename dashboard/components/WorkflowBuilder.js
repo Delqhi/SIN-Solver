@@ -30,7 +30,7 @@ export default function WorkflowBuilder() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`${API_URL}/system/workflow`, {
+      const res = await fetch(`${API_URL}/api/system/workflow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nodes, edges })
@@ -45,7 +45,7 @@ export default function WorkflowBuilder() {
 
   const handleTestRun = async () => {
     try {
-      const res = await fetch(`${API_URL}/system/workflow/test`, {
+      const res = await fetch(`${API_URL}/api/system/workflow/test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nodes, edges })

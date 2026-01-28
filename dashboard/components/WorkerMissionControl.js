@@ -10,9 +10,9 @@ export default function WorkerMissionControl({ isAutoWorkActive }) {
 
    const fetchTelemetry = async () => {
      try {
-       const [resStats, resWorkers] = await Promise.all([
-         fetch(`${API_URL}/analytics/dashboard`),
-         fetch(`${API_URL}/workers/`)
+      const [resStats, resWorkers] = await Promise.all([
+          fetch(`${API_URL}/api/analytics/dashboard`),
+          fetch(`${API_URL}/api/workers/`)
       ]);
       
       if (resStats.ok) setStats(await resStats.json());
