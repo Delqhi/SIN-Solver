@@ -101,9 +101,9 @@ class TokenInjector:
                                     }}
                                 }}
                             }}
-                        }
-                    }
-                }
+                        }}
+                    }}
+                }}
             }}""")
         except Exception as e:
             logger.debug(f"Callback trigger failed (common if no callback defined): {e}")
