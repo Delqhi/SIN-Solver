@@ -1,0 +1,71 @@
+# Scira AI Search - Docker Compose
+# https://github.com/zaidmukaddam/scira
+
+services:
+  room-30-scira-ai-search:
+    container_name: room-30-scira-ai-search
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8230:3000"
+    environment:
+      # Required API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - XAI_API_KEY=${XAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY}
+      
+      # Search APIs
+      - EXA_API_KEY=${EXA_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      
+      # Optional Features
+      - DAYTONA_API_KEY=${DAYTONA_API_KEY}
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - MAPBOX_ACCESS_TOKEN=${MAPBOX_ACCESS_TOKEN}
+      - AVIATION_STACK_API_KEY=${AVIATION_STACK_API_KEY}
+      
+      # Database & Auth
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/scira}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+      
+      # App Config
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      
+      # Public URL
+      - NEXT_PUBLIC_SCIRA_PUBLIC_API_KEY=${NEXT_PUBLIC_SCIRA_PUBLIC_API_KEY}
+      - SCIRA_API_KEY=${SCIRA_API_KEY}
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Optional: Cloudflare Tunnel for public access
+  cloudflare-tunnel-scira:
+    container_name: cloudflare-tunnel-scira
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    environment:
+      - CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - sin-solver-network
+    depends_on:
+      - room-30-scira-ai-search
+    profiles:
+      - production
+    restart: unless-stopped
+
+networks:
+  sin-solver-network:
+    external: true
