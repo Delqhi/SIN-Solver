@@ -11,6 +11,10 @@
  * @module workflows
  */
 
+// Import for internal use in factory function
+import { TwoCaptchaWorker } from './2captcha-worker';
+import { KolotibabloWorker } from './kolotibablo-worker';
+
 // 2captcha.com - Most popular CAPTCHA work platform
 export { TwoCaptchaWorker } from './2captcha-worker';
 
