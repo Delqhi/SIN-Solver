@@ -5,7 +5,7 @@ services:
       context: ../../../dashboard
       dockerfile: Dockerfile
     image: sin-solver/dashboard:local
-    container_name: room-01-dashboard-cockpit
+    container_name: room-01-dashboard
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-sinsolveradmin}@room-03-postgres-master:5432/${DB_NAME:-sin_solver_prod}

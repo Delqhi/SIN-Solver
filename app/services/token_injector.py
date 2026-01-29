@@ -100,7 +100,7 @@ class TokenInjector:
                                         eval(client[key].callback)();
                                     }}
                                 }}
-                            }
+                            }}
                         }
                     }
                 }
