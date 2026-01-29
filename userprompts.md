@@ -1,6 +1,6 @@
-# SIN-Solver User Prompts Logbook
+# Delqhi-Platform User Prompts Logbook
 
-**Project:** SIN-Solver - Enterprise CAPTCHA Solving Engine  
+**Project:** Delqhi-Platform - Enterprise CAPTCHA Solving Engine  
 **Created:** 2026-01-25  
 **Last Updated:** 2026-01-29 11:48 UTC  
 **Total Sessions:** 15+  
@@ -46,7 +46,7 @@
 - 99.99% uptime target
 
 **First Code Commit:**
-- Repository initialized: `github.com/Delqhi/SIN-Solver`
+- Repository initialized: `github.com/Delqhi/Delqhi-Platform`
 - Initial structure: 3 directories (engine/, dashboard/, infrastructure/)
 - First container: `room-03-postgres-master` (database foundation)
 
@@ -159,7 +159,7 @@ Complete documentation and deployment checklist for solver-1.1-captcha-worker pr
 ## SESSION [2026-01-29 10:00] [SWARM-SYSTEM-SETUP] - Multi-Agent Swarm System Implementation
 
 **Collective Analysis:**
-User requirement: Establish a complete Multi-Agent Swarm System for SIN-Solver that enables parallel work with TODO-Status-Tracking, Agent-Status-Tracking, and Arbeitsbereich-Tracking. The system must prevent conflicts between parallel agents and provide clear task assignment and responsibilities.
+User requirement: Establish a complete Multi-Agent Swarm System for Delqhi-Platform that enables parallel work with TODO-Status-Tracking, Agent-Status-Tracking, and Arbeitsbereich-Tracking. The system must prevent conflicts between parallel agents and provide clear task assignment and responsibilities.
 
 **Resulting Mission:**
 Implement a comprehensive Swarm System with hierarchical TODO structure, agent assignment rules, and real-time coordination mechanisms.
@@ -176,7 +176,7 @@ Implement a comprehensive Swarm System with hierarchical TODO structure, agent a
 
 **Execution:**
 - ✅ **TASK-003-001:** Created `.sisyphus/todos/` directory
-- ✅ **TASK-003-002:** Created `sin-solver-master-todo.md` with 3 Epics and 22 sub-tasks
+- ✅ **TASK-003-002:** Created `delqhi-platform-master-todo.md` with 3 Epics and 22 sub-tasks
 - ✅ **TASK-003-003:** Created `agent-assignment-rules.md` with 7 agent profiles
 - ✅ **TASK-003-004:** Created `arbeitsbereich-tracking.md` template
 - ✅ **TASK-003-005:** Updated `userprompts.md` (this file)
@@ -184,7 +184,7 @@ Implement a comprehensive Swarm System with hierarchical TODO structure, agent a
 
 **Swarm System Components Created:**
 
-1. **Master TODO File** (`.sisyphus/todos/sin-solver-master-todo.md`)
+1. **Master TODO File** (`.sisyphus/todos/delqhi-platform-master-todo.md`)
    - Hierarchical structure: Epics → Tasks → Sub-tasks
    - Status tracking: pending, in_progress, completed, blocked
    - Agent assignment per task
@@ -257,7 +257,7 @@ Implement a comprehensive Swarm System with hierarchical TODO structure, agent a
 ## SWARM SYSTEM REFERENCE
 
 ### Quick Links
-- **Master TODO:** `.sisyphus/todos/sin-solver-master-todo.md`
+- **Master TODO:** `.sisyphus/todos/delqhi-platform-master-todo.md`
 - **Agent Rules:** `.sisyphus/todos/agent-assignment-rules.md`
 - **Arbeitsbereich:** `.sisyphus/todos/arbeitsbereich-tracking.md`
 - **Last Changes:** `lastchanges.md`
@@ -288,7 +288,7 @@ Implement a comprehensive Swarm System with hierarchical TODO structure, agent a
 ### SESSION [2026-01-25] [GENESIS-01] - Project Initialization
 
 **Collective Analysis:**
-User requested creation of SIN-Solver, an enterprise CAPTCHA solving system. Initial requirements gathering and architecture planning session.
+User requested creation of Delqhi-Platform, an enterprise CAPTCHA solving system. Initial requirements gathering and architecture planning session.
 
 **Resulting Mission:**
 Establish project foundation with proper structure, documentation standards, and initial container architecture.
@@ -633,7 +633,7 @@ Implement full observability stack with Prometheus, Grafana, Loki, and Alertmana
   - Grafana for visualization
   - Loki for log aggregation
   - Alertmanager for notifications
-  - Custom dashboards for SIN-Solver
+  - Custom dashboards for Delqhi-Platform
 - **Execution:**
   - Created room-11-monitoring-grafana container
   - Configured Prometheus scraping (15 targets)
@@ -647,7 +647,7 @@ Implement full observability stack with Prometheus, Grafana, Loki, and Alertmana
   - Created alerting rules (P0, P1, P2 severity)
 
 **Dashboards Created:**
-1. **SIN-Solver Overview** - High-level system health
+1. **Delqhi-Platform Overview** - High-level system health
 2. **CAPTCHA Performance** - Solve rates, latency, accuracy
 3. **API Metrics** - Request rates, error rates, percentiles
 4. **Cost Dashboard** - Real-time cost tracking

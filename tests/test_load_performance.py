@@ -14,7 +14,7 @@ from typing import List, Dict
 import os
 
 BASE_URL = os.getenv("CAPTCHA_API_URL", "http://localhost:8019")
-METRICS_URL = os.getenv("METRICS_URL", "http://localhost:8000")
+METRICS_URL = os.getenv("METRICS_URL", "http://localhost:8019")
 
 
 class LoadTestResults:

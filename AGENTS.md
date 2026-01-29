@@ -1,7 +1,7 @@
 # 🚀 ENTERPRISE SWARM ARCHITECT v4.5 - CEO EXECUTIVE MODE
 
-<!-- [PROJECT: SIN-Solver] [VERSION: 2026-01-29] [RESTORED: MANDATE 0.0 COMPLIANCE] -->
-<!-- This is the SIN-Solver project-specific version of AGENTS.md -->
+<!-- [PROJECT: Delqhi-Platform] [VERSION: 2026-01-29] [RESTORED: MANDATE 0.0 COMPLIANCE] -->
+<!-- This is the Delqhi-Platform project-specific version of AGENTS.md -->
 <!-- Source: ~/.config/opencode/AGENTS.md (3,455 lines) -->
 
 DU = CEO eines 100+ Agenten-Swarms. Deine Elite-Coder-Teams arbeiten PARALLEL, DELEGIEREN, SWARMEN bis zur PERFEKTION.
@@ -418,9 +418,9 @@ No existing line in ANY document or configuration file may EVER be deleted or ov
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| **CONTAINER-REGISTRY.md** | `/Users/jeremy/dev/SIN-Solver/CONTAINER-REGISTRY.md` | Master list of ALL containers with correct names, ports, and domains |
-| **ARCHITECTURE-MODULAR.md** | `/Users/jeremy/dev/SIN-Solver/ARCHITECTURE-MODULAR.md` | Modular architecture guide - ONE container = ONE docker-compose.yml |
-| **MCP Wrappers** | `/Users/jeremy/dev/SIN-Solver/mcp-wrappers/` | stdio wrappers for Docker HTTP containers |
+| **CONTAINER-REGISTRY.md** | `/Users/jeremy/dev/Delqhi-Platform/CONTAINER-REGISTRY.md` | Master list of ALL containers with correct names, ports, and domains |
+| **ARCHITECTURE-MODULAR.md** | `/Users/jeremy/dev/Delqhi-Platform/ARCHITECTURE-MODULAR.md` | Modular architecture guide - ONE container = ONE docker-compose.yml |
+| **MCP Wrappers** | `/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/` | stdio wrappers for Docker HTTP containers |
 
 ---
 
@@ -755,7 +755,7 @@ Every major project MUST aspire to **1,000,000+ lines of production code**:
 | Docker Services | 5 | 15 | 26+ |
 
 **Current Empire Status:**
-- **SIN-Solver:** Target 100K LOC (Captcha solving ecosystem)
+- **Delqhi-Platform:** Target 100K LOC (Captcha solving ecosystem)
 - **26-Room Docker:** Target 500K LOC (Distributed infrastructure)
 - **SIN-Code Ecosystem:** Target 1M LOC (Complete autonomous system)
 
@@ -866,7 +866,7 @@ In the AI era, every project must be autonomously manageable by AI agents. We do
 | **Public API** | `https://codeserver-api.delqhi.com` | External API |
 
 **Covered Interfaces (ALL MUST USE THIS):**
-- SIN-Solver Cockpit Chat: `POST /webhook/cockpit-chat`
+- Delqhi-Platform Cockpit Chat: `POST /webhook/cockpit-chat`
 - DelqhiChat: `POST /webhook/delqhi-chat`
 - Telegram @DelqhiBot: `POST /webhook/telegram`
 - OpenCode CLI: `POST /webhook/opencode-cli`
@@ -2552,7 +2552,7 @@ server.connect(transport).catch(console.error);
   "mcp": {
     "my-container-mcp": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/my-container-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/my-container-mcp-wrapper.js"],
       "enabled": true,
       "environment": {
         "API_URL": "https://my-container.delqhi.com",
@@ -2568,7 +2568,7 @@ server.connect(transport).catch(console.error);
 #### 📂 VERZEICHNIS STRUKTUR
 
 ```
-SIN-Solver/
+Delqhi-Platform/
 ├── mcp-wrappers/                      # ALLE MCP Wrapper
 │   ├── README.md                      # Dokumentation
 │   ├── plane-mcp-wrapper.js           # Beispiel: Plane
@@ -2600,19 +2600,19 @@ SIN-Solver/
 
 **BEFORE working on Docker containers:**
 
-1. **CONTAINER-REGISTRY.md** (`/Users/jeremy/dev/SIN-Solver/CONTAINER-REGISTRY.md`)
+1. **CONTAINER-REGISTRY.md** (`/Users/jeremy/dev/Delqhi-Platform/CONTAINER-REGISTRY.md`)
    - Master list of ALL containers
    - Naming convention: `{CATEGORY}-{NUMBER}-{INTEGRATION}-{ROLE}`
    - Available port numbers
    - Public domain mappings
 
-2. **ARCHITECTURE-MODULAR.md** (`/Users/jeremy/dev/SIN-Solver/ARCHITECTURE-MODULAR.md`)
+2. **ARCHITECTURE-MODULAR.md** (`/Users/jeremy/dev/Delqhi-Platform/ARCHITECTURE-MODULAR.md`)
    - Modular architecture guide
    - One container = one docker-compose.yml
    - Directory structure
    - Migration plan
 
-3. **MCP WRAPPERS README** (`/Users/jeremy/dev/SIN-Solver/mcp-wrappers/README.md`)
+3. **MCP WRAPPERS README** (`/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/README.md`)
    - How to create new wrappers
    - Examples and templates
    - Testing guidelines
@@ -3213,7 +3213,7 @@ Recommended fallback order:
 │   │   ├── archive/                  # Archived files
 │   │   ├── backups/                  # Backup files
 │   │   └── misc/                     # Miscellaneous
-│   ├── SIN-Solver/                   # AI automation project (PRIMARY)
+│   ├── Delqhi-Platform/                   # AI automation project (PRIMARY)
 │   └── [other-projects]/
 └── Documents/                        # Personal documents
 ```
@@ -3506,7 +3506,7 @@ Every line of code, every configuration change, every documentation update must 
 ## [2026-01-29] [MIGRATION-COMPLETE] MCP Wrapper Zentralisierung
 ## [2026-01-29] [MIGRATION-COMPLETE] MCP Wrapper Zentralisierung
 
-**Aktion:** Migration verteilter MCP-Wrapper nach SIN-Solver/mcp-wrappers/
+**Aktion:** Migration verteilter MCP-Wrapper nach Delqhi-Platform/mcp-wrappers/
 
 **Grund:** Best Practices 2026 - Zentrale Projektstruktur
 
@@ -3517,7 +3517,7 @@ Every line of code, every configuration change, every documentation update must 
 
 **Status:** Alle Komponenten erfolgreich migriert
 **Backup:** Original-Verzeichnisse mit .migrated.2026-01-29 suffix
-**Ziel:** /Users/jeremy/dev/SIN-Solver/mcp-wrappers/
+**Ziel:** /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/
 
 **Vorteile:**
 - Einheitliche Projektstruktur
@@ -3526,4 +3526,4 @@ Every line of code, every configuration change, every documentation update must 
 - Compliance mit MANDATE 0.8 (Modularitaet)
 
 **Verifizierung:**
-ls -la /Users/jeremy/dev/SIN-Solver/mcp-wrappers/
+ls -la /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/

@@ -1,6 +1,6 @@
-# 🤝 SIN-Solver Meeting & Collaboration Log
+# 🤝 Delqhi-Platform Meeting & Collaboration Log
 
-**Project:** SIN-Solver - Enterprise CAPTCHA Solving Engine  
+**Project:** Delqhi-Platform - Enterprise CAPTCHA Solving Engine  
 **Created:** 2026-01-29  
 **Purpose:** Zentrale Dokumentation für KI-Coder-Kollaboration, Reviews und Entscheidungen  
 
