@@ -99,7 +99,7 @@ class TokenInjector:
                                     }} else if (typeof client[key].callback === 'string') {{
                                         eval(client[key].callback)();
                                     }}
-                                }
+                                }}
                             }
                         }
                     }

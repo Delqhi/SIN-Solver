@@ -30,7 +30,7 @@ async def get_workers():
         raise HTTPException(status_code=503, detail="Docker integration not available in this room.")
         
     try:
-         containers = client.containers.list(filters={"name": "solver-14-worker-arbeiter"})
+        containers = client.containers.list(filters={"name": "solver-14-worker-arbeiter"})
         workers = []
         for c in containers:
             workers.append(WorkerStatus(
