@@ -1,0 +1,288 @@
+---
+# Kubernetes Ingress for SIN-Solver CAPTCHA Solver
+# Phase: 2.5 Kubernetes Deployment (Day 2)
+# Purpose: HTTPS/TLS ingress with hostname-based routing
+# Date: 2026-01-30
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sin-solver-captcha-solver-ingress
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/version: "2.5"
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "HTTPS ingress with TLS termination for CAPTCHA solver API"
+    phase: "2.5-kubernetes-deployment"
+    date: "2026-01-30"
+    # Cert-manager annotations for automatic certificate renewal
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # NGINX ingress controller annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    # CORS settings
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+
+spec:
+  # Ingress class (use "nginx" for NGINX ingress controller)
+  ingressClassName: nginx
+
+  # TLS configuration
+  tls:
+    # Primary hostname with auto-generated certificate
+    - hosts:
+        - api.sin-solver.local
+        - captcha.sin-solver.local
+        - solver.sin-solver.local
+      secretName: sin-solver-tls
+
+  # HTTP rules (routes)
+  rules:
+    # Rule 1: API endpoints
+    - host: api.sin-solver.local
+      http:
+        paths:
+          # Main API
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+          # Health check endpoint
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+          # Readiness check endpoint
+          - path: /ready
+            pathType: Exact
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+          # Metrics endpoint
+          - path: /metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 9090
+
+    # Rule 2: CAPTCHA solver specific endpoints
+    - host: captcha.sin-solver.local
+      http:
+        paths:
+          # Solve endpoint
+          - path: /solve
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+          # Classification endpoint
+          - path: /classify
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+          # OCR endpoint
+          - path: /ocr
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+          # Model management endpoint
+          - path: /models
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+
+    # Rule 3: General solver endpoints
+    - host: solver.sin-solver.local
+      http:
+        paths:
+          # Catch-all for solver endpoints
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-captcha-solver
+                port:
+                  number: 8000
+
+---
+# ============================================================================
+# ALTERNATIVE: ClusterIP Service Ingress (For Private Clusters)
+# ============================================================================
+# If you don't have an external LoadBalancer, use ClusterIP with Ingress
+# This provides internal routing only
+#
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: sin-solver-captcha-solver-ingress-internal
+#   namespace: sin-solver
+# spec:
+#   rules:
+#     - host: sin-solver.internal
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: sin-solver-captcha-solver-internal
+#                 port:
+#                   number: 8000
+# ============================================================================
+
+---
+# CERTIFICATE ISSUER FOR CERT-MANAGER (Optional)
+# If cert-manager is installed, uncomment to auto-generate certificates
+# Reference: https://cert-manager.io/docs/usage/ingress/
+#
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: sin-solver-tls-cert
+#   namespace: sin-solver
+# spec:
+#   secretName: sin-solver-tls
+#   issuerRef:
+#     name: letsencrypt-prod
+#     kind: ClusterIssuer
+#   dnsNames:
+#     - api.sin-solver.local
+#     - captcha.sin-solver.local
+#     - solver.sin-solver.local
+#   duration: 2160h  # 90 days
+#   renewBefore: 720h  # 30 days
+
+---
+# NETWORK POLICY FOR INGRESS (Optional)
+# Restricts traffic to ingress controller only
+#
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: sin-solver-ingress-policy
+#   namespace: sin-solver
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app.kubernetes.io/name: sin-solver
+#   policyTypes:
+#     - Ingress
+#   ingress:
+#     # Allow from ingress controller
+#     - from:
+#         - namespaceSelector:
+#             matchLabels:
+#               name: ingress-nginx
+#       ports:
+#         - protocol: TCP
+#           port: 8000
+
+---
+# ============================================================================
+# NOTES ON INGRESS CONFIGURATION
+# ============================================================================
+#
+# INGRESS CONTROLLER REQUIREMENT:
+#   - NGINX Ingress Controller must be installed
+#   - Install: helm install nginx-ingress nginx-stable/nginx-ingress -n ingress-nginx --create-namespace
+#   - Verify: kubectl get pods -n ingress-nginx
+#
+# TLS CERTIFICATES:
+#   Option 1: Cert-Manager (Automatic ACME)
+#     - Install cert-manager: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+#     - Uncomment the Certificate resource below
+#     - Certificates auto-renew every 30 days
+#
+#   Option 2: Manual Certificate
+#     - Create secret: kubectl create secret tls sin-solver-tls --cert=path/to/cert.crt --key=path/to/key.key -n sin-solver
+#     - Update secretName in tls section
+#
+#   Option 3: Self-Signed (Development Only)
+#     - openssl req -x509 -newkey rsa:4096 -keyout key.key -out cert.crt -days 365 -nodes
+#     - kubectl create secret tls sin-solver-tls --cert=cert.crt --key=key.key -n sin-solver
+#
+# HOSTNAME MAPPING:
+#   You must add these to your hosts file or DNS:
+#     api.sin-solver.local → <INGRESS_IP>
+#     captcha.sin-solver.local → <INGRESS_IP>
+#     solver.sin-solver.local → <INGRESS_IP>
+#
+#   Find INGRESS_IP:
+#     kubectl get ingress -n sin-solver sin-solver-captcha-solver-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+#
+# PATHTYPE EXPLAINED:
+#   - Exact: Exact path match (e.g., /health matches only /health)
+#   - Prefix: Prefix match (e.g., /solve matches /solve, /solve/123, etc.)
+#
+# BACKENDS:
+#   - All backend services must exist and be healthy
+#   - Services must have matching ports
+#   - Service selector must match pod labels
+#
+# RATE LIMITING:
+#   - nginx.ingress.kubernetes.io/rate-limit: "100" (100 req/sec per IP)
+#   - Adjust if needed for your use case
+#
+# CORS HEADERS:
+#   - Enable cross-origin requests from all sources (*)
+#   - Include credentials in cross-origin requests
+#   - Allow common HTTP methods
+#   - Restrict in production to specific origins
+#
+# SECURITY HEADERS:
+#   - X-Frame-Options: Prevent clickjacking
+#   - X-Content-Type-Options: Prevent MIME sniffing
+#   - X-XSS-Protection: Enable XSS protection
+#   - Referrer-Policy: Control referrer information
+#
+# TROUBLESHOOTING:
+#   - Ingress shows <pending>: Ingress controller not installed
+#   - TLS not working: Check secret exists (kubectl get secret -n sin-solver)
+#   - 404 errors: Check backend service health
+#   - Timeout errors: Increase proxy timeouts
+#   - CORS errors: Verify CORS annotation settings
+#
+# MONITORING:
+#   kubectl get ingress -n sin-solver -w  # Watch ingress status
+#   kubectl describe ingress -n sin-solver sin-solver-captcha-solver-ingress
+#   kubectl logs -n ingress-nginx <ingress-controller-pod> -f
+#
+# ============================================================================

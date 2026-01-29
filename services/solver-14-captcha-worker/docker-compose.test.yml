@@ -1,0 +1,141 @@
+version: '3.9'
+
+services:
+  # ==================================================
+  # POSTGRES - Stats & History Database
+  # ==================================================
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: captcha-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=captcha_worker
+      - POSTGRES_USER=worker
+      - POSTGRES_PASSWORD=worker_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U worker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================================================
+  # REDIS - Cache & Session Storage
+  # ==================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: captcha-redis
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes --requirepass redis_password
+    volumes:
+      - redis-data:/data
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================================================
+  # PROMETHEUS - Metrics Collection
+  # ==================================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: captcha-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - captcha-network
+    restart: unless-stopped
+
+  # ==================================================
+  # GRAFANA - Monitoring Dashboard
+  # ==================================================
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: captcha-grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    depends_on:
+      - prometheus
+    networks:
+      - captcha-network
+    restart: unless-stopped
+
+  # ==================================================
+  # CAPTCHA WORKER - Browser Automation
+  # ==================================================
+  
+  captcha-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: captcha-worker
+    ports:
+      - "8080:8080"
+    environment:
+      # Worker credentials (can be dummy for testing)
+      - PROVIDER=2captcha
+      - USERNAME=test_user
+      - PASSWORD=test_password
+      
+      # Disable browser for testing
+      - STEEL_BROWSER_URL=http://localhost:3005
+      - HEADLESS=true
+      
+      # Disable solver for testing
+      - CAPTCHA_SOLVER_URL=http://localhost:8019
+      
+      # Logging
+      - LOG_LEVEL=info
+      - NODE_ENV=production
+      - DEBUG=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  captcha-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

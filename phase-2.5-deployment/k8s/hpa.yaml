@@ -1,0 +1,148 @@
+---
+# Kubernetes Horizontal Pod Autoscaler for SIN-Solver CAPTCHA Solver
+# Phase: 2.5 Kubernetes Deployment (Day 2)
+# Purpose: Auto-scale pods based on CPU and memory metrics
+# Date: 2026-01-30
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sin-solver-captcha-solver-hpa
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: hpa
+    app.kubernetes.io/version: "2.5"
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "Auto-scaling policy for CAPTCHA solver pods based on CPU and memory metrics"
+    phase: "2.5-kubernetes-deployment"
+    date: "2026-01-30"
+    scaling-strategy: "aggressive-scale-up-conservative-scale-down"
+
+spec:
+  # Target the deployment
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sin-solver-captcha-solver
+
+  # Minimum and maximum replicas
+  minReplicas: 3
+  maxReplicas: 10
+
+  # Scaling metrics
+  metrics:
+    # CPU-based scaling: scale up at 70% utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+    # Memory-based scaling: scale up at 80% utilization
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+    # Optional: Custom metrics (requires custom metrics API)
+    # - type: Pods
+    #   pods:
+    #     metric:
+    #       name: captcha_processing_queue_length
+    #     target:
+    #       type: AverageValue
+    #       averageValue: "50"
+
+  # Scaling behavior (HPA v2 feature)
+  behavior:
+    # Scale up behavior: aggressive (add pods quickly)
+    scaleUp:
+      stabilizationWindowSeconds: 30  # Wait 30 seconds before scaling up again
+      policies:
+        # Scale up by 100% (double replicas) every 30 seconds if needed
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+        # Or add 2 pods every 30 seconds (whichever is larger)
+        - type: Pods
+          value: 2
+          periodSeconds: 30
+      selectPolicy: Max  # Use the policy that scales up the most
+
+    # Scale down behavior: conservative (remove pods slowly)
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 minutes before scaling down
+      policies:
+        # Scale down by 50% (remove half) every 5 minutes if safe
+        - type: Percent
+          value: 50
+          periodSeconds: 300
+        # Or remove 1 pod every 5 minutes (whichever is smaller)
+        - type: Pods
+          value: 1
+          periodSeconds: 300
+      selectPolicy: Min  # Use the policy that scales down the least
+
+---
+# ============================================================================
+# NOTES ON HPA CONFIGURATION
+# ============================================================================
+#
+# REPLICA SCALING:
+#   - Minimum: 3 pods (always running)
+#   - Maximum: 10 pods (prevent resource exhaustion)
+#   - Recommended for CAPTCHA solving with variable load
+#
+# SCALING TRIGGERS:
+#   1. CPU Utilization: 70% (scale up when pods reach 70% CPU)
+#   2. Memory Utilization: 80% (scale up when pods reach 80% memory)
+#   - Either metric exceeding threshold triggers scale-up
+#
+# SCALING BEHAVIOR:
+#   - Scale Up: Aggressive (100% or +2 pods every 30 seconds)
+#     * Provides fast response to traffic spikes
+#     * Model loading & inference can handle rapid deployment
+#   - Scale Down: Conservative (50% or -1 pod every 5 minutes)
+#     * Prevents flapping (rapid up/down cycling)
+#     * Ensures stability during load fluctuations
+#     * Reduces cold start penalties
+#
+# STABILITY WINDOWS:
+#   - Scale Up: 30 seconds (quick response to demand)
+#   - Scale Down: 300 seconds (5 minutes - wait for sustained low load)
+#
+# REQUIREMENTS FOR HPA TO WORK:
+#   1. Metrics Server must be installed in cluster
+#      - Check: kubectl get deployment metrics-server -n kube-system
+#      - Install: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+#   2. Deployment must have resource requests defined
+#      - ✓ Our Deployment has: requests: cpu: 1, memory: 1Gi
+#   3. HPA requires container CPU/memory metrics from Kubelet
+#      - Metrics aggregated from all nodes in cluster
+#
+# BEST PRACTICES IMPLEMENTED:
+#   ✓ API version v2 (latest stable autoscaling API)
+#   ✓ Multiple scaling metrics (CPU + Memory)
+#   ✓ Conservative scale-down policy (prevents thrashing)
+#   ✓ Proper min/max replica boundaries
+#   ✓ Scaling policies with explicit periodSeconds
+#   ✓ Stabilization windows to prevent oscillation
+#
+# TROUBLESHOOTING:
+#   - HPA shows "unknown" metrics → Metrics Server not installed
+#   - Replicas not scaling → Check metrics availability
+#   - Too aggressive scaling → Increase stabilization windows
+#   - Not scaling enough → Lower target utilization thresholds
+#
+# MONITORING HPA STATUS:
+#   kubectl describe hpa -n sin-solver sin-solver-captcha-solver-hpa
+#   kubectl get hpa -n sin-solver -w  # Watch mode
+#   kubectl top nodes  # View node metrics
+#   kubectl top pods -n sin-solver  # View pod metrics
+#
+# ============================================================================
