@@ -1,0 +1,1210 @@
+openapi: 3.0.3
+info:
+  title: SIN-Solver Dashboard API
+  description: |
+    API-Spezifikation für das SIN-Solver Dashboard.
+    
+    ## Übersicht
+    
+    Diese API bietet Endpunkte für:
+    - **Captcha Worker**: CAPTCHA-Erkennung und -Lösung
+    - **Workflow**: n8n Workflow-Generierung und -Verwaltung
+    - **Chat**: AI-gestützter Chat-Assistent
+    
+    ## Authentifizierung
+    
+    Alle Endpunkte erfordern API-Key Authentifizierung via Header:
+    ```
+    Authorization: Bearer {api_key}
+    ```
+    
+    ## Rate Limiting
+    
+    - Standard: 100 Requests/Minute
+    - Enterprise: 1000 Requests/Minute
+    
+  version: 1.0.0
+  contact:
+    name: SIN-Solver Team
+    email: api@sin-solver.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.delqhi.com
+    description: Production
+  - url: https://api-staging.delqhi.com
+    description: Staging
+  - url: http://localhost:8000
+    description: Local Development
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Captcha
+    description: CAPTCHA Worker API - Erkennung und Lösung
+  - name: Workflow
+    description: Workflow API - n8n Workflow-Generierung
+  - name: Chat
+    description: Chat API - AI-Assistent
+  - name: System
+    description: System-Status und Health-Checks
+
+paths:
+  # ==================== CAPTCHA WORKER API ====================
+  
+  /api/captcha/status:
+    get:
+      tags:
+        - Captcha
+      summary: Captcha Worker Status
+      description: |
+        Gibt den aktuellen Status des Captcha Workers zurück,
+        einschließlich Modell-Status und Engine-Zustand.
+      operationId: getCaptchaStatus
+      responses:
+        '200':
+          description: Erfolgreiche Status-Abfrage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptchaStatus'
+              example:
+                worker_status: "healthy"
+                yolo_model: "trained"
+                ocr_engine: "ready"
+                last_updated: "2026-01-29T14:30:00Z"
+                version: "2.1.0"
+                uptime_seconds: 86400
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /api/captcha/solve:
+    post:
+      tags:
+        - Captcha
+      summary: CAPTCHA lösen
+      description: |
+        Sendet ein CAPTCHA-Bild zur Erkennung und Lösung.
+        Unterstützt verschiedene CAPTCHA-Typen.
+      operationId: solveCaptcha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaptchaSolveRequest'
+            examples:
+              alphanumeric:
+                summary: Alphanumerisches CAPTCHA
+                value:
+                  image: "iVBORw0KGgoAAAANSUhEUgAA..."
+                  type: "alphanumeric"
+                  options:
+                    timeout: 30
+                    confidence_threshold: 0.8
+              math:
+                summary: Mathematisches CAPTCHA
+                value:
+                  image: "iVBORw0KGgoAAAANSUhEUgAA..."
+                  type: "math"
+                  options:
+                    timeout: 20
+      responses:
+        '200':
+          description: CAPTCHA erfolgreich gelöst
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptchaResult'
+              example:
+                success: true
+                result: "ABC123"
+                confidence: 0.95
+                processing_time_ms: 150
+                solver_type: "consensus"
+                model_version: "v2.1.0"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/captcha/stats:
+    get:
+      tags:
+        - Captcha
+      summary: Captcha Statistiken
+      description: |
+        Gibt detaillierte Statistiken über gelöste CAPTCHAs zurück,
+        aggregiert nach Zeit und Typ.
+      operationId: getCaptchaStats
+      parameters:
+        - name: period
+          in: query
+          description: Zeitraum für Statistiken
+          schema:
+            type: string
+            enum: [today, week, month, all]
+            default: today
+        - name: group_by
+          in: query
+          description: Gruppierung der Ergebnisse
+          schema:
+            type: string
+            enum: [type, hour, day]
+            default: type
+      responses:
+        '200':
+          description: Statistiken erfolgreich abgerufen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptchaStats'
+              example:
+                today_solved: 150
+                total_solved: 5000
+                success_rate: 0.94
+                avg_time_ms: 180
+                by_type:
+                  alphanumeric: 100
+                  math: 30
+                  image: 20
+                by_hour:
+                  - hour: "14:00"
+                    count: 25
+                    success_rate: 0.96
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/captcha/types:
+    get:
+      tags:
+        - Captcha
+      summary: Unterstützte CAPTCHA-Typen
+      description: Liste aller unterstützten CAPTCHA-Typen mit Konfiguration
+      operationId: getCaptchaTypes
+      responses:
+        '200':
+          description: Liste der CAPTCHA-Typen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  types:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CaptchaTypeInfo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  # ==================== WORKFLOW API ====================
+  
+  /api/workflows/generate:
+    post:
+      tags:
+        - Workflow
+      summary: Workflow generieren
+      description: |
+        Generiert einen n8n Workflow basierend auf einem Prompt.
+        Nutzt AI zur Workflow-Erstellung.
+      operationId: generateWorkflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowGenerateRequest'
+            examples:
+              simple:
+                summary: Einfacher Workflow
+                value:
+                  prompt: "Erstelle einen Workflow, der täglich E-Mails abruft und in eine Datenbank speichert"
+              complex:
+                summary: Komplexer Workflow mit Kontext
+                value:
+                  prompt: "Webhook-triggered Workflow mit CAPTCHA-Lösung"
+                  context:
+                    trigger_type: "webhook"
+                    required_nodes: ["captcha", "http-request"]
+                    target_system: "custom-api"
+      responses:
+        '200':
+          description: Workflow erfolgreich generiert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowGenerateResponse'
+              example:
+                workflow_id: "wf_abc123def456"
+                workflow_json:
+                  name: "Daily Email Processor"
+                  nodes:
+                    - type: "n8n-nodes-base.scheduleTrigger"
+                      name: "Daily Trigger"
+                    - type: "n8n-nodes-base.emailReadImap"
+                      name: "Read Emails"
+                n8n_url: "https://n8n.delqhi.com/workflow/wf_abc123def456"
+                estimated_complexity: "medium"
+                generated_at: "2026-01-29T14:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/workflows/{id}/correct:
+    post:
+      tags:
+        - Workflow
+      summary: Workflow korrigieren
+      description: |
+        Korrigiert einen Workflow basierend auf Fehler-Logs
+        und Korrektur-Anweisungen.
+      operationId: correctWorkflow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Workflow ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCorrectRequest'
+            example:
+              error_log: "Error: Connection refused at HTTP Request node"
+              correction_prompt: "Füge Retry-Logik mit Exponential Backoff hinzu"
+      responses:
+        '200':
+          description: Workflow erfolgreich korrigiert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowCorrectResponse'
+              example:
+                corrected_workflow:
+                  name: "Daily Email Processor"
+                  nodes:
+                    - type: "n8n-nodes-base.httpRequest"
+                      parameters:
+                        retry: true
+                        retryMaxCount: 3
+                changes_made:
+                  - "Added retry configuration to HTTP Request node"
+                  - "Set retryMaxCount to 3"
+                confidence: 0.85
+                correction_id: "corr_xyz789"
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/workflows/active:
+    get:
+      tags:
+        - Workflow
+      summary: Aktive Workflows
+      description: Liste aller aktiven Workflows mit Status
+      operationId: getActiveWorkflows
+      parameters:
+        - name: status
+          in: query
+          description: Filter nach Status
+          schema:
+            type: string
+            enum: [running, error, completed, all]
+            default: all
+        - name: limit
+          in: query
+          description: Maximale Anzahl Ergebnisse
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Liste aktiver Workflows
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflows:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkflowSummary'
+                  total:
+                    type: integer
+              example:
+                workflows:
+                  - id: "wf_abc123"
+                    name: "Daily Email Processor"
+                    status: "running"
+                    last_run: "2026-01-29T14:00:00Z"
+                    execution_count: 42
+                  - id: "wf_def456"
+                    name: "CAPTCHA Automation"
+                    status: "error"
+                    last_run: "2026-01-29T13:30:00Z"
+                    error_message: "Node connection failed"
+                total: 2
+
+  /api/workflows/{id}:
+    get:
+      tags:
+        - Workflow
+      summary: Workflow Details
+      description: Detaillierte Informationen zu einem Workflow
+      operationId: getWorkflow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workflow Details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Workflow
+      summary: Workflow löschen
+      description: Löscht einen Workflow
+      operationId: deleteWorkflow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Workflow gelöscht
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/workflows/{id}/execute:
+    post:
+      tags:
+        - Workflow
+      summary: Workflow ausführen
+      description: Startet die Ausführung eines Workflows
+      operationId: executeWorkflow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  description: Eingabedaten für den Workflow
+      responses:
+        '202':
+          description: Workflow Ausführung gestartet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  execution_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [queued, running]
+
+  # ==================== CHAT API ====================
+  
+  /api/chat/message:
+    post:
+      tags:
+        - Chat
+      summary: Chat-Nachricht senden
+      description: |
+        Sendet eine Nachricht an den AI-Assistenten.
+        Der Assistent kann Workflows analysieren und korrigieren.
+      operationId: sendChatMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageRequest'
+            examples:
+              simple:
+                summary: Einfache Frage
+                value:
+                  message: "Wie kann ich meinen Workflow optimieren?"
+                  session_id: "sess_abc123"
+              with_context:
+                summary: Mit Workflow-Kontext
+                value:
+                  message: "Warum schlägt dieser Workflow fehl?"
+                  session_id: "sess_abc123"
+                  context:
+                    workflows:
+                      - id: "wf_abc123"
+                        name: "Email Processor"
+                        status: "error"
+      responses:
+        '200':
+          description: AI-Antwort
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageResponse'
+              example:
+                message: "Ich habe den Workflow analysiert. Das Problem liegt im HTTP-Request Node..."
+                actions:
+                  - type: "fix_workflow"
+                    workflow_id: "wf_abc123"
+                    description: "Retry-Logik hinzufügen"
+                suggestions:
+                  - "Füge eine Verzögerung zwischen Requests hinzu"
+                  - "Nutze den Proxy-Node für bessere Stabilität"
+                confidence: 0.92
+                processing_time_ms: 1250
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/chat/history:
+    get:
+      tags:
+        - Chat
+      summary: Chat-Verlauf
+      description: Ruft den Nachrichtenverlauf einer Session ab
+      operationId: getChatHistory
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          description: Session ID
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          description: Maximale Anzahl Nachrichten
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: before
+          in: query
+          description: Nachrichten vor diesem Zeitstempel
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Chat-Verlauf
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMessage'
+                  has_more:
+                    type: boolean
+              example:
+                session_id: "sess_abc123"
+                messages:
+                  - role: "user"
+                    content: "Wie kann ich meinen Workflow optimieren?"
+                    timestamp: "2026-01-29T14:00:00Z"
+                  - role: "assistant"
+                    content: "Ich habe den Workflow analysiert..."
+                    timestamp: "2026-01-29T14:00:02Z"
+                    actions:
+                      - type: "view_workflow"
+                        workflow_id: "wf_abc123"
+                has_more: false
+
+  /api/chat/sessions:
+    get:
+      tags:
+        - Chat
+      summary: Chat-Sessions
+      description: Liste aller Chat-Sessions des Benutzers
+      operationId: getChatSessions
+      responses:
+        '200':
+          description: Liste der Sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        session_id:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        last_message_at:
+                          type: string
+                          format: date-time
+                        message_count:
+                          type: integer
+
+  # ==================== SYSTEM API ====================
+  
+  /health:
+    get:
+      tags:
+        - System
+      summary: Health Check
+      description: Einfacher Health-Check Endpunkt
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: System ist gesund
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /health/detailed:
+    get:
+      tags:
+        - System
+      summary: Detaillierter Health Check
+      description: Umfassender System-Status mit allen Services
+      operationId: detailedHealthCheck
+      responses:
+        '200':
+          description: Detaillierter Status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+
+components:
+  # ==================== SECURITY SCHEMES ====================
+  
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Token oder API Key
+
+  # ==================== SCHEMAS ====================
+  
+  schemas:
+    # ----- Captcha Schemas -----
+    
+    CaptchaStatus:
+      type: object
+      required:
+        - worker_status
+        - yolo_model
+        - ocr_engine
+        - last_updated
+      properties:
+        worker_status:
+          type: string
+          enum: [healthy, degraded, down, maintenance]
+          description: Gesamtstatus des Workers
+        yolo_model:
+          type: string
+          enum: [trained, not_trained, training, error]
+          description: Status des YOLO-Modells
+        ocr_engine:
+          type: string
+          enum: [ready, error, initializing]
+          description: Status der OCR-Engine
+        last_updated:
+          type: string
+          format: date-time
+          description: Zeitpunkt der letzten Aktualisierung
+        version:
+          type: string
+          description: Version des Captcha Workers
+        uptime_seconds:
+          type: integer
+          description: Laufzeit in Sekunden
+        queue_depth:
+          type: integer
+          description: Anzahl der wartenden Aufgaben
+        active_solves:
+          type: integer
+          description: Aktuell laufende Lösungen
+
+    CaptchaSolveRequest:
+      type: object
+      required:
+        - image
+        - type
+      properties:
+        image:
+          type: string
+          format: base64
+          description: Base64-kodiertes CAPTCHA-Bild
+          maxLength: 10485760  # 10MB
+        type:
+          type: string
+          enum: [alphanumeric, math, image, slider, click, puzzle]
+          description: Typ des CAPTCHA
+        options:
+          type: object
+          properties:
+            timeout:
+              type: integer
+              default: 30
+              minimum: 5
+              maximum: 120
+              description: Timeout in Sekunden
+            confidence_threshold:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 0.8
+              description: Minimale Konfidenz für Akzeptanz
+            retry_count:
+              type: integer
+              default: 2
+              minimum: 0
+              maximum: 5
+              description: Anzahl der Wiederholungsversuche
+
+    CaptchaResult:
+      type: object
+      required:
+        - success
+        - result
+        - confidence
+        - processing_time_ms
+      properties:
+        success:
+          type: boolean
+          description: Ob die Lösung erfolgreich war
+        result:
+          type: string
+          description: Die erkannte Lösung
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Konfidenz-Score (0-1)
+        processing_time_ms:
+          type: integer
+          description: Verarbeitungszeit in Millisekunden
+        solver_type:
+          type: string
+          enum: [yolo, ocr, consensus, ai_vision]
+          description: Verwendeter Solver
+        model_version:
+          type: string
+          description: Version des verwendeten Modells
+        alternatives:
+          type: array
+          description: Alternative Lösungen (bei niedriger Konfidenz)
+          items:
+            type: object
+            properties:
+              result:
+                type: string
+              confidence:
+                type: number
+
+    CaptchaStats:
+      type: object
+      required:
+        - today_solved
+        - total_solved
+        - success_rate
+        - avg_time_ms
+      properties:
+        today_solved:
+          type: integer
+          description: Heute gelöste CAPTCHAs
+        total_solved:
+          type: integer
+          description: Insgesamt gelöste CAPTCHAs
+        success_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Erfolgsrate (0-1)
+        avg_time_ms:
+          type: integer
+          description: Durchschnittliche Lösungszeit
+        by_type:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Aufschlüsselung nach Typ
+        by_hour:
+          type: array
+          items:
+            type: object
+            properties:
+              hour:
+                type: string
+              count:
+                type: integer
+              success_rate:
+                type: number
+
+    CaptchaTypeInfo:
+      type: object
+      properties:
+        type:
+          type: string
+        display_name:
+          type: string
+        description:
+          type: string
+        supported:
+          type: boolean
+        avg_confidence:
+          type: number
+        avg_time_ms:
+          type: integer
+
+    # ----- Workflow Schemas -----
+    
+    WorkflowGenerateRequest:
+      type: object
+      required:
+        - prompt
+      properties:
+        prompt:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          description: Beschreibung des gewünschten Workflows
+        context:
+          type: object
+          properties:
+            trigger_type:
+              type: string
+              enum: [webhook, schedule, manual, event]
+            required_nodes:
+              type: array
+              items:
+                type: string
+            target_system:
+              type: string
+            existing_workflow_id:
+              type: string
+              description: ID eines bestehenden Workflows als Basis
+
+    WorkflowGenerateResponse:
+      type: object
+      required:
+        - workflow_id
+        - workflow_json
+        - estimated_complexity
+      properties:
+        workflow_id:
+          type: string
+          format: uuid
+        workflow_json:
+          type: object
+          description: Der generierte n8n Workflow
+        n8n_url:
+          type: string
+          format: uri
+          description: Direktlink zum Workflow in n8n
+        estimated_complexity:
+          type: string
+          enum: [low, medium, high]
+        generated_at:
+          type: string
+          format: date-time
+        ai_model_used:
+          type: string
+
+    WorkflowCorrectRequest:
+      type: object
+      required:
+        - error_log
+      properties:
+        error_log:
+          type: string
+          description: Fehler-Log oder Beschreibung des Problems
+        correction_prompt:
+          type: string
+          description: Spezifische Anweisungen zur Korrektur
+        preserve_nodes:
+          type: array
+          items:
+            type: string
+          description: Nodes die erhalten bleiben sollen
+
+    WorkflowCorrectResponse:
+      type: object
+      required:
+        - corrected_workflow
+        - changes_made
+        - confidence
+      properties:
+        corrected_workflow:
+          type: object
+          description: Der korrigierte Workflow
+        changes_made:
+          type: array
+          items:
+            type: string
+          description: Liste der durchgeführten Änderungen
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        correction_id:
+          type: string
+        explanation:
+          type: string
+          description: Erklärung der Korrekturen
+
+    Workflow:
+      type: object
+      required:
+        - id
+        - name
+        - nodes
+        - connections
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowNode'
+        connections:
+          type: object
+        settings:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        execution_count:
+          type: integer
+        last_execution:
+          type: string
+          format: date-time
+
+    WorkflowNode:
+      type: object
+      required:
+        - id
+        - type
+        - name
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+        parameters:
+          type: object
+        position:
+          type: array
+          items:
+            type: number
+
+    WorkflowSummary:
+      type: object
+      required:
+        - id
+        - name
+        - status
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [running, error, completed, paused, draft]
+        last_run:
+          type: string
+          format: date-time
+        execution_count:
+          type: integer
+        error_message:
+          type: string
+
+    # ----- Chat Schemas -----
+    
+    ChatMessageRequest:
+      type: object
+      required:
+        - message
+        - session_id
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+          description: Die Nachricht des Benutzers
+        session_id:
+          type: string
+          format: uuid
+          description: Eindeutige Session-ID
+        context:
+          type: object
+          properties:
+            workflows:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+            current_page:
+              type: string
+            selected_workflow:
+              type: string
+
+    ChatMessageResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Die AI-Antwort
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatAction'
+        suggestions:
+          type: array
+          items:
+            type: string
+          description: Vorgeschlagene nächste Schritte
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        processing_time_ms:
+          type: integer
+        related_workflows:
+          type: array
+          items:
+            type: string
+
+    ChatAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [fix_workflow, view_workflow, create_workflow, run_workflow, open_docs, execute_command]
+        workflow_id:
+          type: string
+        description:
+          type: string
+        parameters:
+          type: object
+
+    ChatMessage:
+      type: object
+      required:
+        - role
+        - content
+        - timestamp
+      properties:
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatAction'
+        metadata:
+          type: object
+
+    # ----- System Schemas -----
+    
+    SystemHealth:
+      type: object
+      required:
+        - status
+        - services
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        uptime_seconds:
+          type: integer
+        services:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [healthy, degraded, unhealthy]
+              latency_ms:
+                type: integer
+              message:
+                type: string
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+
+  # ==================== RESPONSES ====================
+  
+  responses:
+    BadRequest:
+      description: Ungültige Anfrage
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "VALIDATION_ERROR"
+            message: "Invalid request parameters"
+            details:
+              field: "image"
+              error: "Base64 decode failed"
+
+    Unauthorized:
+      description: Nicht autorisiert
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "UNAUTHORIZED"
+            message: "Invalid or missing API key"
+
+    NotFound:
+      description: Ressource nicht gefunden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "NOT_FOUND"
+            message: "Workflow not found"
+
+    UnprocessableEntity:
+      description: Verarbeitung nicht möglich
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "CAPTCHA_UNRECOGNIZED"
+            message: "Could not recognize CAPTCHA type"
+
+    RateLimited:
+      description: Rate Limit überschritten
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "RATE_LIMITED"
+            message: "Too many requests"
+            details:
+              retry_after: 60
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+
+    ServiceUnavailable:
+      description: Dienst nicht verfügbar
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "SERVICE_UNAVAILABLE"
+            message: "Captcha worker is down for maintenance"

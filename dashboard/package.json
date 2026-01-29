@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "axios": "^1.13.4",
     "clsx": "^2.1.1",
     "dockerode": "^4.0.9",
     "framer-motion": "^12.29.2",

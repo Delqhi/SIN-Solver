@@ -1,0 +1,2 @@
+whisper_base
+Load with: whisper.load_model('base')

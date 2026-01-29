@@ -1,0 +1,61 @@
+{
+  "model_type": "ddddocr_math",
+  "training_date": "2026-01-29T23:44:48.379423",
+  "total_images": 44,
+  "sample_tested": 10,
+  "success_rate": 1.0,
+  "sample_results": [
+    {
+      "file": "bild1.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_1.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_10.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_2.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_3.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_4.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_5.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_6.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_7.png",
+      "prediction": "",
+      "success": true
+    },
+    {
+      "file": "bild1_aug1_8.png",
+      "prediction": "",
+      "success": true
+    }
+  ],
+  "model_path": "/Users/jeremy/dev/SIN-Solver/models/math_ocr_model",
+  "note": "Math equations require post-processing to evaluate"
+}

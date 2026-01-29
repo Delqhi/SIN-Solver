@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+# Add parent directory to path so 'app' package can be imported when running as script
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import time
 import logging
 from fastapi import FastAPI, HTTPException, Request, Depends

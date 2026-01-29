@@ -49,11 +49,9 @@ services:
 
   agent-03-agentzero-coder:
     container_name: agent-03-agentzero-coder
-    image: agent-zero:latest
-    build:
-      context: ./Docker/agents/agent-03-agentzero
+    image: frdel/agent-zero:latest
     ports:
-      - "8050:8000"
+      - "8050:80"
       - "9000-9009:9000-9009"
     environment:
       - AGENT_MODE=production
@@ -63,7 +61,7 @@ services:
     networks:
       - sin-solver-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -207,7 +205,7 @@ services:
     networks:
       - sin-solver-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
       timeout: 10s
       retries: 3

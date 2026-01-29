@@ -1,0 +1,4226 @@
+[
+  {
+    "image": "bild1.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.47184285521507263,
+    "inference_time_ms": 105.44870800003991,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.47076496481895447,
+    "inference_time_ms": 22.571749999769963,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.5098882913589478,
+    "inference_time_ms": 20.67291599996679,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.4293633699417114,
+    "inference_time_ms": 50.50287499943806,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.5530679821968079,
+    "inference_time_ms": 24.096000001009088,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.40027445554733276,
+    "inference_time_ms": 68.70170799993502,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7040511965751648,
+    "inference_time_ms": 27.512208000189275,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6948817372322083,
+    "inference_time_ms": 24.127291999320732,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6204135417938232,
+    "inference_time_ms": 24.997042000904912,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4225129783153534,
+    "inference_time_ms": 52.82725000142818,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.5344281792640686,
+    "inference_time_ms": 61.67995800024073,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6550630927085876,
+    "inference_time_ms": 38.388708999264054,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7203617095947266,
+    "inference_time_ms": 28.00083299916878,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7403136491775513,
+    "inference_time_ms": 73.5715410010016,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.567380964756012,
+    "inference_time_ms": 24.778375000096275,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7846417427062988,
+    "inference_time_ms": 53.59716699967976,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.4824675917625427,
+    "inference_time_ms": 30.271125000581378,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7643245458602905,
+    "inference_time_ms": 25.694583000586135,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6656147837638855,
+    "inference_time_ms": 55.987958001423976,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.743431806564331,
+    "inference_time_ms": 28.03120799944736,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.28070715069770813,
+    "inference_time_ms": 25.05087499957881,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6747801899909973,
+    "inference_time_ms": 55.268875001274864,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.41336435079574585,
+    "inference_time_ms": 38.32445800071582,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.48054859042167664,
+    "inference_time_ms": 93.77979199962283,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.5676507353782654,
+    "inference_time_ms": 53.79079200065462,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.3405209481716156,
+    "inference_time_ms": 53.618249999999534,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6091260313987732,
+    "inference_time_ms": 31.48045799935062,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.27089470624923706,
+    "inference_time_ms": 66.91350000073726,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.8176978230476379,
+    "inference_time_ms": 32.71041700099886,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.634563684463501,
+    "inference_time_ms": 61.957624999195104,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7784475088119507,
+    "inference_time_ms": 33.69224999914877,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.2962363064289093,
+    "inference_time_ms": 56.876458000260754,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.44367092847824097,
+    "inference_time_ms": 70.57620900013717,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.5688457489013672,
+    "inference_time_ms": 28.76408399970387,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6233482360839844,
+    "inference_time_ms": 26.85945799930778,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6690202951431274,
+    "inference_time_ms": 27.467750000141677,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6256579160690308,
+    "inference_time_ms": 45.36874999939755,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6640391945838928,
+    "inference_time_ms": 25.43245900051261,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.5071445107460022,
+    "inference_time_ms": 27.739541001210455,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.8285789489746094,
+    "inference_time_ms": 29.747374999715248,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.8719120025634766,
+    "inference_time_ms": 33.471542001279886,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.7401943802833557,
+    "inference_time_ms": 37.3350420013594,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.30006808042526245,
+    "inference_time_ms": 29.308208999282215,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Audio_Captcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.6332318782806396,
+    "inference_time_ms": 67.27225000031467,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9285880327224731,
+    "inference_time_ms": 31.138459000430885,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8462655544281006,
+    "inference_time_ms": 44.55979100021068,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9285599589347839,
+    "inference_time_ms": 106.54487499959941,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9030511379241943,
+    "inference_time_ms": 35.27074999874458,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8697605133056641,
+    "inference_time_ms": 26.469749998796033,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9500285983085632,
+    "inference_time_ms": 24.883000000045286,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9635076522827148,
+    "inference_time_ms": 68.55641699985426,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9226862192153931,
+    "inference_time_ms": 89.14279199962039,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9585338234901428,
+    "inference_time_ms": 32.996125000863685,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.7174646258354187,
+    "inference_time_ms": 30.772124999202788,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8908329010009766,
+    "inference_time_ms": 63.40000000091095,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8901889324188232,
+    "inference_time_ms": 28.872041999420617,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8860897421836853,
+    "inference_time_ms": 76.11387500037381,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8155347108840942,
+    "inference_time_ms": 31.004958998892107,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8032660484313965,
+    "inference_time_ms": 28.277000001253327,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.774894118309021,
+    "inference_time_ms": 24.655042001541005,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9251570701599121,
+    "inference_time_ms": 25.855707999653532,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8908714652061462,
+    "inference_time_ms": 27.748625001549954,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9096779823303223,
+    "inference_time_ms": 91.36916699935682,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9586848020553589,
+    "inference_time_ms": 24.008458000025712,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.6920779347419739,
+    "inference_time_ms": 25.89491700018698,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8655084371566772,
+    "inference_time_ms": 80.31016700078908,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.977971613407135,
+    "inference_time_ms": 31.87433399943984,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9715850353240967,
+    "inference_time_ms": 112.72012500012352,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9684057831764221,
+    "inference_time_ms": 49.73670800063701,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9497768878936768,
+    "inference_time_ms": 147.6580840007955,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9615099430084229,
+    "inference_time_ms": 33.42266700019536,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9790135622024536,
+    "inference_time_ms": 39.906125000925385,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9807600975036621,
+    "inference_time_ms": 81.26591700056451,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9176607728004456,
+    "inference_time_ms": 38.94854099962686,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9689344167709351,
+    "inference_time_ms": 42.280874999050866,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8444333672523499,
+    "inference_time_ms": 113.4102920004807,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9673873782157898,
+    "inference_time_ms": 42.955124999934924,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9024434685707092,
+    "inference_time_ms": 82.73616699989361,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8564133048057556,
+    "inference_time_ms": 34.81674999966344,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8445155024528503,
+    "inference_time_ms": 76.09950000005483,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8108912706375122,
+    "inference_time_ms": 102.56666699933703,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8590070009231567,
+    "inference_time_ms": 36.37233299923537,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9354883432388306,
+    "inference_time_ms": 30.364542000825168,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.9653959274291992,
+    "inference_time_ms": 52.94316599974991,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8935789465904236,
+    "inference_time_ms": 37.926834000245435,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.91677325963974,
+    "inference_time_ms": 31.518916999630164,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.7833850979804993,
+    "inference_time_ms": 25.543666999510606,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Cloudflare_Turnstile",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.8705816864967346,
+    "inference_time_ms": 39.326250000158325,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4115109145641327,
+    "inference_time_ms": 88.53562500007683,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.40462782979011536,
+    "inference_time_ms": 31.763667000632267,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.38446301221847534,
+    "inference_time_ms": 93.8476659994194,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4985046088695526,
+    "inference_time_ms": 29.628624999531894,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.46926766633987427,
+    "inference_time_ms": 41.96816699914052,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3395969569683075,
+    "inference_time_ms": 78.34374999947613,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.39722418785095215,
+    "inference_time_ms": 29.837542000677786,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.251843124628067,
+    "inference_time_ms": 197.45620799949393,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "Cloudflare_Turnstile",
+    "confidence": 0.44310909509658813,
+    "inference_time_ms": 25.632250000853674,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6089317798614502,
+    "inference_time_ms": 23.70725000037055,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4193192422389984,
+    "inference_time_ms": 31.94716700090794,
+    "correct": false
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.38739070296287537,
+    "inference_time_ms": 75.5467500002851,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.3528963029384613,
+    "inference_time_ms": 32.77258299931418,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.34512248635292053,
+    "inference_time_ms": 27.854457999637816,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.42211323976516724,
+    "inference_time_ms": 88.27904199824843,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.35300371050834656,
+    "inference_time_ms": 37.746083000456565,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.33815285563468933,
+    "inference_time_ms": 84.74700000078883,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.5133519768714905,
+    "inference_time_ms": 48.625333000018145,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.45291826128959656,
+    "inference_time_ms": 80.62570800029789,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.45024383068084717,
+    "inference_time_ms": 26.82325000023411,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3644210398197174,
+    "inference_time_ms": 27.618207999694278,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3471572697162628,
+    "inference_time_ms": 32.500958999662544,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.31177499890327454,
+    "inference_time_ms": 28.56012499978533,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.27908116579055786,
+    "inference_time_ms": 26.065042000482208,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.2682094871997833,
+    "inference_time_ms": 22.155583999847295,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.37867313623428345,
+    "inference_time_ms": 20.374374998937128,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3113175332546234,
+    "inference_time_ms": 18.785499998557498,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.2782384157180786,
+    "inference_time_ms": 19.386458001463325,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3125348687171936,
+    "inference_time_ms": 19.62354200077243,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "Audio_Captcha",
+    "confidence": 0.25660669803619385,
+    "inference_time_ms": 19.82316700014053,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.2860619127750397,
+    "inference_time_ms": 23.92929099914909,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.38484513759613037,
+    "inference_time_ms": 21.818625000378233,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.30991825461387634,
+    "inference_time_ms": 26.72037499905855,
+    "correct": false
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3240464925765991,
+    "inference_time_ms": 31.688790999396588,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3436739444732666,
+    "inference_time_ms": 22.451791001003585,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.31950584053993225,
+    "inference_time_ms": 22.171042000991292,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.37580597400665283,
+    "inference_time_ms": 18.194833000961808,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3539722263813019,
+    "inference_time_ms": 23.813249999875552,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.29198119044303894,
+    "inference_time_ms": 19.319291999636334,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.2903728485107422,
+    "inference_time_ms": 25.44175000002724,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.24331946671009064,
+    "inference_time_ms": 25.57537500069884,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.34737664461135864,
+    "inference_time_ms": 22.4972500000149,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.36230289936065674,
+    "inference_time_ms": 19.623291000243626,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "FunCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3231711983680725,
+    "inference_time_ms": 22.762917000363814,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.7629311680793762,
+    "inference_time_ms": 40.20275000038964,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.7659907341003418,
+    "inference_time_ms": 32.261249998555286,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.807442307472229,
+    "inference_time_ms": 44.02170800130989,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.6094607710838318,
+    "inference_time_ms": 35.01512500042736,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.8031456470489502,
+    "inference_time_ms": 49.68000000008033,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5991889238357544,
+    "inference_time_ms": 76.68233299955318,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5949723720550537,
+    "inference_time_ms": 72.5254170010885,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "GeeTest",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.31419870257377625,
+    "inference_time_ms": 67.90212499981862,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.4954373836517334,
+    "inference_time_ms": 135.24462500026857,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "GeeTest",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3911222219467163,
+    "inference_time_ms": 102.46799999913492,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.777687132358551,
+    "inference_time_ms": 79.2242499992426,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.2848307192325592,
+    "inference_time_ms": 37.91429100056121,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.3836146891117096,
+    "inference_time_ms": 32.27474999948754,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.529084324836731,
+    "inference_time_ms": 29.54341700024088,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "GeeTest",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3115846812725067,
+    "inference_time_ms": 70.70070800000394,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.48534467816352844,
+    "inference_time_ms": 27.568167000936228,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "GeeTest",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3012787401676178,
+    "inference_time_ms": 124.70270799894934,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5549317002296448,
+    "inference_time_ms": 30.78937499958556,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.38970714807510376,
+    "inference_time_ms": 35.57600000021921,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.7128186225891113,
+    "inference_time_ms": 34.17000000081316,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "GeeTest",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.37743350863456726,
+    "inference_time_ms": 27.076833001046907,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.29349270462989807,
+    "inference_time_ms": 32.37441700002819,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.45656368136405945,
+    "inference_time_ms": 35.497916000167606,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.52080899477005,
+    "inference_time_ms": 56.716166998739936,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.6016315817832947,
+    "inference_time_ms": 30.474916000457597,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.3692479133605957,
+    "inference_time_ms": 82.68545800092397,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.6043205261230469,
+    "inference_time_ms": 36.39987499991548,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.35989096760749817,
+    "inference_time_ms": 54.387416999816196,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.49177005887031555,
+    "inference_time_ms": 88.1339579991618,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.2805279493331909,
+    "inference_time_ms": 33.25533299903327,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5549505949020386,
+    "inference_time_ms": 37.39720799967472,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "GeeTest",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3206833302974701,
+    "inference_time_ms": 97.04833300020255,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5502904057502747,
+    "inference_time_ms": 72.94900000124471,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.4329935908317566,
+    "inference_time_ms": 27.00087499943038,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5255159139633179,
+    "inference_time_ms": 26.473957999769482,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5552712678909302,
+    "inference_time_ms": 33.25312500055588,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "GeeTest",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.40378743410110474,
+    "inference_time_ms": 26.062875000206986,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5223395824432373,
+    "inference_time_ms": 26.28845899926091,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.3979475498199463,
+    "inference_time_ms": 26.89595899937558,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.6796449422836304,
+    "inference_time_ms": 51.58570800085727,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.3278133273124695,
+    "inference_time_ms": 35.58454099947994,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.5980746150016785,
+    "inference_time_ms": 96.41358299995773,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "GeeTest",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4508134126663208,
+    "inference_time_ms": 72.27700000112236,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "GeeTest",
+    "predicted_type": "GeeTest",
+    "confidence": 0.49447789788246155,
+    "inference_time_ms": 52.79862499992305,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7265989184379578,
+    "inference_time_ms": 79.07708299899241,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.6731204986572266,
+    "inference_time_ms": 84.59520900032658,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7443365454673767,
+    "inference_time_ms": 33.19670899873017,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7778066992759705,
+    "inference_time_ms": 88.07804099888017,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7524212598800659,
+    "inference_time_ms": 30.646416998934,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.669364333152771,
+    "inference_time_ms": 32.39750000102504,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.5833898186683655,
+    "inference_time_ms": 92.96912500030885,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7960610389709473,
+    "inference_time_ms": 34.4125419996999,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7826113104820251,
+    "inference_time_ms": 25.81425000062154,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4072704017162323,
+    "inference_time_ms": 24.43654200033052,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7371788024902344,
+    "inference_time_ms": 24.93520899952273,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7540081739425659,
+    "inference_time_ms": 22.33216700005869,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.674629807472229,
+    "inference_time_ms": 30.64124999946216,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7615047097206116,
+    "inference_time_ms": 22.245042000577087,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7915869355201721,
+    "inference_time_ms": 22.750415999325924,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7347657680511475,
+    "inference_time_ms": 28.123333000621642,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7046846151351929,
+    "inference_time_ms": 29.174541999964276,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.6141316294670105,
+    "inference_time_ms": 19.98795799954678,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.8056342601776123,
+    "inference_time_ms": 19.38295900072262,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.8474067449569702,
+    "inference_time_ms": 18.927249999251217,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.2946867346763611,
+    "inference_time_ms": 18.975916998897446,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7798870205879211,
+    "inference_time_ms": 22.427333000450744,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7357357740402222,
+    "inference_time_ms": 33.2706249992043,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.6590530276298523,
+    "inference_time_ms": 29.05208300035156,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7644476294517517,
+    "inference_time_ms": 34.46704099951603,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7763134837150574,
+    "inference_time_ms": 25.089583999942988,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7488101720809937,
+    "inference_time_ms": 26.922916000330588,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.6752186417579651,
+    "inference_time_ms": 22.886208998897928,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.5897319316864014,
+    "inference_time_ms": 26.428249999298714,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.797524631023407,
+    "inference_time_ms": 26.080542000272544,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.8396996855735779,
+    "inference_time_ms": 22.99545800087799,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.30740565061569214,
+    "inference_time_ms": 31.442999999853782,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7306694388389587,
+    "inference_time_ms": 33.777000000554835,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7125828862190247,
+    "inference_time_ms": 29.442290999213583,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.598869264125824,
+    "inference_time_ms": 34.10016700036067,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7226181626319885,
+    "inference_time_ms": 28.334124999673804,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7719144821166992,
+    "inference_time_ms": 22.99375000075088,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.6910545229911804,
+    "inference_time_ms": 20.486875000642613,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.6780830025672913,
+    "inference_time_ms": 20.019249999677413,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.5655999779701233,
+    "inference_time_ms": 24.926874999437132,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.8158018589019775,
+    "inference_time_ms": 33.74720899955719,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.8458594679832458,
+    "inference_time_ms": 23.787791000358993,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3048706352710724,
+    "inference_time_ms": 23.852084001191542,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Image_Click_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.7044596076011658,
+    "inference_time_ms": 26.82437499970547,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9945547580718994,
+    "inference_time_ms": 25.1261670000531,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9966036081314087,
+    "inference_time_ms": 23.743624999042368,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9931567311286926,
+    "inference_time_ms": 21.38675000060175,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9935368895530701,
+    "inference_time_ms": 21.355332999519305,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9959717392921448,
+    "inference_time_ms": 20.235542000591522,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9808009266853333,
+    "inference_time_ms": 19.941542001106427,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9957424998283386,
+    "inference_time_ms": 22.15158299986797,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9926401972770691,
+    "inference_time_ms": 20.912250000037602,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9944508075714111,
+    "inference_time_ms": 21.141457998965052,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9958113431930542,
+    "inference_time_ms": 24.36058300008881,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9948734641075134,
+    "inference_time_ms": 30.50891699967906,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9959399700164795,
+    "inference_time_ms": 40.675916001418955,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9967706203460693,
+    "inference_time_ms": 29.75170900026569,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9946040511131287,
+    "inference_time_ms": 25.819499998760875,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9966239929199219,
+    "inference_time_ms": 23.650125000131084,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.997036337852478,
+    "inference_time_ms": 22.54154200090852,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9883260130882263,
+    "inference_time_ms": 23.745417000100133,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9384497404098511,
+    "inference_time_ms": 24.146083000232466,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.980138897895813,
+    "inference_time_ms": 39.99075000137964,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9975312948226929,
+    "inference_time_ms": 28.544541000883328,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9940046668052673,
+    "inference_time_ms": 22.314707999612438,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9964377880096436,
+    "inference_time_ms": 21.824833000209765,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.995603084564209,
+    "inference_time_ms": 19.132458000967745,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9966173768043518,
+    "inference_time_ms": 18.429458999889903,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9954197406768799,
+    "inference_time_ms": 19.537415999366203,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9958444237709045,
+    "inference_time_ms": 18.74066600066726,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9974043965339661,
+    "inference_time_ms": 19.447458998911316,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9837725758552551,
+    "inference_time_ms": 23.408250001011766,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9965217113494873,
+    "inference_time_ms": 25.495041998510715,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9951281547546387,
+    "inference_time_ms": 24.87250000012864,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9941648840904236,
+    "inference_time_ms": 39.06487499989453,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9958367347717285,
+    "inference_time_ms": 25.452124998992076,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9957407712936401,
+    "inference_time_ms": 26.730124998721294,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9663304090499878,
+    "inference_time_ms": 22.87400000022899,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9852067828178406,
+    "inference_time_ms": 21.937292000075104,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9538085460662842,
+    "inference_time_ms": 28.2513750007638,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9708356261253357,
+    "inference_time_ms": 23.170291000496945,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9738160371780396,
+    "inference_time_ms": 23.719083999822033,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9391595721244812,
+    "inference_time_ms": 21.080250000522938,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.8056920170783997,
+    "inference_time_ms": 19.668541999635636,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9726482629776001,
+    "inference_time_ms": 19.93337500061898,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9947671890258789,
+    "inference_time_ms": 19.391417001315858,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.42335793375968933,
+    "inference_time_ms": 19.155124999088002,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Math_Captcha",
+    "predicted_type": "Math_Captcha",
+    "confidence": 0.9753579497337341,
+    "inference_time_ms": 22.989875000348547,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5700749754905701,
+    "inference_time_ms": 19.28162500007602,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6483246684074402,
+    "inference_time_ms": 18.856042001061724,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6757992506027222,
+    "inference_time_ms": 19.354374999238644,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.4196118116378784,
+    "inference_time_ms": 24.78874999906111,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7697014808654785,
+    "inference_time_ms": 20.78849999998056,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.4163196086883545,
+    "inference_time_ms": 21.568041998762055,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5049571990966797,
+    "inference_time_ms": 22.310500000457978,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.595815896987915,
+    "inference_time_ms": 20.077500001207227,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7459813356399536,
+    "inference_time_ms": 24.593415999333956,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.28794026374816895,
+    "inference_time_ms": 19.54120799928205,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6047788858413696,
+    "inference_time_ms": 21.86791599888238,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7492713332176208,
+    "inference_time_ms": 18.59258300100919,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7913655638694763,
+    "inference_time_ms": 18.323832999158185,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.8119246363639832,
+    "inference_time_ms": 19.295707999845035,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5833346843719482,
+    "inference_time_ms": 25.73041700088652,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.8666769862174988,
+    "inference_time_ms": 24.335374999282067,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5306997895240784,
+    "inference_time_ms": 20.194750000882777,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6627060770988464,
+    "inference_time_ms": 23.611541000718717,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6206050515174866,
+    "inference_time_ms": 22.64837500115391,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7974147796630859,
+    "inference_time_ms": 19.933625000703614,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5058088898658752,
+    "inference_time_ms": 20.31399999941641,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7740552425384521,
+    "inference_time_ms": 21.394334000433446,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.751654326915741,
+    "inference_time_ms": 33.11845800089941,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7847511768341064,
+    "inference_time_ms": 44.21441700105788,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.810949444770813,
+    "inference_time_ms": 39.71291699963331,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6063882112503052,
+    "inference_time_ms": 38.108000000647735,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.8774626851081848,
+    "inference_time_ms": 30.529249999744934,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5269903540611267,
+    "inference_time_ms": 30.250625000917353,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.665465772151947,
+    "inference_time_ms": 27.12658400014334,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6297879815101624,
+    "inference_time_ms": 26.78179099893896,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7624595165252686,
+    "inference_time_ms": 25.117875000432832,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.37632548809051514,
+    "inference_time_ms": 29.688374999750522,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7251778841018677,
+    "inference_time_ms": 28.929415999300545,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7471699118614197,
+    "inference_time_ms": 21.36304099985864,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7847913503646851,
+    "inference_time_ms": 19.541042000128073,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7955896854400635,
+    "inference_time_ms": 22.16279200001736,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.601703405380249,
+    "inference_time_ms": 21.561749999818858,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.845085084438324,
+    "inference_time_ms": 19.05549999901268,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.5527729392051697,
+    "inference_time_ms": 19.92791699922236,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6346755027770996,
+    "inference_time_ms": 19.79729199956637,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.6373248100280762,
+    "inference_time_ms": 20.951624999725027,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.8130187392234802,
+    "inference_time_ms": 19.671624999318738,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.3444657623767853,
+    "inference_time_ms": 26.199416000963538,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Puzzle_Captcha",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.7657914161682129,
+    "inference_time_ms": 28.06691599835176,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4824847877025604,
+    "inference_time_ms": 25.80366599977424,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5799503922462463,
+    "inference_time_ms": 24.03204199981701,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4091601073741913,
+    "inference_time_ms": 19.310333000248647,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.43018263578414917,
+    "inference_time_ms": 18.808459000865696,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4611532390117645,
+    "inference_time_ms": 24.993208000523737,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.3951779305934906,
+    "inference_time_ms": 23.972749999302323,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5688498616218567,
+    "inference_time_ms": 23.734083000817918,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.6187812089920044,
+    "inference_time_ms": 22.994749999270425,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.7487618327140808,
+    "inference_time_ms": 30.56250000008731,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3520953953266144,
+    "inference_time_ms": 24.67649999925925,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.36717545986175537,
+    "inference_time_ms": 27.192916999410954,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5180455446243286,
+    "inference_time_ms": 21.11891700042179,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5673844814300537,
+    "inference_time_ms": 27.810249999674852,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4354245960712433,
+    "inference_time_ms": 28.057957999408245,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4850095510482788,
+    "inference_time_ms": 32.78524999950605,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.46430203318595886,
+    "inference_time_ms": 31.043334000059986,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.3956950902938843,
+    "inference_time_ms": 31.11762499975157,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5282458066940308,
+    "inference_time_ms": 31.757500000821892,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5958081483840942,
+    "inference_time_ms": 36.02345800027251,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.7043507099151611,
+    "inference_time_ms": 34.33366600074805,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Image_Click_Captcha",
+    "confidence": 0.23660625517368317,
+    "inference_time_ms": 31.132542000705143,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.3973436653614044,
+    "inference_time_ms": 44.76020899892319,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5372366309165955,
+    "inference_time_ms": 32.71558300002653,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5794809460639954,
+    "inference_time_ms": 28.209666999828187,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.44450643658638,
+    "inference_time_ms": 32.90066699992167,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5089155435562134,
+    "inference_time_ms": 27.505375001055654,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.463522732257843,
+    "inference_time_ms": 25.432374999581953,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.44121745228767395,
+    "inference_time_ms": 28.16566699948453,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5147537589073181,
+    "inference_time_ms": 46.153291999871726,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5569872856140137,
+    "inference_time_ms": 42.15962499984016,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5424450635910034,
+    "inference_time_ms": 33.37679200012644,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.35306689143180847,
+    "inference_time_ms": 32.15283300050942,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4611136019229889,
+    "inference_time_ms": 28.627374998904997,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.6022379398345947,
+    "inference_time_ms": 26.143207998757134,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.6269139647483826,
+    "inference_time_ms": 24.78016699933505,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5021003484725952,
+    "inference_time_ms": 24.06841699848883,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5810960531234741,
+    "inference_time_ms": 23.275249999642256,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.5199486017227173,
+    "inference_time_ms": 24.39954100009345,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.4894869327545166,
+    "inference_time_ms": 39.05916599978809,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.6780243515968323,
+    "inference_time_ms": 25.7269579997228,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.6679067611694336,
+    "inference_time_ms": 26.34787500028324,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.7149028778076172,
+    "inference_time_ms": 25.967958999899565,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3514976501464844,
+    "inference_time_ms": 19.81412500026636,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Slide_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.6176720857620239,
+    "inference_time_ms": 23.89312500054075,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3929138481616974,
+    "inference_time_ms": 22.597791999942274,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.28896987438201904,
+    "inference_time_ms": 26.667791998988832,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5249344110488892,
+    "inference_time_ms": 22.690249999868684,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Slide_Captcha",
+    "confidence": 0.29620155692100525,
+    "inference_time_ms": 31.577707999531412,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.41711291670799255,
+    "inference_time_ms": 30.900167001163936,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.41404590010643005,
+    "inference_time_ms": 30.103541999778827,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "GeeTest",
+    "confidence": 0.3126868009567261,
+    "inference_time_ms": 24.4635000017297,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.45900386571884155,
+    "inference_time_ms": 27.200165999602177,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.523146390914917,
+    "inference_time_ms": 36.62991600140231,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3363259434700012,
+    "inference_time_ms": 46.41129099945829,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3696235120296478,
+    "inference_time_ms": 53.29479099964374,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6578155755996704,
+    "inference_time_ms": 42.01199999988603,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6225107312202454,
+    "inference_time_ms": 31.664707999880193,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.7453659772872925,
+    "inference_time_ms": 25.562042001183727,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5612396597862244,
+    "inference_time_ms": 33.72058300010394,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.7188266515731812,
+    "inference_time_ms": 32.31366600084584,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5670415759086609,
+    "inference_time_ms": 37.53837499971269,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.578642725944519,
+    "inference_time_ms": 56.64237500059244,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5160102844238281,
+    "inference_time_ms": 44.20879200006311,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.7720744609832764,
+    "inference_time_ms": 34.46758399877581,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3834635615348816,
+    "inference_time_ms": 35.65879199959454,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6470963358879089,
+    "inference_time_ms": 49.21870799989847,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6868546009063721,
+    "inference_time_ms": 36.90762500082201,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5996246337890625,
+    "inference_time_ms": 67.83529200038174,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.7617816925048828,
+    "inference_time_ms": 55.60166699979163,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.48402515053749084,
+    "inference_time_ms": 49.32816700056719,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.670931875705719,
+    "inference_time_ms": 38.76466699875891,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5704686641693115,
+    "inference_time_ms": 33.87283300071431,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6946399211883545,
+    "inference_time_ms": 36.47658299996692,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.7450742125511169,
+    "inference_time_ms": 26.148834000196075,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.688764214515686,
+    "inference_time_ms": 22.857666999698267,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.43001022934913635,
+    "inference_time_ms": 30.87937500094995,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6788007020950317,
+    "inference_time_ms": 33.81137500036857,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3489632308483124,
+    "inference_time_ms": 38.15458299868624,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3169984519481659,
+    "inference_time_ms": 41.68449999997392,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.5021845102310181,
+    "inference_time_ms": 21.304333000443876,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.28559041023254395,
+    "inference_time_ms": 24.101709001115523,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.447066068649292,
+    "inference_time_ms": 29.738084000200615,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.3040669858455658,
+    "inference_time_ms": 37.39937499994994,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.48271995782852173,
+    "inference_time_ms": 46.24270800013619,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6365103721618652,
+    "inference_time_ms": 53.45604200010712,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.6830483078956604,
+    "inference_time_ms": 47.54645899993193,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "GeeTest",
+    "confidence": 0.29031258821487427,
+    "inference_time_ms": 29.50833399881958,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "Text_Captcha",
+    "predicted_type": "Text_Captcha",
+    "confidence": 0.30911773443222046,
+    "inference_time_ms": 27.2600419993978,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.44488945603370667,
+    "inference_time_ms": 21.910416000537225,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.39261549711227417,
+    "inference_time_ms": 24.613874998976826,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.44797754287719727,
+    "inference_time_ms": 32.20279100059997,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5188422799110413,
+    "inference_time_ms": 29.648083000211045,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.478713721036911,
+    "inference_time_ms": 28.03183300056844,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3488579988479614,
+    "inference_time_ms": 23.000541999863344,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3064109981060028,
+    "inference_time_ms": 38.49958400132891,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.31643202900886536,
+    "inference_time_ms": 31.80341699953715,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.47447478771209717,
+    "inference_time_ms": 23.169791000327677,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.45174747705459595,
+    "inference_time_ms": 35.52687500086904,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4502744674682617,
+    "inference_time_ms": 32.56833300110884,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3973998725414276,
+    "inference_time_ms": 22.173666999151465,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.397895872592926,
+    "inference_time_ms": 22.364166999977897,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3414529860019684,
+    "inference_time_ms": 26.135832998988917,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4571567177772522,
+    "inference_time_ms": 21.67754099900776,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4045915901660919,
+    "inference_time_ms": 19.563625000955653,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.34049585461616516,
+    "inference_time_ms": 26.52904199931072,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.45758137106895447,
+    "inference_time_ms": 27.94237499983865,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.25125670433044434,
+    "inference_time_ms": 25.337374998343876,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.38887718319892883,
+    "inference_time_ms": 20.36608399976103,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5019787549972534,
+    "inference_time_ms": 19.314625000333763,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3710298240184784,
+    "inference_time_ms": 25.09699999973236,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6253985166549683,
+    "inference_time_ms": 18.475374999979977,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5987054109573364,
+    "inference_time_ms": 21.017666998886853,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5691770911216736,
+    "inference_time_ms": 27.616041999863228,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.7247176170349121,
+    "inference_time_ms": 23.9490840012877,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6803467869758606,
+    "inference_time_ms": 39.13670899964927,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5180988907814026,
+    "inference_time_ms": 26.385208000647253,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6189401149749756,
+    "inference_time_ms": 26.040124999781256,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5246385335922241,
+    "inference_time_ms": 49.019542000678484,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5193196535110474,
+    "inference_time_ms": 30.0802499987185,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5088609457015991,
+    "inference_time_ms": 28.983042000618298,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6623755693435669,
+    "inference_time_ms": 40.36450000057812,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5596526861190796,
+    "inference_time_ms": 30.526874999850406,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5182925462722778,
+    "inference_time_ms": 35.134042000208865,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5399222373962402,
+    "inference_time_ms": 30.51637499993376,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6389302015304565,
+    "inference_time_ms": 32.24958300052094,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.6390966773033142,
+    "inference_time_ms": 23.64891599972907,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.44684258103370667,
+    "inference_time_ms": 23.324083000261453,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.686047375202179,
+    "inference_time_ms": 25.143292001303053,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.46499085426330566,
+    "inference_time_ms": 20.44141699843749,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5003030300140381,
+    "inference_time_ms": 26.71362500041141,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5282747149467468,
+    "inference_time_ms": 21.585542001048452,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "hCaptcha",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5718637108802795,
+    "inference_time_ms": 38.867499999469146,
+    "correct": true
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.726942777633667,
+    "inference_time_ms": 22.163290999742458,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.8081859946250916,
+    "inference_time_ms": 18.590249999761,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.680913507938385,
+    "inference_time_ms": 18.94470899969747,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.5988197326660156,
+    "inference_time_ms": 37.302791000911384,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.7237830758094788,
+    "inference_time_ms": 20.68508299998939,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.7945525050163269,
+    "inference_time_ms": 20.05716700114135,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.8660474419593811,
+    "inference_time_ms": 19.906125000488828,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.876470685005188,
+    "inference_time_ms": 34.201291999124805,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.7971117496490479,
+    "inference_time_ms": 27.39741699951992,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.7539801001548767,
+    "inference_time_ms": 30.888375000358792,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.7205438613891602,
+    "inference_time_ms": 24.136916001225472,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.29072776436805725,
+    "inference_time_ms": 23.164582999015693,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.37145084142684937,
+    "inference_time_ms": 33.55562499928055,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.33097606897354126,
+    "inference_time_ms": 23.209417000543908,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.34131771326065063,
+    "inference_time_ms": 24.67995899860398,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.33958813548088074,
+    "inference_time_ms": 24.6287919999304,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.38216206431388855,
+    "inference_time_ms": 30.3302079992136,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.4182102680206299,
+    "inference_time_ms": 25.400208000064595,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.5448592901229858,
+    "inference_time_ms": 33.35470899946813,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4562641382217407,
+    "inference_time_ms": 22.922292000657762,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.38480445742607117,
+    "inference_time_ms": 30.455166999672656,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.3448690176010132,
+    "inference_time_ms": 28.556334000313655,
+    "correct": true
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "GeeTest",
+    "confidence": 0.28360825777053833,
+    "inference_time_ms": 23.910542000521673,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "GeeTest",
+    "confidence": 0.28736549615859985,
+    "inference_time_ms": 21.49137500055076,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "GeeTest",
+    "confidence": 0.4111762046813965,
+    "inference_time_ms": 21.677083999747992,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.37377116084098816,
+    "inference_time_ms": 18.560999998953776,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "GeeTest",
+    "confidence": 0.370802104473114,
+    "inference_time_ms": 18.62795799934247,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.24082784354686737,
+    "inference_time_ms": 19.534791999831214,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.39383822679519653,
+    "inference_time_ms": 22.16916600082186,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.19692015647888184,
+    "inference_time_ms": 43.14445799900568,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.31848472356796265,
+    "inference_time_ms": 22.975083000346785,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.4847811162471771,
+    "inference_time_ms": 25.808292000874644,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "GeeTest",
+    "confidence": 0.3561968207359314,
+    "inference_time_ms": 27.265875000011874,
+    "correct": false
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.3131977915763855,
+    "inference_time_ms": 18.735333000222454,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.33297139406204224,
+    "inference_time_ms": 21.45104199917114,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.332650750875473,
+    "inference_time_ms": 20.41579100114177,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.3026641309261322,
+    "inference_time_ms": 21.940375001577195,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.33686038851737976,
+    "inference_time_ms": 18.71374999973341,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.37978991866111755,
+    "inference_time_ms": 20.574666999891633,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.3680492639541626,
+    "inference_time_ms": 20.639833999666735,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.35411691665649414,
+    "inference_time_ms": 35.44266700009757,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.5105510950088501,
+    "inference_time_ms": 23.57987499999581,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.41451725363731384,
+    "inference_time_ms": 20.257500000298023,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "reCaptcha_v2",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.31739890575408936,
+    "inference_time_ms": 21.537124999667867,
+    "correct": false
+  },
+  {
+    "image": "bild1.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.4594506025314331,
+    "inference_time_ms": 20.003499999802443,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_1.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.5245292782783508,
+    "inference_time_ms": 21.36212500045076,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_10.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.5139330625534058,
+    "inference_time_ms": 19.864708998284186,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_2.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.376907616853714,
+    "inference_time_ms": 19.595708001361345,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_3.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.4746871590614319,
+    "inference_time_ms": 18.869041001380538,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_4.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.4027089476585388,
+    "inference_time_ms": 18.961166999361012,
+    "correct": true
+  },
+  {
+    "image": "bild1_aug1_5.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.42037299275398254,
+    "inference_time_ms": 22.65145800083701,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_6.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.559878408908844,
+    "inference_time_ms": 33.41220800029987,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_7.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3418493866920471,
+    "inference_time_ms": 86.00700000170036,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_8.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.4693598747253418,
+    "inference_time_ms": 43.38254100002814,
+    "correct": false
+  },
+  {
+    "image": "bild1_aug1_9.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.5008491277694702,
+    "inference_time_ms": 44.27779200159421,
+    "correct": true
+  },
+  {
+    "image": "bild2.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3050312101840973,
+    "inference_time_ms": 40.520791000744794,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_1.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.32108864188194275,
+    "inference_time_ms": 29.882124999858206,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_10.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.43001294136047363,
+    "inference_time_ms": 35.9079580011894,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_2.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.36603567004203796,
+    "inference_time_ms": 26.25337499921443,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_3.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.4686507284641266,
+    "inference_time_ms": 27.560874999835505,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_4.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3747759759426117,
+    "inference_time_ms": 33.59645800082944,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_5.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.42924022674560547,
+    "inference_time_ms": 30.168291999871144,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_6.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3883320689201355,
+    "inference_time_ms": 19.863499999701162,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_7.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "GeeTest",
+    "confidence": 0.4114404022693634,
+    "inference_time_ms": 17.864542000097572,
+    "correct": false
+  },
+  {
+    "image": "bild2_aug2_8.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.32747191190719604,
+    "inference_time_ms": 21.472874999744818,
+    "correct": true
+  },
+  {
+    "image": "bild2_aug2_9.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "Puzzle_Captcha",
+    "confidence": 0.30637460947036743,
+    "inference_time_ms": 33.91341700080375,
+    "correct": false
+  },
+  {
+    "image": "bild3.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.264245867729187,
+    "inference_time_ms": 20.816792000914575,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_1.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.28364884853363037,
+    "inference_time_ms": 20.60683299896482,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_10.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.28538236021995544,
+    "inference_time_ms": 18.794707999404636,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_2.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3042779862880707,
+    "inference_time_ms": 20.869124999080668,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_3.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.244942769408226,
+    "inference_time_ms": 19.894125000064378,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_4.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.27578356862068176,
+    "inference_time_ms": 18.489250000129687,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_5.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.4539978802204132,
+    "inference_time_ms": 26.663709000786184,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_6.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3468968868255615,
+    "inference_time_ms": 22.102124999946682,
+    "correct": true
+  },
+  {
+    "image": "bild3_aug3_7.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3432217836380005,
+    "inference_time_ms": 30.62629099986225,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_8.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.3523845374584198,
+    "inference_time_ms": 25.386833998709335,
+    "correct": false
+  },
+  {
+    "image": "bild3_aug3_9.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.28187230229377747,
+    "inference_time_ms": 26.75516700037406,
+    "correct": true
+  },
+  {
+    "image": "bild4.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3193603754043579,
+    "inference_time_ms": 21.42124999954831,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_1.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.383950799703598,
+    "inference_time_ms": 22.133999998914078,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_10.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.383274644613266,
+    "inference_time_ms": 18.565374999525375,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_2.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.2634025514125824,
+    "inference_time_ms": 18.46441700035939,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_3.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.3537517786026001,
+    "inference_time_ms": 25.8962909992988,
+    "correct": true
+  },
+  {
+    "image": "bild4_aug4_4.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.3342132866382599,
+    "inference_time_ms": 25.83591600159707,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_5.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "FunCaptcha",
+    "confidence": 0.3116171658039093,
+    "inference_time_ms": 22.9031250000844,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_6.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.2917936146259308,
+    "inference_time_ms": 20.431500000995584,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_7.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "hCaptcha",
+    "confidence": 0.39667245745658875,
+    "inference_time_ms": 18.638333000126295,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_8.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v2",
+    "confidence": 0.41866567730903625,
+    "inference_time_ms": 18.625999999130727,
+    "correct": false
+  },
+  {
+    "image": "bild4_aug4_9.png",
+    "true_type": "reCaptcha_v3",
+    "predicted_type": "reCaptcha_v3",
+    "confidence": 0.36498498916625977,
+    "inference_time_ms": 23.75525000024936,
+    "correct": true
+  }
+]
