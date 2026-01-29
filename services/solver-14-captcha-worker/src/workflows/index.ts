@@ -14,8 +14,10 @@
 // 2captcha.com - Most popular CAPTCHA work platform
 export { TwoCaptchaWorker } from './2captcha-worker';
 
+// Kolotibablo.com - High-earning CAPTCHA work platform
+export { KolotibabloWorker } from './kolotibablo-worker';
+
 // Future workflows (to be implemented):
-// export { KolotibabloWorker } from './kolotibablo-worker';
 // export { AntiCaptchaWorker } from './anti-captcha-worker';
 // export { CaptchaGuruWorker } from './captcha-guru-worker';
 // export { RuCaptchaWorker } from './rucaptcha-worker';
@@ -25,7 +27,7 @@ export { TwoCaptchaWorker } from './2captcha-worker';
  */
 export const AVAILABLE_PROVIDERS = [
   '2captcha',
-  // 'kolotibablo',  // Coming soon
+  'kolotibablo',
   // 'anti-captcha', // Coming soon
   // 'captcha-guru', // Coming soon
   // 'rucaptcha',    // Coming soon
@@ -43,8 +45,8 @@ export function getWorkerClass(provider: ProviderName) {
   switch (provider) {
     case '2captcha':
       return TwoCaptchaWorker;
-    // case 'kolotibablo':
-    //   return KolotibabloWorker;
+    case 'kolotibablo':
+      return KolotibabloWorker;
     // case 'anti-captcha':
     //   return AntiCaptchaWorker;
     default:
