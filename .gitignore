@@ -72,4 +72,6 @@ runs/
 .env.production
 .env.*.production
 room-30-scira-ai-search/.git
-README-COMPLETION-REPORT.md
+
+# Auto-generated security audit reports
+SECURITY_AUDIT_FINAL_REPORT.md
