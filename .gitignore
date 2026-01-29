@@ -72,3 +72,4 @@ runs/
 .env.production
 .env.*.production
 room-30-scira-ai-search/.git
+README-COMPLETION-REPORT.md

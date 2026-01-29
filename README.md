@@ -1,600 +1,765 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Version-2.0.0-blue?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/License-Apache%202.0-green?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker" alt="Docker">
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript">
-</p>
+# SIN-Solver
 
-<h1 align="center">
-  <br>
-  <img src="./public/delqhi-platform-logo.png" alt="Delqhi-Platform" width="200">
-  <br>
-  Delqhi-Platform
-  <br>
-</h1>
+> **Enterprise-Grade AI Automation & Task Execution Platform**
 
-<h4 align="center">Enterprise-Grade CAPTCHA Solving Engine with Multi-AI Consensus</h4>
-
-<p align="center">
-  <a href="#key-features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#dashboard">Dashboard</a> •
-  <a href="#api">API</a> •
-  <a href="#pricing">Pricing</a> •
-  <a href="#documentation">Docs</a>
-</p>
-
-<p align="center">
-  <img src="./docs/images/dashboard-preview.png" alt="Delqhi-Platform Dashboard" width="800">
-</p>
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-enabled-2496ED.svg?logo=docker)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/python-3.9+-3776AB.svg?logo=python)](https://www.python.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-enabled-3178C6.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![Status](https://img.shields.io/badge/status-active-success.svg)](#)
 
 ---
 
-## Why Delqhi-Platform?
+## 🎯 What is SIN-Solver?
 
-Traditional CAPTCHA solving services cost **$2-5 per 1000 solves** and have **15-30 second latency**. 
+SIN-Solver is a **distributed AI automation platform** that orchestrates multiple specialized agents and workers to solve complex tasks at scale. It combines workflow automation, AI-powered decision making, and dedicated task solvers to create a powerful, enterprise-ready system.
 
-**Delqhi-Platform** delivers:
-- **98.5% solve rate** with 5-model parallel consensus
-- **< 10s average latency** (local processing, no network hops)
-- **$0.02 per solve** (or free with self-hosted YOLO)
-- **100% undetectable** with Steel Browser stealth engine
+Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 
-<table>
-<tr>
-<td width="50%">
-
-### The Problem
-- Cloud CAPTCHA services are slow (15-30s)
-- Pay-per-solve costs add up ($2-5/1000)
-- Single-model failures = 100% failure
-- Detection rates are increasing (10-30%)
-
-</td>
-<td width="50%">
-
-### Our Solution
-- Local-first processing (< 10s)
-- Self-hosted = near-zero cost
-- 5-model consensus = 99.2% accuracy
-- Steel Browser = < 1% detection
-
-</td>
-</tr>
-</table>
+- **Intelligent Workflow Orchestration** - n8n-powered automation engine
+- **AI Code Generation** - Agent Zero for autonomous programming
+- **Stealth Web Automation** - Steel Browser for anti-detection browsing
+- **Visual AI Automation** - Skyvern for intelligent UI interaction
+- **Search & Knowledge** - Scira AI for enterprise search
+- **Secrets Management** - Vault for secure credential storage
+- **Distributed Storage** - PostgreSQL + Redis for data persistence
+- **Real-time Monitoring** - Prometheus, Grafana, Jaeger, Loki observability stack
+- **Task Execution** - Survey automation and CAPTCHA solving workers
 
 ---
 
-## Key Features
+## 🏗️ Architecture Overview
 
-### Multi-AI Consensus Engine
+### High-Level System Architecture
+
 ```
- [CAPTCHA Detected]
-        ↓
- ┌──────────────────────────────────────┐
- │      5 PARALLEL SOLVERS              │
- │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐    │
- │  │Gemini│ │Mistral│ │YOLO│ │ Cap │    │
- │  │ 3.0  │ │Vision│ │v8x │ │Mnstr│    │
- │  └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘    │
- │     └───────┴───────┴───────┘        │
- │              ↓                       │
- │     WEIGHTED CONSENSUS VOTING        │
- │     (3+ agree = instant solve)       │
- └──────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                   SIN-SOLVER PLATFORM                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │         ORCHESTRATION & AUTOMATION LAYER              │  │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────┐  │  │
+│  │  │   n8n       │  │  Agent Zero  │  │   Scira AI  │  │  │
+│  │  │ (Workflows) │  │  (AI Coding) │  │  (Search)   │  │  │
+│  │  └─────────────┘  └──────────────┘  └─────────────┘  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│           │                    │                 │          │
+│           ▼                    ▼                 ▼          │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │         AGENT & EXECUTION LAYER                       │  │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌─────────────┐  │  │
+│  │  │   Steel     │  │   Skyvern    │  │   Workers   │  │  │
+│  │  │ (Browser)   │  │   (Visual)   │  │  (Tasks)    │  │  │
+│  │  └─────────────┘  └──────────────┘  └─────────────┘  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│           │                    │                 │          │
+│           ▼                    ▼                 ▼          │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │     DATA & INFRASTRUCTURE LAYER                       │  │
+│  │  ┌──────────┐  ┌────────┐  ┌────────┐  ┌────────┐  │  │
+│  │  │ Postgres │  │ Redis  │  │ Vault  │  │ Events │  │  │
+│  │  │ (Data)   │  │(Cache) │  │(Secrets)  │(Queue) │  │  │
+│  │  └──────────┘  └────────┘  └────────┘  └────────┘  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │     OBSERVABILITY & MONITORING LAYER                  │  │
+│  │  ┌─────────────┐  ┌────────────┐  ┌─────────────┐  │  │
+│  │  │ Prometheus  │  │  Grafana   │  │   Jaeger    │  │  │
+│  │  │ (Metrics)   │  │(Dashboard) │  │ (Tracing)   │  │  │
+│  │  └─────────────┘  └────────────┘  └─────────────┘  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Supported CAPTCHA Types
-| Type | Solve Rate | Avg. Time |
-|------|------------|-----------|
-| reCAPTCHA v2 | 98.5% | 8s |
-| reCAPTCHA v3 | 97.2% | 3s |
-| hCaptcha | 96.8% | 10s |
-| Cloudflare Turnstile | 95.5% | 5s |
-| FunCaptcha | 94.2% | 12s |
-| Text/Image CAPTCHA | 99.1% | 2s |
-| Slider CAPTCHA | 97.8% | 4s |
-| Click-Order | 96.5% | 8s |
+### Container Architecture (18 Services)
 
-### Stealth Engine (Steel Browser)
-- **TLS Fingerprint Randomization** - Evades JA3 detection
-- **Human-like Mouse Movement** - Bézier curve interpolation
-- **Real Browser Lifecycle** - Cookie/session persistence
-- **Timezone/Locale Matching** - Geographic consistency
+```
+SIN-SOLVER (Docker Compose Network: 172.20.0.0/16)
+│
+├─── AGENTS (4 services)
+│    ├─ agent-01-n8n (port 5678)              [Workflow Orchestration]
+│    ├─ agent-03-agentzero (port 8050)        [AI Code Generation]
+│    ├─ agent-05-steel (port 3005)            [Stealth Browser]
+│    └─ agent-06-skyvern (port 8030)          [Visual AI Automation]
+│
+├─── ROOMS/INFRASTRUCTURE (6 services)
+│    ├─ room-00-cloudflared (tunnel)          [Cloudflare Access]
+│    ├─ room-02-vault (port 8200)             [Secrets Management]
+│    ├─ room-03-postgres (port 5432)          [Primary Database]
+│    ├─ room-04-redis (port 6379)             [Cache Layer]
+│    ├─ room-13-api-brain (port 8000)         [FastAPI Gateway & Brain]
+│    └─ room-30-scira-ai-search (port 7890)   [Enterprise Search]
+│
+├─── SOLVERS/WORKERS (2 services)
+│    ├─ solver-2.1-survey-worker (port 8018)  [Survey Automation]
+│    └─ builder-1.1-captcha-worker (port 8019) [CAPTCHA Solving]
+│
+└─── MONITORING/OBSERVABILITY (5 services)
+     ├─ room-25-prometheus (port 9090)        [Metrics Collection]
+     ├─ room-26-grafana (port 3001)           [PRIMARY DASHBOARD]
+     ├─ room-27-alertmanager (port 9093)      [Alert Management]
+     ├─ room-28-loki (port 3100)              [Log Aggregation]
+     └─ room-29-jaeger (port 16686)           [Distributed Tracing]
+```
+
+### Service Communication Map
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ EXTERNAL USERS / CLIENTS                                    │
+└────────────────────────┬───────────────────────────────────┘
+                         │
+                         ▼ (HTTP/REST)
+          ┌──────────────────────────────┐
+          │   room-13-api-brain          │
+          │   (FastAPI Gateway & Brain)   │
+          │   port: 8000                 │
+          └──────────────────────────────┘
+           │      │      │      │
+           │      │      │      └─────────────────┐
+           │      │      │                        │
+           ▼      ▼      ▼                        ▼
+    ┌──────────┐  ┌──────────┐  ┌───────────┐   ┌──────────┐
+    │ n8n      │  │ Agent    │  │ Skyvern  │   │ Scira    │
+    │ (5678)   │  │ Zero     │  │ (8030)    │   │ (7890)   │
+    │ Workflow │  │ (8050)   │  │ Visual    │   │ Search   │
+    │ Orch     │  │ AI Code  │  │ Automation   │ AI       │
+    └──────────┘  └──────────┘  └───────────┘   └──────────┘
+           │            │              │              │
+           └────────────┴──────────────┴──────────────┘
+                        │
+                        ▼ (Internal APIs)
+            ┌──────────────────────────┐
+            │  room-03-postgres        │
+            │  room-04-redis           │
+            │  room-02-vault           │
+            │  (Data & Secrets)        │
+            └──────────────────────────┘
+                        │
+                        ▼ (Monitoring)
+            ┌──────────────────────────┐
+            │ Prometheus, Grafana      │
+            │ Loki, Jaeger, Alert      │
+            │ (Observability Stack)    │
+            └──────────────────────────┘
+```
+
+### Data Flow Example: Workflow Execution
+
+```
+User Request
+    │
+    ▼
+┌────────────────┐
+│ API Brain      │  (Receives & routes request)
+│ (8000)         │
+└────────────────┘
+    │
+    ├──────────────────────────────────────────┐
+    │                                          │
+    ▼                                          ▼
+┌────────────────┐                    ┌────────────────┐
+│ n8n Workflow   │                    │ Agent Zero     │
+│ (5678)         │                    │ (8050)         │
+│ Orchestration  │  ◄──────────────►  │ AI Coding      │
+└────────────────┘                    └────────────────┘
+    │                                          │
+    └──────────────────────┬───────────────────┘
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+         ┌─────────────┐           ┌──────────────┐
+         │ Steel       │           │ Skyvern      │
+         │ Browser     │           │ Visual AI    │
+         │ (3005)      │           │ (8030)       │
+         └─────────────┘           └──────────────┘
+              │                         │
+              └──────────────┬──────────┘
+                             │
+                             ▼
+                    ┌────────────────┐
+                    │ Data Persistence
+                    │ Postgres(5432)│
+                    │ Redis(6379)    │
+                    └────────────────┘
+                             │
+                             ▼
+                    ┌────────────────┐
+                    │ Response to User
+                    └────────────────┘
+```
 
 ---
 
-## Quick Start
+## 📊 Service Overview
 
-### Option 1: Docker Compose (Recommended)
+| Service | Port | Type | Role | Status |
+|---------|------|------|------|--------|
+| **agent-01-n8n** | 5678 | Orchestrator | Workflow automation engine | Active |
+| **agent-03-agentzero** | 8050 | Agent | AI-powered code generation | Active |
+| **agent-05-steel** | 3005 | Agent | Stealth web browser | Active |
+| **agent-06-skyvern** | 8030 | Agent | Visual AI automation | Active |
+| **room-00-cloudflared** | tunnel | Infrastructure | Cloudflare tunnel access | Active |
+| **room-02-vault** | 8200 | Infrastructure | Secrets management | Active |
+| **room-03-postgres** | 5432 | Storage | Primary database | Active |
+| **room-04-redis** | 6379 | Storage | Cache & sessions | Active |
+| **room-13-api-brain** | 8000 | Gateway | FastAPI gateway & orchestration brain | Active |
+| **room-30-scira-ai-search** | 7890 | Service | Enterprise AI search | Active |
+| **solver-2.1-survey-worker** | 8018 | Worker | Survey & task automation | Active |
+| **builder-1.1-captcha-worker** | 8019 | Worker | CAPTCHA solving service | Active |
+| **room-25-prometheus** | 9090 | Monitoring | Metrics collection | Active |
+| **room-26-grafana** | 3001 | Dashboard | Visualization & monitoring dashboard | Active |
+| **room-27-alertmanager** | 9093 | Monitoring | Alert management & routing | Active |
+| **room-28-loki** | 3100 | Monitoring | Log aggregation & storage | Active |
+| **room-29-jaeger** | 16686 | Monitoring | Distributed tracing & visualization | Active |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Docker** 20.10+
+- **Docker Compose** 1.29+
+- **Git**
+- **4GB RAM** minimum (8GB recommended)
+- **10GB disk space** minimum
+
+### 1. Clone the Repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/Delqhi/Delqhi-Platform.git
-cd Delqhi-Platform
+git clone https://github.com/YOUR_ORG/SIN-Solver.git
+cd SIN-Solver
+```
 
-# Copy environment template
+### 2. Configure Environment
+
+```bash
+# Copy example environment file
 cp .env.example .env
 
-# Start all services (15 containers)
-./start.sh
-
-# Access the dashboard
-open http://localhost:3011
+# Edit configuration (optional)
+nano .env
 ```
 
-### Option 2: Selective Services
+### 3. Start the Platform
 
 ```bash
-# Start only core services (Postgres, Redis, Steel, Skyvern)
-docker compose up -d room-03-postgres-master room-04-redis-cache agent-05-steel-browser agent-06-skyvern-solver
+# Start all services in the background
+docker-compose -f docker-compose.enterprise.yml up -d
 
-# Start the dashboard separately
-cd dashboard && npm install && npm run dev
+# Wait for services to be healthy
+docker-compose -f docker-compose.enterprise.yml ps
+
+# View logs
+docker-compose -f docker-compose.enterprise.yml logs -f
 ```
 
-### Option 3: API Only
+### 4. Access the Dashboard
+
+Open your browser and navigate to:
+
+- **Primary Dashboard (Grafana)**: http://localhost:3001
+- **API Documentation**: http://localhost:8000/docs
+- **Workflows (n8n)**: http://localhost:5678
+- **Logs (Loki)**: http://localhost:3100
+
+### 5. First API Call
 
 ```bash
-# Start the API Brain
-docker compose up -d room-03-postgres-master room-04-redis-cache room-13-vault-api
+# Get system status
+curl -X GET http://localhost:8000/health
 
-# Use the REST API
-curl http://localhost:8000/api/solve \
+# List available workflows
+curl -X GET http://localhost:8000/workflows
+
+# Trigger a workflow
+curl -X POST http://localhost:8000/workflows/execute \
   -H "Content-Type: application/json" \
-  -d '{"type": "recaptcha_v2", "sitekey": "...", "url": "..."}'
+  -d '{"workflow_id": "example-workflow", "params": {}}'
 ```
 
 ---
 
-## Architecture
+## 📊 Dashboard & Monitoring
 
-### 🎯 For Non-Developers: How It Works
+### Primary Dashboard (Grafana - Port 3001)
 
-```mermaid
-flowchart TB
-    subgraph "Your Computer (Mac M1)"
-        direction TB
-        
-        subgraph "🌐 Public Access"
-            CF[Cloudflare Tunnel<br/>*.delqhi.com]
-        end
-        
-        subgraph "🎛️ Control Center"
-            DASH[Dashboard<br/>dashboard.delqhi.com]
-            API[API Brain<br/>api.delqhi.com]
-        end
-        
-        subgraph "🤖 AI Workers"
-            N8N[n8n Orchestrator<br/>Automates Workflows]
-            STEEL[Steel Browser<br/>Stealth Web Scraping]
-            SKY[Skyvern<br/>Visual AI Agent]
-        end
-        
-        subgraph "💰 Money Makers"
-            SURVEY[Survey Worker<br/>Auto-fills Forms]
-            CAPTCHA[Captcha Worker<br/>Solves Puzzles]
-        end
-        
-        subgraph "🔒 Secure Storage"
-            VAULT[Vault<br/>Keeps Secrets Safe]
-            DB[(Postgres<br/>Database)]
-            CACHE[(Redis<br/>Fast Cache)]
-        end
-    end
-    
-    USER[You] -->|Open URL| CF
-    CF --> DASH
-    CF --> API
-    DASH -->|Controls| N8N
-    DASH -->|Controls| STEEL
-    DASH -->|Controls| SKY
-    API -->|Uses| VAULT
-    API -->|Uses| DB
-    API -->|Uses| CACHE
-    N8N -->|Uses| STEEL
-    SKY -->|Uses| STEEL
-    SURVEY -->|Uses| STEEL
-    SURVEY -->|Uses| CAPTCHA
+SIN-Solver provides a comprehensive monitoring dashboard via **Grafana on port 3001**:
+
+**Key Metrics Displayed:**
+- System health & uptime
+- API response times
+- Workflow execution history
+- Agent activity & performance
+- Database performance & connections
+- Cache hit rates
+- Error rates & alerts
+
+**Access Dashboard:**
+```bash
+# Direct access
+http://localhost:3001
+
+# Default credentials (change after first login):
+# Username: admin
+# Password: admin
 ```
 
-### 🏗️ For Developers: Container Architecture
+**Key Dashboards Available:**
+1. **System Overview** - High-level platform health
+2. **API Performance** - Request rates, latencies, errors
+3. **Workflow Execution** - Active workflows, success rates, durations
+4. **Agent Activity** - Per-agent performance metrics
+5. **Database Health** - Connection pools, query performance
+6. **Error Analysis** - Error distribution, trending
+7. **Resource Usage** - CPU, memory, disk per container
 
-```mermaid
-flowchart LR
-    subgraph "External"
-        USER[User/Browser]
-        CF[Cloudflare Tunnel<br/>*.delqhi.com]
-    end
-    
-    subgraph "Delqhi-Platform Empire"
-        direction TB
-        
-        subgraph "Access Layer"
-            CT[room-00<br/>cloudflared]
-        end
-        
-        subgraph "Interface Layer"
-            DASH[room-01<br/>dashboard:3011]
-        end
-        
-        subgraph "API Layer"
-            API[room-13<br/>api-brain:8000]
-        end
-        
-        subgraph "Agent Workers"
-            A01[agent-01<br/>n8n:5678]
-            A05[agent-05<br/>steel:3000]
-            A06[agent-06<br/>skyvern:8030]
-            A04[agent-04<br/>opencode:9000]
-        end
-        
-        subgraph "Solver Workers"
-            S14[solver-14<br/>automation:8080]
-            S18[solver-18<br/>survey:8018]
-            S19[solver-19<br/>captcha:8019]
-        end
-        
-        subgraph "Data Layer"
-            R03[room-03<br/>postgres:5432]
-            R04[room-04<br/>redis:6379]
-            R02V[room-02<br/>vault:8200]
-            R02A[room-02<br/>vault-api:8002]
-        end
-    end
-    
-    USER -->|HTTPS| CF
-    CF --> CT
-    CT --> DASH
-    CT --> API
-    DASH -->|HTTP| API
-    API -->|HTTP| A01
-    API -->|HTTP| A05
-    API -->|HTTP| A06
-    A01 -->|CDP| A05
-    A06 -->|CDP| A05
-    API -->|HTTP| S14
-    S14 -->|CDP| A05
-    API -->|SQL| R03
-    API -->|Redis| R04
-    API -->|HTTP| R02A
-    R02A -->|HTTP| R02V
-```
+### Additional Monitoring Tools
 
-### 🔄 Data Flow Example: Solving a CAPTCHA
-
-```mermaid
-sequenceDiagram
-    participant User as User
-    participant Dash as Dashboard
-    participant API as API Brain
-    participant Solver as Captcha Worker
-    participant Browser as Steel Browser
-    participant AI as Gemini/Mistral
-    participant DB as Postgres
-
-    User->>Dash: "Solve this CAPTCHA"
-    Dash->>API: POST /api/solve
-    API->>DB: Log request
-    API->>Solver: Assign task
-    Solver->>Browser: Open target page
-    Browser-->>Solver: Page loaded (stealth)
-    Solver->>Solver: Detect CAPTCHA type
-    Solver->>AI: Analyze image/text
-    AI-->>Solver: Solution: "XYZ123"
-    Solver->>Browser: Enter solution
-    Browser-->>Solver: Success!
-    Solver-->>API: Result + metadata
-    API->>DB: Store result
-    API-->>Dash: Success response
-    Dash-->>User: "CAPTCHA solved in 3.2s"
-```
-
-### 📊 Container Communication Map
-
-```mermaid
-flowchart TD
-    subgraph legend["Legend"]
-        direction LR
-        pub[Public URL]:::public
-        int[Internal Only]:::internal
-        db[Database]:::database
-    end
-    
-    style legend fill:none,stroke:none
-    
-    subgraph agents["🤖 Agents (AI Workers)"]
-        A01[agent-01-n8n<br/>n8n.delqhi.com]:::public
-        A04[agent-04-opencode<br/>codeserver.delqhi.com]:::public
-        A05[agent-05-steel<br/>steel.delqhi.com]:::public
-        A06[agent-06-skyvern<br/>skyvern.delqhi.com]:::public
-        A07[agent-07-stagehand<br/>stagehand.delqhi.com]:::public
-        A08[agent-08-playwright]:::internal
-        A09[agent-09-clawdbot<br/>chat.delqhi.com]:::public
-        A12[agent-12-optimizer]:::internal
-    end
-    
-    subgraph rooms["🏢 Rooms (Infrastructure)"]
-        R01[room-01-dashboard<br/>dashboard.delqhi.com]:::public
-        R02V[room-02-vault<br/>vault.delqhi.com]:::public
-        R02A[room-02-vault-api<br/>vault-api.delqhi.com]:::public
-        R03[room-03-postgres]:::database
-        R04[room-04-redis]:::database
-        R13[room-13-api<br/>api.delqhi.com]:::public
-        R16[room-16-supabase<br/>supabase.delqhi.com]:::public
-    end
-    
-    subgraph solvers["💰 Solvers (Money Workers)"]
-        S14[solver-14-automation]:::internal
-        S18[solver-18-survey<br/>survey.delqhi.com]:::public
-        S19[solver-19-captcha<br/>captcha.delqhi.com]:::public
-    end
-    
-    R01 -->|Uses| R13
-    R13 -->|Uses| R03
-    R13 -->|Uses| R04
-    R13 -->|Uses| R02A
-    R02A -->|Uses| R02V
-    A01 -->|Uses| R03
-    A01 -->|Uses| R04
-    A06 -->|Uses| A05
-    S14 -->|Uses| A05
-    S18 -->|Uses| A05
-    S19 -->|Uses| A05
-    
-    classDef public fill:#90EE90,stroke:#228B22,stroke-width:2px
-    classDef internal fill:#FFD700,stroke:#FFA500,stroke-width:2px
-    classDef database fill:#87CEEB,stroke:#4169E1,stroke-width:2px
-```
-
-### 📋 ASCII Architecture (Legacy View)
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         SIN-SOLVER EMPIRE (23 Rooms)                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐       │
-│  │   DASHBOARD     │     │   API GATEWAY   │     │   ORCHESTRATOR  │       │
-│  │  (Next.js 15)   │────▶│   (FastAPI)     │────▶│     (n8n)       │       │
-│  │   Port: 3011    │     │   Port: 8000    │     │   Port: 5678    │       │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘       │
-│                                  │                       │                  │
-│          ┌───────────────────────┼───────────────────────┤                  │
-│          ▼                       ▼                       ▼                  │
-│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐       │
-│  │  STEEL BROWSER  │     │     SKYVERN     │     │   AGENT ZERO    │       │
-│  │  (Stealth CDP)  │     │  (Visual AI)    │     │   (AI Coder)    │       │
-│  │   Port: 3005    │     │   Port: 8030    │     │   Port: 8050    │       │
-│  └─────────────────┘     └─────────────────┘     └─────────────────┘       │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        INFRASTRUCTURE                                │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │   │
-│  │  │ Postgres │  │  Redis   │  │  Vault   │  │ Supabase │            │   │
-│  │  │  :5432   │  │  :6379   │  │  :8200   │  │  :54323  │            │   │
-│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### Service Overview
-
-| Category | Service | Purpose | Port |
-|----------|---------|---------|------|
-| **Agents** | agent-01-n8n-orchestrator | Workflow automation | 5678 |
-| | agent-05-steel-browser | Stealth browser engine | 3005 |
-| | agent-06-skyvern-solver | Visual AI automation | 8030 |
-| **Rooms** | room-01-dashboard-cockpit | Mission control UI | 3011 |
-| | room-03-postgres-master | Primary database | 5432 |
-| | room-04-redis-cache | Session & cache | 6379 |
-| | room-13-vault-api | API gateway & secrets | 8000 |
-| **Solvers** | solver-18-survey-worker | Survey automation | 8018 |
-| | solver-19-captcha-worker | CAPTCHA solving | 8019 |
+| Tool | Port | Purpose |
+|------|------|---------|
+| **Prometheus** | 9090 | Metrics collection & querying |
+| **Jaeger** | 16686 | Distributed tracing & visualization |
+| **Loki** | 3100 | Log aggregation & search |
+| **AlertManager** | 9093 | Alert management & routing |
 
 ---
 
-## Dashboard
+## 🔌 API Documentation
 
-The Delqhi-Platform Cockpit provides real-time monitoring and control:
+### Base URL
 
-<table>
-<tr>
-<td width="50%">
+```
+http://localhost:8000/api/v1
+```
 
-### Live Telemetry
-- Real-time CPU/RAM usage per container
-- Request throughput & latency graphs
-- Success/failure rate tracking
-- Cost-per-solve analytics
+### Core Endpoints
 
-</td>
-<td width="50%">
-
-### Container Control
-- Start/Stop/Restart services
-- Live log streaming
-- Health status monitoring
-- Configuration management
-
-</td>
-</tr>
-</table>
+#### 1. Health Check
 
 ```bash
-# Access the dashboard
-open http://localhost:3011
-
-# Default credentials (change in production!)
-# No auth required for local development
+GET /health
 ```
 
----
+**Response:**
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "services": {
+    "postgres": "healthy",
+    "redis": "healthy",
+    "vault": "healthy"
+  },
+  "timestamp": "2024-01-29T10:30:00Z"
+}
+```
 
-## API
-
-### Solve a CAPTCHA
+#### 2. List Workflows
 
 ```bash
-POST /api/solve
+GET /workflows
+```
+
+**Response:**
+```json
+{
+  "workflows": [
+    {
+      "id": "workflow-001",
+      "name": "Sample Automation",
+      "status": "active",
+      "created_at": "2024-01-01T00:00:00Z",
+      "last_executed": "2024-01-29T09:15:00Z"
+    }
+  ],
+  "total": 5
+}
+```
+
+#### 3. Execute Workflow
+
+```bash
+POST /workflows/execute
 Content-Type: application/json
 
 {
-  "type": "recaptcha_v2",
-  "sitekey": "6Le-wvkSAAAAAPBMRTvw0Q4Muexq9bi0DJwx_mJ-",
-  "url": "https://example.com/login",
-  "options": {
-    "timeout": 30,
-    "human_simulation": true
+  "workflow_id": "workflow-001",
+  "params": {
+    "target_url": "https://example.com",
+    "action": "scrape",
+    "timeout": 30
   }
 }
 ```
 
-### Response
-
+**Response:**
 ```json
 {
-  "success": true,
-  "solution": "03AGdBq24PBCdK...",
-  "solve_time_ms": 8234,
-  "solver": "gemini-consensus",
-  "confidence": 0.98,
-  "cost_usd": 0.02
+  "execution_id": "exec-12345",
+  "workflow_id": "workflow-001",
+  "status": "running",
+  "created_at": "2024-01-29T10:30:00Z",
+  "estimated_duration": 45
+}
+```
+
+#### 4. Get Execution Status
+
+```bash
+GET /executions/{execution_id}
+```
+
+**Response:**
+```json
+{
+  "execution_id": "exec-12345",
+  "status": "completed",
+  "workflow_id": "workflow-001",
+  "result": {
+    "success": true,
+    "data": {...}
+  },
+  "duration_seconds": 42,
+  "completed_at": "2024-01-29T10:31:42Z"
 }
 ```
 
 ### Full API Documentation
 
-See [API Reference](./Docs/API-REFERENCE.md) for complete endpoint documentation.
+For comprehensive API documentation with all endpoints, parameters, and examples, see:
+
+📖 **./docs/API-REFERENCE.md**
 
 ---
 
-## Pricing
+## 📚 Documentation
 
-Delqhi-Platform is **Open Core** - the core engine is free, premium features are paid.
+Complete documentation is available in the `./docs/` directory:
 
-<table>
-<tr>
-<th>Community (Free)</th>
-<th>Pro ($49/mo)</th>
-<th>Enterprise (Custom)</th>
-</tr>
-<tr>
-<td>
+### Getting Started
+- **[QUICKSTART.md](./docs/QUICKSTART.md)** - Get running in 5 minutes
+- **[INSTALLATION.md](./docs/INSTALLATION.md)** - Detailed installation guide
+- **[CONFIGURATION.md](./docs/CONFIGURATION.md)** - Configuration options
 
-- Core CAPTCHA solving
-- 5 solver models
-- Dashboard & monitoring
-- Docker deployment
-- Community support
+### Technical Deep Dives
+- **[SIN-SOLVER-TECHNICAL-ARCHITECTURE.md](./docs/SIN-SOLVER-TECHNICAL-ARCHITECTURE.md)** - System architecture & design
+- **[AGENT-REFERENCE.md](./docs/AGENT-REFERENCE.md)** - Agent capabilities & usage
+- **[WORKER-REFERENCE.md](./docs/WORKER-REFERENCE.md)** - Worker systems & task execution
 
-</td>
-<td>
+### Operations & Deployment
+- **[DEPLOYMENT-GUIDE.md](./docs/DEPLOYMENT-GUIDE.md)** - Production deployment
+- **[SIN-SOLVER-OPERATIONAL-GUIDE.md](./docs/SIN-SOLVER-OPERATIONAL-GUIDE.md)** - Day-to-day operations
+- **[MONITORING-SETUP.md](./docs/MONITORING-SETUP.md)** - Monitoring & alerting configuration
 
-- Everything in Free
-- Priority model routing
-- Advanced analytics
-- Webhook integrations
-- Email support
-- SLA: 99.9% uptime
+### API & Integration
+- **[API-REFERENCE.md](./docs/API-REFERENCE.md)** - Complete REST API documentation
+- **[INTEGRATION-GUIDE.md](./docs/INTEGRATION-GUIDE.md)** - Integration with external systems
+- **[WEBHOOKS.md](./docs/WEBHOOKS.md)** - Webhook configuration & examples
 
-</td>
-<td>
-
-- Everything in Pro
-- Dedicated infrastructure
-- Custom model training
-- White-label option
-- 24/7 phone support
-- Custom SLA
-
-</td>
-</tr>
-<tr>
-<td align="center">
-
-**$0**
-
-</td>
-<td align="center">
-
-**$49/month**
-
-</td>
-<td align="center">
-
-**Contact Sales**
-
-</td>
-</tr>
-</table>
+### Troubleshooting & Support
+- **[TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)** - Common issues & solutions
+- **[FAQ.md](./docs/FAQ.md)** - Frequently asked questions
+- **[SUPPORT.md](./docs/SUPPORT.md)** - Getting help & support channels
 
 ---
 
-## Documentation
+## 🛠️ Development
 
-| Document | Description |
-|----------|-------------|
-| [Quick Start Guide](./Docs/QUICKSTART.md) | Get running in 5 minutes |
-| [Architecture Deep Dive](./Docs/SIN-SOLVER-TECHNICAL-ARCHITECTURE.md) | Technical architecture details |
-| [API Reference](./Docs/API-REFERENCE.md) | Complete REST API documentation |
-| [Deployment Guide](./Docs/DEPLOYMENT-GUIDE.md) | Production deployment instructions |
-| [Operational Guide](./Docs/SIN-SOLVER-OPERATIONAL-GUIDE.md) | Day-to-day operations |
-| [Troubleshooting](./troubleshooting/) | Common issues & solutions |
-
----
-
-## Performance Benchmarks
-
-| Metric | Target | Current |
-|--------|--------|---------|
-| Solve Rate | 98.5% | 96.2% |
-| Average Latency (p50) | < 10s | 8.5s |
-| Cost per Solve | < $0.02 | $0.018 |
-| Detection Rate | < 1% | 0.8% |
-| Uptime | 99.99% | 99.5% |
-
----
-
-## Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+### Prerequisites for Development
 
 ```bash
-# Fork the repository
-git clone https://github.com/YOUR_USERNAME/Delqhi-Platform.git
+# Python 3.9+
+python --version
 
-# Create a feature branch
-git checkout -b feature/amazing-feature
+# Node.js 16+
+node --version
 
-# Make your changes and test
-./scripts/test.sh
+# Docker & Compose
+docker --version
+docker-compose --version
+```
 
-# Submit a pull request
+### Setting Up Development Environment
+
+```bash
+# Clone repository
+git clone https://github.com/YOUR_ORG/SIN-Solver.git
+cd SIN-Solver
+
+# Create Python virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Start local development environment
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=.
+
+# Run specific test file
+pytest tests/test_api.py
+
+# Run tests in watch mode
+pytest-watch
+```
+
+### Code Quality
+
+```bash
+# Format code
+black .
+
+# Lint code
+flake8 .
+
+# Type checking
+mypy .
+
+# All checks at once
+make lint
 ```
 
 ---
 
-## License
+## 🤝 Contributing
 
-This project is licensed under the **Apache License 2.0** - see the [LICENSE](./LICENSE) file for details.
+We welcome contributions to SIN-Solver! Here's how to get started:
+
+### 1. Fork the Repository
+
+```bash
+# Click "Fork" on GitHub
+# https://github.com/YOUR_ORG/SIN-Solver
+```
+
+### 2. Clone Your Fork
+
+```bash
+git clone https://github.com/YOUR_USERNAME/SIN-Solver.git
+cd SIN-Solver
+```
+
+### 3. Create a Feature Branch
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### 4. Make Your Changes
+
+```bash
+# Make changes to code
+# Write tests for new functionality
+# Update documentation
+```
+
+### 5. Test Your Changes
+
+```bash
+# Run all tests
+pytest
+
+# Check code quality
+make lint
+
+# Start local environment to test
+docker-compose -f docker-compose.dev.yml up
+```
+
+### 6. Commit Your Changes
+
+```bash
+git add .
+git commit -m "feat: add your feature description"
+git push origin feature/your-feature-name
+```
+
+### 7. Create a Pull Request
+
+```bash
+# On GitHub, click "Compare & pull request"
+# Fill in PR description following the template
+# Wait for reviews & merge
+```
+
+### Contribution Guidelines
+
+- Follow Python PEP 8 style guide
+- Write tests for all new features
+- Update documentation for API changes
+- Use descriptive commit messages
+- Keep PRs focused on single features
+- Respond to code review feedback
 
 ---
 
-## Support
+## 📋 Project Structure
 
-- **Documentation**: [docs/](./Docs/)
-- **Issues**: [GitHub Issues](https://github.com/Delqhi/Delqhi-Platform/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Delqhi/Delqhi-Platform/discussions)
-- **Email**: support@delqhi-platform.io
+```
+SIN-Solver/
+├── agents/                           # Agent implementations
+│   ├── agentzero/                   # AI code generation
+│   ├── steel/                       # Stealth browser
+│   ├── skyvern/                     # Visual automation
+│   └── common/                      # Shared utilities
+│
+├── workers/                         # Task execution workers
+│   ├── survey_worker/               # Survey automation
+│   ├── captcha_worker/              # CAPTCHA solving
+│   └── common/                      # Shared utilities
+│
+├── api/                             # REST API & gateway
+│   ├── main.py                      # FastAPI app entry
+│   ├── routes/                      # API endpoints
+│   ├── models/                      # Data models
+│   └── middleware/                  # Request/response handlers
+│
+├── storage/                         # Data persistence
+│   ├── postgres/                    # PostgreSQL models
+│   ├── redis/                       # Cache models
+│   └── migrations/                  # Database migrations
+│
+├── workflows/                       # Workflow definitions
+│   ├── templates/                   # Example workflows
+│   └── schemas/                     # Workflow validation
+│
+├── docker/                          # Docker configurations
+│   ├── Dockerfile                   # Main image
+│   ├── docker-compose.yml           # Development compose
+│   └── docker-compose.enterprise.yml # Production compose
+│
+├── docs/                            # Documentation
+│   ├── QUICKSTART.md                # Quick start guide
+│   ├── API-REFERENCE.md             # API documentation
+│   ├── DEPLOYMENT-GUIDE.md          # Deployment instructions
+│   └── ...                          # Other guides
+│
+├── tests/                           # Test suite
+│   ├── unit/                        # Unit tests
+│   ├── integration/                 # Integration tests
+│   └── e2e/                         # End-to-end tests
+│
+├── .github/                         # GitHub workflows
+│   └── workflows/                   # CI/CD pipelines
+│
+├── requirements.txt                 # Python dependencies
+├── requirements-dev.txt             # Development dependencies
+├── docker-compose.yml               # Development environment
+├── docker-compose.enterprise.yml    # Production environment
+├── Makefile                         # Common commands
+├── .env.example                     # Environment template
+├── .gitignore                       # Git ignore rules
+├── LICENSE                          # Apache 2.0 License
+└── README.md                        # This file
+```
 
 ---
 
-<p align="center">
-  <sub>Built with determination by the Delqhi-Platform Team</sub>
-  <br>
-  <sub>"A system without a moat is vulnerable to competition. We have built a fortress."</sub>
-</p>
+## 📄 License
+
+SIN-Solver is licensed under the **Apache License 2.0** - see [LICENSE](LICENSE) file for details.
+
+### What This Means
+
+- ✅ You can use SIN-Solver commercially
+- ✅ You can modify the code
+- ✅ You can distribute modified versions
+- ℹ️ You must include a copy of the license
+- ℹ️ You must state any significant changes made
+- ⚠️ No warranty is provided
+
+---
+
+## 📞 Support & Community
+
+### Getting Help
+
+- **Documentation**: See [./docs/](./docs/) for comprehensive guides
+- **Issues**: Report bugs on [GitHub Issues](https://github.com/YOUR_ORG/SIN-Solver/issues)
+- **Discussions**: Join community discussions on [GitHub Discussions](https://github.com/YOUR_ORG/SIN-Solver/discussions)
+- **Email**: contact@YOUR_ORG (replace with actual email)
+
+### Troubleshooting
+
+For common issues and their solutions, see **[./docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)**
+
+### Report Security Issues
+
+Do **NOT** open public issues for security vulnerabilities. Instead, email security@YOUR_ORG with:
+- Description of vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if any)
+
+---
+
+## 🙏 Acknowledgments
+
+SIN-Solver is built on the shoulders of amazing open-source projects:
+
+- **n8n** - Workflow automation
+- **FastAPI** - Modern Python web framework
+- **PostgreSQL** - Enterprise database
+- **Redis** - High-performance caching
+- **HashiCorp Vault** - Secrets management
+- **Prometheus** - Metrics collection
+- **Grafana** - Visualization & dashboards
+- **Jaeger** - Distributed tracing
+- **Loki** - Log aggregation
+
+---
+
+## 📈 Roadmap
+
+### Current (Q1 2024)
+- ✅ Core platform infrastructure
+- ✅ Basic workflow execution
+- ✅ Agent framework
+
+### Planned (Q2 2024)
+- 🔄 Advanced workflow scheduling
+- 🔄 Workflow templates & marketplace
+- 🔄 Enhanced monitoring & alerting
+
+### Future (Q3+ 2024)
+- 🗓️ Machine learning integration
+- 🗓️ Advanced analytics & reporting
+- 🗓️ Enterprise SLA monitoring
+
+---
+
+## 💬 Questions?
+
+- **Read the docs**: Start with [./docs/QUICKSTART.md](./docs/QUICKSTART.md)
+- **Check FAQ**: See [./docs/FAQ.md](./docs/FAQ.md)
+- **Browse examples**: Check workflow templates in `./workflows/templates/`
+- **Open an issue**: [GitHub Issues](https://github.com/YOUR_ORG/SIN-Solver/issues)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by the SIN-Solver Team**
+
+[GitHub](https://github.com/YOUR_ORG/SIN-Solver) · [Documentation](./docs/) · [Report Issue](https://github.com/YOUR_ORG/SIN-Solver/issues) · [GitHub Discussions](https://github.com/YOUR_ORG/SIN-Solver/discussions)
+
+</div>

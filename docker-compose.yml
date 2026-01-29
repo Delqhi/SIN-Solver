@@ -1,0 +1,518 @@
+# ============================================================================
+# SIN-Solver Simplified Docker Compose Configuration
+# ============================================================================
+#
+# Project: SIN-Solver
+# Purpose: 5-service development/local setup (simplified from 26-service)
+# Version: 1.0
+# Created: 2025-01-29
+# Author: Development Team
+#
+# SIMPLIFIED ARCHITECTURE:
+# ✓ room-03-postgres-master: PostgreSQL database (port 5432)
+# ✓ room-04-redis-cache: Redis cache layer (port 6379)
+# ✓ agent-01-n8n-orchestrator: Workflow orchestration (port 5678)
+# ✓ agent-05-steel-browser: Browser automation/CAPTCHA solving (port 3005)
+# ✓ room-01-dashboard: Web UI dashboard (port 3011)
+#
+# ============================================================================
+# QUICK START GUIDE
+# ============================================================================
+#
+# Prerequisites:
+#   1. Docker & Docker Compose installed
+#   2. Network created: docker network create sin-solver-network
+#   3. .env file present in project root
+#
+# Start Services:
+#   docker compose up -d
+#
+# Monitor Startup:
+#   docker compose logs -f
+#
+# Check Status:
+#   docker compose ps
+#   Expected: All 5 services "Up" with "(healthy)" status
+#
+# Access Services:
+#   N8N Workflows:      http://localhost:5678     (admin/change_me)
+#   Steel Browser API:  http://localhost:3005     (API endpoint)
+#   Dashboard UI:       http://localhost:3011     (Web interface)
+#   PostgreSQL:         localhost:5432            (ceo_admin/secure_ceo_password_2026)
+#   Redis:              localhost:6379            (no auth by default)
+#
+# Stop Services (keep volumes):
+#   docker compose down
+#
+# Stop Services & Delete Volumes (DESTRUCTIVE!):
+#   docker compose down -v
+#
+# View Service Logs:
+#   docker compose logs <service_name>
+#   docker compose logs -f agent-01-n8n-orchestrator
+#   docker compose logs -f agent-05-steel-browser
+#
+# ============================================================================
+
+version: '3.9'
+
+# ============================================================================
+# YAML ANCHORS - Reusable configurations for all services
+# ============================================================================
+# These anchors reduce duplication and ensure consistency across services
+# Edit once, changes apply to all services using the anchor
+
+x-default-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "100m"
+    max-file: "5"
+    labels: "service_name,environment"
+
+x-default-deploy: &default-deploy
+  resources:
+    limits:
+      cpus: '2'
+      memory: 2G
+    reservations:
+      cpus: '0.5'
+      memory: 512M
+  restart_policy:
+    condition: unless-stopped
+    delay: 5s
+    max_attempts: 3
+
+# ============================================================================
+# SERVICES CONFIGURATION
+# ============================================================================
+# Layer 1: Foundation services (no dependencies)
+# These start first and provide infrastructure for all other services
+
+services:
+
+  # ========================================================================
+  # SERVICE: room-03-postgres-master
+  # Purpose: Primary PostgreSQL database for all application data
+  # Port: 5432 (standard PostgreSQL)
+  # Dependencies: None (foundation layer)
+  # ========================================================================
+  room-03-postgres-master:
+    image: postgres:16-alpine
+    container_name: room-03-postgres-master
+    ports:
+      - "5432:5432"
+    environment:
+      # Database name - used by all services
+      POSTGRES_DB: ${POSTGRES_DB:-sin_solver_production}
+      # Admin user for database access
+      POSTGRES_USER: ${POSTGRES_USER:-ceo_admin}
+      # Admin password (CHANGE IN PRODUCTION!)
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_ceo_password_2026}
+      # Directory for database files inside container
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # Server timezone
+      TZ: UTC
+    volumes:
+      # Persistent storage for database files
+      # Survives container restarts and docker compose down
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Test: PostgreSQL responds to pg_isready command
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ceo_admin}"]
+      interval: 30s       # Check every 30 seconds
+      timeout: 10s        # Wait 10 seconds for response
+      retries: 3          # Fail after 3 failed checks
+      start_period: 40s   # Allow 40 seconds initial startup time
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+    deploy: *default-deploy
+
+  # ========================================================================
+  # SERVICE: room-04-redis-cache
+  # Purpose: Redis cache for sessions, temporary data, and caching
+  # Port: 6379 (standard Redis)
+  # Dependencies: None (foundation layer)
+  # ========================================================================
+  room-04-redis-cache:
+    image: redis:7-alpine
+    container_name: room-04-redis-cache
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      # Persistent storage for Redis data
+      # Ensures cache survives container restarts
+      - redis_data:/data
+    healthcheck:
+      # Test: Redis responds to PING command
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s       # Check every 30 seconds
+      timeout: 10s        # Wait 10 seconds for response
+      retries: 3          # Fail after 3 failed checks
+      start_period: 40s   # Allow 40 seconds initial startup time
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+    deploy: *default-deploy
+
+  # ========================================================================
+  # Layer 2: Service layer (depends on foundation layer)
+  # These services require PostgreSQL and Redis to function properly
+  # ========================================================================
+
+  # ========================================================================
+  # SERVICE: agent-01-n8n-orchestrator
+  # Purpose: Central workflow orchestration and automation engine
+  # Port: 5678 (N8N web interface)
+  # Dependencies: PostgreSQL (database), Redis (caching)
+  # Features: Workflow builder, API integrations, credential management
+  # ========================================================================
+  agent-01-n8n-orchestrator:
+    image: n8nio/n8n:latest
+    container_name: agent-01-n8n-orchestrator
+    ports:
+      - "5678:5678"
+    environment:
+      # ========== Authentication ==========
+      # Enable basic HTTP authentication for web UI
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
+      # Username for logging into N8N web interface
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      # Password for logging into N8N web interface
+      # ⚠️ CHANGE THIS IN PRODUCTION
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-change_me}
+      
+      # ========== Editor Configuration ==========
+      # Base URL for editor access (where N8N is reachable from)
+      N8N_EDITOR_BASE_URL: http://192.168.178.21:5678/
+      # Webhook URL for external integrations and webhooks
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-https://n8n.delqhi.com/}
+      
+      # ========== Database Configuration ==========
+      # Use PostgreSQL for persistent storage
+      DATABASE_TYPE: postgresdb
+      # Hostname of PostgreSQL service (service name for DNS resolution)
+      DB_POSTGRESDB_HOST: room-03-postgres-master
+      DB_POSTGRESDB_PORT: 5432
+      # Database name (must match POSTGRES_DB)
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB:-sin_solver_production}
+      # Database user (must match POSTGRES_USER)
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:-ceo_admin}
+      # Database password (must match POSTGRES_PASSWORD)
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-secure_ceo_password_2026}
+      
+      # ========== System Configuration ==========
+      # Server timezone
+      TZ: UTC
+    volumes:
+      # Persistent storage for N8N data:
+      # - Workflows (definitions and executions)
+      # - Credentials (encrypted API keys and secrets)
+      # - Execution history (logs of all workflow runs)
+      - n8n_data:/home/node/.n8n
+    healthcheck:
+      # Test: N8N responds on healthz endpoint
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5678/healthz"]
+      interval: 30s       # Check every 30 seconds
+      timeout: 10s        # Wait 10 seconds for response
+      retries: 3          # Fail after 3 failed checks
+      start_period: 40s   # Allow 40 seconds for N8N initialization
+    depends_on:
+      # ⚠️ CRITICAL: Wait for PostgreSQL to be HEALTHY (not just started)
+      room-03-postgres-master:
+        condition: service_healthy
+      # ⚠️ CRITICAL: Wait for Redis to be HEALTHY (not just started)
+      room-04-redis-cache:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+    deploy: *default-deploy
+
+  # ========================================================================
+  # SERVICE: agent-05-steel-browser
+  # Purpose: Browser automation for CAPTCHA solving and web interactions
+  # Port: 3005 (Steel Browser API)
+  # Dependencies: PostgreSQL (data storage), Redis (session cache)
+  # ⚠️ CRITICAL: Requires shm_size for Chrome/Chromium memory allocation
+  # ========================================================================
+  agent-05-steel-browser:
+    image: steel-browser:latest
+    container_name: agent-05-steel-browser
+    ports:
+      - "3005:3000"
+    
+    # ⚠️ CRITICAL: Shared memory for Chrome/Chromium process
+    # Without this: Browser crashes with "bad_alloc" or OOM errors
+    # Adjust based on system RAM:
+    #   - 2GB: Development/small deployments
+    #   - 4GB+: Production/high concurrency (>5 concurrent sessions)
+    shm_size: '2gb'
+    
+    environment:
+      # ========== API Configuration ==========
+      # API key for Steel Browser service authentication
+      STEEL_API_KEY: ${STEEL_API_KEY:-dev_key_local}
+      # Maximum number of concurrent browser sessions
+      MAX_CONCURRENT_SESSIONS: ${MAX_CONCURRENT_SESSIONS:-10}
+      # Maximum retry attempts for failed operations
+      MAX_RETRIES: ${MAX_RETRIES:-3}
+      
+      # ========== AI Provider Keys (6 Free APIs) ==========
+      # These keys enable AI-powered automation and decision-making
+      # None of these require paid plans - all free tier suitable for dev/test
+      
+      # Mistral AI (French LLM - excellent reasoning)
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
+      # Google Gemini (Multimodal - includes vision)
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      # Groq (Ultra-fast inference - good for real-time tasks)
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      # OpenCode Zen (Open-source model hosting)
+      OPENCODE_ZEN_API_KEY: ${OPENCODE_ZEN_API_KEY}
+      # Cerebras (Fastest inference engine)
+      CEREBRAS_API_KEY: ${CEREBRAS_API_KEY:-}
+      # SambaNova (Enterprise open models)
+      SAMBANOVA_API_KEY: ${SAMBANOVA_API_KEY:-}
+      
+      # ========== Database & Cache Connections ==========
+      # PostgreSQL connection string for persistent session/result storage
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ceo_admin}:${POSTGRES_PASSWORD:-secure_ceo_password_2026}@room-03-postgres-master:5432/${POSTGRES_DB:-sin_solver_production}
+      # Redis connection string for session caching and temporary data
+      REDIS_URL: redis://room-04-redis-cache:6379/0
+      
+      # ========== System Configuration ==========
+      # Logging verbosity (DEBUG, INFO, WARNING, ERROR)
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # Server timezone
+      TZ: UTC
+    volumes:
+      # Persistent storage for:
+      # - Browser session data
+      # - Captured screenshots and artifacts
+      # - Execution logs
+      - steel_data:/data
+    healthcheck:
+      # Test: Steel Browser health endpoint responds
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s       # Check every 30 seconds
+      timeout: 10s        # Wait 10 seconds for response
+      retries: 3          # Fail after 3 failed checks
+      start_period: 60s   # Allow 60 seconds for browser initialization
+    depends_on:
+      # ⚠️ CRITICAL: Wait for PostgreSQL to be HEALTHY
+      room-03-postgres-master:
+        condition: service_healthy
+      # ⚠️ CRITICAL: Wait for Redis to be HEALTHY
+      room-04-redis-cache:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+    deploy: *default-deploy
+
+  # ========================================================================
+  # Layer 3: Frontend layer (depends on all services)
+  # This service provides web UI and requires all other services to function
+  # ========================================================================
+
+  # ========================================================================
+  # SERVICE: room-01-dashboard
+  # Purpose: Web UI dashboard for monitoring and management
+  # Port: 3011 (Dashboard web interface)
+  # Dependencies: All 4 services above (postgres, redis, n8n, steel)
+  # Features: Service monitoring, workflow management, results visualization
+  # ========================================================================
+  room-01-dashboard:
+    image: dashboard:latest
+    container_name: room-01-dashboard
+    ports:
+      - "3011:3000"
+    environment:
+      # ========== API Configuration ==========
+      # External API URL for dashboard to communicate with backend
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://codeserver-api.delqhi.com}
+      # Environment name (used for feature flags and logging)
+      NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-production}
+      
+      # ========== Node.js Configuration ==========
+      # Production mode for optimized performance
+      NODE_ENV: production
+      # Server timezone
+      TZ: UTC
+    volumes:
+      # Persistent storage for dashboard application data
+      # Includes: user preferences, cached data, application state
+      - dashboard_data:/app
+    healthcheck:
+      # Test: Dashboard health endpoint responds
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s       # Check every 30 seconds
+      timeout: 10s        # Wait 10 seconds for response
+      retries: 3          # Fail after 3 failed checks
+      start_period: 40s   # Allow 40 seconds for dashboard startup
+    depends_on:
+      # ⚠️ CRITICAL: Wait for ALL services to be HEALTHY
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+      agent-01-n8n-orchestrator:
+        condition: service_healthy
+      agent-05-steel-browser:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+    deploy: *default-deploy
+
+# ============================================================================
+# NAMED VOLUMES - Persistent data storage
+# ============================================================================
+# Named volumes survive container removal and restart
+# Data is stored in Docker's managed volume directory
+# Can be backed up independently of containers
+#
+# Inspect volumes: docker volume ls
+# View volume details: docker volume inspect <volume_name>
+# Remove volume: docker volume rm <volume_name>
+# Backup volume: docker run --rm -v <volume>:/data -v $(pwd):/backup alpine tar czf /backup/backup.tar.gz -C / data
+#
+volumes:
+  # PostgreSQL database files and indices
+  # Contains: all tables, schemas, indices, transaction logs
+  postgres_data:
+    driver: local
+  
+  # Redis cache data (with persistence)
+  # Contains: cached sessions, temporary data
+  redis_data:
+    driver: local
+  
+  # N8N workflows, credentials, and execution history
+  # Contains: workflow definitions, encrypted credentials, execution logs
+  n8n_data:
+    driver: local
+  
+  # Steel Browser session data and artifacts
+  # Contains: browser sessions, screenshots, execution logs
+  steel_data:
+    driver: local
+  
+  # Dashboard application data
+  # Contains: user preferences, cached UI data, application state
+  dashboard_data:
+    driver: local
+
+# ============================================================================
+# NETWORKS - Service-to-service communication
+# ============================================================================
+# Services communicate using service names (Docker's internal DNS)
+# Example: PostgreSQL is reachable as "room-03-postgres-master:5432"
+#
+# Network Types:
+#   - external: true  → Network created outside docker-compose
+#   - external: false → Network created by docker-compose (default)
+#
+# NOTE: This network must exist BEFORE running docker compose up
+# Create with: docker network create sin-solver-network
+#
+# Verify network: docker network inspect sin-solver-network
+#
+networks:
+  # External network - created separately, survives container lifecycle
+  # This allows multiple docker-compose files to share the same network
+  sin-solver-network:
+    external: true
+    name: sin-solver-network
+
+# ============================================================================
+# TROUBLESHOOTING GUIDE
+# ============================================================================
+#
+# SERVICES WON'T START:
+#   Problem: Containers exit immediately or fail to initialize
+#   Solutions:
+#     1. Check network exists: docker network ls | grep sin-solver-network
+#     2. View error logs: docker compose logs <service_name>
+#     3. Validate YAML: docker compose config
+#     4. Verify .env variables: grep -E "POSTGRES|REDIS" .env
+#
+# POSTGRES CONNECTION ERRORS:
+#   Problem: Services can't connect to PostgreSQL
+#   Solutions:
+#     1. Check postgres is healthy: docker compose ps room-03-postgres-master
+#     2. View postgres logs: docker compose logs room-03-postgres-master
+#     3. Test connection: docker compose exec room-03-postgres-master psql -U ceo_admin -c "SELECT 1"
+#     4. Verify credentials in .env match docker-compose.yml
+#
+# REDIS CONNECTION ERRORS:
+#   Problem: Services can't connect to Redis
+#   Solutions:
+#     1. Check redis is healthy: docker compose ps room-04-redis-cache
+#     2. View redis logs: docker compose logs room-04-redis-cache
+#     3. Test connection: docker compose exec room-04-redis-cache redis-cli ping
+#     4. Check port not in use: lsof -i :6379
+#
+# STEEL BROWSER CRASHES:
+#   Problem: Browser exits with "bad_alloc" or OOM errors
+#   Solutions:
+#     1. Increase shm_size: Change from 2gb to 4gb (if system has RAM)
+#     2. Reduce MAX_CONCURRENT_SESSIONS: Lower from 10 to 5
+#     3. Check system RAM: free -h (macOS: vm_stat)
+#     4. View browser logs: docker compose logs agent-05-steel-browser
+#
+# N8N WON'T CONNECT TO DATABASE:
+#   Problem: N8N starts but shows database connection errors
+#   Solutions:
+#     1. Wait longer for postgres: Check start_period in healthcheck
+#     2. Verify postgres is healthy: docker compose ps
+#     3. Check N8N logs: docker compose logs agent-01-n8n-orchestrator
+#     4. Verify credentials: grep POSTGRES .env | head -5
+#
+# DASHBOARD CAN'T CONNECT TO BACKEND:
+#   Problem: Dashboard UI loads but shows connection errors
+#   Solutions:
+#     1. Check N8N is running: docker compose ps agent-01-n8n-orchestrator
+#     2. Verify N8N_WEBHOOK_URL in .env matches deployment
+#     3. Check network connectivity: docker compose exec room-01-dashboard curl http://agent-01-n8n-orchestrator:5678
+#     4. View dashboard logs: docker compose logs room-01-dashboard
+#
+# OUT OF MEMORY ERRORS:
+#   Problem: Services crash with memory errors
+#   Solutions:
+#     1. Reduce resource limits: Edit deploy.resources.limits.memory
+#     2. Reduce concurrent sessions: Lower MAX_CONCURRENT_SESSIONS for steel
+#     3. Check system resources: docker stats
+#     4. Restart with cleanup: docker compose down && docker compose up -d
+#
+# VOLUME PERSISTENCE ISSUES:
+#   Problem: Data lost after container restart
+#   Solutions:
+#     1. Verify volumes exist: docker volume ls | grep postgres_data
+#     2. Check volume mount: docker inspect <container> | grep -A 10 Mounts
+#     3. Test persistence: Create file, restart container, verify file exists
+#     4. Backup volume: docker run --rm -v postgres_data:/data -v $(pwd):/backup alpine tar czf /backup/backup.tar.gz -C / data
+#
+# PORT CONFLICTS:
+#   Problem: "Port is already allocated" error
+#   Solutions:
+#     1. Find what's using port: lsof -i :<port>
+#     2. Stop the other service: sudo kill -9 <PID>
+#     3. Change port in docker-compose.yml if needed
+#     4. List all docker ports: docker compose port
+#
+# NETWORK ISSUES:
+#   Problem: Services can't reach each other
+#   Solutions:
+#     1. Test connectivity: docker compose exec <service> ping <other_service>
+#     2. Test DNS resolution: docker compose exec <service> nslookup <other_service>
+#     3. Verify network: docker network inspect sin-solver-network
+#     4. Check firewall rules if using custom networks
+#
+# ============================================================================
