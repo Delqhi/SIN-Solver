@@ -3457,3 +3457,30 @@ Every line of code, every configuration change, every documentation update must 
 ---
 
 **END OF AGENTS.MD V19.1 GITHUB TEMPLATES EDITION**
+
+---
+
+## [2026-01-29] [MIGRATION-COMPLETE] MCP Wrapper Zentralisierung
+## [2026-01-29] [MIGRATION-COMPLETE] MCP Wrapper Zentralisierung
+
+**Aktion:** Migration verteilter MCP-Wrapper nach SIN-Solver/mcp-wrappers/
+
+**Grund:** Best Practices 2026 - Zentrale Projektstruktur
+
+**Migrierte Komponenten:**
+- sin-agent-zero-mcp
+- sin-chrome-devtools-mcp  
+- sin-stagehand-mcp
+
+**Status:** Alle Komponenten erfolgreich migriert
+**Backup:** Original-Verzeichnisse mit .migrated.2026-01-29 suffix
+**Ziel:** /Users/jeremy/dev/SIN-Solver/mcp-wrappers/
+
+**Vorteile:**
+- Einheitliche Projektstruktur
+- Einfachere Wartung  
+- Klare Zuordnung aller Komponenten
+- Compliance mit MANDATE 0.8 (Modularitaet)
+
+**Verifizierung:**
+ls -la /Users/jeremy/dev/SIN-Solver/mcp-wrappers/

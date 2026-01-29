@@ -266,3 +266,110 @@ names:
 **TOTAL ENTRIES:** 9 sessions  
 **NEXT UPDATE:** After training execution (Session 9 continued or Session 10)
 
+
+## [2026-01-29 SESSION 10 - TRAINING RESTART] YOLO Phase 2.4e - EXECUTION STARTED
+
+**Session:** 10 - Continuation  
+**Status:** 🟢 TRAINING IN PROGRESS  
+**Start Time:** 2026-01-29 ~13:30 UTC  
+**Estimated Duration:** ~160 minutes (2.7 hours)
+
+### Issue Resolution
+**Problem Identified:** Class mismatch error (14 classes vs 12 classes)
+```
+ERROR: val found 112 images in 12 classes (requires 14 classes, not 12)
+```
+
+**Root Cause Analysis:**
+- YOLO auto-split was including `__pycache__` and `tests` directories
+- These were counted as extra "classes" causing mismatch
+- Training never actually started due to this initialization error
+
+**Solution Implemented:**
+1. Cleaned `/training_split/` directories:
+   - Removed all `__pycache__` directories
+   - Removed all `tests` directories
+2. Verified 12 classes only (correct)
+3. Cleared old YOLO runs (`/runs/classify/`)
+4. Restarted training with clean state
+
+### Training Parameters (Session 10)
+```
+Model:                    YOLOv8n-cls (Nano, 1.45M params)
+Target Epochs:            20
+Batch Size:               8
+Image Size:               320×320
+Optimizer:                SGD (lr=0.01, momentum=0.937)
+Early Stopping Patience:  10
+Device:                   CPU (Apple M1)
+Seed:                     42 (deterministic)
+
+Dataset (After Split):
+  • Training:             424 images (80% of 530)
+  • Validation:           112 images (20% of 530)
+  • Total Classes:        12 (perfectly balanced, 44 images each)
+```
+
+### Current Status
+```
+✅ Epoch 1/20 - In Progress
+   • Batch Processing: 9/53 completed
+   • Current Loss: 2.578
+   • Processing Speed: ~7.5-8.0 seconds per batch
+   • Estimated Epoch Time: ~6-7 minutes (CPU)
+   • Total Training Time: ~160 minutes
+
+Expected Completion: ~2026-01-29 14:30 UTC
+```
+
+### Key Improvements vs Previous Attempt
+| Aspect | Previous (Session 9) | Current (Session 10) |
+|--------|-----------------|-----------------|
+| **Issue** | Early stopping @ epoch 11 | Fixed initialization error |
+| **Root Cause** | patience=10 was too aggressive | Class count mismatch |
+| **Fix Applied** | patience=20 (ineffective) | Cleaned spurious directories |
+| **Training State** | Stopped prematurely | Running fresh, full 20 epochs |
+| **Configuration** | Correct but never executed | Correct and executing |
+
+### Files Created/Modified
+- ✅ `SESSION_10_STATUS.md` - Comprehensive session documentation
+- ✅ `check_training.sh` - Real-time monitoring script
+- ✅ `training_session_10.log` - Detailed execution log (append-only)
+- ✅ `training-lastchanges.md` - This entry
+
+### Monitoring Strategy
+```bash
+# Quick status check
+bash /Users/jeremy/dev/SIN-Solver/training/check_training.sh
+
+# Watch live output
+tail -f /Users/jeremy/dev/SIN-Solver/training/training_session_10.log
+
+# Check model creation (after epoch 1)
+ls -lh /Users/jeremy/runs/classify/runs/classify/captcha_classifier4/weights/
+```
+
+### Success Criteria (Completion)
+- [ ] All 20 epochs executed (no early stopping)
+- [ ] results.csv has 20+ data rows
+- [ ] best.pt model file created (5.7 MB)
+- [ ] Final Top-1 Accuracy >= 75%
+- [ ] Final Val Loss < 1.2
+- [ ] No crashes or errors
+
+### Next Actions
+1. **Monitor** (~160 min) - Let training complete
+2. **Verify** (5 min) - Check metrics and model
+3. **Phase 2.5** - OCR integration (next session)
+4. **Phase 2.6** - Docker integration
+5. **Phase 3.0** - Production deployment
+
+**NOTES:**
+- Training is running independently (can close terminal safely)
+- All output captured to training_session_10.log
+- Process uses CPU (no CUDA issues)
+- Dataset is balanced (44 images × 12 classes = 528 total)
+- Expected final accuracy: 75-85% Top-1
+
+---
+

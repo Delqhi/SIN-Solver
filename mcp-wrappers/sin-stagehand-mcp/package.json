@@ -1,0 +1,19 @@
+{
+  "name": "sin-stagehand-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "build/index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "@browserbasehq/stagehand": "latest",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js"
+  }
+}

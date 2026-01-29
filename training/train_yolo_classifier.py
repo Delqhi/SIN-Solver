@@ -177,9 +177,9 @@ class CaptchaYOLOTrainer:
             
             # Train the model
             # YOLO will automatically create train/val split (80/20)
-            # The 'data' parameter should be the root directory containing class subdirectories
+            # The 'data' parameter should point to the training directory (YOLO auto-detects structure)
             self.results = self.model.train(
-                data=str(self.training_dir),  # Root directory with class folders
+                 data=str(self.training_dir),  # Directory with class folders (YOLO auto-detects)
                 epochs=self.config["epochs"],
                 imgsz=self.config["imgsz"],
                 batch=self.config["batch"],
