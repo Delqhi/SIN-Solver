@@ -1,5 +1,5 @@
 # Playwright base image includes Node.js and all browser dependencies
-FROM mcr.microsoft.com/playwright:v1.48.0-jammy AS builder
+FROM mcr.microsoft.com/playwright:v1.58.0-jammy AS builder
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ COPY src ./src
 RUN npm run build
 
 # Runtime stage - use same base to avoid large layers
-FROM mcr.microsoft.com/playwright:v1.48.0-jammy
+FROM mcr.microsoft.com/playwright:v1.58.0-jammy
 
 # Create non-root user
 RUN useradd -m -u 1001 appuser
