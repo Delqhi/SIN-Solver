@@ -1,6 +1,6 @@
-# SIN-Solver Quick Start Guide
+# Delqhi-Platform Quick Start Guide
 
-Get SIN-Solver up and running in 5 minutes.
+Get Delqhi-Platform up and running in 5 minutes.
 
 ## Prerequisites
 
@@ -15,8 +15,8 @@ Before you begin, ensure you have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Delqhi/SIN-Solver.git
-cd SIN-Solver
+git clone https://github.com/Delqhi/Delqhi-Platform.git
+cd Delqhi-Platform
 
 # Copy the environment template
 cp .env.example .env
@@ -63,7 +63,7 @@ Open your browser:
 http://localhost:3011
 ```
 
-You'll see the SIN-Solver Cockpit with:
+You'll see the Delqhi-Platform Cockpit with:
 - Container status overview
 - Real-time telemetry
 - Solver controls
@@ -150,7 +150,7 @@ docker compose exec room-13-vault-api env | grep -E "(GEMINI|POSTGRES)"
 - 📖 [Full Documentation](./README.md)
 - 🏗️ [Architecture Guide](./docs/SIN-SOLVER-TECHNICAL-ARCHITECTURE.md)
 - 🔌 [API Reference](./docs/api-reference/)
-- 🐛 [Report Issues](https://github.com/Delqhi/SIN-Solver/issues)
+- 🐛 [Report Issues](https://github.com/Delqhi/Delqhi-Platform/issues)
 
 ## Resource Usage
 
@@ -168,6 +168,6 @@ During active solving, expect 10-20% CPU spikes.
 
 ---
 
-**🎉 Congratulations!** You now have SIN-Solver running locally.
+**🎉 Congratulations!** You now have Delqhi-Platform running locally.
 
-Need help? Join our [Discord](https://discord.gg/sin-solver) or open a [GitHub Issue](https://github.com/Delqhi/SIN-Solver/issues).
+Need help? Join our [Discord](https://discord.gg/delqhi-platform) or open a [GitHub Issue](https://github.com/Delqhi/Delqhi-Platform/issues).

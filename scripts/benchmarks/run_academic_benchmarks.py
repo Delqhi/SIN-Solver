@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-📊 SIN-Solver Academic Benchmark Runner (2026)
+📊 Delqhi-Platform Academic Benchmark Runner (2026)
 Tests the system against MCA-Bench and Open CaptchaWorld datasets.
 """
 

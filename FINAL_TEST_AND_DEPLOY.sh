@@ -7,7 +7,7 @@ set -e
 echo "🚀 PHASE 2.5 - FINAL TEST & DEPLOYMENT"
 echo "========================================================================"
 
-PROJECT_ROOT="/Users/jeremy/dev/SIN-Solver"
+PROJECT_ROOT="/Users/jeremy/dev/Delqhi-Platform"
 VENV="${PROJECT_ROOT}/ocr_env"
 
 # Step 1: Activate environment
@@ -79,7 +79,7 @@ update = f"""
 Phase 3: Docker Deployment & Integration
 - Package as solver-1.1-captcha-worker container
 - Deploy to production
-- Integrate with SIN-Solver orchestration
+- Integrate with Delqhi-Platform orchestration
 """
 
 log_file.write_text(content + update)

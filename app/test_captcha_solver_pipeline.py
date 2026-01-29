@@ -8,7 +8,7 @@ Tests the complete pipeline:
 3. Consensus voting
 4. Pipeline end-to-end speed
 
-Author: SIN-Solver Team
+Author: Delqhi-Platform Team
 Version: 2.5.0
 Created: 2026-01-29 Session 11
 """
@@ -55,7 +55,7 @@ class TestOCREngines(unittest.TestCase):
     
     def test_tesseract_text_extraction(self):
         """Test Tesseract on sample text images"""
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training').glob('Text_Captcha/*.jpg'))
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training').glob('Text_Captcha/*.jpg'))
         
         if not test_images:
             self.skipTest("No Text_Captcha training images found")
@@ -75,7 +75,7 @@ class TestOCREngines(unittest.TestCase):
     
     def test_paddleocr_text_extraction(self):
         """Test PaddleOCR on sample text images"""
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training').glob('Text_Captcha/*.jpg'))
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training').glob('Text_Captcha/*.jpg'))
         
         if not test_images:
             self.skipTest("No Text_Captcha training images found")
@@ -107,7 +107,7 @@ class TestYOLOClassification(unittest.TestCase):
     
     def test_yolo_classification(self):
         """Test YOLO classification on each class"""
-        training_dir = Path('/Users/jeremy/dev/SIN-Solver/training')
+        training_dir = Path('/Users/jeremy/dev/Delqhi-Platform/training')
         
         class_dirs = [d for d in training_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]
         
@@ -138,7 +138,7 @@ class TestYOLOClassification(unittest.TestCase):
     
     def test_yolo_speed(self):
         """Test YOLO classification speed"""
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training').glob('*/*.jpg'))[:10]
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training').glob('*/*.jpg'))[:10]
         
         if not test_images:
             self.skipTest("No training images found")
@@ -231,7 +231,7 @@ class TestPipelineIntegration(unittest.TestCase):
     
     def test_solve_text_captcha(self):
         """Test solving Text CAPTCHA end-to-end"""
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training/Text_Captcha').glob('*.jpg'))
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training/Text_Captcha').glob('*.jpg'))
         
         if not test_images:
             self.skipTest("No Text_Captcha images for testing")
@@ -249,7 +249,7 @@ class TestPipelineIntegration(unittest.TestCase):
     
     def test_pipeline_speed(self):
         """Test complete pipeline speed (classify + OCR)"""
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training').glob('*/*.jpg'))[:5]
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training').glob('*/*.jpg'))[:5]
         
         if not test_images:
             self.skipTest("No training images found")
@@ -285,7 +285,7 @@ class TestPerformanceMetrics(unittest.TestCase):
         """Estimate Tesseract accuracy on Text CAPTCHA"""
         tesseract = TesseractOCREngine()
         
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training/Text_Captcha').glob('*.jpg'))
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training/Text_Captcha').glob('*.jpg'))
         
         if not test_images or not tesseract.available:
             self.skipTest("Tesseract not available or no test images")
@@ -305,7 +305,7 @@ class TestPerformanceMetrics(unittest.TestCase):
         """Estimate PaddleOCR accuracy on Text CAPTCHA"""
         paddleocr = PaddleOCREngine()
         
-        test_images = list(Path('/Users/jeremy/dev/SIN-Solver/training/Text_Captcha').glob('*.jpg'))
+        test_images = list(Path('/Users/jeremy/dev/Delqhi-Platform/training/Text_Captcha').glob('*.jpg'))
         
         if not test_images or not paddleocr.available:
             self.skipTest("PaddleOCR not available or no test images")

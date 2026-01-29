@@ -39,7 +39,7 @@
 
 ### Was ist der OpenCode-Sekretär?
 
-Zimmer-04 ist der zentrale AI-gestützte Code-Generator und Review-Service des SIN-Solver Ökosystems. Als "Sekretär" des 23-Room Empire übernimmt er die intelligente Unterstützung bei:
+Zimmer-04 ist der zentrale AI-gestützte Code-Generator und Review-Service des Delqhi-Platform Ökosystems. Als "Sekretär" des 23-Room Empire übernimmt er die intelligente Unterstützung bei:
 
 - **Code Generation** - Automatische Generierung von Production-Ready Code
 - **Code Review** - AI-gestützte Codeanalyse und Verbesserungsvorschläge
@@ -531,7 +531,7 @@ const providerChain = [
 ```dockerfile
 FROM node:20-alpine
 
-LABEL maintainer="SIN-Solver Team"
+LABEL maintainer="Delqhi-Platform Team"
 LABEL service="zimmer-04-opencode"
 LABEL version="2.0.0"
 
@@ -969,9 +969,9 @@ app.disable('x-powered-by');
 
 ## 🔗 Verwandte Dokumentation
 
-- [AGENTS.md](/Users/jeremy/dev/SIN-Solver/AGENTS.md) - 23-Room Empire Übersicht
-- [Zimmer-13 API Coordinator](/Users/jeremy/dev/SIN-Solver/services/zimmer-13-api-coordinator/README.md)
-- [Zimmer-08 QA-Prüfer](/Users/jeremy/dev/SIN-Solver/services/zimmer-08-qa/README.md)
+- [AGENTS.md](/Users/jeremy/dev/Delqhi-Platform/AGENTS.md) - 23-Room Empire Übersicht
+- [Zimmer-13 API Coordinator](/Users/jeremy/dev/Delqhi-Platform/services/zimmer-13-api-coordinator/README.md)
+- [Zimmer-08 QA-Prüfer](/Users/jeremy/dev/Delqhi-Platform/services/zimmer-08-qa/README.md)
 
 ---
 

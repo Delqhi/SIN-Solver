@@ -1,4 +1,4 @@
-# SIN-Solver Multi-Agent Swarm System - Master TODO
+# Delqhi-Platform Multi-Agent Swarm System - Master TODO
 
 **Created:** 2026-01-29 10:00  
 **Version:** 1.0.0  
@@ -160,8 +160,8 @@ Establish a complete Multi-Agent Swarm System with TODO-Status-Tracking, Agent-S
 - [x] **TASK-003-002:** Create master TODO file with hierarchical structure
   - Status: COMPLETED
   - Assigned: Sisyphus-Junior
-  - Files: `.sisyphus/todos/sin-solver-master-todo.md`
-  - Arbeitsbereich: {Master TODO};TASK-003-002-.sisyphus/todos/sin-solver-master-todo.md-COMPLETED
+  - Files: `.sisyphus/todos/delqhi-platform-master-todo.md`
+  - Arbeitsbereich: {Master TODO};TASK-003-002-.sisyphus/todos/delqhi-platform-master-todo.md-COMPLETED
 
 - [x] **TASK-003-003:** Create Agent Assignment Rules document
   - Status: IN_PROGRESS

@@ -168,7 +168,7 @@ Error: Required environment variable DOCKER_HOST is not set
    ```
 3. Check network connectivity between containers:
    ```bash
-   docker network inspect sin-solver_default
+   docker network inspect delqhi-platform_default
    ```
 
 ---
@@ -245,7 +245,7 @@ Error: Required environment variable DOCKER_HOST is not set
 1. Verify all services are on the same Docker network:
    ```bash
    docker network ls
-   docker network inspect sin-solver_default
+   docker network inspect delqhi-platform_default
    ```
 2. Check service discovery:
    ```bash
@@ -384,8 +384,8 @@ If the issue persists:
    - Network tab
 
 3. **Contact Support:**
-   - GitHub Issues: [SIN-Solver Issues](https://github.com/Delqhi/SIN-Solver/issues)
-   - Email: support@sin-solver.io
+   - GitHub Issues: [Delqhi-Platform Issues](https://github.com/Delqhi/Delqhi-Platform/issues)
+   - Email: support@delqhi-platform.io
 
 4. **Reference Tickets:**
    - See [troubleshooting/](../../troubleshooting/) directory for detailed ticket files

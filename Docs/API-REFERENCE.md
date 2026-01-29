@@ -1,4 +1,4 @@
-# SIN-Solver API Reference
+# Delqhi-Platform API Reference
 
 > **Base URL:** `http://localhost:8000`  
 > **Version:** 2.0.0  
@@ -535,5 +535,5 @@ The full OpenAPI 3.0 specification is available at:
 ---
 
 <p align="center">
-  <sub>SIN-Solver API v2.0.0 | Apache 2.0 License</sub>
+  <sub>Delqhi-Platform API v2.0.0 | Apache 2.0 License</sub>
 </p>

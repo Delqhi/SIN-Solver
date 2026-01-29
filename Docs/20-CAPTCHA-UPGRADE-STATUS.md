@@ -1,7 +1,7 @@
 # 🎯 CAPTCHA SOLVER UPGRADE - STATUS REPORT
 
 **Datum:** 2026-01-29  
-**Projekt:** SIN-Solver - builder-1.1-captcha-worker  
+**Projekt:** Delqhi-Platform - builder-1.1-captcha-worker  
 **Status:** 🟢 IN PROGRESS (80% Complete)
 
 ---
@@ -9,7 +9,7 @@
 ## ✅ ABGESCHLOSSENE ARBEITEN
 
 ### 1. Analyse Bestehender Captcha-Dateien
-**Location:** `/Users/jeremy/dev/SIN-Solver/app/services/`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/app/services/`
 
 | Datei | Status | Probleme |
 |-------|--------|----------|
@@ -34,7 +34,7 @@
 - **Memory Management:** ~6.5GB VRAM für Qwen3 auf M1
 
 ### 3. API Brain Integration
-**Location:** `/Users/jeremy/dev/SIN-Solver/services/room-13-fastapi-coordinator/`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/services/room-13-fastapi-coordinator/`
 
 ✅ **Neue Datei:** `src/routes/captcha.py` (251 lines)
 - POST `/api/captcha/solve` - Universal solve endpoint
@@ -50,7 +50,7 @@
 - Service integration complete
 
 ### 4. MCP Wrapper
-**Location:** `/Users/jeremy/dev/SIN-Solver/mcp-wrappers/`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/`
 
 ✅ **Neue Datei:** `captcha-mcp-wrapper.js` (423 lines)
 - 10 vollständige Tools implementiert
@@ -79,7 +79,7 @@
 **Status:** Running (4m+)  
 **Agent:** sisyphus-junior (ultrabrain)
 
-**Deliverable:** `/Users/jeremy/dev/SIN-Solver/Docs/builder-1.1-captcha-worker-architecture.md`
+**Deliverable:** `/Users/jeremy/dev/Delqhi-Platform/Docs/builder-1.1-captcha-worker-architecture.md`
 
 **Enthält:**
 - System Architecture Diagram (Mermaid)
@@ -101,7 +101,7 @@
 **Status:** Running (4m+)  
 **Agent:** sisyphus-junior (unspecified-high)
 
-**Deliverable:** `/Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker/`
+**Deliverable:** `/Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker/`
 
 **Enthält:**
 ```
@@ -123,7 +123,7 @@ Docker/builders/builder-1.1-captcha-worker/
 ## 📋 NOCH ZU ERLEDIGEN
 
 ### 1. Cloudflare Config Update
-**File:** `/Users/jeremy/dev/SIN-Solver/infrastructure/cloudflare/config.yml`
+**File:** `/Users/jeremy/dev/Delqhi-Platform/infrastructure/cloudflare/config.yml`
 
 ```yaml
 # Update line 49-51:
@@ -132,7 +132,7 @@ Docker/builders/builder-1.1-captcha-worker/
 ```
 
 ### 2. Container Registry Update
-**File:** `/Users/jeremy/dev/SIN-Solver/CONTAINER-REGISTRY.md`
+**File:** `/Users/jeremy/dev/Delqhi-Platform/CONTAINER-REGISTRY.md`
 
 - Add builder-1.1-captcha-worker entry
 - Update port mapping (8019)

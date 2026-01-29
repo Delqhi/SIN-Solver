@@ -20,12 +20,12 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 Instead, please report security issues via one of these methods:
 
 1. **GitHub Security Advisories** (Preferred)
-   - Go to [Security Advisories](https://github.com/Delqhi/SIN-Solver/security/advisories)
+   - Go to [Security Advisories](https://github.com/Delqhi/Delqhi-Platform/security/advisories)
    - Click "New draft security advisory"
    - Fill in the vulnerability details
 
 2. **Email**
-   - Send details to: security@sin-solver.io
+   - Send details to: security@delqhi-platform.io
    - Include "SECURITY" in the subject line
    - Use our PGP key for sensitive information (available on request)
 
@@ -59,7 +59,7 @@ Please include as much of the following information as possible:
 
 ## Security Best Practices
 
-When deploying SIN-Solver, follow these security guidelines:
+When deploying Delqhi-Platform, follow these security guidelines:
 
 ### Environment Configuration
 
@@ -103,13 +103,13 @@ services:
 
 ```bash
 # Run containers as non-root user
-docker run --user 1000:1000 sin-solver
+docker run --user 1000:1000 delqhi-platform
 
 # Use read-only filesystem where possible
-docker run --read-only sin-solver
+docker run --read-only delqhi-platform
 
 # Limit container resources
-docker run --memory=512m --cpus=1 sin-solver
+docker run --memory=512m --cpus=1 delqhi-platform
 ```
 
 ### Database Security
@@ -158,7 +158,7 @@ docker compose --env-file .env.production up
 
 ## Compliance
 
-SIN-Solver is designed to help meet compliance requirements, but deployment configuration is your responsibility:
+Delqhi-Platform is designed to help meet compliance requirements, but deployment configuration is your responsibility:
 
 - **GDPR**: No personal data collection by default; configure logging appropriately
 - **SOC 2**: Audit logging available; configure retention policies
@@ -178,16 +178,16 @@ We currently do not have a formal bug bounty program, but we deeply appreciate s
 
 For significant vulnerabilities, we offer:
 - Public recognition (with permission)
-- SIN-Solver swag (t-shirts, stickers)
+- Delqhi-Platform swag (t-shirts, stickers)
 - Pro tier access for personal use
 
 ---
 
 ## Contact
 
-- **Security Issues**: security@sin-solver.io
-- **General Support**: support@sin-solver.io
-- **GitHub**: [Delqhi/SIN-Solver](https://github.com/Delqhi/SIN-Solver)
+- **Security Issues**: security@delqhi-platform.io
+- **General Support**: support@delqhi-platform.io
+- **GitHub**: [Delqhi/Delqhi-Platform](https://github.com/Delqhi/Delqhi-Platform)
 
 ---
 

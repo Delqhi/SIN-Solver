@@ -1,78 +1,149 @@
 #!/bin/bash
-# Test Runner for SIN-Solver
-# Runs ALL tests with REAL services
-# Best Practices 2026
+# SIN-Solver Test Runner
+# Best Practices 2026 - Testing Framework
 
 set -e
 
-echo "═══════════════════════════════════════════════════════════════"
-echo "  SIN-SOLVER TEST SUITE - VERKAUFSBEREIT 2026"
-echo "═══════════════════════════════════════════════════════════════"
-echo ""
+echo "=========================================="
+echo "SIN-Solver Testing Framework"
+echo "=========================================="
 
-# Colors
-GREEN='\033[0;32m'
+# Colors for output
 RED='\033[0;31m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Check if services are running
-echo "🔍 Checking services..."
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
 
-if ! curl -s http://localhost:8019/health > /dev/null; then
-    echo -e "${RED}❌ Captcha Worker not running on port 8019${NC}"
-    echo "   Start with: docker compose up -d solver-1.1-captcha-worker"
+print_warning() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if we're in the tests directory
+if [ ! -f "pytest.ini" ]; then
+    print_error "Please run from the tests directory"
     exit 1
 fi
 
-if ! curl -s http://localhost:6379 > /dev/null 2>&1; then
-    echo -e "${YELLOW}⚠️  Redis not responding on port 6379${NC}"
+# Check for Python
+if ! command -v python3 &> /dev/null; then
+    print_error "Python 3 is required but not installed"
+    exit 1
 fi
 
-echo -e "${GREEN}✅ Services are running${NC}"
-echo ""
-
-# Install test dependencies if needed
-if [ ! -d "venv" ]; then
-    echo "📦 Creating virtual environment..."
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -q -r tests/requirements-test.txt
-else
-    source venv/bin/activate
+# Install dependencies if needed
+if ! python3 -c "import pytest" 2>/dev/null; then
+    print_status "Installing test dependencies..."
+    pip install -r requirements-test.txt
 fi
 
-echo ""
-echo "═══════════════════════════════════════════════════════════════"
-echo "  RUNNING TESTS"
-echo "═══════════════════════════════════════════════════════════════"
-echo ""
+# Parse command line arguments
+TEST_TYPE="all"
+COVERAGE=false
+VERBOSE=false
+PARALLEL=false
 
-# Run E2E Tests
-echo "🧪 Running E2E Integration Tests..."
-python -m pytest tests/test_e2e_integration.py -v --tb=short -m "not slow" || true
-echo ""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --unit)
+            TEST_TYPE="unit"
+            shift
+            ;;
+        --integration)
+            TEST_TYPE="integration"
+            shift
+            ;;
+        --performance)
+            TEST_TYPE="performance"
+            shift
+            ;;
+        --coverage)
+            COVERAGE=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --parallel|-p)
+            PARALLEL=true
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: ./run-tests.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --unit           Run unit tests only"
+            echo "  --integration    Run integration tests only"
+            echo "  --performance    Run performance tests only"
+            echo "  --coverage       Generate coverage report"
+            echo "  --verbose, -v    Verbose output"
+            echo "  --parallel, -p   Run tests in parallel"
+            echo "  --help, -h       Show this help"
+            exit 0
+            ;;
+        *)
+            print_error "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
-# Run Container Health Tests
-echo "🐳 Running Container Health Tests..."
-python -m pytest tests/test_container_health.py -v --tb=short || true
-echo ""
+# Build pytest command
+PYTEST_CMD="python3 -m pytest"
 
-# Run Load Tests (if --load flag is passed)
-if [ "$1" == "--load" ]; then
-    echo "🚀 Running Load Tests..."
-    python -m pytest tests/test_load_performance.py -v --tb=short || true
+if [ "$VERBOSE" = true ]; then
+    PYTEST_CMD="$PYTEST_CMD -v"
+fi
+
+if [ "$PARALLEL" = true ]; then
+    PYTEST_CMD="$PYTEST_CMD -n auto"
+fi
+
+if [ "$COVERAGE" = true ]; then
+    PYTEST_CMD="$PYTEST_CMD --cov=../Docker/builders/builder-1.1-captcha-worker/src --cov-report=html --cov-report=term"
+fi
+
+# Run tests based on type
+case $TEST_TYPE in
+    unit)
+        print_status "Running unit tests..."
+        $PYTEST_CMD unit/ -m "not slow"
+        ;;
+    integration)
+        print_status "Running integration tests..."
+        $PYTEST_CMD integration/ -m "not slow"
+        ;;
+    performance)
+        print_status "Running performance tests..."
+        $PYTEST_CMD performance/ -m "performance"
+        ;;
+    all)
+        print_status "Running all tests..."
+        $PYTEST_CMD -m "not slow"
+        ;;
+esac
+
+# Check test result
+if [ $? -eq 0 ]; then
     echo ""
+    print_status "All tests passed!"
+    
+    if [ "$COVERAGE" = true ]; then
+        print_status "Coverage report generated in htmlcov/"
+    fi
+    
+    exit 0
+else
+    echo ""
+    print_error "Some tests failed!"
+    exit 1
 fi
-
-# Run ALL tests
-echo "📊 Running Full Test Suite..."
-python -m pytest tests/ -v --tb=short --ignore=tests/test_load_performance.py || true
-
-echo ""
-echo "═══════════════════════════════════════════════════════════════"
-echo "  TEST COMPLETE"
-echo "═══════════════════════════════════════════════════════════════"
-echo ""
-echo "To run load tests: ./run-tests.sh --load"
-echo ""

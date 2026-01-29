@@ -1,4 +1,4 @@
-# Antigravity Integration (SIN-Solver)
+# Antigravity Integration (Delqhi-Platform)
 
 ## 🔧 SETUP & AUTH
 Das Projekt nutzt das `opencode-antigravity-auth` Plugin, um Google-Accounts als souveräne Modell-Provider zu nutzen.

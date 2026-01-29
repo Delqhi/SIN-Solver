@@ -7,7 +7,7 @@
 ## 📁 Directory Structure (TARGET)
 
 ```
-/Users/jeremy/dev/SIN-Solver/
+/Users/jeremy/dev/Delqhi-Platform/
 ├── Docker/
 │   ├── agents/
 │   │   ├── agent-01-n8n-orchestrator/
@@ -165,7 +165,7 @@ services:
     volumes:
       - steel_data:/home/pptruser/.config/google-chrome
     networks:
-      - sin-solver-network
+      - delqhi-platform-network
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 3000 || exit 1"]
       interval: 10s
@@ -186,7 +186,7 @@ volumes:
     driver: local
 
 networks:
-  sin-solver-network:
+  delqhi-platform-network:
     external: true
 ```
 
@@ -221,7 +221,7 @@ networks:
 ## 🔗 Shared Resources
 
 All services share:
-- **Network:** `sin-solver-network` (created once)
+- **Network:** `delqhi-platform-network` (created once)
 - **Volumes:** Named volumes (defined per service)
 - **Environment:** `.env` file (loaded by all)
 

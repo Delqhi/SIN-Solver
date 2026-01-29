@@ -8,7 +8,7 @@
 
 ## Overview
 
-Hoppscotch is an open-source API development ecosystem (Postman alternative). It is used to test, document, and share API requests for all services in the SIN-Solver empire.
+Hoppscotch is an open-source API development ecosystem (Postman alternative). It is used to test, document, and share API requests for all services in the Delqhi-Platform empire.
 
 ## Quick Start
 
@@ -35,4 +35,4 @@ docker compose up -d
 
 ---
 
-*Part of the SIN-Solver V18.3 Infrastructure*
+*Part of the Delqhi-Platform V18.3 Infrastructure*

@@ -1,0 +1,208 @@
+# Prometheus Recording Rules for SIN-Solver CAPTCHA System
+# Version: 2026.1.0
+# 
+# Recording rules pre-compute frequently needed or computationally expensive
+# expressions and save their result as a new set of time series.
+
+groups:
+  # =========================================================================
+  # CAPTCHA Performance Recording Rules
+  # =========================================================================
+  - name: captcha_performance
+    interval: 1m
+    rules:
+      # Solve rate by type (5m)
+      - record: captcha:solve_rate_5m
+        expr: |
+          sum(rate(captcha_solves_total{status="success"}[5m])) by (captcha_type)
+          /
+          sum(rate(captcha_solves_total[5m])) by (captcha_type)
+      
+      # Solve rate by type (1h)
+      - record: captcha:solve_rate_1h
+        expr: |
+          sum(rate(captcha_solves_total{status="success"}[1h])) by (captcha_type)
+          /
+          sum(rate(captcha_solves_total[1h])) by (captcha_type)
+      
+      # Average solve duration by type (5m)
+      - record: captcha:avg_solve_duration_5m
+        expr: |
+          sum(rate(captcha_solve_duration_seconds_sum[5m])) by (captcha_type)
+          /
+          sum(rate(captcha_solve_duration_seconds_count[5m])) by (captcha_type)
+      
+      # P95 solve duration by type
+      - record: captcha:p95_solve_duration
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(captcha_solve_duration_seconds_bucket[5m])) by (le, captcha_type)
+          )
+      
+      # P99 solve duration by type
+      - record: captcha:p99_solve_duration
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(captcha_solve_duration_seconds_bucket[5m])) by (le, captcha_type)
+          )
+      
+      # Average cost per solve by type
+      - record: captcha:avg_cost_per_solve
+        expr: |
+          sum(rate(captcha_solve_cost_usd_sum[1h])) by (captcha_type)
+          /
+          sum(rate(captcha_solve_cost_usd_count[1h])) by (captcha_type)
+      
+      # Total solves per minute by type
+      - record: captcha:solves_per_minute
+        expr: |
+          sum(rate(captcha_solves_total[1m])) by (captcha_type, status)
+
+  # =========================================================================
+  # AI Model Performance Recording Rules
+  # =========================================================================
+  - name: ai_model_performance
+    interval: 1m
+    rules:
+      # Model success rate
+      - record: ai:model_success_rate
+        expr: |
+          sum(rate(ai_model_requests_total{status="success"}[5m])) by (model, provider)
+          /
+          sum(rate(ai_model_requests_total[5m])) by (model, provider)
+      
+      # Model average latency
+      - record: ai:model_avg_latency
+        expr: |
+          sum(rate(ai_model_latency_seconds_sum[5m])) by (model, provider)
+          /
+          sum(rate(ai_model_latency_seconds_count[5m])) by (model, provider)
+      
+      # Model P95 latency
+      - record: ai:model_p95_latency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(ai_model_latency_seconds_bucket[5m])) by (le, model, provider)
+          )
+      
+      # Total tokens per minute
+      - record: ai:tokens_per_minute
+        expr: |
+          sum(rate(ai_model_tokens_used_total[1m])) by (model, token_type)
+
+  # =========================================================================
+  # API Performance Recording Rules
+  # =========================================================================
+  - name: api_performance
+    interval: 1m
+    rules:
+      # Request rate by endpoint
+      - record: api:request_rate
+        expr: |
+          sum(rate(http_requests_total[1m])) by (method, endpoint)
+      
+      # Error rate by endpoint
+      - record: api:error_rate
+        expr: |
+          sum(rate(http_requests_total{status_code=~"5.."}[5m])) by (endpoint)
+          /
+          sum(rate(http_requests_total[5m])) by (endpoint)
+      
+      # P95 latency by endpoint
+      - record: api:p95_latency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, endpoint)
+          )
+      
+      # Average request size
+      - record: api:avg_request_size
+        expr: |
+          sum(rate(http_request_size_bytes_sum[5m])) by (endpoint)
+          /
+          sum(rate(http_request_size_bytes_count[5m])) by (endpoint)
+
+  # =========================================================================
+  # Resource Usage Recording Rules
+  # =========================================================================
+  - name: resource_usage
+    interval: 1m
+    rules:
+      # CPU usage percentage
+      - record: resource:cpu_usage_percent
+        expr: |
+          100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+      
+      # Memory usage percentage
+      - record: resource:memory_usage_percent
+        expr: |
+          (
+            node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+          ) 
+          / 
+          node_memory_MemTotal_bytes * 100
+      
+      # Disk usage percentage
+      - record: resource:disk_usage_percent
+        expr: |
+          (
+            node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"} 
+            - node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"}
+          ) 
+          / 
+          node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"} * 100
+
+  # =========================================================================
+  # Business Metrics Recording Rules
+  # =========================================================================
+  - name: business_metrics
+    interval: 5m
+    rules:
+      # Revenue per hour
+      - record: business:revenue_per_hour
+        expr: |
+          sum(increase(captcha_revenue_usd_total[1h]))
+      
+      # Cost per hour
+      - record: business:cost_per_hour
+        expr: |
+          sum(increase(captcha_solve_cost_usd_sum[1h]))
+      
+      # Total solves per hour
+      - record: business:solves_per_hour
+        expr: |
+          sum(increase(captcha_solves_total[1h]))
+      
+      # Overall success rate
+      - record: business:overall_success_rate
+        expr: |
+          sum(rate(captcha_solves_total{status="success"}[1h]))
+          /
+          sum(rate(captcha_solves_total[1h]))
+
+  # =========================================================================
+  # SLA/SLO Recording Rules
+  # =========================================================================
+  - name: slo
+    interval: 5m
+    rules:
+      # Availability (success rate > 95%)
+      - record: slo:availability
+        expr: |
+          (
+            sum(increase(captcha_solves_total{status="success"}[28d]))
+            /
+            sum(increase(captcha_solves_total[28d]))
+          )
+      
+      # Latency SLO (p95 < 15s)
+      - record: slo:latency_p95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(captcha_solve_duration_seconds_bucket[28d])) by (le)
+          )
+      
+      # Error budget (1 - availability target)
+      - record: slo:error_budget
+        expr: |
+          1 - slo:availability

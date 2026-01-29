@@ -2,12 +2,12 @@
 # ============================================================================
 # Vault Initialization Script (room-02-tresor-vault)
 # ============================================================================
-# This script initializes Vault with SIN-Solver secrets.
+# This script initializes Vault with Delqhi-Platform secrets.
 # It should be run ONCE after Vault container starts.
 #
 # Usage: docker exec room-02-tresor-vault /vault/init-vault.sh
 #
-# Author: SIN-Solver Team
+# Author: Delqhi-Platform Team
 # Version: 2.0.0
 # Date: 2026-01-28
 # ============================================================================
@@ -32,7 +32,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 echo ""
 echo "============================================"
-echo "  SIN-Solver Vault Initialization"
+echo "  Delqhi-Platform Vault Initialization"
 echo "  Vault: ${VAULT_ADDR}"
 echo "============================================"
 echo ""

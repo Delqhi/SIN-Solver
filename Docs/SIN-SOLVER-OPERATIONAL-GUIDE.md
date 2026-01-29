@@ -38,7 +38,7 @@ df -h /  # Ensure > 50GB free
 #### Step 1: Clone Repository & Install Dependencies
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 
 # Install Python dependencies (M1-compatible)
 pip install -r requirements.txt --platform=manylinux2014_aarch64
@@ -99,7 +99,7 @@ docker network inspect sin-net  # Verify IPs: 172.20.0.10, 172.20.0.16, 172.20.0
 
 #### Step 3: Environment Variables Configuration
 
-Create `.env` file in `/Users/jeremy/dev/SIN-Solver/`:
+Create `.env` file in `/Users/jeremy/dev/Delqhi-Platform/`:
 
 ```env
 # ===== API KEYS (SENSITIVE) =====
@@ -117,7 +117,7 @@ REDIS_URL=redis://172.20.0.10:6379
 DATABASE_URL=postgresql://postgres:secure_password_2026@172.20.0.16:5432/sin_db
 
 # ===== AWS S3 (for CAPTCHA image storage) =====
-AWS_S3_BUCKET=sin-solver-media
+AWS_S3_BUCKET=delqhi-platform-media
 AWS_ACCESS_KEY_ID=your_aws_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret
 AWS_REGION=eu-central-1
@@ -140,11 +140,11 @@ LOG_LEVEL=INFO
 
 ```bash
 # Terminal 1: Start FastAPI backend
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Terminal 2: Start Next.js dashboard (Zimmer-11)
-cd /Users/jeremy/dev/SIN-Solver/dashboard
+cd /Users/jeremy/dev/Delqhi-Platform/dashboard
 npm install && npm run dev
 
 # Verify startup
@@ -198,7 +198,7 @@ curl -X GET http://localhost:8000/health
 
 ```bash
 # Real-time logs from FastAPI
-tail -f /Users/jeremy/dev/SIN-Solver/logs/app.log
+tail -f /Users/jeremy/dev/Delqhi-Platform/logs/app.log
 
 # Log format (JSON for easy parsing):
 {
@@ -266,7 +266,7 @@ sin_docker_memory_usage_percent  # Gauge
 ```yaml
 # prometheus-alerting.yml
 groups:
-  - name: sin-solver-alerts
+  - name: delqhi-platform-alerts
     rules:
       - alert: HighConsensusFailure
         expr: sin_solver_consensus_confidence < 0.7
@@ -564,7 +564,7 @@ curl -X PUT http://172.20.0.31:8000/vault/secrets/GEMINI_API_KEY \
 ```
 Severity 1 (CRITICAL): Service is completely down
   → Page on-call engineer immediately (PagerDuty)
-  → Start incident in Slack #sin-solver-incidents
+  → Start incident in Slack #delqhi-platform-incidents
   → Gather forensic data: logs, metrics, error traces
   → Escalate to Zimmer-03 (Agent Zero) for code-level debugging
 

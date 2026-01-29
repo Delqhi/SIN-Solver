@@ -2,7 +2,7 @@
 """
 🔥 LIVE DEMO: WORLDS HARDEST CAPTCHA
 ====================================
-Demonstrates the "Ultra Intelligent" capabilities of SIN-Solver.
+Demonstrates the "Ultra Intelligent" capabilities of Delqhi-Platform.
 Runs HEADFUL (visible) to prove it's not just a script.
 
 Target: https://www.worldshardestcaptcha.com/

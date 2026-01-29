@@ -1,4 +1,4 @@
-# Verzeichnisstruktur Supabase (SIN-Solver)
+# Verzeichnisstruktur Supabase (Delqhi-Platform)
 Docs/supabase/
 ├── 00-supabase-directory-structure.md  ← Diese Datei
 ├── 01-supabase-readme.md               # Auth & DB Setup

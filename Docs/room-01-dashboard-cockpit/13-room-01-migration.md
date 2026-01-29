@@ -53,7 +53,7 @@ cp .env .env.backup
 cp docker-compose.yml docker-compose.yml.backup
 
 # Backup volumes
-docker run --rm -v sin-solver_dashboard_data:/data -v $(pwd):/backup alpine tar czf /backup/dashboard-data.tar.gz -C /data .
+docker run --rm -v delqhi-platform_dashboard_data:/data -v $(pwd):/backup alpine tar czf /backup/dashboard-data.tar.gz -C /data .
 ```
 
 #### Step 2: Review Breaking Changes
@@ -97,7 +97,7 @@ docker compose up -d room-03-archiv-postgres
 
 # Run migrations
 docker run --rm \
-  --network sin-solver_default \
+  --network delqhi-platform_default \
   -e DATABASE_URL=$DATABASE_URL \
   room-01-dashboard-cockpit:v2.0 \
   npm run migrate
@@ -302,7 +302,7 @@ tar czf migration.tar.gz \
 scp migration.tar.gz new-server:/tmp/
 
 # On new server: Extract
-cd /opt/sin-solver
+cd /opt/delqhi-platform
 tar xzf /tmp/migration.tar.gz
 ```
 
@@ -380,7 +380,7 @@ gunzip -c dashboard.sql.gz | psql -h $RDS_ENDPOINT -U postgres dashboard
 # Export Redis data
 redis-cli -h old-redis BGSAVE
 # Copy dump.rdb to S3
-aws s3 cp dump.rdb s3://sin-solver-backups/redis/
+aws s3 cp dump.rdb s3://delqhi-platform-backups/redis/
 ```
 
 #### Step 3: Deploy to ECS

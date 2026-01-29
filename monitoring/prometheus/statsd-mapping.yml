@@ -1,0 +1,61 @@
+# StatsD to Prometheus Mapping Configuration
+# Version: 2026.1.0
+
+defaults:
+  observer_type: histogram
+  histogram_options:
+    buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+  ttl: 0  # metrics do not expire
+
+mappings:
+  # CAPTCHA solves
+  - match: "captcha.solve.*"
+    match_type: glob
+    name: "captcha_solves_total"
+    labels:
+      captcha_type: "$1"
+      status: "success"
+
+  # CAPTCHA solve duration
+  - match: "captcha.solve_duration.*"
+    match_type: glob
+    name: "captcha_solve_duration_seconds"
+    labels:
+      captcha_type: "$1"
+    observer_type: histogram
+
+  # AI model requests
+  - match: "ai.request.*.*"
+    match_type: glob
+    name: "ai_model_requests_total"
+    labels:
+      model: "$1"
+      provider: "$2"
+
+  # Queue depth
+  - match: "captcha.queue_depth.*"
+    match_type: glob
+    name: "captcha_queue_depth"
+    labels:
+      captcha_type: "$1"
+
+  # Worker count
+  - match: "captcha.workers.*"
+    match_type: glob
+    name: "captcha_active_workers"
+    labels:
+      worker_type: "$1"
+
+  # API requests
+  - match: "api.request.*.*"
+    match_type: glob
+    name: "api_requests_total"
+    labels:
+      method: "$1"
+      endpoint: "$2"
+
+  # Custom timers
+  - match: "timer.*"
+    match_type: glob
+    name: "${1}_seconds"
+    observer_type: histogram

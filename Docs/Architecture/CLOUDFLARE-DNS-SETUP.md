@@ -591,5 +591,5 @@ systemctl restart cloudflared-customer-customer_123
 **Room:** Architecture  
 **Status:** 📐 Design Complete  
 **Last Updated:** 2026-01-27  
-**Maintainer:** SIN-Solver Team  
+**Maintainer:** Delqhi-Platform Team  
 **License:** Delqhi Proprietary

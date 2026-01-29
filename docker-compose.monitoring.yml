@@ -1,0 +1,404 @@
+# Enterprise Monitoring Stack for SIN-Solver CAPTCHA System
+# Version: 2026.1.0
+# 
+# Components:
+#   - Prometheus (room-25-prometheus): Metrics collection and storage
+#   - Grafana (room-26-grafana): Visualization and dashboards
+#   - AlertManager (room-27-alertmanager): Alert routing and management
+#   - Loki (room-28-loki): Log aggregation
+#   - Promtail (room-28-promtail): Log collection agent
+#   - Jaeger (room-29-jaeger): Distributed tracing
+#   - Node Exporter (room-30-node-exporter): System metrics
+#   - cAdvisor (room-31-cadvisor): Container metrics
+#
+# Usage:
+#   docker-compose -f docker-compose.monitoring.yml up -d
+#
+# Access:
+#   - Grafana: http://172.20.0.26:3000 (admin/admin)
+#   - Prometheus: http://172.20.0.25:9090
+#   - AlertManager: http://172.20.0.27:9093
+#   - Jaeger: http://172.20.0.29:16686
+
+version: "3.8"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network
+
+volumes:
+  # Prometheus data
+  prometheus-data:
+    driver: local
+  
+  # Grafana data
+  grafana-data:
+    driver: local
+  
+  # AlertManager data
+  alertmanager-data:
+    driver: local
+  
+  # Loki data
+  loki-data:
+    driver: local
+  
+  # Jaeger data
+  jaeger-data:
+    driver: local
+
+services:
+  # =========================================================================
+  # PROMETHEUS - Metrics Collection & Storage
+  # =========================================================================
+  room-25-prometheus:
+    container_name: room-25-prometheus
+    image: prom/prometheus:v2.48.0
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=50GB"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
+      - "--log.level=info"
+      - "--query.max-samples=50000000"
+      - "--query.timeout=2m"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./monitoring/prometheus/recording-rules.yml:/etc/prometheus/recording-rules.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.25
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=false"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=9090"
+      - "prometheus.io/path=/metrics"
+
+  # =========================================================================
+  # GRAFANA - Visualization & Dashboards
+  # =========================================================================
+  room-26-grafana:
+    container_name: room-26-grafana
+    image: grafana/grafana:10.2.3
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.26
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=sin-solver-admin-2026
+      - GF_SECURITY_DISABLE_GRAVAVATAR=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_AUTO_ASSIGN_ORG=true
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Viewer
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+      - GF_SERVER_ROOT_URL=http://grafana.delqhi.com
+      - GF_SMTP_ENABLED=false
+      - GF_LOG_MODE=console
+      - GF_LOG_LEVEL=info
+      - TZ=Europe/Berlin
+    depends_on:
+      - room-25-prometheus
+      - room-28-loki
+      - room-29-jaeger
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=false"
+
+  # =========================================================================
+  # ALERTMANAGER - Alert Routing & Management
+  # =========================================================================
+  room-27-alertmanager:
+    container_name: room-27-alertmanager
+    image: prom/alertmanager:v0.26.0
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--cluster.listen-address=0.0.0.0:9094"
+      - "--web.external-url=http://alertmanager.delqhi.com:9093"
+      - "--log.level=info"
+    volumes:
+      - alertmanager-data:/alertmanager
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./monitoring/alertmanager/templates:/etc/alertmanager/templates:ro
+    ports:
+      - "9093:9093"
+      - "9094:9094"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.27
+    environment:
+      - TZ=Europe/Berlin
+    depends_on:
+      - room-25-prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =========================================================================
+  # LOKI - Log Aggregation
+  # =========================================================================
+  room-28-loki:
+    container_name: room-28-loki
+    image: grafana/loki:2.9.3
+    restart: unless-stopped
+    command: "-config.file=/etc/loki/local-config.yaml"
+    volumes:
+      - loki-data:/loki
+      - ./monitoring/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+    ports:
+      - "3100:3100"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.28
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =========================================================================
+  # PROMTAIL - Log Collection Agent
+  # =========================================================================
+  room-28-promtail:
+    container_name: room-28-promtail
+    image: grafana/promtail:2.9.3
+    restart: unless-stopped
+    command: "-config.file=/etc/promtail/config.yml"
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/loki/promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./logs:/var/log/sin-solver:ro
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.35
+    environment:
+      - TZ=Europe/Berlin
+      - HOSTNAME=${HOSTNAME:-unknown}
+    depends_on:
+      - room-28-loki
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep promtail || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =========================================================================
+  # JAEGER - Distributed Tracing
+  # =========================================================================
+  room-29-jaeger:
+    container_name: room-29-jaeger
+    image: jaegertracing/all-in-one:1.50.0
+    restart: unless-stopped
+    ports:
+      - "16686:16686"    # Jaeger UI
+      - "14268:14268"    # Collector HTTP
+      - "14250:14250"    # Collector gRPC
+      - "6831:6831/udp"  # Agent compact thrift
+      - "6832:6832/udp"  # Agent binary thrift
+      - "5778:5778"      # Agent config
+      - "4317:4317"      # OTLP gRPC
+      - "4318:4318"      # OTLP HTTP
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.29
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - LOG_LEVEL=info
+      - TZ=Europe/Berlin
+    volumes:
+      - jaeger-data:/badger
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:16686/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =========================================================================
+  # NODE EXPORTER - System Metrics
+  # =========================================================================
+  room-30-node-exporter:
+    container_name: room-30-node-exporter
+    image: prom/node-exporter:v1.7.0
+    restart: unless-stopped
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--collector.processes"
+      - "--collector.systemd"
+      - "--log.level=info"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - "9100:9100"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.30
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =========================================================================
+  # CADVISOR - Container Metrics
+  # =========================================================================
+  room-31-cadvisor:
+    container_name: room-31-cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    restart: unless-stopped
+    privileged: true
+    command:
+      - "--housekeeping_interval=10s"
+      - "--docker_only=true"
+      - "--disable_metrics=accelerator,hugetlb,sched,tcp,udp,diskIO"
+      - "--logtostderr"
+      - "--store_container_labels=false"
+      - "--allow_dynamic_housekeeping=true"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "8082:8080"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.31
+    environment:
+      - TZ=Europe/Berlin
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =========================================================================
+  # BLACKBOX EXPORTER - Endpoint Monitoring
+  # =========================================================================
+  room-32-blackbox-exporter:
+    container_name: room-32-blackbox-exporter
+    image: prom/blackbox-exporter:v0.24.0
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/blackbox_exporter/config.yml"
+      - "--log.level=info"
+    volumes:
+      - ./monitoring/prometheus/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports:
+      - "9115:9115"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.32
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9115"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =========================================================================
+  # STATSD EXPORTER - StatsD to Prometheus Bridge
+  # =========================================================================
+  room-33-statsd-exporter:
+    container_name: room-33-statsd-exporter
+    image: prom/statsd-exporter:v0.26.0
+    restart: unless-stopped
+    command:
+      - "--statsd.listen-udp=:8125"
+      - "--statsd.listen-tcp=:8125"
+      - "--web.listen-address=:9102"
+      - "--statsd.mapping-config=/etc/statsd_exporter/mapping.yml"
+    volumes:
+      - ./monitoring/prometheus/statsd-mapping.yml:/etc/statsd_exporter/mapping.yml:ro
+    ports:
+      - "8125:8125/udp"
+      - "8125:8125/tcp"
+      - "9102:9102"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.33
+    environment:
+      - TZ=Europe/Berlin
+
+  # =========================================================================
+  # PUSHGATEWAY - Batch Metrics Push
+  # =========================================================================
+  room-34-pushgateway:
+    container_name: room-34-pushgateway
+    image: prom/pushgateway:v1.6.2
+    restart: unless-stopped
+    command:
+      - "--web.listen-address=:9091"
+      - "--persistence.file=/pushgateway/data"
+      - "--persistence.interval=5m"
+      - "--log.level=info"
+    volumes:
+      - prometheus-data:/pushgateway
+    ports:
+      - "9091:9091"
+    networks:
+      sin-solver-network:
+        ipv4_address: 172.20.0.34
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9091/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

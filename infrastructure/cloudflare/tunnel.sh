@@ -29,12 +29,12 @@ start_tunnel() {
     if [ ! -f "$CREDENTIALS_FILE" ]; then
         log_error "Credentials file not found: $CREDENTIALS_FILE"
         echo "Run: cloudflared tunnel login"
-        echo "Then: cloudflared tunnel create SIN-Solver"
+        echo "Then: cloudflared tunnel create Delqhi-Platform"
         exit 1
     fi
     
     log_info "Starting Cloudflare Tunnel..."
-    cloudflared tunnel --config "$CONFIG_FILE" run SIN-Solver
+    cloudflared tunnel --config "$CONFIG_FILE" run Delqhi-Platform
 }
 
 stop_tunnel() {
@@ -62,7 +62,7 @@ setup_tunnel() {
     
     echo ""
     echo "Step 2: Create tunnel"
-    cloudflared tunnel create SIN-Solver
+    cloudflared tunnel create Delqhi-Platform
     
     echo ""
     echo "Step 3: Copy credentials"
@@ -75,10 +75,10 @@ setup_tunnel() {
     echo ""
     echo "Step 4: Configure DNS"
     echo "Run these commands for each subdomain:"
-    echo "  cloudflared tunnel route dns SIN-Solver dashboard.sin-solver.example.com"
-    echo "  cloudflared tunnel route dns SIN-Solver api.sin-solver.example.com"
-    echo "  cloudflared tunnel route dns SIN-Solver survey.sin-solver.example.com"
-    echo "  cloudflared tunnel route dns SIN-Solver captcha.sin-solver.example.com"
+    echo "  cloudflared tunnel route dns Delqhi-Platform dashboard.sin-solver.example.com"
+    echo "  cloudflared tunnel route dns Delqhi-Platform api.sin-solver.example.com"
+    echo "  cloudflared tunnel route dns Delqhi-Platform survey.sin-solver.example.com"
+    echo "  cloudflared tunnel route dns Delqhi-Platform captcha.sin-solver.example.com"
     echo ""
     log_success "Setup complete. Run: $0 start"
 }
@@ -86,7 +86,7 @@ setup_tunnel() {
 show_endpoints() {
     echo ""
     echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}  SIN-Solver Public Endpoints${NC}"
+    echo -e "${CYAN}  Delqhi-Platform Public Endpoints${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
     echo ""
     echo -e "  Dashboard:  ${GREEN}https://dashboard.sin-solver.example.com${NC}"

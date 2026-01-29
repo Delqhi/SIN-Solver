@@ -20,7 +20,7 @@ The central API gateway service (room-13) that provides authentication and secre
 Protocol used to communicate with Chrome/Chromium browsers for automation.
 
 **Container**
-A Docker container running a service in the SIN-Solver ecosystem.
+A Docker container running a service in the Delqhi-Platform ecosystem.
 
 **Cockpit**
 The dashboard interface for monitoring and controlling the 26-room empire.
@@ -46,7 +46,7 @@ HTML element used to embed external tools (n8n, Steel) within the dashboard.
 ## R
 
 **Room**
-An infrastructure service in the SIN-Solver ecosystem. Examples: Postgres, Redis, Vault.
+An infrastructure service in the Delqhi-Platform ecosystem. Examples: Postgres, Redis, Vault.
 
 **React Query**
 Data fetching and state management library used in the dashboard.
@@ -59,7 +59,7 @@ Dashboard capability to display and introspect its own documentation and state.
 **Solver**
 A money-making worker service. Examples: Captcha Worker, Survey Worker.
 
-**SIN-Solver**
+**Delqhi-Platform**
 The complete 26-room automation ecosystem.
 
 ## T

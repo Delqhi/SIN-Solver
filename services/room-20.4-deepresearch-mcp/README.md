@@ -48,7 +48,7 @@ Professional web research MCP server providing:
 
 ### Build & Run
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/services/zimmer-20-sin-deep-research-mcp
+cd /Users/jeremy/dev/Delqhi-Platform/services/zimmer-20-sin-deep-research-mcp
 
 # Build Docker image
 docker build -t sin-deep-research-mcp:latest .
@@ -491,5 +491,5 @@ Content-Type: application/json
 **Room:** Zimmer-20.4  
 **Status:** ✅ Production Ready  
 **Last Updated:** 2026-01-27  
-**Maintainer:** SIN-Solver Team  
+**Maintainer:** Delqhi-Platform Team  
 **License:** Delqhi Proprietary

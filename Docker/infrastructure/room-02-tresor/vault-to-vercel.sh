@@ -13,7 +13,7 @@
 #   - VERCEL_PROJECT_ID environment variable
 #   - VERCEL_TEAM_ID environment variable (optional)
 #
-# Author: SIN-Solver Team
+# Author: Delqhi-Platform Team
 # Version: 1.0.0
 # Date: 2026-01-28
 # ============================================================================

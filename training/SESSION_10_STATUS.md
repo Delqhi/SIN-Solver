@@ -23,7 +23,7 @@ ERROR: val found 112 images in 12 classes (requires 14 classes, not 12)
 1. ✅ Cleaned all spurious directories from training_split/
 2. ✅ Verified 12 classes only (correct)
 3. ✅ Started fresh training with corrected split
-4. ✅ Fixed path issue (was /training, now /dev/sin-solver/training)
+4. ✅ Fixed path issue (was /training, now /dev/delqhi-platform/training)
 
 ### Training Configuration
 ```
@@ -84,10 +84,10 @@ Epoch 20:  Top-1 Accuracy ~80-90% (target: >=75%)
 ### Real-Time Monitoring
 ```bash
 # Watch the main Python process output (if still attached)
-tail -f /Users/jeremy/dev/SIN-Solver/training/training_session_10.log
+tail -f /Users/jeremy/dev/Delqhi-Platform/training/training_session_10.log
 
 # Check total lines (roughly correlates to epochs × batches)
-wc -l /Users/jeremy/dev/SIN-Solver/training/training_session_10.log
+wc -l /Users/jeremy/dev/Delqhi-Platform/training/training_session_10.log
 
 # Check if results CSV has been created (will appear after epoch 1)
 ls -lh /Users/jeremy/runs/classify/runs/classify/captcha_classifier4/
@@ -96,7 +96,7 @@ ls -lh /Users/jeremy/runs/classify/runs/classify/captcha_classifier4/
 ### Quick Status Check
 ```bash
 # Run the monitoring script
-bash /Users/jeremy/dev/SIN-Solver/training/check_training.sh
+bash /Users/jeremy/dev/Delqhi-Platform/training/check_training.sh
 ```
 
 ### Python Monitoring (Advanced)

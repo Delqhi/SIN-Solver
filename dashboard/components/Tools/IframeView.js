@@ -24,7 +24,7 @@ export default function IframeView({ service }) {
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const url = service.publicUrl || (service.port ? `http://localhost:${service.port}` : null);
+  const url = service.publicUrl || (service.port ? `https://${service.subdomain}.delqhi.com` : null);
 
   if (!url) {
     return (

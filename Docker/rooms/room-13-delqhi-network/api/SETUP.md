@@ -51,7 +51,7 @@ NODE_ENV=production
 DB_HOST=room-03-archiv-postgres
 DB_PORT=5432
 DB_USER=sin_admin
-DB_PASSWORD=sin-solver-2026
+DB_PASSWORD=delqhi-platform-2026
 DB_NAME=sin_solver
 
 # Redis (must match room-04-memory-redis)

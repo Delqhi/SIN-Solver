@@ -3,7 +3,7 @@
 
 set -e
 
-PROJECT_ROOT="/Users/jeremy/dev/SIN-Solver"
+PROJECT_ROOT="/Users/jeremy/dev/Delqhi-Platform"
 RESULTS_FILE="/Users/jeremy/runs/classify/runs/classify/captcha_classifier3/results.csv"
 
 echo "🔄 AUTOMATIC DEPLOYMENT TRIGGER ACTIVATED"

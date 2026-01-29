@@ -1,4 +1,4 @@
-# Arbeitsbereich Tracking - SIN-Solver Multi-Agent Swarm
+# Arbeitsbereich Tracking - Delqhi-Platform Multi-Agent Swarm
 
 **Created:** 2026-01-29 10:00  
 **Version:** 1.0.0  
@@ -9,7 +9,7 @@
 
 ## 🎯 PURPOSE
 
-This file tracks the current work area (Arbeitsbereich) of every agent in the SIN-Solver Swarm. It prevents conflicts by ensuring no two agents work on the same files simultaneously.
+This file tracks the current work area (Arbeitsbereich) of every agent in the Delqhi-Platform Swarm. It prevents conflicts by ensuring no two agents work on the same files simultaneously.
 
 ---
 
@@ -200,7 +200,7 @@ Escalated To: Orchestrator
 
 ## 🎯 NEXT AVAILABLE TASKS
 
-Check `.sisyphus/todos/sin-solver-master-todo.md` for:
+Check `.sisyphus/todos/delqhi-platform-master-todo.md` for:
 - Pending tasks
 - Unassigned tasks
 - Ready-to-start tasks

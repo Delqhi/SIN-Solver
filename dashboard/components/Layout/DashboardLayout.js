@@ -172,7 +172,7 @@ export default function DashboardLayout({
       <AIChat 
         isOpen={isChatOpen} 
         onClose={() => setIsChatOpen(false)} 
-        apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8041'} 
+        apiUrl={process.env.NEXT_PUBLIC_API_URL || 'https://codeserver.delqhi.com'} 
       />
       
       <FooterTerminal 

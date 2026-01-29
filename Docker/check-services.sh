@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SIN-Solver Docker Services Deployment Status
+# Delqhi-Platform Docker Services Deployment Status
 # V18.3 Modular Architecture Compliance Report
 # Generated: 2026-01-28
 

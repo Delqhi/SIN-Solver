@@ -5,7 +5,7 @@
 **Version:** 2.0 (Session 9 - YOLO Setup)  
 **Date:** 2026-01-29  
 **Status:** ACTIVE DEVELOPMENT  
-**Location:** `/dev/SIN-Solver/training/`  
+**Location:** `/dev/Delqhi-Platform/training/`  
 
 ---
 
@@ -89,7 +89,7 @@ pip install ultralytics torch torchvision opencv-python pillow numpy tqdm
 ### Installation
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/training
+cd /Users/jeremy/dev/Delqhi-Platform/training
 
 # Install required packages
 pip install -r requirements.txt  # (create this if needed)
@@ -113,10 +113,10 @@ The dataset has been prepared with:
 
 ### Step 2: YOLO Configuration (data.yaml)
 
-**File:** `/dev/SIN-Solver/training/data.yaml`
+**File:** `/dev/Delqhi-Platform/training/data.yaml`
 
 ```yaml
-path: /Users/jeremy/dev/SIN-Solver/training
+path: /Users/jeremy/dev/Delqhi-Platform/training
 train: training_split/train
 val: training_split/val
 nc: 12
@@ -140,7 +140,7 @@ names:
 ### Step 3: Run Training
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/training
+cd /Users/jeremy/dev/Delqhi-Platform/training
 
 # Clean old artifacts (IMPORTANT!)
 rm -rf training_split/ runs/ .yolo/
@@ -214,7 +214,7 @@ data=str(self.training_dir / "data.yaml"),
 Run the comprehensive test suite:
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/training
+cd /Users/jeremy/dev/Delqhi-Platform/training
 
 # Run all tests
 python3 comprehensive_test_suite.py
@@ -320,7 +320,7 @@ for r in results:
 **Solution:** Verify all 12 directories exist with 44 images each
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/training
+cd /Users/jeremy/dev/Delqhi-Platform/training
 for dir in [A-Z]*/; do
     count=$(ls -1 "$dir"*.png 2>/dev/null | wc -l)
     echo "$dir: $count images"

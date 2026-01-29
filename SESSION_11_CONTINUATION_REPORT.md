@@ -28,7 +28,7 @@ Action Required: NONE - Will complete autonomously
 ### OCR Environment Setup (In Progress)
 ```
 Status:          🔄 ACTIVE INSTALLATION
-Location:        /Users/jeremy/dev/SIN-Solver/ocr_env/
+Location:        /Users/jeremy/dev/Delqhi-Platform/ocr_env/
 Venv:            ✅ CREATED (Python 3.14.2)
 
 Installation:    🔄 RUNNING (started 13:30)
@@ -93,7 +93,7 @@ Status: Ready for execution
 
 1. **Check OCR Packages**
 ```bash
-source /Users/jeremy/dev/SIN-Solver/ocr_env/bin/activate
+source /Users/jeremy/dev/Delqhi-Platform/ocr_env/bin/activate
 python3 -c "import pytesseract, paddleocr, cv2, PIL, numpy; print('✅')"
 ```
 
@@ -111,7 +111,7 @@ PYEOF
 
 3. **Test Pipeline (if ready)**
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/app
+cd /Users/jeremy/dev/Delqhi-Platform/app
 source ../ocr_env/bin/activate
 python3 test_captcha_solver_pipeline.py
 ```

@@ -9,7 +9,7 @@
 ## 🎯 EXECUTIVE SUMMARY
 
 ### What We've Built
-A **production-ready Multi-Engine** worker for SIN-Solver that:
+A **production-ready Multi-Engine** worker for Delqhi-Platform that:
 - Uses **Steel Browser** (Containerized Stealth Engine)
 - Uses **Vercel Agent-Browser** (Rust-based Speed Courier)
 - Solves CAPTCHAs using **Gemini 3 Pro** and **Mistral Vision**

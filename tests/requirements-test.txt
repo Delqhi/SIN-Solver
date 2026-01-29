@@ -1,8 +1,56 @@
-aiohttp>=3.9.0
+# Test Dependencies
+# Best Practices 2026 - SIN-Solver Testing Framework
+
+# Core testing
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.0
+pytest-html>=4.1.0
+pytest-timeout>=2.2.0
+
+# HTTP testing
+aiohttp>=3.9.0
+httpx>=0.25.0
+requests>=2.31.0
+
+# Mocking
+pytest-mock>=3.12.0
+aioresponses>=0.7.6
+
+# Redis testing
 redis>=5.0.0
-pydantic>=2.5.0
-prometheus-client>=0.19.0
+fakeredis>=2.20.0
+
+# Performance testing
+locust>=2.20.0
+
+# Image processing testing
+Pillow>=10.0.0
 numpy>=1.24.0
-pillow>=10.0.0
+opencv-python>=4.8.0
+
+# OCR testing
+ddddocr>=1.4.0
+
+# Data validation
+pydantic>=2.5.0
+
+# Metrics testing
+prometheus-client>=0.19.0
+
+# Code quality (for CI)
+flake8>=6.1.0
+black>=23.0.0
+isort>=5.12.0
+mypy>=1.7.0
+
+# Documentation testing
+doc8>=1.1.0
+
+# Security testing
+bandit>=1.7.5
+
+# Type hints
+types-requests>=2.31.0
+types-Pillow>=10.0.0

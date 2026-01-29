@@ -1,4 +1,4 @@
-# Verzeichnisstruktur Docker Infrastructure (SIN-Solver)
+# Verzeichnisstruktur Docker Infrastructure (Delqhi-Platform)
 Docs/docker-infrastructure/
 ├── 00-docker-infrastructure-directory-structure.md  ← Diese Datei
 ├── 01-docker-infrastructure-readme.md               # Project Zimmer Mapping

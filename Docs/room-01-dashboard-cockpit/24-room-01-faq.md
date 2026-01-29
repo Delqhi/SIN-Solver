@@ -8,7 +8,7 @@
 
 ### What is Room-01 Dashboard Cockpit?
 
-Room-01 Dashboard Cockpit is the central mission control interface for the SIN-Solver 26-Room Empire. It provides real-time monitoring and control of all Docker containers, services, and AI workers.
+Room-01 Dashboard Cockpit is the central mission control interface for the Delqhi-Platform 26-Room Empire. It provides real-time monitoring and control of all Docker containers, services, and AI workers.
 
 ### What can I do with the dashboard?
 
@@ -37,8 +37,8 @@ Yes, the Room-01 Dashboard Cockpit is open-source and free to use under the Apac
 ### How do I install it?
 
 ```bash
-git clone https://github.com/Delqhi/SIN-Solver.git
-cd SIN-Solver
+git clone https://github.com/Delqhi/Delqhi-Platform.git
+cd Delqhi-Platform
 docker compose up -d room-01-dashboard-cockpit
 ```
 
@@ -132,7 +132,7 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for details.
 
 ### Where can I report bugs?
 
-GitHub Issues: https://github.com/Delqhi/SIN-Solver/issues
+GitHub Issues: https://github.com/Delqhi/Delqhi-Platform/issues
 
 ---
 

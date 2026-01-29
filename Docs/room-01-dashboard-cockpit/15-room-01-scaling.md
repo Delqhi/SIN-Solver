@@ -90,7 +90,7 @@ services:
       - REDIS_URL=redis://room-04-redis:6379
       - DATABASE_URL=postgresql://postgres:password@room-03-postgres:5432/dashboard
     networks:
-      - sin-solver
+      - delqhi-platform
 
   nginx:
     image: nginx:alpine
@@ -101,10 +101,10 @@ services:
     depends_on:
       - room-01-dashboard
     networks:
-      - sin-solver
+      - delqhi-platform
 
 networks:
-  sin-solver:
+  delqhi-platform:
     external: true
 ```
 

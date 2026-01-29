@@ -1,0 +1,23 @@
+{
+  "name": "scira-mcp-wrapper",
+  "version": "1.0.0",
+  "description": "MCP Wrapper for Scira AI Search - Converts stdio to HTTP API calls",
+  "main": "scira-mcp-wrapper.js",
+  "scripts": {
+    "start": "node scira-mcp-wrapper.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "scira",
+    "search",
+    "ai",
+    "delqhi-platform"
+  ],
+  "author": "Delqhi-Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "axios": "^1.6.0"
+  }
+}

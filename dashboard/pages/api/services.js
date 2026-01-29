@@ -93,7 +93,7 @@ export default async function handler(req, res) {
       const isRunning = container.State === 'running';
       
       // Construct public URL using delqhi.com if mapped
-      const publicUrl = subdomain ? `https://${subdomain}.delqhi.com` : (mainPort ? `http://localhost:${mainPort}` : null);
+      const publicUrl = subdomain ? `https://${subdomain}.delqhi.com` : null;
 
       return {
         name: name,

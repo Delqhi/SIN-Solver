@@ -9,10 +9,10 @@ from app.core.redis_cache import RedisCache
 from app.api.routes import solve, auth, health, resources, system, workers, steel, chat, docs, analytics, pentest, secrets
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("SIN-Solver-Orchestrator")
+logger = logging.getLogger("Delqhi-Platform-Orchestrator")
 
 app = FastAPI(
-    title="SIN-Solver Orchestrator",
+    title="Delqhi-Platform Orchestrator",
     description="Central AI-driven CAPTCHA solving API",
     version="2.0.0"
 )
@@ -79,7 +79,7 @@ async def shutdown():
 
 @app.get("/")
 async def root():
-    return {"name": "SIN-Solver Orchestrator", "status": "active", "version": "2.0.0"}
+    return {"name": "Delqhi-Platform Orchestrator", "status": "active", "version": "2.0.0"}
 
 @app.get("/health")
 async def health_check():

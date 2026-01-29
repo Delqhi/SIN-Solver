@@ -51,15 +51,15 @@ gzip $BACKUP_DIR/dashboard_$DATE.dump
 
 # Upload to S3
 aws s3 cp $BACKUP_DIR/dashboard_$DATE.dump.gz \
-  s3://sin-solver-backups/database/
+  s3://delqhi-platform-backups/database/
 
 # Clean old backups
 find $BACKUP_DIR -name "*.dump.gz" -mtime +$RETENTION_DAYS -delete
-aws s3 ls s3://sin-solver-backups/database/ | \
+aws s3 ls s3://delqhi-platform-backups/database/ | \
   awk '{print $4}' | \
   sort -r | \
   tail -n +8 | \
-  xargs -I {} aws s3 rm s3://sin-solver-backups/database/{}
+  xargs -I {} aws s3 rm s3://delqhi-platform-backups/database/{}
 
 echo "Database backup completed: dashboard_$DATE.dump.gz"
 ```
@@ -90,7 +90,7 @@ gzip $BACKUP_DIR/redis_$DATE.rdb
 
 # Upload to S3
 aws s3 cp $BACKUP_DIR/redis_$DATE.rdb.gz \
-  s3://sin-solver-backups/redis/
+  s3://delqhi-platform-backups/redis/
 
 # Clean old backups (keep 7 days)
 find $BACKUP_DIR -name "*.rdb.gz" -mtime +7 -delete
@@ -122,7 +122,7 @@ tar czf $BACKUP_DIR/config_$DATE.tar.gz \
 
 # Upload to S3
 aws s3 cp $BACKUP_DIR/config_$DATE.tar.gz \
-  s3://sin-solver-backups/config/
+  s3://delqhi-platform-backups/config/
 
 # Keep last 10 versions
 ls -t $BACKUP_DIR/config_*.tar.gz | tail -n +11 | xargs rm -f
@@ -138,7 +138,7 @@ echo "Configuration backup completed: config_$DATE.tar.gz"
 
 BACKUP_DIR="/backups/full"
 DATE=$(date +%Y%m%d)
-VOLUME_PREFIX="sin-solver"
+VOLUME_PREFIX="delqhi-platform"
 
 mkdir -p $BACKUP_DIR
 
@@ -168,14 +168,14 @@ cat > $BACKUP_DIR/manifest_$DATE.json << EOF
 EOF
 
 # Upload to S3
-aws s3 sync $BACKUP_DIR/ s3://sin-solver-backups/full/$DATE/
+aws s3 sync $BACKUP_DIR/ s3://delqhi-platform-backups/full/$DATE/
 
 # Clean old backups (keep 4 weeks)
-aws s3 ls s3://sin-solver-backups/full/ | \
+aws s3 ls s3://delqhi-platform-backups/full/ | \
   awk '{print $2}' | \
   sort -r | \
   tail -n +5 | \
-  xargs -I {} aws s3 rm --recursive s3://sin-solver-backups/full/{}
+  xargs -I {} aws s3 rm --recursive s3://delqhi-platform-backups/full/{}
 
 echo "Full backup completed: $DATE"
 ```
@@ -185,19 +185,19 @@ echo "Full backup completed: $DATE"
 ## Cron Schedule
 
 ```bash
-# /etc/cron.d/sin-solver-backup
+# /etc/cron.d/delqhi-platform-backup
 
 # Database backup - every hour
-0 * * * * root /opt/sin-solver/scripts/backup-database.sh >> /var/log/sin-solver/backup.log 2>&1
+0 * * * * root /opt/delqhi-platform/scripts/backup-database.sh >> /var/log/delqhi-platform/backup.log 2>&1
 
 # Redis backup - every 6 hours
-0 */6 * * * root /opt/sin-solver/scripts/backup-redis.sh >> /var/log/sin-solver/backup.log 2>&1
+0 */6 * * * root /opt/delqhi-platform/scripts/backup-redis.sh >> /var/log/delqhi-platform/backup.log 2>&1
 
 # Configuration backup - daily at 2 AM
-0 2 * * * root /opt/sin-solver/scripts/backup-config.sh >> /var/log/sin-solver/backup.log 2>&1
+0 2 * * * root /opt/delqhi-platform/scripts/backup-config.sh >> /var/log/delqhi-platform/backup.log 2>&1
 
 # Full backup - weekly on Sunday at 3 AM
-0 3 * * 0 root /opt/sin-solver/scripts/backup-full.sh >> /var/log/sin-solver/backup.log 2>&1
+0 3 * * 0 root /opt/delqhi-platform/scripts/backup-full.sh >> /var/log/delqhi-platform/backup.log 2>&1
 ```
 
 ---
@@ -298,7 +298,7 @@ if [ -z "$BACKUP_DATE" ]; then
 fi
 
 # Download from S3
-aws s3 sync s3://sin-solver-backups/full/$BACKUP_DATE/ /tmp/restore/
+aws s3 sync s3://delqhi-platform-backups/full/$BACKUP_DATE/ /tmp/restore/
 
 # Stop all services
 docker compose down
@@ -341,11 +341,11 @@ echo "Full system restore completed"
 # Enable WAL archiving in postgresql.conf
 wal_level = replica
 archive_mode = on
-archive_command = 'aws s3 cp %p s3://sin-solver-backups/wal/%f'
+archive_command = 'aws s3 cp %p s3://delqhi-platform-backups/wal/%f'
 
 # Recovery to specific point
 cat > /var/lib/postgresql/data/recovery.conf << EOF
-restore_command = 'aws s3 cp s3://sin-solver-backups/wal/%f %p'
+restore_command = 'aws s3 cp s3://delqhi-platform-backups/wal/%f %p'
 recovery_target_time = '2026-01-29 14:30:00'
 recovery_target_action = 'promote'
 EOF

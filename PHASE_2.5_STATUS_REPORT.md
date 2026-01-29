@@ -44,7 +44,7 @@ ETA:         ~15 minutes
 
 ### Environment Status
 ```
-✅ Virtual Environment    /Users/jeremy/dev/SIN-Solver/ocr_env/
+✅ Virtual Environment    /Users/jeremy/dev/Delqhi-Platform/ocr_env/
 ✅ Python Version         3.14.2
 ✅ PADDLE Config          PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
 ✅ OCR Packages           All 8 packages verified
@@ -190,7 +190,7 @@ The `FINAL_TEST_AND_DEPLOY.sh` script handles:
 
 **Just run once YOLO completes:**
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh
+bash /Users/jeremy/dev/Delqhi-Platform/FINAL_TEST_AND_DEPLOY.sh
 ```
 
 ---
@@ -209,11 +209,11 @@ bash /Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh
 
 | File | Purpose |
 |------|---------|
-| `/Users/jeremy/dev/SIN-Solver/training/train_yolo_classifier.py` | YOLO trainer (running) |
+| `/Users/jeremy/dev/Delqhi-Platform/training/train_yolo_classifier.py` | YOLO trainer (running) |
 | `/Users/jeremy/runs/classify/runs/classify/captcha_classifier3/results.csv` | YOLO metrics |
-| `/Users/jeremy/dev/SIN-Solver/app/captcha_solver_pipeline.py` | Main pipeline |
-| `/Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh` | Automated test/deploy |
-| `/Users/jeremy/dev/SIN-Solver/training/training-lastchanges.md` | Progress log |
+| `/Users/jeremy/dev/Delqhi-Platform/app/captcha_solver_pipeline.py` | Main pipeline |
+| `/Users/jeremy/dev/Delqhi-Platform/FINAL_TEST_AND_DEPLOY.sh` | Automated test/deploy |
+| `/Users/jeremy/dev/Delqhi-Platform/training/training-lastchanges.md` | Progress log |
 
 ---
 

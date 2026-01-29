@@ -37,9 +37,9 @@
 
 ## Overview
 
-Chronos is the **strategic time-based task scheduler** for the SIN-Solver Empire. Named after the Greek god of time, this service manages all scheduled tasks, cron jobs, and time-based workflow triggers across the 23-room distributed architecture.
+Chronos is the **strategic time-based task scheduler** for the Delqhi-Platform Empire. Named after the Greek god of time, this service manages all scheduled tasks, cron jobs, and time-based workflow triggers across the 23-room distributed architecture.
 
-### Purpose in SIN-Solver Ecosystem
+### Purpose in Delqhi-Platform Ecosystem
 
 | Aspect | Description |
 |--------|-------------|
@@ -508,7 +508,7 @@ PORT=3001
 LOG_LEVEL=info
 
 # Database Connection
-DATABASE_URL=postgresql://sin_admin:sin-solver-2026@172.20.0.10:5432/sin_solver
+DATABASE_URL=postgresql://sin_admin:delqhi-platform-2026@172.20.0.10:5432/sin_solver
 
 # API Brain Integration
 API_BRAIN_URL=http://172.20.0.31:8000
@@ -551,7 +551,7 @@ docker run -d \
   --name sin-chronos \
   --network sin-network \
   -p 3001:3001 \
-  -e DATABASE_URL="postgresql://sin_admin:sin-solver-2026@postgres:5432/sin_solver" \
+  -e DATABASE_URL="postgresql://sin_admin:delqhi-platform-2026@postgres:5432/sin_solver" \
   -e API_BRAIN_URL="http://api-brain:8000" \
   --restart unless-stopped \
   sin-chronos:latest
@@ -579,7 +579,7 @@ services:
       - "3001:3001"
     environment:
       - PORT=3001
-      - DATABASE_URL=postgresql://sin_admin:sin-solver-2026@postgres:5432/sin_solver
+      - DATABASE_URL=postgresql://sin_admin:delqhi-platform-2026@postgres:5432/sin_solver
       - API_BRAIN_URL=http://api-brain:8000
       - LOG_LEVEL=info
     networks:
@@ -864,7 +864,7 @@ All components are 100% self-hosted with open-source software.
 
 ---
 
-**Zimmer-02: Chronos** | SIN-Solver Empire  
+**Zimmer-02: Chronos** | Delqhi-Platform Empire  
 **Port:** 3001 | **IP:** 172.20.0.2  
 **Cost:** 100% FREE  
 **Last Updated:** 2026-01-27

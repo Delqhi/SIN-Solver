@@ -2,11 +2,11 @@
 
 **Port:** 8002 | **IP:** 172.20.0.42 | **Container:** room-02-vault-api
 
-Central secrets coordinator for the SIN-Solver empire. Manages secrets in HashiCorp Vault and syncs them to Vercel environments and n8n credentials automatically.
+Central secrets coordinator for the Delqhi-Platform empire. Manages secrets in HashiCorp Vault and syncs them to Vercel environments and n8n credentials automatically.
 
 ## 🎯 Purpose
 
-This service provides a unified REST API for managing secrets across the entire SIN-Solver ecosystem:
+This service provides a unified REST API for managing secrets across the entire Delqhi-Platform ecosystem:
 - **Vault Operations** - Create, read, update, delete secrets in HashiCorp Vault
 - **Vercel Sync** - Automatically sync secrets to Vercel environment variables (production, preview, development)
 - **n8n Sync** - Automatically create and update n8n credentials for database connections and services
@@ -60,7 +60,7 @@ This service provides a unified REST API for managing secrets across the entire 
 {
   "timestamp": "2026-01-28T15:30:00Z",
   "vault": { "status": "healthy" },
-  "vercel": { "status": "connected", "projectName": "sin-solver-dashboard" },
+  "vercel": { "status": "connected", "projectName": "delqhi-platform-dashboard" },
   "n8n": { "status": "connected", "user": "..." }
 }
 ```
@@ -332,7 +332,7 @@ room-02-vault-api/
   "data": {
     "api_key": "SG.xxxxxxxxxxxxxxxxxxxx",
     "from_email": "noreply@example.com",
-    "from_name": "SIN-Solver"
+    "from_name": "Delqhi-Platform"
   }
 }
 ```

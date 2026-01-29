@@ -1,4 +1,4 @@
-# SIN-Solver Deployment & Integration Guide
+# Delqhi-Platform Deployment & Integration Guide
 
 **Version:** 1.0.0  
 **Status:** Production Ready  
@@ -24,8 +24,8 @@
 ### Installation
 
 ```bash
-# Clone or navigate to SIN-Solver directory
-cd /Users/jeremy/dev/sin-code/SIN-Solver
+# Clone or navigate to Delqhi-Platform directory
+cd /Users/jeremy/dev/sin-code/Delqhi-Platform
 
 # Install dependencies
 npm install
@@ -89,7 +89,7 @@ npm run lint            # ESLint validation
 ### Project Structure
 
 ```
-SIN-Solver/
+Delqhi-Platform/
 ├── types.ts                    # All TypeScript interfaces
 ├── state-machine.ts           # Core state management
 ├── deception-hunter.ts        # Pattern detection engine
@@ -97,7 +97,7 @@ SIN-Solver/
 ├── interaction-api.ts         # Unified API orchestrator
 ├── audit.ts                   # Logging & audit trail
 ├── __tests__/
-│   └── sin-solver.test.ts    # Jest test suite (9 tests)
+│   └── delqhi-platform.test.ts    # Jest test suite (9 tests)
 ├── dist/                      # Compiled JavaScript (after build)
 ├── package.json               # NPM configuration
 ├── tsconfig.json              # TypeScript configuration
@@ -161,13 +161,13 @@ npm run build
 
 ```bash
 # 1. Copy dist/ to server
-scp -r ./dist/ user@server:/app/sin-solver/
+scp -r ./dist/ user@server:/app/delqhi-platform/
 
 # 2. Install dependencies on server
 npm install --production
 
 # 3. Run application
-node /app/sin-solver/dist/your-app.js
+node /app/delqhi-platform/dist/your-app.js
 ```
 
 ### Deployment to AWS Lambda
@@ -206,13 +206,13 @@ npm run build
 npm publish
 
 # Users can then install:
-# npm install sin-solver
+# npm install delqhi-platform
 ```
 
 **Usage in other projects:**
 
 ```typescript
-import { InteractionAPI } from 'sin-solver';
+import { InteractionAPI } from 'delqhi-platform';
 ```
 
 ### Option 2: Docker Container
@@ -234,8 +234,8 @@ CMD ["node", "dist/your-app.js"]
 **Build & Run:**
 
 ```bash
-docker build -t sin-solver:1.0.0 .
-docker run -p 8000:8000 sin-solver:1.0.0
+docker build -t delqhi-platform:1.0.0 .
+docker run -p 8000:8000 delqhi-platform:1.0.0
 ```
 
 ### Option 3: OpenCode Plugin Integration
@@ -245,12 +245,12 @@ docker run -p 8000:8000 sin-solver:1.0.0
 const { InteractionAPI } = require('./dist');
 
 module.exports = {
-  name: 'sin-solver',
+  name: 'delqhi-platform',
   version: '1.0.0',
   
   install(opencode) {
     opencode.register({
-      id: 'sin-solver:click-verify',
+      id: 'delqhi-platform:click-verify',
       handler: async (target, x, y) => {
         // Create instances and verify
         // Return result
@@ -369,7 +369,7 @@ npm test -- --verbose
 npm run test:coverage
 
 # Run specific test file
-npm test -- sin-solver.test.ts
+npm test -- delqhi-platform.test.ts
 ```
 
 #### Issue 3: Import Errors in Runtime
@@ -515,7 +515,7 @@ interface IAuditEntry {
 
 ## FAQ
 
-### Q: Can I use SIN-Solver in a browser?
+### Q: Can I use Delqhi-Platform in a browser?
 **A:** Not directly (it's Node.js only). You can:
 - Wrap it in an Express API server
 - Use it in a serverless function
@@ -536,7 +536,7 @@ dh.addPattern({
 ```
 
 ### Q: Can I use this with Playwright/Puppeteer?
-**A:** Yes! Use SIN-Solver to verify interactions in your automation:
+**A:** Yes! Use Delqhi-Platform to verify interactions in your automation:
 
 ```typescript
 // With Playwright
@@ -552,14 +552,14 @@ if (!result.success) {
 ### Q: How do I report security issues?
 **A:** File an issue in the SIN-Code repository with security tag.
 
-### Q: Is there a CLI for SIN-Solver?
+### Q: Is there a CLI for Delqhi-Platform?
 **A:** Not yet, but you can wrap it with a CLI tool:
 
 ```bash
 # future-sin-cli "click" --target "button" --x 100 --y 200
 ```
 
-### Q: Can I extend SIN-Solver?
+### Q: Can I extend Delqhi-Platform?
 **A:** Yes! Extend classes and override methods:
 
 ```typescript

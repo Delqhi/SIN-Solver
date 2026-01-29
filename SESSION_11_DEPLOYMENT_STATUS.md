@@ -50,7 +50,7 @@ Test Suite               ✅ READY        21 tests, 500+ lines
 Deployment Script        ✅ READY        3.2KB, fully automated
 Documentation            ✅ COMPLETE     1000+ lines, 7 docs
 Environment             ✅ VERIFIED      Python 3.14.2, all packages
-Virtual Environment     ✅ ACTIVE       /Users/jeremy/dev/SIN-Solver/ocr_env/
+Virtual Environment     ✅ ACTIVE       /Users/jeremy/dev/Delqhi-Platform/ocr_env/
 Model File Location     ✅ PREPARED      /Users/jeremy/runs/classify/...
 Git Repository          ✅ CLEAN        Ready for commit
 
@@ -65,10 +65,10 @@ Overall Status          ✅ READY FOR DEPLOYMENT
 
 ```bash
 # 1. Wait for YOLO to complete (check manually or use monitor script)
-bash /Users/jeremy/dev/SIN-Solver/monitor-yolo.sh
+bash /Users/jeremy/dev/Delqhi-Platform/monitor-yolo.sh
 
 # 2. When YOLO shows "✅ TRAINING COMPLETE", execute:
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 bash FINAL_TEST_AND_DEPLOY.sh
 
 # 3. Monitor the script output (~30 minutes total)
@@ -83,14 +83,14 @@ bash FINAL_TEST_AND_DEPLOY.sh
 
 ```bash
 # 1. Start automatic trigger (will wait for YOLO, then deploy automatically)
-bash /Users/jeremy/dev/SIN-Solver/AUTO_DEPLOY_WHEN_READY.sh
+bash /Users/jeremy/dev/Delqhi-Platform/AUTO_DEPLOY_WHEN_READY.sh
 
 # 2. Walk away - script monitors every 60 seconds for YOLO completion
 #    - Once detected, automatically executes FINAL_TEST_AND_DEPLOY.sh
 #    - Timeout: 2 hours (if YOLO takes longer, script exits)
 
 # 3. Check results later
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 git log --oneline -1
 # Expected: feat(phase-2.5): OCR pipeline complete
 ```
@@ -117,7 +117,7 @@ git log --oneline -1
 
 ### Before Executing Deployment Script
 - [x] YOLO training monitored and understood
-- [x] Deployment script location verified: `/Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh`
+- [x] Deployment script location verified: `/Users/jeremy/dev/Delqhi-Platform/FINAL_TEST_AND_DEPLOY.sh`
 - [x] All test files present and validated
 - [x] Virtual environment configured correctly
 - [x] Documentation prepared
@@ -265,22 +265,22 @@ PYEOF
 
 **Start Deployment:**
 ```bash
-cd /Users/jeremy/dev/SIN-Solver && bash FINAL_TEST_AND_DEPLOY.sh
+cd /Users/jeremy/dev/Delqhi-Platform && bash FINAL_TEST_AND_DEPLOY.sh
 ```
 
 **Monitor YOLO (Real-Time):**
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/monitor-yolo.sh
+bash /Users/jeremy/dev/Delqhi-Platform/monitor-yolo.sh
 ```
 
 **Auto-Deploy (Hands-Off):**
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/AUTO_DEPLOY_WHEN_READY.sh
+bash /Users/jeremy/dev/Delqhi-Platform/AUTO_DEPLOY_WHEN_READY.sh
 ```
 
 **Verify Completion:**
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 git log --oneline -1  # Should show: feat(phase-2.5): OCR pipeline complete
 ```
 

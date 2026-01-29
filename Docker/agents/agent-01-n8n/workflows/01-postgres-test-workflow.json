@@ -23,7 +23,7 @@
       "credentials": {
         "postgres": {
           "id": "1",
-          "name": "SIN-Solver PostgreSQL"
+          "name": "Delqhi-Platform PostgreSQL"
         }
       }
     },

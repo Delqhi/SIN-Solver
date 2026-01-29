@@ -11,7 +11,7 @@
 #   - N8N_HOST environment variable
 #   - N8N_API_KEY environment variable (optional, for API access)
 #
-# Author: SIN-Solver Team
+# Author: Delqhi-Platform Team
 # Version: 1.0.0
 # Date: 2026-01-28
 # ============================================================================
@@ -135,7 +135,7 @@ sync_postgres() {
             ssl: false
         }')
     
-    if create_n8n_credential "SIN-Solver PostgreSQL" "postgres" "$cred_data"; then
+    if create_n8n_credential "Delqhi-Platform PostgreSQL" "postgres" "$cred_data"; then
         log_success "PostgreSQL credential synced"
         return 0
     fi
@@ -170,7 +170,7 @@ sync_redis() {
             password: $password
         }')
     
-    if create_n8n_credential "SIN-Solver Redis" "redis" "$cred_data"; then
+    if create_n8n_credential "Delqhi-Platform Redis" "redis" "$cred_data"; then
         log_success "Redis credential synced"
         return 0
     fi
@@ -202,7 +202,7 @@ sync_opencode() {
             baseUrl: $base_url
         }')
     
-    if create_n8n_credential "SIN-Solver OpenCode API" "httpHeaderAuth" "$cred_data"; then
+    if create_n8n_credential "Delqhi-Platform OpenCode API" "httpHeaderAuth" "$cred_data"; then
         log_success "OpenCode API credential synced"
         return 0
     fi
@@ -236,7 +236,7 @@ sync_github() {
             accessToken: $token
         }')
     
-    if create_n8n_credential "SIN-Solver GitHub" "githubApi" "$cred_data"; then
+    if create_n8n_credential "Delqhi-Platform GitHub" "githubApi" "$cred_data"; then
         log_success "GitHub credential synced"
         return 0
     fi

@@ -14,16 +14,16 @@ echo "  Agent #5: bg_75d47e04 (Model Verification)"
 echo ""
 
 echo "📊 LIVE STATUS FILE:"
-if [ -f "/Users/jeremy/dev/SIN-Solver/LIVE_DEPLOYMENT_STATUS.txt" ]; then
+if [ -f "/Users/jeremy/dev/Delqhi-Platform/LIVE_DEPLOYMENT_STATUS.txt" ]; then
     echo ""
-    cat /Users/jeremy/dev/SIN-Solver/LIVE_DEPLOYMENT_STATUS.txt
+    cat /Users/jeremy/dev/Delqhi-Platform/LIVE_DEPLOYMENT_STATUS.txt
 else
     echo "  (Waiting for Agent #2 to create status file...)"
 fi
 echo ""
 
 echo "📂 OUTPUT FILES CREATED:"
-ls -lh /Users/jeremy/dev/SIN-Solver/ 2>/dev/null | grep -E "LIVE_|TEST_|COMPLETION|METADATA|FINAL" | awk '{print "  " $9 " (" $5 ")"}'
+ls -lh /Users/jeremy/dev/Delqhi-Platform/ 2>/dev/null | grep -E "LIVE_|TEST_|COMPLETION|METADATA|FINAL" | awk '{print "  " $9 " (" $5 ")"}'
 echo ""
 
 echo "🔍 YOLO TRAINING PROGRESS:"
@@ -47,7 +47,7 @@ PYEOF
 echo ""
 
 echo "💾 DISK USAGE:"
-du -sh /Users/jeremy/dev/SIN-Solver 2>/dev/null | awk '{print "  Project: " $1}'
+du -sh /Users/jeremy/dev/Delqhi-Platform 2>/dev/null | awk '{print "  Project: " $1}'
 du -sh /Users/jeremy/runs/classify 2>/dev/null | awk '{print "  YOLO runs: " $1}'
 echo ""
 

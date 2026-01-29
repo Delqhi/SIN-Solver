@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="SIN-Solver Worker Health", version="2.0.0")
+app = FastAPI(title="Delqhi-Platform Worker Health", version="2.0.0")
 
 
 @app.get("/health")
@@ -74,5 +74,5 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info("🚀 Starting SIN-Solver Worker Health API (FREE providers only)...")
+    logger.info("🚀 Starting Delqhi-Platform Worker Health API (FREE providers only)...")
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")

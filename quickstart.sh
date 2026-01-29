@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# SIN-Solver Quick Start Script
+# Delqhi-Platform Quick Start Script
 # Get everything running with one command
 # =============================================================================
 set -e

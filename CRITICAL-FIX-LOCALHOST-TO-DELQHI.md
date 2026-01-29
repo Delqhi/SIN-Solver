@@ -24,14 +24,14 @@ Alle Services verwenden localhost statt der oeffentlichen delqhi.com Domains.
 ## LOESUNG
 
 ### Schritt 1: Build-Ordner loeschen
-rm -rf /Users/jeremy/dev/SIN-Solver/dashboard/.next
+rm -rf /Users/jeremy/dev/Delqhi-Platform/dashboard/.next
 
 ### Schritt 2: Umgebungsvariablen setzen
 export NEXT_PUBLIC_API_URL="https://api.delqhi.com"
 export NEXT_PUBLIC_DASHBOARD_URL="https://dashboard.delqhi.com"
 
 ### Schritt 3: Neu bauen
-cd /Users/jeremy/dev/SIN-Solver/dashboard
+cd /Users/jeremy/dev/Delqhi-Platform/dashboard
 npm run build
 
 ### Schritt 4: Tests aktualisieren

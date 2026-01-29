@@ -5,7 +5,7 @@ import os
 import sys
 from typing import List, Dict, Any
 
-sys.path.append("/Users/jeremy/dev/SIN-Solver")
+sys.path.append("/Users/jeremy/dev/Delqhi-Platform")
 
 from app.services.solver_router import get_solver_router
 from app.core.forensic_ledger import forensics
@@ -33,7 +33,7 @@ class RalphStressTester:
         while self.streak < self.target_streak:
             try:
                 # CEO Optimization: Check for multiple test images
-                test_image = "/Users/jeremy/dev/SIN-Solver/demo_step1.png"
+                test_image = "/Users/jeremy/dev/Delqhi-Platform/demo_step1.png"
                 if not os.path.exists(test_image):
                     # Local fallback if main step image missing
                     test_image = "demo_step1.png"

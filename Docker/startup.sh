@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# SIN-Solver Docker Full Stack Startup Script (V18.3 Modular)
+# Delqhi-Platform Docker Full Stack Startup Script (V18.3 Modular)
 # Starts all services in proper dependency order
 
 set -e
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo "🚀 SIN-Solver Docker Stack Startup"
+echo "🚀 Delqhi-Platform Docker Stack Startup"
 echo "📍 Working directory: $SCRIPT_DIR"
 
 # Colors for output
@@ -116,7 +116,7 @@ check_health "Dashboard" "room-01-dashboard-cockpit" "curl -sf http://localhost:
 
 # Final Summary
 echo -e "\n${BLUE}═══════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✓ SIN-Solver Docker Stack Startup Complete!${NC}"
+echo -e "${GREEN}✓ Delqhi-Platform Docker Stack Startup Complete!${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}\n"
 
 echo "📊 Service Status:"

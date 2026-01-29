@@ -1,0 +1,38 @@
+[run]
+source = 
+    Docker/builders/builder-1.1-captcha-worker/src
+    app
+
+omit =
+    */tests/*
+    */test_*.py
+    */venv/*
+    */virtualenv/*
+    */__pycache__/*
+    */migrations/*
+    */alembic/*
+    */node_modules/*
+
+branch = True
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
+    if TYPE_CHECKING:
+
+show_missing = True
+skip_covered = False
+
+fail_under = 80
+
+[html]
+directory = tests/reports/coverage_html
+
+[xml]
+output = tests/reports/coverage.xml

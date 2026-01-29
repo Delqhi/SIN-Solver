@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { Terminal as TerminalIcon, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const TERMINAL_URL = process.env.NEXT_PUBLIC_TERMINAL_URL || 'http://localhost:7681';
+const TERMINAL_URL = process.env.NEXT_PUBLIC_TERMINAL_URL || 'https://terminal.delqhi.com';
 
 export default function FooterTerminal({ isOpen, onToggle }) {
   const iframeRef = useRef(null);

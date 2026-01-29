@@ -54,7 +54,7 @@ const COMMANDS: CommandSuggestion[] = [
   { command: '/metrics', description: 'Show metrics', icon: <Activity size={14} /> },
 ];
 
-const CODESERVER_API_URL = process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8041';
+const CODESERVER_API_URL = process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'https://codeserver.delqhi.com';
 
 const AIChat: React.FC<{
   isOpen: boolean;

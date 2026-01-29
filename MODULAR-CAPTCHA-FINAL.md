@@ -1,7 +1,7 @@
 # ✅ MODULAR CAPTCHA SOLVER - FINAL STATUS
 
 **Datum:** 2026-01-29  
-**Projekt:** SIN-Solver - builder-1.1-captcha-worker  
+**Projekt:** Delqhi-Platform - builder-1.1-captcha-worker  
 **Status:** 🟢 **95% COMPLETE - MODULAR ARCHITECTURE READY**
 
 ---
@@ -127,7 +127,7 @@ builder-1.1-captcha-worker/
 
 1. **API Keys eintragen:**
    ```bash
-   cd /Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker
+   cd /Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker
    cp .env.example .env
    # MISTRAL_API_KEY=xxx
    # KIMI_API_KEY=xxx
@@ -234,7 +234,7 @@ async def call_mistral_api(image):
 ### Für SOFORTIGEN Deploy:
 ```bash
 # Nutze die modulare Version - sie ist production-ready
-cd /Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker
 docker-compose up -d
 ```
 
@@ -261,7 +261,7 @@ curl -X POST http://localhost:8019/api/solve/text \
 
 ### Neue/Geänderte Dateien:
 ```
-/Users/jeremy/dev/SIN-Solver/
+/Users/jeremy/dev/Delqhi-Platform/
 ├── Docker/builders/builder-1.1-captcha-worker/
 │   ├── Dockerfile
 │   ├── docker-compose.yml

@@ -63,7 +63,7 @@ echo "Health check passed"
 #!/bin/bash
 # scripts/rotate-logs.sh
 
-LOG_DIR="/var/log/sin-solver"
+LOG_DIR="/var/log/delqhi-platform"
 RETENTION_DAYS=30
 
 # Compress logs older than 7 days

@@ -2,7 +2,7 @@
 
 ## Project Purpose
 
-The SIN-Solver Dashboard Cockpit (room-01-dashboard-cockpit) is the central mission control interface for the entire SIN-Solver ecosystem. It provides real-time monitoring, control, and visualization of all 26+ services in the distributed architecture.
+The Delqhi-Platform Dashboard Cockpit (room-01-dashboard-cockpit) is the central mission control interface for the entire Delqhi-Platform ecosystem. It provides real-time monitoring, control, and visualization of all 26+ services in the distributed architecture.
 
 ## Core Functionality
 
@@ -51,7 +51,7 @@ The SIN-Solver Dashboard Cockpit (room-01-dashboard-cockpit) is the central miss
 - Docker Socket (read-only mount)
 - Redis Cache (session storage)
 - Postgres (metrics storage)
-- All 26 SIN-Solver services
+- All 26 Delqhi-Platform services
 
 ## Success Metrics
 

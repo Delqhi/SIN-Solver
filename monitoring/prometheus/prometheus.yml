@@ -1,0 +1,165 @@
+# Prometheus Configuration for SIN-Solver CAPTCHA System
+# Version: 2026.1.0
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'sin-solver'
+    replica: '{{.ExternalURL}}'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - '172.20.0.27:9093'
+      timeout: 10s
+      api_version: v2
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+  - "recording-rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # SIN-Solver API
+  - job_name: 'sin-solver-api'
+    static_configs:
+      - targets: 
+          - '172.20.0.13:8000'  # room-13-api-brain
+          - '172.20.0.8:8000'   # API on port 8000
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    honor_labels: true
+
+  # Node Exporter - System metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['172.20.0.30:9100']
+    scrape_interval: 15s
+
+  # cAdvisor - Container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['172.20.0.31:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Blackbox Exporter - Endpoint monitoring
+  - job_name: 'blackbox-api-health'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://172.20.0.13:8000/health
+          - http://172.20.0.13:8000/ready
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 172.20.0.32:9115
+
+  # StatsD Exporter
+  - job_name: 'statsd-exporter'
+    static_configs:
+      - targets: ['172.20.0.33:9102']
+    scrape_interval: 15s
+
+  # Pushgateway
+  - job_name: 'pushgateway'
+    static_configs:
+      - targets: ['172.20.0.34:9091']
+    scrape_interval: 30s
+    honor_labels: true
+
+  # Docker containers with prometheus labels
+  - job_name: 'docker-containers'
+    file_sd_configs:
+      - files:
+          - '/etc/prometheus/docker-targets.json'
+        refresh_interval: 30s
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        target_label: container
+      - source_labels: [__meta_docker_network_ip]
+        target_label: ip
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['172.20.0.10:6379']
+    scrape_interval: 15s
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['172.20.0.11:5432']
+    scrape_interval: 15s
+
+  # n8n Orchestrator
+  - job_name: 'n8n'
+    static_configs:
+      - targets: ['172.20.0.6:5678']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Steel Browser
+  - job_name: 'steel-browser'
+    static_configs:
+      - targets: ['172.20.0.20:3000']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Vault
+  - job_name: 'vault'
+    static_configs:
+      - targets: ['172.20.0.2:8200']
+    scrape_interval: 30s
+    metrics_path: /v1/sys/metrics
+    params:
+      format: ['prometheus']
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+
+  # Loki
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['172.20.0.28:3100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Jaeger
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['172.20.0.29:16686']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+# Remote write configuration (optional - for long-term storage)
+# remote_write:
+#   - url: "http://thanos-receive:19291/api/v1/receive"
+#     queue_config:
+#       max_samples_per_send: 1000
+#       max_shards: 200
+#       capacity: 2500
+
+# Storage configuration
+storage:
+  tsdb:
+    retention.time: 30d
+    retention.size: 50GB
+    wal-compression: true

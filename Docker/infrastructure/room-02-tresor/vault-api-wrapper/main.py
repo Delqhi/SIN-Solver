@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Vault API Wrapper Service for SIN-Solver
+Vault API Wrapper Service for Delqhi-Platform
 =========================================
 FastAPI-based REST wrapper for HashiCorp Vault secrets management.
-Provides unified secret access across all SIN-Solver services.
+Provides unified secret access across all Delqhi-Platform services.
 
-Author: SIN-Solver Team
+Author: Delqhi-Platform Team
 Version: 1.0.0
 Date: 2026-01-28
 """
@@ -327,7 +327,7 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Vault API Wrapper...")
 
 app = FastAPI(
-    title="SIN-Solver Vault API Wrapper",
+    title="Delqhi-Platform Vault API Wrapper",
     description="REST API wrapper for HashiCorp Vault secrets management",
     version="1.0.0",
     lifespan=lifespan
@@ -514,7 +514,7 @@ async def sync_to_n8n(background_tasks: BackgroundTasks):
     try:
         result = await vault_client.read_secret("postgres")
         success = await n8n_sync.sync_credentials(
-            name="SIN-Solver PostgreSQL",
+            name="Delqhi-Platform PostgreSQL",
             data={
                 "host": result["data"].get("host", "room-03-postgres-master"),
                 "database": result["data"].get("database", "sin_solver"),
@@ -534,7 +534,7 @@ async def sync_to_n8n(background_tasks: BackgroundTasks):
     try:
         result = await vault_client.read_secret("redis")
         success = await n8n_sync.sync_credentials(
-            name="SIN-Solver Redis",
+            name="Delqhi-Platform Redis",
             data={
                 "host": result["data"].get("host", "room-04-redis-cache"),
                 "port": int(result["data"].get("port", 6379)),
@@ -572,7 +572,7 @@ async def sync_to_all(background_tasks: BackgroundTasks):
 @app.post("/secrets/init")
 async def initialize_secrets():
     """
-    Initialize Vault with all required SIN-Solver secrets.
+    Initialize Vault with all required Delqhi-Platform secrets.
     
     This endpoint populates Vault with the default secret structure.
     Should be called once after Vault is first set up.

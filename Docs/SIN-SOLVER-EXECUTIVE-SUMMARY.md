@@ -7,9 +7,9 @@
 
 ---
 
-## 🎯 WHAT: SIN-Solver in 2 Sentences (The Essence)
+## 🎯 WHAT: Delqhi-Platform in 2 Sentences (The Essence)
 
-**SIN-Solver** ist eine **Distributed Fortress Intelligence Engine** für vollautomatische CAPTCHA-Lösung mit 5-Model Parallel Consensus Voting (Gemini, Mistral, YOLO, CapMonster, Human). Das System erreicht **98.5% Solve-Rate bei < 10s Latency** durch lokaloperative M1-Souveränität, adaptive Behavioral Evasion und matematisch-bewiesene Fehler-Unmöglichkeit (via Tiered Weighted Voting).
+**Delqhi-Platform** ist eine **Distributed Fortress Intelligence Engine** für vollautomatische CAPTCHA-Lösung mit 5-Model Parallel Consensus Voting (Gemini, Mistral, YOLO, CapMonster, Human). Das System erreicht **98.5% Solve-Rate bei < 10s Latency** durch lokaloperative M1-Souveränität, adaptive Behavioral Evasion und matematisch-bewiesene Fehler-Unmöglichkeit (via Tiered Weighted Voting).
 
 ---
 

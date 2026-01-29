@@ -1,0 +1,345 @@
+# Prometheus Alert Rules for SIN-Solver CAPTCHA System
+# Version: 2026.1.0
+# 
+# Severity Levels:
+#   - critical: Immediate action required, paging on-call
+#   - warning: Attention required during business hours
+#   - info: Informational, no immediate action
+
+groups:
+  # =========================================================================
+  # CAPTCHA Service Alerts
+  # =========================================================================
+  - name: captcha_service
+    rules:
+      # High Error Rate
+      - alert: CaptchaHighErrorRate
+        expr: |
+          (
+            sum(rate(captcha_solves_total{status="error"}[5m])) 
+            / 
+            sum(rate(captcha_solves_total[5m]))
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: captcha
+          team: platform
+        annotations:
+          summary: "High CAPTCHA error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes"
+          runbook_url: "https://docs.sin-solver.io/runbooks/high-error-rate"
+
+      # Low Solve Rate
+      - alert: CaptchaLowSolveRate
+        expr: |
+          (
+            sum(rate(captcha_solves_total{status="success"}[10m]))
+            /
+            sum(rate(captcha_solves_total[10m]))
+          ) < 0.95
+        for: 10m
+        labels:
+          severity: warning
+          service: captcha
+          team: platform
+        annotations:
+          summary: "CAPTCHA solve rate below target"
+          description: "Solve rate is {{ $value | humanizePercentage }} (target: 98.5%)"
+
+      # High Latency
+      - alert: CaptchaHighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(captcha_solve_duration_seconds_bucket[5m])) by (le, captcha_type)
+          ) > 15
+        for: 5m
+        labels:
+          severity: warning
+          service: captcha
+          team: platform
+        annotations:
+          summary: "High CAPTCHA solve latency"
+          description: "P95 latency for {{ $labels.captcha_type }} is {{ $value }}s"
+
+      # Queue Depth High
+      - alert: CaptchaQueueDepthHigh
+        expr: captcha_queue_depth > 1000
+        for: 2m
+        labels:
+          severity: warning
+          service: captcha
+          team: platform
+        annotations:
+          summary: "CAPTCHA queue depth high"
+          description: "Queue depth is {{ $value }} for {{ $labels.captcha_type }}"
+
+      # Detection Rate High
+      - alert: CaptchaDetectionRateHigh
+        expr: captcha_detection_rate > 0.05
+        for: 10m
+        labels:
+          severity: critical
+          service: captcha
+          team: security
+        annotations:
+          summary: "High CAPTCHA detection rate"
+          description: "Detection rate for {{ $labels.captcha_type }} is {{ $value | humanizePercentage }}"
+
+  # =========================================================================
+  # AI Model Alerts
+  # =========================================================================
+  - name: ai_models
+    rules:
+      # Model High Error Rate
+      - alert: AIModelHighErrorRate
+        expr: |
+          (
+            sum(rate(ai_model_requests_total{status="error"}[5m])) by (model, provider)
+            /
+            sum(rate(ai_model_requests_total[5m])) by (model, provider)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: ai
+          team: ml
+        annotations:
+          summary: "AI model high error rate"
+          description: "{{ $labels.model }} ({{ $labels.provider }}) error rate: {{ $value | humanizePercentage }}"
+
+      # Model High Latency
+      - alert: AIModelHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(ai_model_latency_seconds_bucket[5m])) by (le, model, provider)
+          ) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: ai
+          team: ml
+        annotations:
+          summary: "AI model high latency"
+          description: "{{ $labels.model }} P95 latency: {{ $value }}s"
+
+      # Model Token Usage Spike
+      - alert: AIModelTokenSpike
+        expr: |
+          sum(rate(ai_model_tokens_used_total[1h])) by (model)
+          > 
+          2 * sum(rate(ai_model_tokens_used_total[1h] offset 1h)) by (model)
+        for: 5m
+        labels:
+          severity: info
+          service: ai
+          team: ml
+        annotations:
+          summary: "AI model token usage spike"
+          description: "{{ $labels.model }} token usage doubled in the last hour"
+
+  # =========================================================================
+  # Infrastructure Alerts
+  # =========================================================================
+  - name: infrastructure
+    rules:
+      # Instance Down
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: infrastructure
+          team: platform
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+          team: platform
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+          ) 
+          / 
+          node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+          team: platform
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} 
+            / 
+            node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"}
+          ) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+          team: platform
+        annotations:
+          summary: "Disk space low"
+          description: "Disk space is {{ $value }}% on {{ $labels.instance }}"
+
+      # Container High Memory
+      - alert: ContainerHighMemoryUsage
+        expr: |
+          (
+            container_memory_usage_bytes{name!=""}
+            /
+            container_spec_memory_limit_bytes{name!=""}
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: containers
+          team: platform
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} using {{ $value | humanizePercentage }} memory"
+
+      # Container High CPU
+      - alert: ContainerHighCPUUsage
+        expr: |
+          (
+            rate(container_cpu_usage_seconds_total{name!=""}[5m])
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: containers
+          team: platform
+        annotations:
+          summary: "Container high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage > 80%"
+
+  # =========================================================================
+  # API Health Alerts
+  # =========================================================================
+  - name: api_health
+    rules:
+      # API High Error Rate
+      - alert: APIHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status_code=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 3m
+        labels:
+          severity: critical
+          service: api
+          team: platform
+        annotations:
+          summary: "API high error rate"
+          description: "API 5xx error rate is {{ $value | humanizePercentage }}"
+
+      # API High Latency
+      - alert: APIHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+          team: platform
+        annotations:
+          summary: "API high latency"
+          description: "API P95 latency is {{ $value }}s"
+
+      # API Request Spike
+      - alert: APIRequestSpike
+        expr: |
+          sum(rate(http_requests_total[5m])) 
+          > 
+          3 * sum(rate(http_requests_total[5m] offset 1h))
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+          team: platform
+        annotations:
+          summary: "API request spike detected"
+          description: "Request rate is 3x higher than 1 hour ago"
+
+      # Health Check Failed
+      - alert: HealthCheckFailed
+        expr: health_check_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: api
+          team: platform
+        annotations:
+          summary: "Health check failed"
+          description: "{{ $labels.component }} health check is failing"
+
+  # =========================================================================
+  # Business Metrics Alerts
+  # =========================================================================
+  - name: business
+    rules:
+      # Revenue Drop
+      - alert: RevenueDrop
+        expr: |
+          sum(rate(captcha_revenue_usd_total[1h]))
+          <
+          0.5 * sum(rate(captcha_revenue_usd_total[1h] offset 1d))
+        for: 30m
+        labels:
+          severity: warning
+          service: business
+          team: revenue
+        annotations:
+          summary: "Revenue drop detected"
+          description: "Revenue is 50% lower than same time yesterday"
+
+      # Cost Spike
+      - alert: CostSpike
+        expr: |
+          sum(rate(captcha_solve_cost_usd_sum[1h])) 
+          > 
+          2 * sum(rate(captcha_solve_cost_usd_sum[1h] offset 1d))
+        for: 30m
+        labels:
+          severity: warning
+          service: business
+          team: finance
+        annotations:
+          summary: "Cost spike detected"
+          description: "CAPTCHA solving cost has doubled"
+
+      # Worker Pool Depleted
+      - alert: WorkerPoolDepleted
+        expr: captcha_active_workers < 2
+        for: 2m
+        labels:
+          severity: critical
+          service: captcha
+          team: platform
+        annotations:
+          summary: "Worker pool depleted"
+          description: "Only {{ $value }} active workers remaining"

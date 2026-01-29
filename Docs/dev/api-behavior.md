@@ -1,6 +1,6 @@
 # API Behavior Documentation
 
-**Project:** SIN-Solver Captcha Worker API  
+**Project:** Delqhi-Platform Captcha Worker API  
 **Base URL:** `http://localhost:8019`  
 **Last Updated:** 2026-01-29  
 **Version:** 1.0.0
@@ -21,7 +21,7 @@
 
 ## Overview
 
-This document describes the behavior of the SIN-Solver Captcha Worker API as discovered during E2E testing. The API runs on port **8019** and provides endpoints for health checks, metrics, and captcha solving operations.
+This document describes the behavior of the Delqhi-Platform Captcha Worker API as discovered during E2E testing. The API runs on port **8019** and provides endpoints for health checks, metrics, and captcha solving operations.
 
 ### Base Configuration
 
@@ -634,5 +634,5 @@ testAPI().catch(console.error);
 ---
 
 **Document Status:** Active  
-**Maintained By:** SIN-Solver Team  
+**Maintained By:** Delqhi-Platform Team  
 **Review Schedule:** Monthly or after API changes

@@ -1,4 +1,4 @@
-tunnel: SIN-Solver
+tunnel: Delqhi-Platform
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
@@ -69,6 +69,22 @@ ingress:
   # Plane (Project Management)
   - hostname: plane.delqhi.com
     service: http://room-11-plane-mcp:8216
+
+  # API Brain (Main API Gateway)
+  - hostname: api.delqhi.com
+    service: http://room-13-api-brain:8000
+
+  # Hoppscotch (API Testing)
+  - hostname: hoppscotch.delqhi.com
+    service: http://room-24-hoppscotch-api:3000
+
+  # BillionMail (Email Marketing)
+  - hostname: mail.delqhi.com
+    service: http://room-22-billionmail-web:8091
+
+  # FlowiseAI (Visual AI Builder)
+  - hostname: flowise.delqhi.com
+    service: http://room-23-flowiseai-web:8092
 
   # Default Fallback
   - service: http_status:404

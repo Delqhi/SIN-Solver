@@ -38,8 +38,8 @@ import json
 from datetime import datetime
 
 # Configuration
-TRAINING_DIR = Path("/Users/jeremy/dev/sin-solver/training")
-OUTPUT_DIR = Path("/Users/jeremy/dev/sin-solver/training/runs/classify/captcha_classifier")
+TRAINING_DIR = Path("/Users/jeremy/dev/SIN-Solver/training")
+OUTPUT_DIR = Path("/Users/jeremy/dev/SIN-Solver/training/runs/classify/captcha_classifier")
 
 CAPTCHA_TYPES = [
     "reCaptcha_v2",

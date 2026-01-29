@@ -1,4 +1,4 @@
-# Wissenssammlung SIN-Solver Core
+# Wissenssammlung Delqhi-Platform Core
 
 ## Best Practices
 1. **Zimmer-Isolierung:** Jeder Agent darf nur über den API-Koordinator kommunizieren.

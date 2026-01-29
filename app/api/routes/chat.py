@@ -21,7 +21,7 @@ async def chat(request: ChatRequest):
     last_msg = request.messages[-1].content
     
     # SYSTEM PROMPT for the CEO Assistant
-    system_prompt = """You are the SIN-Solver Empire AI, the primary interface for the CEO.
+    system_prompt = """You are the Delqhi-Platform Empire AI, the primary interface for the CEO.
 Your tone is professional, efficient, and slightly ambitious. 
 You manage 16 rooms of specialized agents.
 Current Room Mapping:

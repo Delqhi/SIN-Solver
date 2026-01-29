@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SIN-Solver Plane MCP Server - Enterprise AI Agent Orchestration
+Delqhi-Platform Plane MCP Server - Enterprise AI Agent Orchestration
 Integrates Plane.so with AI Agent Swarm for autonomous task management
 """
 
@@ -102,7 +102,7 @@ class AgentRegistry:
             self.agents[agent_id].last_activity = datetime.now()
 
 
-app = FastAPI(title="SIN-Solver Plane MCP Server", version="1.0.0")
+app = FastAPI(title="Delqhi-Platform Plane MCP Server", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

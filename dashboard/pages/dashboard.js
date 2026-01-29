@@ -322,7 +322,7 @@ export default function Dashboard() {
             <h2 className="text-2xl font-bold mb-6">Quick Links</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <a
-                href="http://localhost:3000"
+                href="https://dashboard.delqhi.com"
                 className="bg-slate-700 hover:bg-slate-600 p-4 rounded-lg border border-slate-600 transition"
               >
                 <div className="text-2xl mb-2">🏠</div>
@@ -330,7 +330,7 @@ export default function Dashboard() {
                 <div className="text-xs text-slate-400">Dashboard home page</div>
               </a>
               <a
-                href="http://localhost:3000/docs"
+                href="https://docs.delqhi.com"
                 className="bg-slate-700 hover:bg-slate-600 p-4 rounded-lg border border-slate-600 transition"
               >
                 <div className="text-2xl mb-2">📚</div>
@@ -338,7 +338,7 @@ export default function Dashboard() {
                 <div className="text-xs text-slate-400">Documentation</div>
               </a>
               <a
-                href="http://localhost:5678"
+                href="https://n8n.delqhi.com"
                 className="bg-slate-700 hover:bg-slate-600 p-4 rounded-lg border border-slate-600 transition"
               >
                 <div className="text-2xl mb-2">⚙️</div>
@@ -346,7 +346,7 @@ export default function Dashboard() {
                 <div className="text-xs text-slate-400">Workflow orchestrator</div>
               </a>
               <a
-                href="http://localhost:8041"
+                href="https://codeserver.delqhi.com"
                 className="bg-slate-700 hover:bg-slate-600 p-4 rounded-lg border border-slate-600 transition"
               >
                 <div className="text-2xl mb-2">💻</div>

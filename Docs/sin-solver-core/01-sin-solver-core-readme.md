@@ -1,8 +1,8 @@
-# SIN-Solver Core - Enterprise Architecture V17.10
+# Delqhi-Platform Core - Enterprise Architecture V17.10
 
 ## 🏛️ Übersicht
 
-**SIN-Solver** ist ein verteiltes Multi-Agenten-System für:
+**Delqhi-Platform** ist ein verteiltes Multi-Agenten-System für:
 - Automatisierte CAPTCHA-Lösung (100% FREE, self-hosted)
 - Survey Automation (Swagbucks, Prolific, MTurk, etc.)
 - Social Media Integration (Video-Analyse, Posting)
@@ -98,7 +98,7 @@ Notification & Posting System:
 
 ### 1. Gesamtes Empire starten
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 ./sinctl start all
 ```
 
@@ -220,11 +220,11 @@ curl http://localhost:8004/health      # ClawdBot
 
 - [Docker Infrastructure](../docker-infrastructure/01-docker-infrastructure-readme.md)
 - [Agent Swarm](../agent-swarm/01-agent-swarm-readme.md)
-- [Troubleshooting](03-sin-solver-core-troubleshooting.md)
-- [API Performance](07-sin-solver-core-api-performance.md)
+- [Troubleshooting](03-delqhi-platform-core-troubleshooting.md)
+- [API Performance](07-delqhi-platform-core-api-performance.md)
 
 ---
 
 **Version:** V17.10  
 **Last Updated:** 2026-01-27  
-**Maintainer:** SIN-Solver Empire
+**Maintainer:** Delqhi-Platform Empire

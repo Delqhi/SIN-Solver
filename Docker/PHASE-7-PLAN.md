@@ -262,7 +262,7 @@ docker logs agent-01-n8n-orchestrator | tail -50
 **Solution:**
 ```bash
 # Verify password in .env.production.local
-cat /Users/jeremy/dev/SIN-Solver/Docker/.env.production.local | grep REDIS
+cat /Users/jeremy/dev/Delqhi-Platform/Docker/.env.production.local | grep REDIS
 
 # Test Redis connection
 docker exec room-04-redis-cache redis-cli -a "sinredis2026!SecurePass" ping
@@ -284,7 +284,7 @@ docker logs agent-03-agentzero-coder
 curl -s http://localhost:8050/health
 
 # Restart if needed
-cd /Users/jeremy/dev/SIN-Solver/Docker/agents/agent-03-agentzero
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/agents/agent-03-agentzero
 docker-compose restart
 ```
 

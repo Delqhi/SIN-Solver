@@ -1,4 +1,4 @@
-# 🎓 SIN-Solver Academic & Cybersecurity Research 2026
+# 🎓 Delqhi-Platform Academic & Cybersecurity Research 2026
 
 ## 🔍 Academic Conferences & Programs
 - **CVPR 2026** (Denver, June 3-7): Target for visual reasoning research.

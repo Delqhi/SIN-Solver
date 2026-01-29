@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================
-# 🔧 Common Functions for SIN-Solver Services
+# 🔧 Common Functions for Delqhi-Platform Services
 # Shared by all zimmer-XX scripts
 # ==========================================
 

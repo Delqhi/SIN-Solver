@@ -1,0 +1,112 @@
+{
+  "text": {
+    "text_00": "AYY397",
+    "text_00_noisy": "AYY397",
+    "text_00_lines": "AYY397",
+    "text_01": "GDLG8R",
+    "text_01_noisy": "GDLG8R",
+    "text_01_lines": "GDLG8R",
+    "text_02": "GHUV7J",
+    "text_02_noisy": "GHUV7J",
+    "text_02_lines": "GHUV7J",
+    "text_03": "CC6LVC",
+    "text_03_noisy": "CC6LVC",
+    "text_03_lines": "CC6LVC",
+    "text_04": "0K3K4J",
+    "text_04_noisy": "0K3K4J",
+    "text_04_lines": "0K3K4J"
+  },
+  "math": {
+    "math_00": "256",
+    "math_01": "63",
+    "math_02": "171",
+    "math_03": "0",
+    "math_04": "24"
+  },
+  "image_grid": {
+    "grid_00": "Select all squares with cars",
+    "grid_01": "Select all squares with traffic lights",
+    "grid_02": "Select all squares with buses",
+    "grid_03": "Select all squares with crosswalks",
+    "grid_04": "Select all squares with fire hydrants"
+  },
+  "recaptcha": {
+    "recaptcha_00": "KNU0QCOG",
+    "recaptcha_01": "VIHG9WRQ",
+    "recaptcha_02": "D9AFG7RL",
+    "recaptcha_03": "U3KO6LMS",
+    "recaptcha_04": "BP458T5C"
+  },
+  "hcaptcha": {
+    "hcaptcha_00": "Please click each image containing an airplane",
+    "hcaptcha_01": "Please click each image containing a boat",
+    "hcaptcha_02": "Please click each image containing a bicycle",
+    "hcaptcha_03": "Please click each image containing a bridge",
+    "hcaptcha_04": "Please click each image containing a chimney"
+  },
+  "geetest": {
+    "geetest_00": "138",
+    "geetest_01": "104",
+    "geetest_02": "131",
+    "geetest_03": "126",
+    "geetest_04": "163"
+  },
+  "funcaptcha": {
+    "funcaptcha_00": "rotate_90",
+    "funcaptcha_01": "rotate_90",
+    "funcaptcha_02": "rotate_90",
+    "funcaptcha_03": "rotate_90",
+    "funcaptcha_04": "rotate_90"
+  },
+  "turnstile": {
+    "turnstile_00": "verified",
+    "turnstile_01": "verified",
+    "turnstile_02": "verified",
+    "turnstile_03": "verified",
+    "turnstile_04": "verified"
+  },
+  "keycaptcha": {
+    "keycaptcha_00": "ABCD",
+    "keycaptcha_01": "ABCD",
+    "keycaptcha_02": "ABCD",
+    "keycaptcha_03": "ABCD",
+    "keycaptcha_04": "ABCD"
+  },
+  "capy": {
+    "capy_00": "90,60",
+    "capy_01": "90,60",
+    "capy_02": "90,60",
+    "capy_03": "90,60",
+    "capy_04": "90,60"
+  },
+  "pixcaptcha": {
+    "pixcaptcha_00": "RGB",
+    "pixcaptcha_01": "RGB",
+    "pixcaptcha_02": "RGB",
+    "pixcaptcha_03": "RGB",
+    "pixcaptcha_04": "RGB"
+  },
+  "confident": {
+    "confident_00": "Car",
+    "confident_01": "Cat",
+    "confident_02": "Car",
+    "confident_03": "Car",
+    "confident_04": "Car"
+  },
+  "ador_captcha": {
+    "ador_00": "15",
+    "ador_01": "10",
+    "ador_02": "14",
+    "ador_03": "7",
+    "ador_04": "11"
+  },
+  "edge_cases": {
+    "blur_extreme": "EDGE01",
+    "low_contrast_extreme": "EDGE01",
+    "distorted_heavy": "EDGE01",
+    "very_small": "TINY",
+    "very_large": "LARGE",
+    "wavy_text": "EDGE01",
+    "overlapping": "EDGE01"
+  }
+}

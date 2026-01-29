@@ -1,4 +1,4 @@
-# Agent Swarm & Orchestration (SIN-Solver)
+# Agent Swarm & Orchestration (Delqhi-Platform)
 
 ## 🐝 THE CLUSTER
 Wir nutzen ein High-Court Modell mit 5 spezialisierten Agenten.

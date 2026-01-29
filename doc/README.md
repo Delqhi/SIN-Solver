@@ -1,4 +1,4 @@
-# 🎯 SIN-Solver: CEO Master Edition 2026
+# 🎯 Delqhi-Platform: CEO Master Edition 2026
 
 **Production-Grade CAPTCHA Bypass Engine**
 *Engineered for Absolute Performance. Built for Unlimited Scale.*

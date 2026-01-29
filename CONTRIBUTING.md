@@ -1,6 +1,6 @@
-# Contributing to SIN-Solver
+# Contributing to Delqhi-Platform
 
-First off, thank you for considering contributing to SIN-Solver! It's people like you that make SIN-Solver such a great tool.
+First off, thank you for considering contributing to Delqhi-Platform! It's people like you that make Delqhi-Platform such a great tool.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ First off, thank you for considering contributing to SIN-Solver! It's people lik
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to support@sin-solver.io.
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to support@delqhi-platform.io.
 
 ### Our Standards
 
@@ -38,9 +38,9 @@ This project and everyone participating in it is governed by our Code of Conduct
 
 ```bash
 # Fork via GitHub UI, then:
-git clone https://github.com/YOUR_USERNAME/SIN-Solver.git
-cd SIN-Solver
-git remote add upstream https://github.com/Delqhi/SIN-Solver.git
+git clone https://github.com/YOUR_USERNAME/Delqhi-Platform.git
+cd Delqhi-Platform
+git remote add upstream https://github.com/Delqhi/Delqhi-Platform.git
 ```
 
 ## Development Setup
@@ -94,7 +94,7 @@ pytest tests/
 
 #### 🐛 Bug Reports
 
-1. Check [existing issues](https://github.com/Delqhi/SIN-Solver/issues) first
+1. Check [existing issues](https://github.com/Delqhi/Delqhi-Platform/issues) first
 2. Use the bug report template
 3. Include:
    - Steps to reproduce
@@ -104,7 +104,7 @@ pytest tests/
 
 #### ✨ Feature Requests
 
-1. Check [discussions](https://github.com/Delqhi/SIN-Solver/discussions) for existing ideas
+1. Check [discussions](https://github.com/Delqhi/Delqhi-Platform/discussions) for existing ideas
 2. Open a new discussion to propose your feature
 3. Wait for community feedback before implementing
 
@@ -334,10 +334,10 @@ Use Redis with TTL-based expiration...
 
 ## Questions?
 
-- **Discord**: [Join our community](https://discord.gg/sin-solver)
-- **Discussions**: [GitHub Discussions](https://github.com/Delqhi/SIN-Solver/discussions)
-- **Email**: support@sin-solver.io
+- **Discord**: [Join our community](https://discord.gg/delqhi-platform)
+- **Discussions**: [GitHub Discussions](https://github.com/Delqhi/Delqhi-Platform/discussions)
+- **Email**: support@delqhi-platform.io
 
 ---
 
-Thank you for contributing to SIN-Solver! 🚀
+Thank you for contributing to Delqhi-Platform! 🚀

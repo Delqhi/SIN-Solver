@@ -4,13 +4,13 @@
 **VERSION:** 1.0 (FINAL)  
 **AUTHORITY:** Sisyphus (CEO Command Layer)  
 **DEADLINE:** 7 Days (Phases 1-3)  
-**REFERENCE ARCHITECTURE:** `/Users/jeremy/dev/SIN-Solver/ARCHITECTURE-ENTERPRISE-ELITE.md`  
+**REFERENCE ARCHITECTURE:** `/Users/jeremy/dev/Delqhi-Platform/ARCHITECTURE-ENTERPRISE-ELITE.md`  
 
 ---
 
 ## 🎯 MISSION STATEMENT
 
-Transform SIN-Solver from a **half-baked prototype** into an **enterprise-grade CAPTCHA solver** with:
+Transform Delqhi-Platform from a **half-baked prototype** into an **enterprise-grade CAPTCHA solver** with:
 
 ✅ **State-Machine Worker** reading from task.json (TaskManager integration)  
 ✅ **Unified Interaction Library** with spatial safety validation  

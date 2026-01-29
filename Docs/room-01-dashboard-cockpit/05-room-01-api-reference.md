@@ -75,7 +75,7 @@ curl http://localhost:3011/api/health
 
 ### GET /api/docker/containers
 
-List all Docker containers in the SIN-Solver ecosystem.
+List all Docker containers in the Delqhi-Platform ecosystem.
 
 **Request:**
 ```bash
@@ -182,11 +182,11 @@ curl http://localhost:3011/api/docker/containers/agent-01-n8n-manager \
     "WEBHOOK_URL": "https://n8n.delqhi.com/"
   },
   "labels": {
-    "com.sin-solver.category": "agent",
-    "com.sin-solver.port": "5678"
+    "com.delqhi-platform.category": "agent",
+    "com.delqhi-platform.port": "5678"
   },
   "networks": [
-    "sin-solver_default"
+    "delqhi-platform_default"
   ],
   "created": "2026-01-20T10:00:00Z",
   "started": "2026-01-29T08:00:00Z",

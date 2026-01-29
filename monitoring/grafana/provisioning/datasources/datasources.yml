@@ -1,0 +1,128 @@
+# Grafana Data Sources Configuration
+# Version: 2026.1.0
+
+apiVersion: 1
+
+datasources:
+  # =========================================================================
+  # Prometheus - Metrics
+  # =========================================================================
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://172.20.0.25:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST
+      manageAlerts: true
+      alertmanagerUid: alertmanager
+      prometheusType: Prometheus
+      cacheLevel: 'High'
+      incrementalQuerying: true
+      incrementalQueryOverlapWindow: 10m
+
+  # =========================================================================
+  # Loki - Logs
+  # =========================================================================
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://172.20.0.28:3100
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"trace_id":"(\w+)"'
+          url: 'http://172.20.0.29:16686/trace/$${__value.raw}'
+          urlDisplayLabel: 'View in Jaeger'
+
+  # =========================================================================
+  # Jaeger - Traces
+  # =========================================================================
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://172.20.0.29:16686
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: 'loki'
+        tags: ['pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        filterBySpanID: false
+      tracesToMetrics:
+        datasourceUid: 'prometheus'
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+        queries:
+          - name: 'Request rate'
+            query: 'sum(rate(http_requests_total{"service=\"$service\""}[5m]))'
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      traceQuery:
+        timeShiftEnabled: true
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+      spanBar:
+        type: 'Tag'
+        tag: 'http.path'
+
+  # =========================================================================
+  # Tempo (alternative to Jaeger, if available)
+  # =========================================================================
+  # - name: Tempo
+  #   type: tempo
+  #   access: proxy
+  #   url: http://172.20.0.29:3200
+  #   editable: false
+
+  # =========================================================================
+  # AlertManager
+  # =========================================================================
+  - name: AlertManager
+    uid: alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://172.20.0.27:9093
+    editable: false
+    jsonData:
+      implementation: prometheus
+      handleGrafanaManagedAlerts: true
+
+  # =========================================================================
+  # InfluxDB (optional - for historical data)
+  # =========================================================================
+  # - name: InfluxDB
+  #   type: influxdb
+  #   access: proxy
+  #   url: http://172.20.0.36:8086
+  #   database: sin_solver_metrics
+  #   editable: false
+
+  # =========================================================================
+  # PostgreSQL (for direct database queries)
+  # =========================================================================
+  - name: PostgreSQL
+    type: postgres
+    url: 172.20.0.11:5432
+    database: sin_solver
+    user: grafana
+    editable: false
+    secureJsonData:
+      password: '${POSTGRES_GRAFANA_PASSWORD}'
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false

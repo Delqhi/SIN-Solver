@@ -10,7 +10,7 @@ This module provides the complete pipeline:
 4. Consensus Voting (combine results from multiple engines)
 5. Return solved answer
 
-Author: SIN-Solver Team
+Author: Delqhi-Platform Team
 Version: 2.5.0
 Created: 2026-01-29 Session 11
 """

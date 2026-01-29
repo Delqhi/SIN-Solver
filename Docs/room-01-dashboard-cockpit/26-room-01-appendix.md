@@ -63,9 +63,9 @@ This document contains additional resources and references for the Room-01 Dashb
 
 ## Project Links
 
-- **Repository**: https://github.com/Delqhi/SIN-Solver
-- **Issues**: https://github.com/Delqhi/SIN-Solver/issues
-- **Documentation**: https://docs.sin-solver.io
+- **Repository**: https://github.com/Delqhi/Delqhi-Platform
+- **Issues**: https://github.com/Delqhi/Delqhi-Platform/issues
+- **Documentation**: https://docs.delqhi-platform.io
 - **Dashboard**: https://dashboard.delqhi.com
 
 ---
@@ -80,4 +80,4 @@ This project is licensed under the Apache License 2.0.
 
 - **Version**: 2.0.0
 - **Last Updated**: 2026-01-29
-- **Maintainer**: SIN-Solver Team
+- **Maintainer**: Delqhi-Platform Team

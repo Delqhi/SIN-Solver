@@ -1,8 +1,8 @@
-# 🚀 n8n Workflows for SIN-Solver - START HERE
+# 🚀 n8n Workflows for Delqhi-Platform - START HERE
 
 **Status:** ✅ Production Ready  
 **Date:** 2026-01-28  
-**Location:** `/Users/jeremy/dev/SIN-Solver/n8n-workflows/`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/n8n-workflows/`
 
 ---
 
@@ -22,7 +22,7 @@ Plus complete documentation, database schema, and testing guides.
 
 ### Step 1: Create Database Tables
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/n8n-workflows/
+cd /Users/jeremy/dev/Delqhi-Platform/n8n-workflows/
 psql -h localhost -U postgres -d sin_solver < schema.sql
 ```
 

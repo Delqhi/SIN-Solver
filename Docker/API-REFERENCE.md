@@ -1,4 +1,4 @@
-# 🔌 SIN-Solver API Reference (Phase 7)
+# 🔌 Delqhi-Platform API Reference (Phase 7)
 
 ## PostgreSQL Connection
 

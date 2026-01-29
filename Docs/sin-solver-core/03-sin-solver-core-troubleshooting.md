@@ -1,4 +1,4 @@
-# Troubleshooting SIN-Solver Core
+# Troubleshooting Delqhi-Platform Core
 
 ## Core Fehler
 

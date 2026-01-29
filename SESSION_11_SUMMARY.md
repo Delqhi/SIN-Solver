@@ -48,7 +48,7 @@ Output directory:   /Users/jeremy/runs/classify/runs/classify/captcha_classifier
 
 #### 2.5b: PaddleOCR Setup
 ```
-✅ Virtual environment created: /Users/jeremy/dev/SIN-Solver/ocr_env/
+✅ Virtual environment created: /Users/jeremy/dev/Delqhi-Platform/ocr_env/
 ✅ Python 3.14 configured for venv
 ✅ PaddleOCR package: Installing (first run ~300MB model download)
 ✅ Dependencies: pillow, opencv-python, numpy ready
@@ -65,7 +65,7 @@ Output directory:   /Users/jeremy/runs/classify/runs/classify/captcha_classifier
 ```
 
 #### 2.5d: Implementation Code Created
-**File:** `/Users/jeremy/dev/SIN-Solver/app/captcha_solver_pipeline.py` (600+ lines)
+**File:** `/Users/jeremy/dev/Delqhi-Platform/app/captcha_solver_pipeline.py` (600+ lines)
 ```
 ✅ TesseractOCREngine class
    - Basic and preprocessed text extraction
@@ -100,7 +100,7 @@ Output directory:   /Users/jeremy/runs/classify/runs/classify/captcha_classifier
 - Command-line interface for testing
 
 #### 2.5e: Comprehensive Test Suite Created
-**File:** `/Users/jeremy/dev/SIN-Solver/app/test_captcha_solver_pipeline.py` (500+ lines)
+**File:** `/Users/jeremy/dev/Delqhi-Platform/app/test_captcha_solver_pipeline.py` (500+ lines)
 ```
 ✅ TestOCREngines (5 test methods)
    - Tesseract availability and functionality
@@ -273,19 +273,19 @@ Documentation:      1200+ lines (PHASE_2.5_PLAN.md)
 
 ### New Files Created
 ```
-✅ /dev/SIN-Solver/training/PHASE_2.5_PLAN.md
+✅ /dev/Delqhi-Platform/training/PHASE_2.5_PLAN.md
    └── Comprehensive 1200+ line architecture & implementation guide
 
-✅ /dev/SIN-Solver/app/captcha_solver_pipeline.py
+✅ /dev/Delqhi-Platform/app/captcha_solver_pipeline.py
    └── Main implementation (TesseractEngine, PaddleOCREngine, Pipeline, etc.)
 
-✅ /dev/SIN-Solver/app/test_captcha_solver_pipeline.py
+✅ /dev/Delqhi-Platform/app/test_captcha_solver_pipeline.py
    └── Comprehensive test suite (500+ lines, 16+ test methods)
 ```
 
 ### Infrastructure Created
 ```
-✅ /dev/SIN-Solver/ocr_env/
+✅ /dev/Delqhi-Platform/ocr_env/
    └── Python 3.14 virtual environment with OCR packages
 ```
 
@@ -296,7 +296,7 @@ Documentation:      1200+ lines (PHASE_2.5_PLAN.md)
    ├── weights/best.pt (5.7MB)
    └── weights/last.pt (5.7MB)
 
-📝 Training log: /Users/jeremy/dev/SIN-Solver/training/training_session_10.log
+📝 Training log: /Users/jeremy/dev/Delqhi-Platform/training/training_session_10.log
 ```
 
 ---

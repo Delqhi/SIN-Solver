@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-28  
 **Status:** Production Ready  
-**Directory:** `/Users/jeremy/dev/SIN-Solver/n8n-workflows/`
+**Directory:** `/Users/jeremy/dev/Delqhi-Platform/n8n-workflows/`
 
 ## Deliverables ✓
 
@@ -32,7 +32,7 @@
 ### 4. Directory Structure
 
 ```
-/Users/jeremy/dev/SIN-Solver/n8n-workflows/
+/Users/jeremy/dev/Delqhi-Platform/n8n-workflows/
 ├── 01-postgres-test.json           # PostgreSQL CRUD workflow
 ├── 02-agent-zero-task.json         # Agent Zero integration
 ├── 03-full-orchestration.json      # Complete orchestration
@@ -161,7 +161,7 @@ Before deploying workflows:
 
 ```bash
 # 1. Navigate to workflows directory
-cd /Users/jeremy/dev/SIN-Solver/n8n-workflows/
+cd /Users/jeremy/dev/Delqhi-Platform/n8n-workflows/
 
 # 2. Create database tables
 psql -h localhost -U postgres -d sin_solver < schema.sql
@@ -331,7 +331,7 @@ redis-cli -h localhost KEYS "*"
    - Monitor error rates
    - Optimize as needed
 
-5. **Integrate with SIN-Solver**
+5. **Integrate with Delqhi-Platform**
    - Connect to upstream systems
    - Set up monitoring alerts
    - Document runbooks
@@ -373,5 +373,5 @@ All files created and verified:
 
 ---
 
-*Document prepared for production deployment of n8n workflows in SIN-Solver system.*
+*Document prepared for production deployment of n8n workflows in Delqhi-Platform system.*
 

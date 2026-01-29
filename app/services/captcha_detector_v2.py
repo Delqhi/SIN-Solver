@@ -1375,7 +1375,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="SIN-Solver CAPTCHA API",
+    title="Delqhi-Platform CAPTCHA API",
     version="2.1.0",
     description="Production-ready CAPTCHA solving API with metrics, rate limiting, and batch processing"
 )

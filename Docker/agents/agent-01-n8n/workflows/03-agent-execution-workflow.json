@@ -13,7 +13,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1.1,
       "position": [250, 300],
-      "webhookId": "sin-solver-agent-exec"
+      "webhookId": "delqhi-platform-agent-exec"
     },
     {
       "parameters": {
@@ -63,7 +63,7 @@
       "credentials": {
         "postgres": {
           "id": "1",
-          "name": "SIN-Solver PostgreSQL"
+          "name": "Delqhi-Platform PostgreSQL"
         }
       },
       "continueOnFail": true
@@ -150,7 +150,7 @@
       "credentials": {
         "postgres": {
           "id": "1",
-          "name": "SIN-Solver PostgreSQL"
+          "name": "Delqhi-Platform PostgreSQL"
         }
       },
       "continueOnFail": true

@@ -383,7 +383,7 @@ services:
       - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
     
     networks:
-      - sin-solver
+      - delqhi-platform
     
     depends_on:
       - room-04-redis
@@ -408,7 +408,7 @@ services:
           memory: 256M
 
 networks:
-  sin-solver:
+  delqhi-platform:
     external: true
 ```
 

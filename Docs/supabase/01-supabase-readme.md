@@ -1,4 +1,4 @@
-# Supabase Integration (SIN-Solver)
+# Supabase Integration (Delqhi-Platform)
 
 ## 🏗️ DATA PERSISTENCE
 Zimmer-16 fungiert als der relationale Speicher des Imperiums.

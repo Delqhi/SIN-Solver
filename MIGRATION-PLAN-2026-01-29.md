@@ -2,14 +2,14 @@
 **Date:** 2026-01-29  
 **Status:** PLANNING PHASE  
 **Priority:** CRITICAL (MANDATE 0.13, 0.14 - BEST PRACTICES 2026)  
-**Directive:** Centralize ALL SIN-Solver related files under `/dev/SIN-Solver/` with proper documentation
+**Directive:** Centralize ALL Delqhi-Platform related files under `/dev/Delqhi-Platform/` with proper documentation
 
 ---
 
 ## 🎯 EXECUTIVE SUMMARY
 
 **Current State:** Project files scattered across multiple locations  
-**Target State:** All SIN-Solver files MUST be in `/dev/SIN-Solver/` with clear organization  
+**Target State:** All Delqhi-Platform files MUST be in `/dev/Delqhi-Platform/` with clear organization  
 **Scope:** Training data, models, documentation, scripts, containers, services  
 **Timeline:** Complete in this session (Phase 2.4d continuation)  
 
@@ -20,7 +20,7 @@
 ### ✅ Files ALREADY in Correct Location
 
 ```
-/dev/SIN-Solver/
+/dev/Delqhi-Platform/
 ├── training/                          ✅ CORRECT LOCATION
 │   ├── [12 Captcha Type Directories]
 │   ├── data.yaml                      ✅ JUST CREATED
@@ -45,19 +45,19 @@
 ### ⚠️ Files in WRONG Location (Need Migration)
 
 **Current:** `/dev/agent-zero-ref/python/tools/captcha_solver.py`  
-**Should be:** `/dev/SIN-Solver/app/tools/captcha_solver.py`  
+**Should be:** `/dev/Delqhi-Platform/app/tools/captcha_solver.py`  
 **Status:** ⏳ NEEDS MIGRATION
 
 ### 📂 Documentation Files (Need Consolidation)
 
 **Current Locations:**
 - `/.serena/memories/` - Serena agent memories (good, keep as is)
-- `/CAPTCHA-*.md` - Various reports in SIN-Solver root
+- `/CAPTCHA-*.md` - Various reports in Delqhi-Platform root
 - `/training/README.md` - Training-specific docs
 
 **Target Organization:**
 ```
-/dev/SIN-Solver/docs/
+/dev/Delqhi-Platform/docs/
 ├── 01-captcha-overview.md
 ├── 02-training-guide.md
 ├── 03-model-architecture.md
@@ -94,7 +94,7 @@
 
 | File | Current Path | Correct Path | Status | Priority |
 |------|--------------|--------------|--------|----------|
-| `captcha_solver.py` | /dev/agent-zero-ref/python/tools/ | /dev/SIN-Solver/app/tools/ | ⚠️ MIGRATE | HIGH |
+| `captcha_solver.py` | /dev/agent-zero-ref/python/tools/ | /dev/Delqhi-Platform/app/tools/ | ⚠️ MIGRATE | HIGH |
 
 ### Documentation Files
 
@@ -118,7 +118,7 @@
 
 ### Phase B: MIGRATE FILES
 
-**Task B1:** Move `captcha_solver.py` from agent-zero-ref to SIN-Solver  
+**Task B1:** Move `captcha_solver.py` from agent-zero-ref to Delqhi-Platform  
 **Task B2:** Move documentation files to `/docs/`  
 **Task B3:** Update all import paths and references  
 **Task B4:** Git commit with proper message  
@@ -142,7 +142,7 @@
 ## 📝 NEW DOCUMENTATION STRUCTURE (BLUEPRINT COMPLIANT)
 
 ```
-/dev/SIN-Solver/docs/
+/dev/Delqhi-Platform/docs/
 ├── 01-captcha-overview.md          # What is this project?
 ├── 02-captcha-training-guide.md    # How to train models
 ├── 03-captcha-model-architecture.md # Technical details
@@ -160,7 +160,7 @@
 ├── 15-captcha-examples.md          # Code examples
 └── 16-captcha-appendix.md          # Additional references
 
-/dev/SIN-Solver/training/
+/dev/Delqhi-Platform/training/
 ├── 01-training-overview.md         # Training system overview
 ├── 02-training-lastchanges.md      # Session logs (APPEND-ONLY)
 ├── data.yaml                       # YOLO configuration (JUST CREATED)
@@ -181,20 +181,20 @@
 
 ```bash
 #!/bin/bash
-# MIGRATION: Copy scattered files to SIN-Solver
+# MIGRATION: Copy scattered files to Delqhi-Platform
 
 # Check source exists
 if [ -f "/Users/jeremy/dev/agent-zero-ref/python/tools/captcha_solver.py" ]; then
     echo "✅ Found agent-zero-ref/python/tools/captcha_solver.py"
     
     # Create target directory
-    mkdir -p /Users/jeremy/dev/SIN-Solver/app/tools/
+    mkdir -p /Users/jeremy/dev/Delqhi-Platform/app/tools/
     
     # Copy file
     cp /Users/jeremy/dev/agent-zero-ref/python/tools/captcha_solver.py \
-       /Users/jeremy/dev/SIN-Solver/app/tools/captcha_solver.py
+       /Users/jeremy/dev/Delqhi-Platform/app/tools/captcha_solver.py
     
-    echo "✅ Migrated to /dev/SIN-Solver/app/tools/captcha_solver.py"
+    echo "✅ Migrated to /dev/Delqhi-Platform/app/tools/captcha_solver.py"
 else
     echo "ℹ️  File not found (may have been deleted)"
 fi
@@ -206,12 +206,12 @@ fi
 #!/bin/bash
 # MIGRATION: Move documentation to /docs/
 
-mkdir -p /Users/jeremy/dev/SIN-Solver/docs/
+mkdir -p /Users/jeremy/dev/Delqhi-Platform/docs/
 
 # Move captcha reports
 for file in CAPTCHA-*.md; do
     if [ -f "$file" ]; then
-        mv "$file" "/Users/jeremy/dev/SIN-Solver/docs/20-$file"
+        mv "$file" "/Users/jeremy/dev/Delqhi-Platform/docs/20-$file"
         echo "✅ Moved $file to docs/"
     fi
 done
@@ -237,7 +237,7 @@ done
 ## 🚨 COMPLIANCE CHECKLIST
 
 **MANDATE 0.13:** CEO-Level Workspace Organization
-- [ ] All files in /dev/SIN-Solver/ (no scattered locations)
+- [ ] All files in /dev/Delqhi-Platform/ (no scattered locations)
 - [ ] Clear subdirectory structure
 - [ ] No duplicate files in multiple locations
 
@@ -248,7 +248,7 @@ done
 - [ ] All files linked in README.md
 
 **MANDATE 0.22:** Projekt-Wissen (Local AGENTS.md)
-- [ ] Create /dev/SIN-Solver/AGENTS.md
+- [ ] Create /dev/Delqhi-Platform/AGENTS.md
 - [ ] Document all conventions and standards
 - [ ] Append-only format for session logs
 
@@ -267,12 +267,12 @@ done
 ## 📊 SUCCESS CRITERIA
 
 ### Migration Complete When:
-- ✅ All SIN-Solver files in /dev/SIN-Solver/
+- ✅ All Delqhi-Platform files in /dev/Delqhi-Platform/
 - ✅ No scattered captcha files elsewhere
 - ✅ Documentation structure created
 - ✅ AGENTS.md updated (append-only)
 - ✅ All imports verified working
-- ✅ Git commit with "refactor: centralize SIN-Solver organization"
+- ✅ Git commit with "refactor: centralize Delqhi-Platform organization"
 - ✅ Training resumes successfully with data.yaml
 
 ### Documentation Complete When:

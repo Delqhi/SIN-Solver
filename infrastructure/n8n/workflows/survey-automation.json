@@ -1,5 +1,5 @@
 {
-  "name": "SIN-Solver Survey Automation",
+  "name": "Delqhi-Platform Survey Automation",
   "nodes": [
     {
       "parameters": {
@@ -122,5 +122,5 @@
   "settings": { "executionOrder": "v1" },
   "versionId": "1",
   "meta": { "templateCredsSetupCompleted": true },
-  "tags": ["survey", "automation", "sin-solver"]
+  "tags": ["survey", "automation", "delqhi-platform"]
 }

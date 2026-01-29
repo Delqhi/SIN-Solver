@@ -24,7 +24,7 @@
 
 ## API OVERVIEW
 
-Vault is the central secrets management service for SIN-Solver, storing:
+Vault is the central secrets management service for Delqhi-Platform, storing:
 - PostgreSQL credentials
 - Redis authentication tokens
 - n8n API keys

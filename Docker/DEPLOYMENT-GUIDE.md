@@ -1,4 +1,4 @@
-# 🐳 SIN-Solver Docker Infrastructure Deployment Guide
+# 🐳 Delqhi-Platform Docker Infrastructure Deployment Guide
 
 **Version:** 18.3 (Modular Edition)  
 **Status:** PRODUCTION READY  
@@ -19,7 +19,7 @@
 
 ### Deploy Full Stack (5 phases)
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/Docker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker
 ./startup.sh
 ```
 
@@ -115,7 +115,7 @@ Docker/
 
 ### Initial Setup (Copy Templates)
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/Docker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker
 
 # Copy all .env.example files to .env
 for dir in $(find . -name ".env.example" -type f); do

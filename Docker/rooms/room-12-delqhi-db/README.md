@@ -137,4 +137,4 @@ Check that `APP_NAME`, `SELF_HOST`, and `FLY_*` environment variables are set.
 
 ---
 
-*Part of the SIN-Solver V18.3 Modular Infrastructure*
+*Part of the Delqhi-Platform V18.3 Modular Infrastructure*

@@ -2009,7 +2009,7 @@ Um SSD-Verschleiß auf dem M1 zu verhindern, limitieren wir den Swap-Gebrauch in
 
 Falls das Host-System korrumpiert wurde (Totalausfall):
 
-1.  **Restore Configs**: `cp -r /Users/jeremy/dev/SIN-Code/Docker/SIN-Solver/configs/* ./`
+1.  **Restore Configs**: `cp -r /Users/jeremy/dev/SIN-Code/Docker/Delqhi-Platform/configs/* ./`
 2.  **Load Images**: `ls images/*.tar.gz | xargs -I {} docker load -i {}`
 3.  **Up Swarm**: `docker-compose up -d --no-build`
 4.  **Verify**: `opencode doctor --check-swarm`

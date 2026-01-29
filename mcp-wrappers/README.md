@@ -53,7 +53,7 @@ npm install @modelcontextprotocol/sdk axios
   "mcp": {
     "captcha-solver": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js"],
       "enabled": true,
       "environment": {
         "CAPTCHA_API_URL": "https://captcha.delqhi.com",
@@ -62,7 +62,7 @@ npm install @modelcontextprotocol/sdk axios
     },
     "plane": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/plane-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/plane-mcp-wrapper.js"],
       "enabled": true,
       "environment": {
         "PLANE_API_URL": "https://plane.delqhi.com",
@@ -79,7 +79,7 @@ npm install @modelcontextprotocol/sdk axios
 
 ```bash
 # Start the wrapper directly
-node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js
+node /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js
 
 # In another terminal, test with OpenCode
 opencode --model gemini-3-flash "Use the captcha_solver MCP to solve this CAPTCHA: [image]"
@@ -197,7 +197,7 @@ return {
 
 ```bash
 # Test wrapper startup
-node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js &
+node /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js &
 WRAPPER_PID=$!
 
 # Test tool availability
@@ -268,13 +268,13 @@ Each wrapper should have:
 
 ```bash
 # Check syntax
-node -c /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js
+node -c /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js
 
 # Check dependencies
 npm list @modelcontextprotocol/sdk axios
 
 # Check permissions
-ls -la /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js
+ls -la /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js
 ```
 
 ### API connection fails
@@ -321,6 +321,6 @@ opencode mcp list-tools captcha-solver
 
 ---
 
-**Maintained by:** SIN-Solver Team  
+**Maintained by:** Delqhi-Platform Team  
 **Last Updated:** 2026-01-29  
 **Status:** Production Ready ✅

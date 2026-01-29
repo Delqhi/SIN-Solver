@@ -2,7 +2,7 @@
 # 🚀 CEO 2026: DOCKER SOVEREIGNTY - IMAGE PERSISTENCE V1.0
 # Automates 'docker save' for local image persistence across the 17-room fortress.
 
-PROJECT_NAME="SIN-Solver"
+PROJECT_NAME="Delqhi-Platform"
 SAVE_DIR="/Users/jeremy/dev/SIN-Code/Docker/$PROJECT_NAME/images"
 
 mkdir -p "$SAVE_DIR"

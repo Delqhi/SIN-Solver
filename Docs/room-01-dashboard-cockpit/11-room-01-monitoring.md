@@ -250,8 +250,8 @@ groups:
 # alertmanager.yml
 global:
   smtp_smarthost: 'smtp.gmail.com:587'
-  smtp_from: 'alerts@sin-solver.io'
-  smtp_auth_username: 'alerts@sin-solver.io'
+  smtp_from: 'alerts@delqhi-platform.io'
+  smtp_auth_username: 'alerts@delqhi-platform.io'
   smtp_auth_password: '${SMTP_PASSWORD}'
 
 route:
@@ -268,7 +268,7 @@ route:
 receivers:
   - name: 'default'
     email_configs:
-      - to: 'admin@sin-solver.io'
+      - to: 'admin@delqhi-platform.io'
 
   - name: 'slack'
     slack_configs:

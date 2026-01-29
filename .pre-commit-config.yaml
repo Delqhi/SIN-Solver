@@ -1,5 +1,5 @@
 # =============================================================================
-# Pre-commit Configuration for SIN-Solver
+# Pre-commit Configuration for Delqhi-Platform
 # =============================================================================
 # Install: pip install pre-commit && pre-commit install
 # Run all: pre-commit run --all-files

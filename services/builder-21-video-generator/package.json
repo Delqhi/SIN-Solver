@@ -1,7 +1,7 @@
 {
   "name": "builder-21-video-generator",
   "version": "1.0.0",
-  "description": "AI-powered video content generator for SIN-Solver",
+  "description": "AI-powered video content generator for Delqhi-Platform",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -25,6 +25,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "author": "SIN-Solver Team",
+  "author": "Delqhi-Platform Team",
   "license": "Delqhi Proprietary"
 }

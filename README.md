@@ -8,9 +8,9 @@
 
 <h1 align="center">
   <br>
-  <img src="./public/sin-solver-logo.png" alt="SIN-Solver" width="200">
+  <img src="./public/delqhi-platform-logo.png" alt="Delqhi-Platform" width="200">
   <br>
-  SIN-Solver
+  Delqhi-Platform
   <br>
 </h1>
 
@@ -27,16 +27,16 @@
 </p>
 
 <p align="center">
-  <img src="./docs/images/dashboard-preview.png" alt="SIN-Solver Dashboard" width="800">
+  <img src="./docs/images/dashboard-preview.png" alt="Delqhi-Platform Dashboard" width="800">
 </p>
 
 ---
 
-## Why SIN-Solver?
+## Why Delqhi-Platform?
 
 Traditional CAPTCHA solving services cost **$2-5 per 1000 solves** and have **15-30 second latency**. 
 
-**SIN-Solver** delivers:
+**Delqhi-Platform** delivers:
 - **98.5% solve rate** with 5-model parallel consensus
 - **< 10s average latency** (local processing, no network hops)
 - **$0.02 per solve** (or free with self-hosted YOLO)
@@ -112,8 +112,8 @@ Traditional CAPTCHA solving services cost **$2-5 per 1000 solves** and have **15
 
 ```bash
 # Clone the repository
-git clone https://github.com/Delqhi/SIN-Solver.git
-cd SIN-Solver
+git clone https://github.com/Delqhi/Delqhi-Platform.git
+cd Delqhi-Platform
 
 # Copy environment template
 cp .env.example .env
@@ -209,7 +209,7 @@ flowchart LR
         CF[Cloudflare Tunnel<br/>*.delqhi.com]
     end
     
-    subgraph "SIN-Solver Empire"
+    subgraph "Delqhi-Platform Empire"
         direction TB
         
         subgraph "Access Layer"
@@ -399,7 +399,7 @@ flowchart TD
 
 ## Dashboard
 
-The SIN-Solver Cockpit provides real-time monitoring and control:
+The Delqhi-Platform Cockpit provides real-time monitoring and control:
 
 <table>
 <tr>
@@ -474,7 +474,7 @@ See [API Reference](./Docs/API-REFERENCE.md) for complete endpoint documentation
 
 ## Pricing
 
-SIN-Solver is **Open Core** - the core engine is free, premium features are paid.
+Delqhi-Platform is **Open Core** - the core engine is free, premium features are paid.
 
 <table>
 <tr>
@@ -565,7 +565,7 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 
 ```bash
 # Fork the repository
-git clone https://github.com/YOUR_USERNAME/SIN-Solver.git
+git clone https://github.com/YOUR_USERNAME/Delqhi-Platform.git
 
 # Create a feature branch
 git checkout -b feature/amazing-feature
@@ -587,14 +587,14 @@ This project is licensed under the **Apache License 2.0** - see the [LICENSE](./
 ## Support
 
 - **Documentation**: [docs/](./Docs/)
-- **Issues**: [GitHub Issues](https://github.com/Delqhi/SIN-Solver/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Delqhi/SIN-Solver/discussions)
-- **Email**: support@sin-solver.io
+- **Issues**: [GitHub Issues](https://github.com/Delqhi/Delqhi-Platform/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Delqhi/Delqhi-Platform/discussions)
+- **Email**: support@delqhi-platform.io
 
 ---
 
 <p align="center">
-  <sub>Built with determination by the SIN-Solver Team</sub>
+  <sub>Built with determination by the Delqhi-Platform Team</sub>
   <br>
   <sub>"A system without a moat is vulnerable to competition. We have built a fortress."</sub>
 </p>

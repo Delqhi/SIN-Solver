@@ -1,4 +1,4 @@
-# 🐳 SIN-Solver Docker Services: Implementation Status
+# 🐳 Delqhi-Platform Docker Services: Implementation Status
 
 **Document Type:** Service Inventory & Implementation Tracker  
 **Version:** 18.3 (Modular Architecture)  
@@ -98,7 +98,7 @@
 - **Docker Build:** ✅ Successful (multi-stage, ~850MB)
 - **API Endpoints:** 6 endpoints documented (detect, batch, health, ready, metrics, status)
 - **Environment Variables:** 13 variables configured
-- **Deployment Checklist:** Created at `/Users/jeremy/dev/sin-solver/DEPLOYMENT-CHECKLIST.md`
+- **Deployment Checklist:** Created at `/Users/jeremy/dev/delqhi-platform/DEPLOYMENT-CHECKLIST.md`
 - **Documentation:** Complete in lastchanges.md + userprompts.md
 - **ETA:** DEPLOYED
 
@@ -129,7 +129,7 @@ free -h                 # Ensure 8GB+ available RAM
 
 ### Startup All Services
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 bash Docker/startup.sh
 ```
 
@@ -198,7 +198,7 @@ Docker/rooms/room-01-dashboard/.env
 - n8n: 12+ characters
 
 ### Network Isolation
-- Services communicate via internal Docker network `sin-solver-network`
+- Services communicate via internal Docker network `delqhi-platform-network`
 - Only critical services expose ports (3011, 5678)
 - All credentials passed via environment variables
 - No credentials in docker-compose files
@@ -263,7 +263,7 @@ docker exec agent-01-n8n-orchestrator \
 
 # Check network
 docker network ls
-docker network inspect sin-solver-network
+docker network inspect delqhi-platform-network
 ```
 
 ### Database Issues

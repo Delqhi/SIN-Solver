@@ -1,4 +1,4 @@
-# Changelog SIN-Solver Core
+# Changelog Delqhi-Platform Core
 
 ## [2026-01-26 20:20] - MEGA-Restoration & Sovereignty Enforcement
 - **Action:** Implemented the **🚨 ULTRA MANDATE 0.0: NEVER DELETE**.

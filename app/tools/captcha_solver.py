@@ -7,7 +7,7 @@ from python.helpers.print_style import PrintStyle
 class CaptchaSolver(Tool):
     async def execute(self, image_path=None, question=None, **kwargs):
         """
-        Solves a CAPTCHA using the SIN-Solver API.
+        Solves a CAPTCHA using the Delqhi-Platform API.
         
         Args:
             image_path (str): Path to the CAPTCHA image file.

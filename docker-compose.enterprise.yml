@@ -1,0 +1,369 @@
+# SIN-Solver Enterprise - Production Docker Compose
+# February 2026 - Complete 26-Room Infrastructure
+
+version: '3.8'
+
+x-default-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "100m"
+    max-file: "5"
+    labels: "service_name,environment"
+
+x-default-deploy: &default-deploy
+  resources:
+    limits:
+      cpus: '2'
+      memory: 2G
+    reservations:
+      cpus: '0.5'
+      memory: 512M
+  restart_policy:
+    condition: unless-stopped
+    delay: 5s
+    max_attempts: 3
+
+services:
+  # ==================== AGENTS (AI Workers) ====================
+  
+  agent-01-n8n-orchestrator:
+    container_name: agent-01-n8n-orchestrator
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - WEBHOOK_URL=https://n8n.delqhi.com/
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    deploy: *default-deploy
+
+  agent-03-agentzero-coder:
+    container_name: agent-03-agentzero-coder
+    image: agent-zero:latest
+    build:
+      context: ./Docker/agents/agent-03-agentzero
+    ports:
+      - "8050:8000"
+      - "9000-9009:9000-9009"
+    environment:
+      - AGENT_MODE=production
+      - API_KEY=${AGENTZERO_API_KEY}
+    volumes:
+      - agentzero_data:/app/data
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+
+  agent-05-steel-browser:
+    container_name: agent-05-steel-browser
+    image: steel-browser:latest
+    build:
+      context: ./Docker/agents/agent-05-steel
+    ports:
+      - "3005:3000"
+    environment:
+      - STEEL_API_KEY=${STEEL_API_KEY}
+      - MAX_CONCURRENT_SESSIONS=10
+    volumes:
+      - steel_data:/data
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    shm_size: '2gb'
+
+  agent-06-skyvern-solver:
+    container_name: agent-06-skyvern-solver
+    image: skyvern-ai:latest
+    build:
+      context: ./Docker/agents/agent-06-skyvern
+    ports:
+      - "8030:3000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+
+  # ==================== ROOMS (Infrastructure) ====================
+
+  room-00-cloudflared-tunnel:
+    container_name: room-00-cloudflared-tunnel
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - sin-solver-network
+    restart: unless-stopped
+    logging: *default-logging
+
+  room-02-tresor-vault:
+    container_name: room-02-tresor-vault
+    image: hashicorp/vault:latest
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    volumes:
+      - vault_data:/vault/file
+    networks:
+      - sin-solver-network
+    cap_add:
+      - IPC_LOCK
+    logging: *default-logging
+
+  room-03-postgres-master:
+    container_name: room-03-postgres-master
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-sin_solver}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-sin_solver}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sin_solver} -d ${POSTGRES_DB:-sin_solver}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  room-04-redis-cache:
+    container_name: room-04-redis-cache
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  room-13-api-brain:
+    container_name: room-13-api-brain
+    image: sin-solver-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    depends_on:
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  room-30-scira-ai-search:
+    container_name: room-30-scira-ai-search
+    image: room-30-scira-ai-search:latest
+    build:
+      context: ./room-30-scira-ai-search
+    ports:
+      - "8230:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - EXA_API_KEY=${EXA_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging: *default-logging
+
+  # ==================== SOLVERS (Money-Making Workers) ====================
+
+  builder-1.1-captcha-worker:
+    container_name: builder-1.1-captcha-worker
+    image: captcha-worker:latest
+    build:
+      context: ./Docker/builders/builder-1.1-captcha
+    ports:
+      - "8019:8019"
+    environment:
+      - WORKER_MODE=captcha
+      - API_ENDPOINT=http://room-13-api-brain:8000
+    depends_on:
+      - room-13-api-brain
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+  solver-2.1-survey-worker:
+    container_name: solver-2.1-survey-worker
+    image: survey-worker:latest
+    build:
+      context: ./Docker/solvers/solver-2.1-survey
+    ports:
+      - "8018:8000"
+    environment:
+      - WORKER_MODE=survey
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+  # ==================== MONITORING (Rooms 25-29) ====================
+
+  room-25-prometheus:
+    container_name: room-25-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+  room-26-grafana:
+    container_name: room-26-grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-sin-solver-admin-2026}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+  room-27-alertmanager:
+    container_name: room-27-alertmanager
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+  room-28-loki:
+    container_name: room-28-loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+  room-29-jaeger:
+    container_name: room-29-jaeger
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - sin-solver-network
+    logging: *default-logging
+
+volumes:
+  n8n_data:
+  agentzero_data:
+  steel_data:
+  vault_data:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+  loki_data:
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

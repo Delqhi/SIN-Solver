@@ -1,7 +1,7 @@
 # 🏢 SIN-SOLVER CONTAINER REGISTRY (STRICT NAMING CONVENTION)
 
 **Format:** `{CATEGORY}-{NUMBER}-{INTEGRATION}-{ROLE}`  
-**Location:** `/Users/jeremy/dev/SIN-Solver/CONTAINER-REGISTRY.md`  
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/CONTAINER-REGISTRY.md`  
 **Last Updated:** 2026-01-29
 
 ---
@@ -78,9 +78,10 @@
 
 | Container Name | Service | Port | Purpose | Status |
 |----------------|---------|------|---------|--------|
-| `room-20.3-sin-social-mcp` | Python | 8203 | Social Media MCP | ⏳ Planned |
-| `room-20.4-sin-research-mcp` | Python | 8204 | Deep Research MCP | ⏳ Planned |
-| `room-20.5-sin-video-mcp` | Python | 8205 | Video Gen MCP | ⏳ Planned |
+| `room-20.3-sin-social-mcp` | Python | 8203 | Social Media MCP | ✅ Active |
+| `room-20.4-sin-research-mcp` | Python | 8204 | Deep Research MCP | ✅ Active |
+| `room-20.5-sin-video-mcp` | Python | 8205 | Video Gen MCP | ✅ Active |
+| `room-30-scira-ai-search` | Next.js | 8230 | AI Search Engine (Scira) | ✅ Active |
 
 ---
 
@@ -580,3 +581,80 @@ Wenn ein Feature nicht funktioniert, prüfe diese Kette:
 ---
 
 **⚠️ WARNING:** Any deviation from this registry without updating this document is a **naming violation**. All future container names MUST be registered here FIRST.
+
+---
+
+## 🔌 MCP SERVICES (Model Context Protocol)
+
+All MCP services for OpenCode integration:
+
+### Active MCPs (14 total)
+
+| MCP Name | Type | Command/URL | Environment Variables | Status |
+|----------|------|-------------|----------------------|--------|
+| **serena** | local | `uvx --from git+https://github.com/oraios/serena serena start-mcp-server` | - | ✅ Enabled |
+| **tavily** | local | `npx -y @tavily/claude-mcp` | `TAVILY_API_KEY` | ✅ Enabled |
+| **context7** | local | `npx -y @anthropics/context7-mcp` | - | ✅ Enabled |
+| **skyvern** | local | `/usr/bin/python3 -m skyvern.mcp.server` | - | ✅ Enabled |
+| **linear** | remote | `https://mcp.linear.app/sse` | - | ✅ Enabled |
+| **gh_grep** | remote | `https://mcp.grep.app` | - | ✅ Enabled |
+| **grep_app** | remote | `https://mcp.grep.app` | - | ✅ Enabled |
+| **websearch** | local | `npx -y @tavily/claude-mcp` | `TAVILY_API_KEY` | ✅ Enabled |
+| **plane** | local | `node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/plane-mcp-wrapper.js` | `PLANE_API_URL`, `PLANE_API_KEY` | ✅ Enabled |
+| **captcha** | local | `node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js` | `CAPTCHA_API_URL`, `CAPTCHA_API_KEY` | ✅ Enabled |
+| **sin-deep-research** | local | `node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/sin-deep-research-mcp-wrapper.js` | `SIN_RESEARCH_API_URL`, `SIN_RESEARCH_API_KEY` | ✅ Enabled |
+| **sin-social** | local | `node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/sin-social-mcp-wrapper.js` | `SIN_SOCIAL_API_URL`, `SIN_SOCIAL_API_KEY` | ✅ Enabled |
+| **sin-video-gen** | local | `node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/sin-video-gen-mcp-wrapper.js` | `SIN_VIDEO_API_URL`, `SIN_VIDEO_API_KEY` | ✅ Enabled |
+| **scira** | local | `node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/scira-mcp-wrapper.js` | `SCIRA_API_URL`, `SCIRA_API_KEY`, `REQUEST_TIMEOUT` | ✅ Enabled |
+
+### Disabled MCPs (4 total)
+
+| MCP Name | Type | Reason | Status |
+|----------|------|--------|--------|
+| **canva** | local | Not critical for operations | ⏸️ Disabled |
+| **chrome-devtools** | local | Not critical for operations | ⏸️ Disabled |
+| **vercel-labs-agent** | local | Missing VERCEL_TOKEN | ⏸️ Disabled |
+| **singularity** | local | Service not available | ⏸️ Disabled |
+
+### MCP Wrapper Files Location
+
+All custom MCP wrappers are located in:
+```
+/Users/jeremy/dev/SIN-Solver/mcp-wrappers/
+├── plane-mcp-wrapper.js
+├── captcha-mcp-wrapper.js
+├── scira-mcp-wrapper.js
+├── sin-deep-research-mcp-wrapper.js      [NEW 2026-01-29]
+├── sin-social-mcp-wrapper.js             [NEW 2026-01-29]
+├── sin-video-gen-mcp-wrapper.js          [NEW 2026-01-29]
+└── README.md
+```
+
+### Configuration File
+
+All MCPs are configured in:
+- **Global Config:** `~/.config/opencode/opencode.json`
+- **Project Config:** `/Users/jeremy/dev/SIN-Solver/.opencode/opencode.json` (if exists)
+
+### Recent Changes (2026-01-29)
+
+1. **Added 3 new MCP wrappers:** sin-deep-research, sin-social, sin-video-gen
+2. **Fixed skyvern:** Changed from `python` to `/usr/bin/python3` to fix PATH error
+3. **Restored scira:** Added back after accidental removal
+4. **Disabled non-critical MCPs:** canva, chrome-devtools, vercel-labs-agent, singularity
+
+### Troubleshooting MCP Errors
+
+**Error -32000 (Connection Closed):**
+- Service not running or wrapper crash
+- Check: `docker ps | grep <service-name>`
+- Fix: `docker-compose restart <service-name>`
+
+**SSE Error (Unable to Connect):**
+- Remote MCP service unavailable
+- Check internet connection
+- Verify service URL accessibility
+
+**Executable Not Found:**
+- Command not in PATH
+- Use absolute path (e.g., `/usr/bin/python3` instead of `python`)

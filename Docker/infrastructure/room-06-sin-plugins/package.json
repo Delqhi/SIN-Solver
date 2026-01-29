@@ -1,7 +1,7 @@
 {
   "name": "sin-plugins-mcp-server",
   "version": "1.0.0",
-  "description": "SIN-Solver Plugins MCP Server - Real Implementation",
+  "description": "Delqhi-Platform Plugins MCP Server - Real Implementation",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

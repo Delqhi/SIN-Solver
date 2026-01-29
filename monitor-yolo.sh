@@ -23,7 +23,7 @@ while true; do
         if [ $EPOCHS -ge 20 ]; then
             echo "✅ TRAINING COMPLETE!"
             echo ""
-            echo "Next step: cd /Users/jeremy/dev/SIN-Solver && bash FINAL_TEST_AND_DEPLOY.sh"
+            echo "Next step: cd /Users/jeremy/dev/Delqhi-Platform && bash FINAL_TEST_AND_DEPLOY.sh"
             break
         else
             # Show last metric

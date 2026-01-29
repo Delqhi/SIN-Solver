@@ -8,7 +8,7 @@
 
 ### 1. Verify All Packages Installed
 ```bash
-source /Users/jeremy/dev/SIN-Solver/ocr_env/bin/activate
+source /Users/jeremy/dev/Delqhi-Platform/ocr_env/bin/activate
 
 # Test each package
 python3 -c "import pytesseract; print('✅ pytesseract')" || echo "❌ MISSING"
@@ -49,7 +49,7 @@ ls -lh /Users/jeremy/runs/classify/runs/classify/captcha_classifier3/weights/bes
 
 ### Phase 2.5f - OCR Package Verification
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 source ocr_env/bin/activate
 
 # Run just OCR engine tests (5 min)
@@ -133,7 +133,7 @@ python3 app/test_captcha_solver_pipeline.py -v
 
 ### Test with Sample Images
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 source ocr_env/bin/activate
 
 python3 << 'PYEOF'
@@ -146,7 +146,7 @@ pipeline = CaptchaSolverPipeline(
 
 # Test Text CAPTCHA
 result = pipeline.solve_captcha(
-    image_path="/Users/jeremy/dev/SIN-Solver/training/Text_CAPTCHA/sample_001.jpg",
+    image_path="/Users/jeremy/dev/Delqhi-Platform/training/Text_CAPTCHA/sample_001.jpg",
     captcha_type="Text"
 )
 print(f"Solved Text CAPTCHA: {result['solved_text']}")
@@ -182,7 +182,7 @@ PYEOF
 ### Watch YOLO Training Progress
 ```bash
 # In separate terminal
-watch -n 30 'tail -5 /Users/jeremy/dev/SIN-Solver/training/training_session_10.log'
+watch -n 30 'tail -5 /Users/jeremy/dev/Delqhi-Platform/training/training_session_10.log'
 ```
 
 ### Monitor System Resources
@@ -198,7 +198,7 @@ top -u simoneschulze
 
 ### 1. Document Results
 ```bash
-cat >> /Users/jeremy/dev/SIN-Solver/training/training-lastchanges.md << 'LOG'
+cat >> /Users/jeremy/dev/Delqhi-Platform/training/training-lastchanges.md << 'LOG'
 
 ## Phase 2.5 Test Results
 - Total Tests: X
@@ -211,7 +211,7 @@ LOG
 
 ### 2. Commit Changes
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 git add -A
 git commit -m "feat: Phase 2.5 OCR pipeline - complete tests and integration"
 git log --oneline -5

@@ -3,10 +3,10 @@ set -a
 source .env.production.local
 set +a
 
-cd /Users/jeremy/dev/SIN-Solver/Docker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker
 
 echo "================================================"
-echo "SIN-Solver Docker Infrastructure Startup (V18.3)"
+echo "Delqhi-Platform Docker Infrastructure Startup (V18.3)"
 echo "================================================"
 echo ""
 

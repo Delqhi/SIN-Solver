@@ -6,7 +6,7 @@ Central API gateway and workflow orchestrator.
 
 ## 🎯 Purpose
 
-Enterprise API brain for SIN-Solver:
+Enterprise API brain for Delqhi-Platform:
 - Workflow management
 - Webhook handling
 - N8N integration

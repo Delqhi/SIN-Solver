@@ -4,7 +4,7 @@
 
 ROOM_ID=$1
 TIMESTAMP=$(date +%Y%m%d_%H%M)
-PROJECT_NAME="SIN-Solver"
+PROJECT_NAME="Delqhi-Platform"
 TARGET="/Users/jeremy/dev/SIN-Code/Docker/${PROJECT_NAME}/images"
 
 if [ -z "$ROOM_ID" ]; then

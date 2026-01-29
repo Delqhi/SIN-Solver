@@ -1,0 +1,41 @@
+{{/* Default AlertManager Templates */}}
+
+{{ define "slack.default.title" -}}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.alertname }}
+{{- end }}
+
+{{ define "slack.default.text" -}}
+{{ range .Alerts }}
+*Alert:* {{ .Annotations.summary }}
+*Description:* {{ .Annotations.description }}
+*Severity:* {{ .Labels.severity }}
+*Instance:* {{ .Labels.instance }}
+{{ if .Labels.captcha_type }}*CAPTCHA Type:* {{ .Labels.captcha_type }}{{ end }}
+{{ if .Labels.solver }}*Solver:* {{ .Labels.solver }}{{ end }}
+{{ if .Annotations.runbook_url }}*Runbook:* {{ .Annotations.runbook_url }}{{ end }}
+{{ end }}
+{{- end }}
+
+{{ define "pagerduty.default.description" -}}
+{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}
+{{- end }}
+
+{{ define "pagerduty.default.instances" -}}
+{{ range .Alerts }}{{ .Labels.instance }} {{ end }}
+{{- end }}
+
+{{ define "email.default.subject" -}}
+[{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}
+{{- end }}
+
+{{ define "email.default.body" -}}
+{{ range .Alerts }}
+Alert: {{ .Annotations.summary }}
+Description: {{ .Annotations.description }}
+Severity: {{ .Labels.severity }}
+Instance: {{ .Labels.instance }}
+Started: {{ .StartsAt }}
+{{ if .Annotations.runbook_url }}Runbook: {{ .Annotations.runbook_url }}{{ end }}
+---
+{{ end }}
+{{- end }}

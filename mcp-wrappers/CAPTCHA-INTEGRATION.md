@@ -5,7 +5,7 @@
 ### Step 1: Verify Dependencies
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 npm list @modelcontextprotocol/sdk axios
 ```
 
@@ -23,7 +23,7 @@ Add this to `~/.config/opencode/opencode.json`:
   "mcp": {
     "captcha-solver": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js"],
       "enabled": true,
       "environment": {
         "CAPTCHA_API_URL": "https://captcha.delqhi.com",
@@ -38,7 +38,7 @@ Add this to `~/.config/opencode/opencode.json`:
 
 ```bash
 # Test locally
-node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js &
+node /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js &
 WRAPPER_PID=$!
 sleep 2
 kill $WRAPPER_PID
@@ -277,13 +277,13 @@ Common errors:
 
 ```bash
 # Check syntax
-node -c /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js
+node -c /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js
 
 # Check dependencies
 npm list @modelcontextprotocol/sdk axios
 
 # Try running directly
-node /Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js
+node /Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js
 ```
 
 ### API connection fails
@@ -357,9 +357,9 @@ opencode mcp call captcha-solver solve_with_browser \
 
 ## Support
 
-- **Documentation:** See `/Users/jeremy/dev/SIN-Solver/mcp-wrappers/README.md`
-- **Issues:** Check `/Users/jeremy/dev/SIN-Solver/troubleshooting/`
-- **API Docs:** See `/Users/jeremy/dev/SIN-Solver/Docs/API-REFERENCE.md`
+- **Documentation:** See `/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/README.md`
+- **Issues:** Check `/Users/jeremy/dev/Delqhi-Platform/troubleshooting/`
+- **API Docs:** See `/Users/jeremy/dev/Delqhi-Platform/Docs/API-REFERENCE.md`
 
 ---
 

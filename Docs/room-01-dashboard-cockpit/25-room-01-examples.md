@@ -73,7 +73,7 @@ REPORT=$(curl -s http://localhost:3011/api/docker/containers \
     "Stopped: " + (.stopped | tostring)
   ')
 
-echo "$REPORT" | mail -s "Daily Health Report" admin@sin-solver.io
+echo "$REPORT" | mail -s "Daily Health Report" admin@delqhi-platform.io
 ```
 
 ---

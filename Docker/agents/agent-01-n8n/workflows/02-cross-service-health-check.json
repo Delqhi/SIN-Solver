@@ -46,7 +46,7 @@
       "credentials": {
         "postgres": {
           "id": "1",
-          "name": "SIN-Solver PostgreSQL"
+          "name": "Delqhi-Platform PostgreSQL"
         }
       }
     },
@@ -63,7 +63,7 @@
       "credentials": {
         "redis": {
           "id": "2",
-          "name": "SIN-Solver Redis"
+          "name": "Delqhi-Platform Redis"
         }
       }
     },
@@ -111,7 +111,7 @@
       "credentials": {
         "postgres": {
           "id": "1",
-          "name": "SIN-Solver PostgreSQL"
+          "name": "Delqhi-Platform PostgreSQL"
         }
       },
       "continueOnFail": true

@@ -1,7 +1,7 @@
 {
-  "name": "@sin-solver/shared",
+  "name": "@delqhi-platform/shared",
   "version": "1.0.0",
-  "description": "Shared utilities for SIN-Solver inter-service communication",
+  "description": "Shared utilities for Delqhi-Platform inter-service communication",
   "main": "index.js",
   "exports": {
     ".": "./index.js",

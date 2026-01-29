@@ -1,4 +1,4 @@
-# 🐳 SIN-Solver Docker Infrastructure (V18.3 Modular Edition)
+# 🐳 Delqhi-Platform Docker Infrastructure (V18.3 Modular Edition)
 
 **Architecture:** Modular Multi-Service Infrastructure  
 **Version:** 18.3 (Anti-Monolith Edition)  
@@ -9,7 +9,7 @@
 
 ## 📋 ARCHITECTURE OVERVIEW
 
-The SIN-Solver Docker infrastructure follows the **V18.3 Modular Architecture**, abolishing monolithic `docker-compose.yml` files. Each service runs in its own isolated directory with its own configuration.
+The Delqhi-Platform Docker infrastructure follows the **V18.3 Modular Architecture**, abolishing monolithic `docker-compose.yml` files. Each service runs in its own isolated directory with its own configuration.
 
 ### Directory Structure
 
@@ -156,7 +156,7 @@ docker-compose logs -f
 
 ```bash
 # Navigate to Docker directory
-cd /Users/jeremy/dev/SIN-Solver/Docker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker
 
 # Create startup script (coming soon)
 ./startup.sh

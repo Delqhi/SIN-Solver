@@ -6,7 +6,7 @@ Multi-platform notification and messaging bot with **Social Media Auto-Posting**
 
 ## 🎯 Purpose
 
-Central notification hub for all SIN-Solver services:
+Central notification hub for all Delqhi-Platform services:
 - Discord bot with slash commands
 - Telegram bot integration
 - Alert management

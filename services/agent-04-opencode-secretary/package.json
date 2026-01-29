@@ -1,7 +1,7 @@
 {
   "name": "opencode",
   "version": "1.0.0",
-  "description": "SIN-Solver LLM Code Generation Service",
+  "description": "Delqhi-Platform LLM Code Generation Service",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -22,6 +22,6 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "author": "SIN-Solver Team",
+  "author": "Delqhi-Platform Team",
   "license": "MIT"
 }

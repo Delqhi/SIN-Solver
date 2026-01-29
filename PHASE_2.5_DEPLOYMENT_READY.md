@@ -61,7 +61,7 @@ ETA: ~10 minutes
 
 ### Environment
 ```
-✅ Virtual env: /Users/jeremy/dev/SIN-Solver/ocr_env/
+✅ Virtual env: /Users/jeremy/dev/Delqhi-Platform/ocr_env/
 ✅ Python 3.14.2
 ✅ Tesseract 5.5.2
 ✅ YOLO 8.1.0
@@ -77,7 +77,7 @@ When YOLO reaches 20/20 epochs:
 
 ```bash
 # 1. Navigate to project
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 
 # 2. Execute deployment (fully automated)
 bash FINAL_TEST_AND_DEPLOY.sh
@@ -164,7 +164,7 @@ git log --oneline -1
 # Expected: feat(phase-2.5): OCR pipeline complete
 
 # ✅ Documentation updated
-grep "2026-01-29" /Users/jeremy/dev/SIN-Solver/training/training-lastchanges.md
+grep "2026-01-29" /Users/jeremy/dev/Delqhi-Platform/training/training-lastchanges.md
 # Expected: Recent entry with completion details
 ```
 
@@ -201,12 +201,12 @@ Phase 3.2: Production Deployment
 
 **Start Deployment** (when YOLO complete):
 ```bash
-cd /Users/jeremy/dev/SIN-Solver && bash FINAL_TEST_AND_DEPLOY.sh
+cd /Users/jeremy/dev/Delqhi-Platform && bash FINAL_TEST_AND_DEPLOY.sh
 ```
 
 **Monitor YOLO** (while waiting):
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/monitor-yolo.sh
+bash /Users/jeremy/dev/Delqhi-Platform/monitor-yolo.sh
 ```
 
 **Check Status** (manual check):
@@ -223,7 +223,7 @@ PYEOF
 **Activate Environment** (if needed manually):
 ```bash
 export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
-source /Users/jeremy/dev/SIN-Solver/ocr_env/bin/activate
+source /Users/jeremy/dev/Delqhi-Platform/ocr_env/bin/activate
 python3 --version
 ```
 

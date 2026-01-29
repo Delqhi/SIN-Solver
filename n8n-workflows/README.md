@@ -1,8 +1,8 @@
-# n8n Workflows for SIN-Solver System
+# n8n Workflows for Delqhi-Platform System
 
 ## Overview
 
-This directory contains three production-ready n8n workflows that form the orchestration backbone of the SIN-Solver system. Each workflow tests and demonstrates different integration patterns.
+This directory contains three production-ready n8n workflows that form the orchestration backbone of the Delqhi-Platform system. Each workflow tests and demonstrates different integration patterns.
 
 ### Workflows
 

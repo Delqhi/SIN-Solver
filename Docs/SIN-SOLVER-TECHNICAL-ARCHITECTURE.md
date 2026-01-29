@@ -48,7 +48,7 @@
 ## 🔌 SERVICE SPECIFICATIONS (Engine Room Details)
 
 ### 1. **ZIMMER-03: AGENT ZERO (The Consensus Engine)**
-**Location:** `/Users/jeremy/dev/SIN-Solver/app/services/`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/app/services/`
 
 #### Core Services
 
@@ -177,7 +177,7 @@ Used only if Consensus < 0.7 after 10s.
 ---
 
 ### 2. **ZIMMER-05: STEEL PRECISION CONTROLLER (Behavioral Evasion)**
-**Location:** `/Users/jeremy/dev/SIN-Solver/app/core/STEEL_PRECISION_CONTROLLER.py`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/app/core/STEEL_PRECISION_CONTROLLER.py`
 
 ```python
 class StealthEngine:
@@ -212,7 +212,7 @@ class StealthEngine:
 ---
 
 ### 3. **ZIMMER-06: SKYVERN (Visual Interaction)**
-**Location:** `/Users/jeremy/dev/SIN-Solver/app/services/skyvern_client.py`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/app/services/skyvern_client.py`
 
 ```python
 class SkyvernClient:
@@ -234,7 +234,7 @@ class SkyvernClient:
 ---
 
 ### 4. **ZIMMER-07: STAGEHAND (Deep Web Intelligence)**
-**Location:** `/Users/jeremy/dev/SIN-Solver/app/services/stagehand_client.py`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/app/services/stagehand_client.py`
 
 ```python
 class StagehandClient:
@@ -262,7 +262,7 @@ class StagehandClient:
 ---
 
 ### 5. **ZIMMER-15: SURFSENSE (Vector Database Memory)**
-**Location:** `/Users/jeremy/dev/SIN-Solver/app/services/surfsense_client.py`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/app/services/surfsense_client.py`
 
 ```python
 class SurfSenseVector:
@@ -417,7 +417,7 @@ REDIS_URL=redis://172.20.0.10:6379
 DATABASE_URL=postgresql://user:pass@172.20.0.16:5432/sin_db
 
 # Storage
-AWS_S3_BUCKET=sin-solver-media
+AWS_S3_BUCKET=delqhi-platform-media
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 

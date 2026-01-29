@@ -1,8 +1,8 @@
-# SIN-Solver: CAPTCHA & Deception Pattern Recognition System
+# Delqhi-Platform: CAPTCHA & Deception Pattern Recognition System
 
 ## 🎯 Overview
 
-SIN-Solver is a sophisticated system for detecting and preventing interaction-based attacks including:
+Delqhi-Platform is a sophisticated system for detecting and preventing interaction-based attacks including:
 - CAPTCHA challenges
 - Honeypot traps
 - Phishing attempts
@@ -89,7 +89,7 @@ Score combines:
 ```bash
 npm test                    # Run all tests
 npm test -- --coverage      # Coverage report
-npm test -- sin-solver.test # Specific file
+npm test -- delqhi-platform.test # Specific file
 ```
 
 ## 📝 API Reference

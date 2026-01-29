@@ -1,4 +1,4 @@
-# 🤖 SIN-Solver v2.0: ML-Based Deception Detection Architecture
+# 🤖 Delqhi-Platform v2.0: ML-Based Deception Detection Architecture
 
 **Status:** Planning Phase  
 **Estimated Duration:** 4-5 hours  
@@ -9,7 +9,7 @@
 
 ## 📋 Executive Summary
 
-Wir transformieren SIN-Solver von einem **Regex-basierten System** zu einem **hybriden ML + Regex Ensemble** für höhere Genauigkeit bei Deception-Detection.
+Wir transformieren Delqhi-Platform von einem **Regex-basierten System** zu einem **hybriden ML + Regex Ensemble** für höhere Genauigkeit bei Deception-Detection.
 
 ### Architektur-Übersicht
 
@@ -295,7 +295,7 @@ result.ml_metadata = {
 ## 📦 New Files to Create
 
 ```
-SIN-Solver/
+Delqhi-Platform/
 ├── ml/
 │   ├── model-loader.ts          (Model management)
 │   ├── preprocessor.ts          (Data preprocessing)
@@ -398,4 +398,4 @@ Alle Phases mit CNN + LSTM + Ensemble
 ---
 
 *Generated: 2026-01-26 23:40*  
-*ML Vision: Transformer SIN-Solver von Rule-Based zu Intelligence-Driven*
+*ML Vision: Transformer Delqhi-Platform von Rule-Based zu Intelligence-Driven*

@@ -9,7 +9,7 @@
 ## ✅ PRE-DEPLOYMENT VERIFICATION (ALL COMPLETE)
 
 ### Environment Setup
-- [x] Virtual environment created: `/Users/jeremy/dev/SIN-Solver/ocr_env/`
+- [x] Virtual environment created: `/Users/jeremy/dev/Delqhi-Platform/ocr_env/`
 - [x] Python 3.14.2 verified
 - [x] All 8 OCR packages installed and tested
 - [x] Tesseract 5.5.2 executable verified at `/opt/homebrew/bin/tesseract`
@@ -70,7 +70,7 @@ Remaining:         2 epochs (~10 minutes)
 ### Monitor Training
 ```bash
 # Real-time monitoring
-bash /Users/jeremy/dev/SIN-Solver/monitor-yolo.sh
+bash /Users/jeremy/dev/Delqhi-Platform/monitor-yolo.sh
 
 # Or check once manually
 python3 << 'PYEOF'
@@ -100,7 +100,7 @@ PYEOF
 
 ### Step 2: Execute Automated Deployment
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 bash FINAL_TEST_AND_DEPLOY.sh
 ```
 
@@ -115,7 +115,7 @@ bash FINAL_TEST_AND_DEPLOY.sh
 
 ### Step 3: Verify Deployment Success
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 git log --oneline -1
 # Should show: feat(phase-2.5): OCR pipeline complete...
 
@@ -169,7 +169,7 @@ ls -lh /Users/jeremy/runs/classify/runs/classify/captcha_classifier3/weights/bes
 
 ### Option 1: Run Tests Manually
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 source ocr_env/bin/activate
 export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
 
@@ -226,17 +226,17 @@ If issues persist, create detailed error report to `/dev/sin-code/troubleshootin
 **Virtual Environment Activation (ALWAYS DO THIS FIRST):**
 ```bash
 export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
-source /Users/jeremy/dev/SIN-Solver/ocr_env/bin/activate
+source /Users/jeremy/dev/Delqhi-Platform/ocr_env/bin/activate
 ```
 
 **Deployment Script:**
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh
+bash /Users/jeremy/dev/Delqhi-Platform/FINAL_TEST_AND_DEPLOY.sh
 ```
 
 **Monitor YOLO:**
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/monitor-yolo.sh
+bash /Users/jeremy/dev/Delqhi-Platform/monitor-yolo.sh
 ```
 
 **Check Status:**

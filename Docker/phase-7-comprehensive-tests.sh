@@ -5,7 +5,7 @@
 
 set -e
 
-PROJECT_DIR="/Users/jeremy/dev/SIN-Solver"
+PROJECT_DIR="/Users/jeremy/dev/Delqhi-Platform"
 LOG_FILE="$PROJECT_DIR/Docker/PHASE-7-EXECUTION-LOG.md"
 DB_USER="postgres"
 DB_NAME="sin_solver"

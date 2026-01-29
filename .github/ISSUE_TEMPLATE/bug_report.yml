@@ -79,7 +79,7 @@ body:
         - Docker version: 24.0.x
         - Python version: 3.11.x
         - Node version: 20.x
-        - SIN-Solver version: 2.0.0
+        - Delqhi-Platform version: 2.0.0
       render: markdown
     validations:
       required: true
@@ -105,7 +105,7 @@ body:
       options:
         - label: I have searched existing issues to ensure this is not a duplicate
           required: true
-        - label: I have read the [documentation](https://github.com/Delqhi/SIN-Solver#readme)
+        - label: I have read the [documentation](https://github.com/Delqhi/Delqhi-Platform#readme)
           required: true
-        - label: I am using the latest version of SIN-Solver
+        - label: I am using the latest version of Delqhi-Platform
           required: false

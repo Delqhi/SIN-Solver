@@ -634,7 +634,7 @@ services:
 
 ### Emergency Contacts
 
-- Security Team: security@sin-solver.io
+- Security Team: security@delqhi-platform.io
 - On-Call: +1-XXX-XXX-XXXX
 - Slack: #security-incidents
 

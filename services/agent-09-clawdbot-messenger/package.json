@@ -1,7 +1,7 @@
 {
-  "name": "sin-solver-clawdbot",
+  "name": "delqhi-platform-clawdbot",
   "version": "3.0.0",
-  "description": "SIN-Solver Multi-Messenger CEO Bot (Telegram/WhatsApp/Discord)",
+  "description": "Delqhi-Platform Multi-Messenger CEO Bot (Telegram/WhatsApp/Discord)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -25,6 +25,6 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "author": "SIN-Solver Empire",
+  "author": "Delqhi-Platform Empire",
   "license": "MIT"
 }

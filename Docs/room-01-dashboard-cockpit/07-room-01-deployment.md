@@ -36,8 +36,8 @@ Before deploying the dashboard, ensure these services are running:
 #### 1. Clone Repository
 
 ```bash
-git clone https://github.com/Delqhi/SIN-Solver.git
-cd SIN-Solver
+git clone https://github.com/Delqhi/Delqhi-Platform.git
+cd Delqhi-Platform
 ```
 
 #### 2. Configure Environment
@@ -114,7 +114,7 @@ docker run -d \
   -e DOCKER_SOCKET=/var/run/docker.sock \
   -e REDIS_URL=redis://room-04-memory-redis:6379 \
   -e JWT_SECRET=$(openssl rand -base64 32) \
-  --network sin-solver_default \
+  --network delqhi-platform_default \
   --restart unless-stopped \
   room-01-dashboard-cockpit:latest
 ```
@@ -143,7 +143,7 @@ docker run -d \
   -e CACHE_ENABLED=true \
   -e CORS_ORIGIN=https://dashboard.delqhi.com \
   -e RATE_LIMIT_ENABLED=true \
-  --network sin-solver_default \
+  --network delqhi-platform_default \
   --restart unless-stopped \
   --memory=512m \
   --cpus=1.0 \
@@ -161,7 +161,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: room-01-dashboard
-  namespace: sin-solver
+  namespace: delqhi-platform
 spec:
   replicas: 1
   selector:
@@ -227,7 +227,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: room-01-dashboard
-  namespace: sin-solver
+  namespace: delqhi-platform
 spec:
   selector:
     app: room-01-dashboard
@@ -240,7 +240,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: room-01-dashboard
-  namespace: sin-solver
+  namespace: delqhi-platform
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt
@@ -266,19 +266,19 @@ spec:
 
 ```bash
 # Create namespace
-kubectl create namespace sin-solver
+kubectl create namespace delqhi-platform
 
 # Create secrets
 kubectl create secret generic dashboard-secrets \
   --from-literal=jwt-secret=$(openssl rand -base64 32) \
-  -n sin-solver
+  -n delqhi-platform
 
 # Apply configuration
 kubectl apply -f k8s/dashboard-deployment.yaml
 
 # Verify
-kubectl get pods -n sin-solver
-kubectl logs -f deployment/room-01-dashboard -n sin-solver
+kubectl get pods -n delqhi-platform
+kubectl logs -f deployment/room-01-dashboard -n delqhi-platform
 ```
 
 ---
@@ -300,8 +300,8 @@ sudo npm install -g pm2
 
 ```bash
 # Clone repository
-git clone https://github.com/Delqhi/SIN-Solver.git
-cd SIN-Solver/dashboard
+git clone https://github.com/Delqhi/Delqhi-Platform.git
+cd Delqhi-Platform/dashboard
 
 # Install dependencies
 npm install
@@ -487,7 +487,7 @@ services:
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     restart: unless-stopped
     networks:
-      - sin-solver
+      - delqhi-platform
 ```
 
 ---
@@ -584,7 +584,7 @@ docker logs room-01-dashboard-cockpit
 docker inspect room-01-dashboard-cockpit | grep -A 20 Env
 
 # Verify network connectivity
-docker network inspect sin-solver_default
+docker network inspect delqhi-platform_default
 ```
 
 ### Database Connection Failed

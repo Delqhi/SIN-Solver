@@ -51,7 +51,7 @@ Professional video generation MCP server providing:
 
 ### Build & Run
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/services/zimmer-20.5-sin-video-gen-mcp
+cd /Users/jeremy/dev/Delqhi-Platform/services/zimmer-20.5-sin-video-gen-mcp
 
 # Build Docker image
 docker build -t sin-video-gen-mcp:latest .
@@ -350,5 +350,5 @@ docker exec sin-video-gen-mcp ffmpeg -version
 **Room:** Zimmer-20.5  
 **Status:** ✅ Production Ready  
 **Last Updated:** 2026-01-27  
-**Maintainer:** SIN-Solver Team  
+**Maintainer:** Delqhi-Platform Team  
 **License:** Delqhi Proprietary

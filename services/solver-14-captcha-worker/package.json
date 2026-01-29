@@ -1,7 +1,7 @@
 {
   "name": "sin-worker",
   "version": "1.0.0",
-  "description": "Task execution worker for SIN-Solver",
+  "description": "Task execution worker for Delqhi-Platform",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

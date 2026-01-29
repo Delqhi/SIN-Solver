@@ -3,7 +3,7 @@
 **Version:** 2.1.0  
 **Last Updated:** 2026-01-29 07:45 UTC  
 **Status:** PRODUCTION-READY  
-**Maintainer:** SIN-Solver Team
+**Maintainer:** Delqhi-Platform Team
 
 ---
 
@@ -92,7 +92,7 @@
 
 ### Step 1: Build Docker Image
 ```bash
-cd /Users/jeremy/dev/sin-solver/Docker/builders/builder-1.1-captcha-worker
+cd /Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker
 docker build -t solver-1.1-captcha-worker:latest .
 ```
 - [ ] Build completes without errors
@@ -101,7 +101,7 @@ docker build -t solver-1.1-captcha-worker:latest .
 
 ### Step 2: Start Container
 ```bash
-cd /Users/jeremy/dev/sin-solver/Docker/builders/builder-1.1-captcha-worker
+cd /Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker
 docker-compose up -d
 ```
 - [ ] Container starts successfully
@@ -310,7 +310,7 @@ docker logs solver-1.1-captcha-worker
 
 ## 📚 RELATED DOCUMENTATION
 
-- **Implementation Guide:** `/Users/jeremy/dev/sin-solver/Docker/builders/builder-1.1-captcha-worker/`
+- **Implementation Guide:** `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/`
 - **API Reference:** See `lastchanges.md` - CAPTCHA-WORKER-DEPLOYMENT-READY section
 - **Environment Variables:** See `.env.example`
 - **Docker Compose:** See `docker-compose.yml`

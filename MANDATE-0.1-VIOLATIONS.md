@@ -1,7 +1,7 @@
 # 🚨 MANDATE 0.1 VIOLATION REPORT - SIN-SOLVER
 
 **Scan Date:** 2026-01-29  
-**Project:** `/Users/jeremy/dev/sin-solver`  
+**Project:** `/Users/jeremy/dev/delqhi-platform`  
 **Total Violations Found:** 32 distinct violations  
 **Status:** CRITICAL - Production deployment compromised
 
@@ -20,7 +20,7 @@
 ## 🔴 HIGH PRIORITY VIOLATIONS (User-Facing)
 
 ### 1. Placeholder Comment - Production Code
-**File:** `/Users/jeremy/dev/sin-solver/app/services/captcha_detector_v2.py`  
+**File:** `/Users/jeremy/dev/delqhi-platform/app/services/captcha_detector_v2.py`  
 **Lines:** 487-489  
 **Code:**
 ```python
@@ -35,7 +35,7 @@ def _detect_text(self, gray_image: np.ndarray, keywords: List[str]) -> bool:
 ---
 
 ### 2. Production Comment - Font Loading
-**File:** `/Users/jeremy/dev/sin-solver/app/services/capmonster_solver_deprecated.py`  
+**File:** `/Users/jeremy/dev/delqhi-platform/app/services/capmonster_solver_deprecated.py`  
 **Lines:** 306-310  
 **Code:**
 ```python
@@ -51,7 +51,7 @@ except:
 ---
 
 ### 3. Hardcoded localhost URLs - Dashboard
-**File:** `/Users/jeremy/dev/sin-solver/dashboard/pages/dashboard.js`  
+**File:** `/Users/jeremy/dev/delqhi-platform/dashboard/pages/dashboard.js`  
 **Lines:** 325-349  
 **Code:**
 ```javascript
@@ -66,7 +66,7 @@ href="http://localhost:8041"
 ---
 
 ### 4. Hardcoded localhost - Vault Page
-**File:** `/Users/jeremy/dev/sin-solver/dashboard/pages/vault.js`  
+**File:** `/Users/jeremy/dev/delqhi-platform/dashboard/pages/vault.js`  
 **Lines:** 11-12  
 **Code:**
 ```javascript
@@ -79,7 +79,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODES
 ---
 
 ### 5. Hardcoded localhost - AIChat Component
-**File:** `/Users/jeremy/dev/sin-solver/dashboard/components/AIChat.tsx`  
+**File:** `/Users/jeremy/dev/delqhi-platform/dashboard/components/AIChat.tsx`  
 **Lines:** 57  
 **Code:**
 ```typescript
@@ -91,7 +91,7 @@ const CODESERVER_API_URL = process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http:/
 ---
 
 ### 6. Hardcoded localhost - Dashboard Layout
-**File:** `/Users/jeremy/dev/sin-solver/dashboard/components/Layout/DashboardLayout.js`  
+**File:** `/Users/jeremy/dev/delqhi-platform/dashboard/components/Layout/DashboardLayout.js`  
 **Lines:** 84  
 **Code:**
 ```javascript
@@ -103,7 +103,7 @@ const CODESERVER_API_URL = process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http:/
 ---
 
 ### 7. Hardcoded localhost - Footer Terminal
-**File:** `/Users/jeremy/dev/sin-solver/dashboard/components/FooterTerminal.js`  
+**File:** `/Users/jeremy/dev/delqhi-platform/dashboard/components/FooterTerminal.js`  
 **Lines:** 5  
 **Code:**
 ```javascript
@@ -115,7 +115,7 @@ const TERMINAL_URL = process.env.NEXT_PUBLIC_TERMINAL_URL || 'http://localhost:7
 ---
 
 ### 8. Placeholder in UI
-**File:** `/Users/jeremy/dev/sin-solver/dashboard/pages/vault.js`  
+**File:** `/Users/jeremy/dev/delqhi-platform/dashboard/pages/vault.js`  
 **Lines:** 656  
 **Code:**
 ```javascript
@@ -129,7 +129,7 @@ placeholder='{"API_KEY": "your-key-here"}'
 ## 🟡 MEDIUM PRIORITY VIOLATIONS (Backend)
 
 ### 9. "Will be replaced" Comment
-**File:** `/Users/jeremy/dev/sin-solver/services/room-13-fastapi-coordinator/src/main.py`  
+**File:** `/Users/jeremy/dev/delqhi-platform/services/room-13-fastapi-coordinator/src/main.py`  
 **Lines:** 30  
 **Code:**
 ```python
@@ -143,7 +143,7 @@ service_registry = None
 ---
 
 ### 10. Hardcoded localhost - FastAPI Config
-**File:** `/Users/jeremy/dev/sin-solver/services/room-13-fastapi-coordinator/src/config/__init__.py`  
+**File:** `/Users/jeremy/dev/delqhi-platform/services/room-13-fastapi-coordinator/src/config/__init__.py`  
 **Lines:** 18-19  
 **Code:**
 ```python
@@ -193,7 +193,7 @@ redis_url: str = "redis://localhost:6379"
 
 **Last Local Build:** ✅ SUCCESS (2026-01-29)  
 **Vercel Production:** ❌ 5 FAILED DEPLOYMENTS  
-**Current Live URL:** https://sin-solver-dashboard.vercel.app/ (working but with errors)
+**Current Live URL:** https://delqhi-platform-dashboard.vercel.app/ (working but with errors)
 
 **Next Action:** Fix HIGH priority violations and redeploy
 

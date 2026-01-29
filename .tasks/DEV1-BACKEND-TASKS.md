@@ -178,7 +178,7 @@ services/zimmer-18-survey-worker/
 To test the survey worker:
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 
 # Install dependencies
 cd services/zimmer-18-survey-worker && npm install

@@ -1,7 +1,7 @@
 # ✅ CAPTCHA SOLVER UPGRADE - FINAL STATUS REPORT
 
 **Datum:** 2026-01-29  
-**Projekt:** SIN-Solver - builder-1.1-captcha-worker  
+**Projekt:** Delqhi-Platform - builder-1.1-captcha-worker  
 **Status:** 🟢 **90% COMPLETE - READY FOR DEPLOYMENT**
 
 ---
@@ -174,7 +174,7 @@ builder-1.1-captcha-worker/
 
 ### 1. Environment Setup
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker
 cp .env.example .env
 # Edit .env and add API keys
 ```
@@ -212,7 +212,7 @@ curl -X POST http://localhost:8019/api/solve/text \
   "mcp": {
     "captcha-solver": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js"],
       "environment": {
         "CAPTCHA_API_URL": "https://captcha.delqhi.com",
         "CAPTCHA_API_KEY": "${CAPTCHA_API_KEY}"
@@ -271,7 +271,7 @@ GESAMT:               █████████░░░  90%
 
 ### Neue Dateien (Erstellt)
 ```
-/Users/jeremy/dev/SIN-Solver/
+/Users/jeremy/dev/Delqhi-Platform/
 ├── Docker/builders/builder-1.1-captcha-worker/
 │   ├── Dockerfile
 │   ├── docker-compose.yml
@@ -332,5 +332,5 @@ Der **builder-1.1-captcha-worker** ist ein professioneller, modularer CAPTCHA-So
 
 ---
 
-**Built with ❤️ by Sisyphus - SIN-Solver Team**
+**Built with ❤️ by Sisyphus - Delqhi-Platform Team**
 *Best Practices 2026 - Modular Architecture - Production Ready*

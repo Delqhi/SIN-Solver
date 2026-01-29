@@ -1,4 +1,4 @@
-# MIGRATION PLAN: SIN-Komponenten nach /dev/sin-solver/
+# MIGRATION PLAN: SIN-Komponenten nach /dev/delqhi-platform/
 
 **Datum:** 2026-01-29  
 **Status:** KRITISCH - Best Practices 2026 Compliance  
@@ -23,7 +23,7 @@ Dies verstößt gegen Best Practices 2026:
 
 ## 🎯 ZIEL
 
-Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
+Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/Delqhi-Platform/`
 
 ---
 
@@ -31,7 +31,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 
 ### 1. sin-agent-zero-mcp
 **Aktueller Pfad:** `/Users/jeremy/dev/sin-agent-zero-mcp/`  
-**Ziel-Pfad:** `/Users/jeremy/dev/SIN-Solver/mcp-wrappers/sin-agent-zero-mcp/`  
+**Ziel-Pfad:** `/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/sin-agent-zero-mcp/`  
 **Typ:** MCP Wrapper für Agent Zero Integration  
 **Dateien:**
 - Dockerfile
@@ -40,7 +40,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 - tsconfig.json
 
 **Migrations-Schritte:**
-1. [ ] Verzeichnis erstellen: `mkdir -p SIN-Solver/mcp-wrappers/sin-agent-zero-mcp`
+1. [ ] Verzeichnis erstellen: `mkdir -p Delqhi-Platform/mcp-wrappers/sin-agent-zero-mcp`
 2. [ ] Dateien kopieren (nicht verschieben - Backup!)
 3. [ ] In AGENTS.md dokumentieren (nur HINZUFÜGEN!)
 4. [ ] In CONTAINER-REGISTRY.md eintragen
@@ -52,7 +52,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 
 ### 2. sin-chrome-devtools-mcp
 **Aktueller Pfad:** `/Users/jeremy/dev/sin-chrome-devtools-mcp/`  
-**Ziel-Pfad:** `/Users/jeremy/dev/SIN-Solver/mcp-wrappers/sin-chrome-devtools-mcp/`  
+**Ziel-Pfad:** `/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/sin-chrome-devtools-mcp/`  
 **Typ:** MCP Wrapper für Chrome DevTools  
 **Dateien:**
 - Dockerfile
@@ -73,7 +73,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 
 ### 3. sin-stagehand
 **Aktueller Pfad:** `/Users/jeremy/dev/sin-stagehand/`  
-**Ziel-Pfad:** `/Users/jeremy/dev/SIN-Solver/mcp-wrappers/sin-stagehand-mcp/`  
+**Ziel-Pfad:** `/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/sin-stagehand-mcp/`  
 **Typ:** MCP Wrapper für Stagehand  
 **Dateien:**
 - Dockerfile
@@ -95,7 +95,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 ## 📁 ZIEL-STRUKTUR
 
 ```
-/Users/jeremy/dev/SIN-Solver/
+/Users/jeremy/dev/Delqhi-Platform/
 ├── mcp-wrappers/
 │   ├── sin-agent-zero-mcp/
 │   │   ├── Dockerfile
@@ -123,7 +123,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 ```markdown
 ## [2026-01-29] MIGRATION: MCP Wrapper Zentralisierung
 
-**Aktion:** Migration verteilter MCP-Wrapper nach SIN-Solver
+**Aktion:** Migration verteilter MCP-Wrapper nach Delqhi-Platform
 
 **Komponenten:**
 - sin-agent-zero-mcp → mcp-wrappers/sin-agent-zero-mcp
@@ -145,7 +145,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 
 **Migration:** 3 MCP-Wrapper zentralisiert
 **Vorher:** Verstreut in /dev/
-**Nachher:** In SIN-Solver/mcp-wrappers/
+**Nachher:** In Delqhi-Platform/mcp-wrappers/
 **Status:** ✅ Abgeschlossen
 ```
 
@@ -163,7 +163,7 @@ Alle SIN-Komponenten zentralisieren in `/Users/jeremy/dev/SIN-Solver/`
 
 ## ✅ AKZEPTANZKRITERIEN
 
-- [ ] Alle 3 Komponenten in SIN-Solver/mcp-wrappers/
+- [ ] Alle 3 Komponenten in Delqhi-Platform/mcp-wrappers/
 - [ ] Jede Komponente hat docker-compose.yml
 - [ ] AGENTS.md aktualisiert (nur hinzugefügt)
 - [ ] lastchanges.md dokumentiert

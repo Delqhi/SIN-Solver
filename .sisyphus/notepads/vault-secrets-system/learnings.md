@@ -11,7 +11,7 @@
 
 2. **KV v2 Secrets Engine**
    - Dev mode auto-enables the `secret/` path but NOT custom mounts
-   - Must explicitly enable: `vault secrets enable -path=sin-solver -version=2 kv`
+   - Must explicitly enable: `vault secrets enable -path=delqhi-platform -version=2 kv`
    - KV v2 API path: `/v1/{mount}/data/{path}` (note: `/data/` required)
 
 3. **FastAPI Vault Client Design**

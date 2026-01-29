@@ -95,7 +95,7 @@
 - Calculate and show ETA
 - Provide single point of truth for status
 
-**Output File:** `/Users/jeremy/dev/SIN-Solver/LIVE_DEPLOYMENT_STATUS.txt`
+**Output File:** `/Users/jeremy/dev/Delqhi-Platform/LIVE_DEPLOYMENT_STATUS.txt`
 
 **Example Update:**
 ```
@@ -126,7 +126,7 @@ ETA to Complete:   ~25 minutes
 - Alert on any test failures
 - Create detailed TEST_VALIDATION_REPORT.md
 
-**Output File:** `/Users/jeremy/dev/SIN-Solver/TEST_VALIDATION_REPORT.md`
+**Output File:** `/Users/jeremy/dev/Delqhi-Platform/TEST_VALIDATION_REPORT.md`
 
 **Critical Metrics to Track:**
 - Tesseract OCR response time: target 3-5 sec
@@ -150,8 +150,8 @@ ETA to Complete:   ~25 minutes
 
 **Output Files:**
 - Git commit: `feat(phase-2.5): OCR pipeline complete`
-- `/Users/jeremy/dev/SIN-Solver/PHASE_2.5_COMPLETION.md`
-- Updated: `/Users/jeremy/dev/SIN-Solver/training/training-lastchanges.md`
+- `/Users/jeremy/dev/Delqhi-Platform/PHASE_2.5_COMPLETION.md`
+- Updated: `/Users/jeremy/dev/Delqhi-Platform/training/training-lastchanges.md`
 
 ---
 
@@ -167,8 +167,8 @@ ETA to Complete:   ~25 minutes
 - Confirm production readiness
 
 **Output Files:**
-- `/Users/jeremy/dev/SIN-Solver/MODEL_METADATA.json`
-- `/Users/jeremy/dev/SIN-Solver/PHASE_2.5_FINAL_STATUS.md`
+- `/Users/jeremy/dev/Delqhi-Platform/MODEL_METADATA.json`
+- `/Users/jeremy/dev/Delqhi-Platform/PHASE_2.5_FINAL_STATUS.md`
 
 ---
 
@@ -261,7 +261,7 @@ Agent #5 begins model verification
 
 **Check current status:**
 ```bash
-cat /Users/jeremy/dev/SIN-Solver/LIVE_DEPLOYMENT_STATUS.txt
+cat /Users/jeremy/dev/Delqhi-Platform/LIVE_DEPLOYMENT_STATUS.txt
 ```
 
 **Check background task status:**
@@ -284,7 +284,7 @@ background_output(task_id="bg_75d47e04")
 
 **Check results:**
 ```bash
-ls -la /Users/jeremy/dev/SIN-Solver/ | grep -E "LIVE_|TEST_|COMPLETION|METADATA|FINAL_STATUS"
+ls -la /Users/jeremy/dev/Delqhi-Platform/ | grep -E "LIVE_|TEST_|COMPLETION|METADATA|FINAL_STATUS"
 ```
 
 ---
@@ -315,13 +315,13 @@ PYEOF'
 
 **Watch Status Dashboard:**
 ```bash
-watch -n 2 'cat /Users/jeremy/dev/SIN-Solver/LIVE_DEPLOYMENT_STATUS.txt'
+watch -n 2 'cat /Users/jeremy/dev/Delqhi-Platform/LIVE_DEPLOYMENT_STATUS.txt'
 ```
 
 **Check Agent Results:**
 ```bash
 # After completion, check all output files
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 ls -lh *.md *.json *.txt 2>/dev/null | grep -E "2026-01-29|LIVE_|TEST_|COMPLETION|METADATA|FINAL"
 ```
 

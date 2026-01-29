@@ -87,7 +87,7 @@ Professional website automation worker providing:
 
 ### Build & Run
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/services/zimmer-20-website-worker
+cd /Users/jeremy/dev/Delqhi-Platform/services/zimmer-20-website-worker
 
 # Build Docker image
 docker build -t sin-website-worker:latest .
@@ -524,5 +524,5 @@ docker logs sin-website-worker | grep "captcha"
 **Room:** Zimmer-20  
 **Status:** ✅ Production Ready  
 **Last Updated:** 2026-01-27  
-**Maintainer:** SIN-Solver Team  
+**Maintainer:** Delqhi-Platform Team  
 **License:** Delqhi Proprietary

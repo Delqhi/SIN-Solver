@@ -2,7 +2,7 @@
 
 **Port:** 3000 | **IP:** 172.20.0.60
 
-Central monitoring dashboard for SIN-Solver.
+Central monitoring dashboard for Delqhi-Platform.
 
 ## 🎯 Purpose
 

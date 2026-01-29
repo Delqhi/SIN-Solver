@@ -7,9 +7,9 @@ import {
   ChevronDown, ChevronRight, Home, ArrowLeft
 } from 'lucide-react';
 
-// API URL for Vault API service
-const VAULT_API_URL = process.env.NEXT_PUBLIC_VAULT_API_URL || 'http://localhost:8002';
-const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8041';
+// API URL for Vault API service - PRODUCTION: Always use delqhi.com domains
+const VAULT_API_URL = process.env.NEXT_PUBLIC_VAULT_API_URL || 'https://vault-api.delqhi.com';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://codeserver.delqhi.com';
 
 // Service configuration for status grid
 const SERVICES_CONFIG = {

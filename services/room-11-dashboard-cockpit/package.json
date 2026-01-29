@@ -1,8 +1,8 @@
 {
-  "name": "sin-solver-dashboard",
+  "name": "delqhi-platform-dashboard",
   "version": "2.0.0",
   "type": "module",
-  "description": "SIN-Solver Survey Automation Dashboard - 100% FREE",
+  "description": "Delqhi-Platform Survey Automation Dashboard - 100% FREE",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

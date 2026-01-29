@@ -119,7 +119,7 @@ Complete automated flow from customer purchase to live website delivery.
 
 ### 3. SIN-Website-Worker (Zimmer-20)
 
-**Location:** `/Users/jeremy/dev/SIN-Solver/services/zimmer-20-sin-website-worker/`
+**Location:** `/Users/jeremy/dev/Delqhi-Platform/services/zimmer-20-sin-website-worker/`
 
 **Workflow:**
 ```python
@@ -427,5 +427,5 @@ pending → processing → building → testing →
 **Room:** Architecture  
 **Status:** 📐 Design Complete  
 **Last Updated:** 2026-01-27  
-**Maintainer:** SIN-Solver Team  
+**Maintainer:** Delqhi-Platform Team  
 **License:** Delqhi Proprietary

@@ -2,7 +2,7 @@
 
 **Erstellt:** 2026-01-29  
 **Version:** 1.0  
-**Projekt:** SIN-Solver Captcha Worker Training  
+**Projekt:** Delqhi-Platform Captcha Worker Training  
 **Ziel:** Training und Testing des `builder-1.1-captcha-worker` für alle Captcha-Typen
 
 ---
@@ -128,7 +128,7 @@ import os
 from pathlib import Path
 from PIL import Image
 
-TRAINING_DIR = Path("/Users/jeremy/dev/sin-solver/training")
+TRAINING_DIR = Path("/Users/jeremy/dev/delqhi-platform/training")
 
 def validate_training_dataset():
     """Validiere das komplette Training-Dataset"""
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 from ultralytics import YOLO
 from pathlib import Path
 
-training_dir = Path("/Users/jeremy/dev/sin-solver/training")
+training_dir = Path("/Users/jeremy/dev/delqhi-platform/training")
 
 # Dataset für YOLO vorbereiten
 dataset_config = {
@@ -222,7 +222,7 @@ results = model.train(
 import ddddocr
 from pathlib import Path
 
-training_dir = Path("/Users/jeremy/dev/sin-solver/training")
+training_dir = Path("/Users/jeremy/dev/delqhi-platform/training")
 
 # Text-Captchas trainieren
 text_captcha_dir = training_dir / "Text_Captcha"
@@ -248,7 +248,7 @@ import pytest
 from pathlib import Path
 from builder_captcha_worker import CaptchaDetector
 
-TRAINING_DIR = Path("/Users/jeremy/dev/sin-solver/training")
+TRAINING_DIR = Path("/Users/jeremy/dev/delqhi-platform/training")
 
 class TestCaptchaDetection:
     
@@ -322,7 +322,7 @@ import pytest
 from pathlib import Path
 from builder_captcha_worker import CaptchaSolver
 
-TRAINING_DIR = Path("/Users/jeremy/dev/sin-solver/training")
+TRAINING_DIR = Path("/Users/jeremy/dev/delqhi-platform/training")
 
 class TestCaptchaSolverIntegration:
     
@@ -410,7 +410,7 @@ DEMO_URLS = {
     # ... weitere URLs
 }
 
-output_dir = Path("/Users/jeremy/dev/sin-solver/training")
+output_dir = Path("/Users/jeremy/dev/delqhi-platform/training")
 
 def download_captcha_screenshots():
     """Download echte Captcha-Screenshots"""
@@ -470,7 +470,7 @@ if __name__ == "__main__":
 ### Lokales Training
 
 ```bash
-cd /Users/jeremy/dev/sin-solver/training
+cd /Users/jeremy/dev/delqhi-platform/training
 
 # Validiere Dataset
 python3 test_captcha_training.py
@@ -488,7 +488,7 @@ python3 train_yolo_classifier.py
 ### Docker-Integration (Optional)
 
 ```bash
-docker run -v /Users/jeremy/dev/sin-solver/training:/data \
+docker run -v /Users/jeremy/dev/delqhi-platform/training:/data \
   -e TRAINING_DIR=/data \
   builder-1.1-captcha-worker:latest \
   python train_models.py
@@ -512,9 +512,9 @@ docker run -v /Users/jeremy/dev/sin-solver/training:/data \
 ## 📞 Support & Dokumentation
 
 - **Builder-Container:** `builder-1.1-captcha-worker`
-- **Training-Script:** `/Users/jeremy/dev/sin-solver/training/scripts/`
-- **Tests:** `/Users/jeremy/dev/sin-solver/training/tests/`
-- **Logs:** `/Users/jeremy/dev/sin-solver/training/logs/`
+- **Training-Script:** `/Users/jeremy/dev/delqhi-platform/training/scripts/`
+- **Tests:** `/Users/jeremy/dev/delqhi-platform/training/tests/`
+- **Logs:** `/Users/jeremy/dev/delqhi-platform/training/logs/`
 
 ---
 

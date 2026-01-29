@@ -1,4 +1,4 @@
-# Verzeichnisstruktur Antigravity (SIN-Solver)
+# Verzeichnisstruktur Antigravity (Delqhi-Platform)
 Docs/antigravity/
 ├── 00-antigravity-directory-structure.md  ← Diese Datei
 ├── 01-antigravity-readme.md               # Auth & Plugin Setup

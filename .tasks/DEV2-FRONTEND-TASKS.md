@@ -10,7 +10,7 @@
 
 ### 1. Setup Environment
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 
 # Pull latest changes
 git pull origin main
@@ -1011,7 +1011,7 @@ services/zimmer-11-dashboard/
 ## 🚀 TESTING COMMANDS
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/services/zimmer-11-dashboard
+cd /Users/jeremy/dev/Delqhi-Platform/services/zimmer-11-dashboard
 
 # Install dependencies
 npm install

@@ -23,7 +23,7 @@ tail -1 /Users/jeremy/runs/classify/runs/classify/captcha_classifier3/results.cs
 **Once you confirm YOLO is at 20/20 (100%), run:**
 
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh
+bash /Users/jeremy/dev/Delqhi-Platform/FINAL_TEST_AND_DEPLOY.sh
 ```
 
 **This script will automatically:**
@@ -133,7 +133,7 @@ The script will show progress like:
 
 3. **Run tests individually:**
    ```bash
-   cd /Users/jeremy/dev/SIN-Solver
+   cd /Users/jeremy/dev/Delqhi-Platform
    source ocr_env/bin/activate
    export PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True
    
@@ -143,7 +143,7 @@ The script will show progress like:
 
 4. **Check git status:**
    ```bash
-   cd /Users/jeremy/dev/SIN-Solver
+   cd /Users/jeremy/dev/Delqhi-Platform
    git status
    # Should show clean working tree
    ```
@@ -162,20 +162,20 @@ ls -lh /Users/jeremy/runs/classify/runs/classify/captcha_classifier3/weights/bes
 
 ### 2. Check Git Commit
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 git log --oneline -1
 # Should show: feat(phase-2.5): OCR pipeline complete...
 ```
 
 ### 3. Check Documentation
 ```bash
-tail -10 /Users/jeremy/dev/SIN-Solver/training/training-lastchanges.md
+tail -10 /Users/jeremy/dev/Delqhi-Platform/training/training-lastchanges.md
 # Should show Phase 2.5 completion entry
 ```
 
 ### 4. Verify Commits Pushed
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 git status
 # Should show: "Your branch is up to date with 'origin/main'"
 ```
@@ -193,8 +193,8 @@ Once Phase 2.5 is complete:
 4. ⏳ Deploy to production
 
 ### Files Needed for Phase 3:
-- ✅ `/Users/jeremy/dev/SIN-Solver/app/captcha_solver_pipeline.py` (READY)
-- ✅ `/Users/jeremy/dev/SIN-Solver/ocr_env/` (READY - for Docker)
+- ✅ `/Users/jeremy/dev/Delqhi-Platform/app/captcha_solver_pipeline.py` (READY)
+- ✅ `/Users/jeremy/dev/Delqhi-Platform/ocr_env/` (READY - for Docker)
 - ✅ `/Users/jeremy/runs/classify/runs/classify/captcha_classifier3/weights/best.pt` (READY)
 
 ---
@@ -225,7 +225,7 @@ If anything fails:
 Everything is prepared. When YOLO finishes training, just run:
 
 ```bash
-bash /Users/jeremy/dev/SIN-Solver/FINAL_TEST_AND_DEPLOY.sh
+bash /Users/jeremy/dev/Delqhi-Platform/FINAL_TEST_AND_DEPLOY.sh
 ```
 
 **Then Phase 2.5 is COMPLETE!** 🎉

@@ -1,5 +1,5 @@
 {
-  "name": "sin-solver-root",
+  "name": "delqhi-platform-root",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev dashboard -p 3000",

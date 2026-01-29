@@ -1,1183 +1,1680 @@
-# 📚 SIN-Solver Deployment Guide
+# SIN-Solver Enterprise Deployment Guide
 
-**Version:** 1.0 (Phase 7)  
-**Updated:** 2026-01-28  
-**Status:** PRODUCTION READY  
-**Total Sections:** 10  
-**Total Lines:** 600+
+> **Production Deployment Documentation**  
+> **Version:** 2.1.0  
+> **Last Updated:** February 2026
 
 ---
 
-## TABLE OF CONTENTS
+## Table of Contents
 
-1. [Prerequisites](#section-1-prerequisites)
-2. [Quick Start (5-Minute Setup)](#section-2-quick-start-5-minute-setup)
-3. [Full Stack Deployment](#section-3-full-stack-deployment)
-4. [Service Configuration](#section-4-service-configuration-all-39-services)
-5. [Vault Setup & Secret Management](#section-5-vault-setup--secret-management)
-6. [Vercel Deployment](#section-6-vercel-deployment-dashboard-frontend)
-7. [n8n Workflow Configuration](#section-7-n8n-workflow-configuration)
-8. [Monitoring & Health Checks](#section-8-monitoring--health-checks)
-9. [Troubleshooting & Common Issues](#section-9-troubleshooting--common-issues)
-10. [Security Hardening & Best Practices](#section-10-security-hardening--best-practices)
+1. [Overview](#overview)
+2. [Infrastructure Requirements](#infrastructure-requirements)
+3. [Docker Compose Deployment](#docker-compose-deployment)
+4. [Kubernetes Deployment](#kubernetes-deployment)
+5. [Docker Swarm Deployment](#docker-swarm-deployment)
+6. [Terraform Infrastructure](#terraform-infrastructure)
+7. [CI/CD Pipelines](#cicd-pipelines)
+8. [Backup Strategies](#backup-strategies)
+9. [Disaster Recovery](#disaster-recovery)
+10. [Monitoring & Alerting](#monitoring--alerting)
+11. [Security Hardening](#security-hardening)
 
 ---
 
-## SECTION 1: PREREQUISITES
+## Overview
 
-### Hardware Requirements
+This guide covers production deployment options for SIN-Solver Enterprise:
 
-**Minimum:**
-- CPU: 4 cores (Intel i5 / Apple M1)
-- RAM: 16 GB
-- Disk: 100 GB SSD
-- Network: 1 Gbps connection
+| Deployment Type | Best For | Complexity | Scale |
+|-----------------|----------|------------|-------|
+| Docker Compose | Small teams, testing | Low | < 1000 req/min |
+| Kubernetes | Enterprise, scale | High | Unlimited |
+| Docker Swarm | Mid-size, simplicity | Medium | < 5000 req/min |
+| Terraform Cloud | Multi-region, IaC | High | Unlimited |
 
-**Recommended:**
-- CPU: 8+ cores
-- RAM: 32+ GB
-- Disk: 500 GB SSD
-- Network: 10 Gbps connection (for production)
+### Architecture Overview
 
-### Software Requirements
-
-**macOS (Development):**
-```bash
-# Install Homebrew if not present
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install required tools
-brew install docker docker-compose node python3 git
-
-# Verify installations
-docker --version          # Docker 24.0+
-docker-compose --version  # Docker Compose 2.20+
-node --version           # Node 18+
-python3 --version        # Python 3.10+
-git --version            # Git 2.40+
 ```
-
-**Linux (Production):**
-```bash
-# Ubuntu 22.04 LTS
-sudo apt update && sudo apt upgrade -y
-
-# Docker installation
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-
-# Docker Compose (V2)
-mkdir -p ~/.docker/cli-plugins
-curl -SL https://github.com/docker/compose/releases/download/v2.25.0/docker-compose-linux-x86_64 \
-  -o ~/.docker/cli-plugins/docker-compose
-chmod +x ~/.docker/cli-plugins/docker-compose
-
-# Node.js (via NVM)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-nvm install 18
-nvm use 18
-
-# Python 3.10+
-sudo apt install python3.10 python3-pip python3-venv -y
-```
-
-### Development Tools
-
-```bash
-# Modern CLI tools (MANDATE 0.19)
-brew install ripgrep fd sd bat exa tree
-
-# Code editors
-brew install --cask visual-studio-code  # or code-server
-
-# Git tools
-brew install gh                          # GitHub CLI
-git config --global init.defaultBranch main
-git config --global user.email "ai@sincode.ai"
-git config --global user.name "SIN Solver AI"
-```
-
-### Network Setup
-
-**Firewall Rules:**
-- Port 5678: n8n (allow local + Vercel)
-- Port 3011: Dashboard (allow local + Vercel)
-- Port 8200: Vault (internal only)
-- Port 5432: PostgreSQL (internal only)
-- Port 6379: Redis (internal only)
-
-**Docker Network:**
-```bash
-# Create primary network
-docker network create sin-solver-network \
-  --driver bridge \
-  --subnet 172.18.0.0/16 \
-  --gateway 172.18.0.1
-
-# Verify network
-docker network inspect sin-solver-network
+┌─────────────────────────────────────────────────────────────────────┐
+│                        PRODUCTION ARCHITECTURE                      │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌───────────────┐   │
+│  │   CDN/WAF       │───▶│  Load Balancer  │───▶│  API Gateway  │   │
+│  │  Cloudflare     │    │   (HAProxy)     │    │   (Kong/AWS)  │   │
+│  └─────────────────┘    └─────────────────┘    └───────┬───────┘   │
+│                                                        │            │
+│                           ┌────────────────────────────┤            │
+│                           ▼                            ▼            │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │                    KUBERNETES CLUSTER                        │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐              │   │
+│  │  │ API Pods   │ │ Worker Pods│ │ Steel Pool │              │   │
+│  │  │ (3+ replicas)│ (10+ nodes)│ │ (5+ nodes) │              │   │
+│  │  └────────────┘ └────────────┘ └────────────┘              │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                           │                                         │
+│       ┌───────────────────┼───────────────────┐                    │
+│       ▼                   ▼                   ▼                    │
+│  ┌──────────┐      ┌──────────┐      ┌──────────────┐             │
+│  │ Postgres │      │  Redis   │      │ HashiCorp    │             │
+│  │ Cluster  │      │ Cluster  │      │ Vault        │             │
+│  │ (HA)     │      │ (Sentinel)│     │ (HA)         │             │
+│  └──────────┘      └──────────┘      └──────────────┘             │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## SECTION 2: QUICK START (5-MINUTE SETUP)
+## Infrastructure Requirements
 
-### Option A: Automated Setup (Recommended)
+### Minimum Production Specs
+
+| Component | CPU | Memory | Storage | Instances |
+|-----------|-----|--------|---------|-----------|
+| API Server | 2 cores | 4 GB | 20 GB SSD | 3 |
+| Worker Nodes | 4 cores | 8 GB | 50 GB SSD | 10 |
+| Steel Browser | 4 cores | 8 GB | 30 GB SSD | 5 |
+| PostgreSQL | 4 cores | 16 GB | 500 GB SSD | 3 (HA) |
+| Redis | 2 cores | 4 GB | 20 GB SSD | 3 (HA) |
+| Vault | 2 cores | 4 GB | 20 GB SSD | 3 (HA) |
+
+### Recommended Production Specs (High Volume)
+
+| Component | CPU | Memory | Storage | Instances |
+|-----------|-----|--------|---------|-----------|
+| API Server | 4 cores | 8 GB | 50 GB NVMe | 5 |
+| Worker Nodes | 8 cores | 16 GB | 100 GB NVMe | 20 |
+| Steel Browser | 8 cores | 16 GB | 50 GB NVMe | 10 |
+| PostgreSQL | 8 cores | 32 GB | 2 TB NVMe | 3 (HA) |
+| Redis | 4 cores | 16 GB | 100 GB NVMe | 5 (Cluster) |
+| Vault | 2 cores | 8 GB | 50 GB NVMe | 3 (HA) |
+
+### Network Requirements
+
+| Requirement | Specification |
+|-------------|---------------|
+| Bandwidth | 1 Gbps minimum |
+| Latency | < 50ms between nodes |
+| Firewall | Allow 80, 443, 8000, 5678, 5432, 6379 |
+| DNS | Internal DNS resolution |
+| TLS | Valid certificates required |
+
+### Supported Platforms
+
+| Platform | Versions | Status |
+|----------|----------|--------|
+| AWS EKS | 1.28+ | ✅ Fully Supported |
+| GCP GKE | 1.28+ | ✅ Fully Supported |
+| Azure AKS | 1.28+ | ✅ Fully Supported |
+| On-premise K8s | 1.28+ | ✅ Supported |
+| Docker 20.10+ | Any | ✅ Supported |
+| Podman | 4.0+ | ⚠️ Experimental |
+
+---
+
+## Docker Compose Deployment
+
+### Quick Start
 
 ```bash
 # 1. Clone repository
-cd /Users/jeremy/dev
-git clone https://github.com/YourOrg/SIN-Solver.git
+git clone https://github.com/Delqhi/SIN-Solver.git
 cd SIN-Solver
 
-# 2. Install dependencies
-npm install
-pip install -r requirements.txt
+# 2. Copy production environment
+cp .env.example .env.production
 
-# 3. Configure environment
-cp Docker/.env.example Docker/.env.production.local
-# Edit .env.production.local with your settings (secrets from Vault)
+# 3. Edit environment variables
+nano .env.production
 
-# 4. Start core services
-cd Docker/infrastructure
-docker-compose -f docker-compose.yml up -d postgres redis vault
+# 4. Create Docker network
+docker network create sin-solver-network
 
-# 5. Initialize Vault
-docker exec room-02-vault vault operator init -key-shares=5 -key-threshold=3
+# 5. Start infrastructure
+docker-compose -f docker-compose.prod.yml up -d
 
-# 6. Start remaining services
-cd ../..
-./scripts/start-all.sh
-
-# 7. Verify deployment
+# 6. Verify deployment
 ./scripts/health-check.sh
-
-# 8. Access services
-# Dashboard: http://localhost:3011
-# n8n: http://localhost:5678
-# PostgreSQL: localhost:5432 (via psql)
 ```
 
-### Option B: Manual Step-by-Step
+### Production Docker Compose File
 
-```bash
-# Step 1: Create required directories
-mkdir -p /Users/jeremy/dev/SIN-Solver/Docker/{infrastructure,agents,rooms,solvers}
-mkdir -p /Users/jeremy/dev/SIN-Solver/logs
-mkdir -p /Users/jeremy/dev/SIN-Solver/data/{postgres,redis,vault}
+```yaml
+# docker-compose.prod.yml
+version: '3.8'
 
-# Step 2: Start database services
-cd /Users/jeremy/dev/SIN-Solver/Docker/infrastructure
-docker-compose -f docker-compose.yml up -d
+services:
+  # API Gateway
+  api:
+    image: sin-solver/api:v2.1.0
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - VAULT_ADDR=${VAULT_ADDR}
+      - SECRET_KEY=${SECRET_KEY}
+    ports:
+      - "8000:8000"
+    networks:
+      - sin-solver
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
 
-# Step 3: Verify connectivity
-docker ps | grep -E "(postgres|redis)"
+  # Worker Pool
+  worker:
+    image: sin-solver/worker:v2.1.0
+    deploy:
+      replicas: 10
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+    networks:
+      - sin-solver
+    restart: unless-stopped
 
-# Step 4: Initialize databases
-docker exec room-03-postgres-master psql -U postgres -c "CREATE DATABASE sin_solver;"
+  # Steel Browser Pool
+  steel:
+    image: sin-solver/steel:v2.1.0
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+    environment:
+      - STEEL_MAX_SESSIONS=10
+    networks:
+      - sin-solver
+    restart: unless-stopped
 
-# Step 5: Start services one by one
-cd ../agents && docker-compose -f docker-compose.yml up -d
-cd ../rooms && docker-compose -f docker-compose.yml up -d
-cd ../solvers && docker-compose -f docker-compose.yml up -d
+  # PostgreSQL Primary
+  postgres-primary:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - sin-solver
+    restart: unless-stopped
 
-# Step 6: Health check
-curl http://localhost:3011/health
-curl http://localhost:5678/api/health
+  # PostgreSQL Replica
+  postgres-replica:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-replica-data:/var/lib/postgresql/data
+    networks:
+      - sin-solver
+    restart: unless-stopped
+
+  # Redis Cluster
+  redis-master:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 4gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - sin-solver
+    restart: unless-stopped
+
+  # HashiCorp Vault
+  vault:
+    image: hashicorp/vault:1.15
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_ADDR=http://0.0.0.0:8200
+    volumes:
+      - vault-data:/vault/file
+      - ./vault-config:/vault/config
+    networks:
+      - sin-solver
+    restart: unless-stopped
+
+  # Load Balancer
+  haproxy:
+    image: haproxy:2.8-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./certs:/etc/ssl/certs:ro
+    networks:
+      - sin-solver
+    restart: unless-stopped
+
+volumes:
+  postgres-primary-data:
+  postgres-replica-data:
+  redis-data:
+  vault-data:
+
+networks:
+  sin-solver:
+    driver: bridge
 ```
 
-### Verify Installation
+### Environment Variables
 
 ```bash
-# Check all services are running
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+# .env.production
+# Core Settings
+ENVIRONMENT=production
+DEBUG=false
+SECRET_KEY=$(openssl rand -hex 32)
 
-# Expected output (39 services):
-# agent-01-n8n-orchestrator     Up 2 minutes    0.0.0.0:5678->5678/tcp
-# agent-03-agentzero-coder      Up 2 minutes    0.0.0.0:8050->8050/tcp
-# ... (36 more services)
+# Database
+DATABASE_URL=postgresql://sinuser:${POSTGRES_PASSWORD}@postgres-primary:5432/sinsolver
+POSTGRES_USER=sinuser
+POSTGRES_PASSWORD=$(openssl rand -base64 32)
+POSTGRES_DB=sinsolver
 
-# Test PostgreSQL
-docker exec room-03-postgres-master psql -U postgres -d sin_solver -c "SELECT version();"
+# Redis
+REDIS_URL=redis://redis-master:6379/0
 
-# Test Redis
-docker exec room-04-redis-cache redis-cli ping
-# Expected: PONG
+# Vault
+VAULT_ADDR=http://vault:8200
+VAULT_TOKEN=$(cat vault/root-token)
 
-# Access Dashboard
-open http://localhost:3011
+# AI Model API Keys
+GEMINI_API_KEY=your-gemini-key
+MISTRAL_API_KEY=your-mistral-key
+GROQ_API_KEY=your-groq-key
 
-# Access n8n
-open http://localhost:5678
+# Monitoring
+SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+GRAFANA_API_KEY=your-grafana-key
+
+# SSL/TLS
+SSL_CERT_PATH=/etc/ssl/certs/sin-solver.crt
+SSL_KEY_PATH=/etc/ssl/private/sin-solver.key
 ```
 
 ---
 
-## SECTION 3: FULL STACK DEPLOYMENT
+## Kubernetes Deployment
 
-### 3.1 Directory Structure Setup
+### Architecture
 
-```bash
-SIN-Solver/
-├── Docker/
-│   ├── infrastructure/
-│   │   ├── docker-compose.yml
-│   │   ├── .env.example
-│   │   └── Dockerfile
-│   ├── agents/
-│   │   ├── agent-01-n8n/
-│   │   ├── agent-03-agentzero/
-│   │   ├── agent-05-steel/
-│   │   └── agent-06-skyvern/
-│   ├── rooms/
-│   │   ├── room-01-dashboard/
-│   │   ├── room-03-postgres/
-│   │   ├── room-04-redis/
-│   │   └── room-09-chat/
-│   ├── solvers/
-│   │   ├── solver-1.1-captcha/
-│   │   └── solver-2.1-survey/
-│   └── .env.production.local (git-ignored)
-├── Docs/
-├── n8n-workflows/
-├── scripts/
-│   ├── start-all.sh
-│   ├── health-check.sh
-│   └── deploy.sh
-└── README.md
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     KUBERNETES CLUSTER                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    INGRESS CONTROLLER                    │   │
+│  │                 (nginx-ingress / Traefik)               │   │
+│  └─────────────────────────┬───────────────────────────────┘   │
+│                            │                                    │
+│  ┌─────────────────────────┴───────────────────────────────┐   │
+│  │                     SERVICES LAYER                       │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐  │   │
+│  │  │ API svc  │  │ Worker   │  │ Steel    │  │ Vault  │  │   │
+│  │  │:8000     │  │ svc      │  │ svc      │  │ svc    │  │   │
+│  │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └───┬────┘  │   │
+│  └───────┼─────────────┼─────────────┼────────────┼───────┘   │
+│          │             │             │            │            │
+│  ┌───────┴─────────────┴─────────────┴────────────┴───────┐   │
+│  │                     WORKLOADS                           │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────┐  │   │
+│  │  │ API Pods │  │ Worker   │  │ Steel    │  │ Vault  │  │   │
+│  │  │(3 replicas)│ StatefulSet│  │ DaemonSet│  │Stateful│  │   │
+│  │  └──────────┘  └──────────┘  └──────────┘  └────────┘  │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                     DATA STORES                         │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │   │
+│  │  │ PostgreSQL   │  │ Redis Cluster│  │ Vault HA     │   │   │
+│  │  │(StatefulSet) │  │(StatefulSet) │  │(StatefulSet) │   │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.2 Phase 1: Infrastructure Services
+### Namespace and RBAC
 
-```bash
-# Create Docker network
-docker network create sin-solver-network \
-  --driver bridge \
-  --subnet 172.18.0.0/16
-
-# Deploy PostgreSQL (room-03-postgres-master, 172.18.0.2:5432)
-cd Docker/infrastructure
-docker-compose -f docker-compose-postgres.yml up -d
-
-# Wait for PostgreSQL to be ready
-sleep 10
-docker exec room-03-postgres-master pg_isready -U postgres
-
-# Initialize database schema
-docker exec room-03-postgres-master psql -U postgres -f /scripts/init-schema.sql
-
-# Deploy Redis (room-04-redis-cache, 172.18.0.3:6379)
-docker-compose -f docker-compose-redis.yml up -d
-
-# Verify Redis
-docker exec room-04-redis-cache redis-cli ping
+```yaml
+# k8s/00-namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sin-solver
+  labels:
+    name: sin-solver
+    environment: production
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+subjects:
+  - kind: ServiceAccount
+    name: sin-solver-api
+roleRef:
+  kind: Role
+  name: sin-solver-api
+  apiGroup: rbac.authorization.k8s.io
 ```
 
-### 3.3 Phase 2: Vault Service
+### ConfigMap and Secrets
 
-```bash
-# Deploy Vault (room-02-vault, 172.18.0.31:8200)
-docker-compose -f docker-compose-vault.yml up -d
-
-# Wait for Vault to start
-sleep 5
-
-# Initialize Vault
-docker exec room-02-vault vault operator init \
-  -key-shares=5 \
-  -key-threshold=3 \
-  -format=json > /tmp/vault-init.json
-
-# Save unseal keys securely
-UNSEAL_KEY_1=$(jq -r '.unseal_keys_b64[0]' /tmp/vault-init.json)
-UNSEAL_KEY_2=$(jq -r '.unseal_keys_b64[1]' /tmp/vault-init.json)
-UNSEAL_KEY_3=$(jq -r '.unseal_keys_b64[2]' /tmp/vault-init.json)
-ROOT_TOKEN=$(jq -r '.root_token' /tmp/vault-init.json)
-
-# Unseal Vault
-docker exec room-02-vault vault operator unseal $UNSEAL_KEY_1
-docker exec room-02-vault vault operator unseal $UNSEAL_KEY_2
-docker exec room-02-vault vault operator unseal $UNSEAL_KEY_3
-
-# Verify Vault is unsealed
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault vault status
+```yaml
+# k8s/01-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sin-solver-config
+  namespace: sin-solver
+data:
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  DATABASE_URL: "postgresql://sinuser:placeholder@postgres:5432/sinsolver"
+  REDIS_URL: "redis://redis:6379/0"
+  VAULT_ADDR: "http://vault:8200"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sin-solver-secrets
+  namespace: sin-solver
+type: Opaque
+stringData:
+  SECRET_KEY: "your-secret-key-here"
+  GEMINI_API_KEY: "your-gemini-key"
+  MISTRAL_API_KEY: "your-mistral-key"
+  POSTGRES_PASSWORD: "your-postgres-password"
 ```
 
-### 3.4 Phase 3: Agent Services
+### API Deployment
 
-```bash
-# Deploy n8n (agent-01-n8n-orchestrator, 172.18.0.4:5678)
-cd ../agents/agent-01-n8n
-docker-compose -f docker-compose.yml up -d
-# Wait for initialization
-sleep 30
-
-# Deploy Agent Zero (agent-03-agentzero-coder, 172.18.0.6:8050)
-cd ../agent-03-agentzero
-docker-compose -f docker-compose.yml up -d
-# Wait for initialization
-sleep 15
-
-# Deploy Steel Browser (agent-05-steel-browser, 172.18.0.5:3005)
-cd ../agent-05-steel
-docker-compose -f docker-compose.yml up -d
-# Wait for initialization
-sleep 15
-
-# Deploy Skyvern (agent-06-skyvern-solver, 172.18.0.7:8030)
-cd ../agent-06-skyvern
-docker-compose -f docker-compose.yml up -d
-# Wait for initialization
-sleep 15
-
-# Verify all agents are running
-docker ps --filter "name=agent-" --format "table {{.Names}}\t{{.Status}}"
+```yaml
+# k8s/10-api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+  labels:
+    app: sin-solver-api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: sin-solver-api
+  template:
+    metadata:
+      labels:
+        app: sin-solver-api
+    spec:
+      serviceAccountName: sin-solver-api
+      containers:
+        - name: api
+          image: sin-solver/api:v2.1.0
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: sin-solver-config
+            - secretRef:
+                name: sin-solver-secrets
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+  labels:
+    app: sin-solver-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+  selector:
+    app: sin-solver-api
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - api.sin-solver.io
+      secretName: sin-solver-tls
+  rules:
+    - host: api.sin-solver.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sin-solver-api
+                port:
+                  number: 8000
 ```
 
-### 3.5 Phase 4: Room Services
+### Worker Deployment
 
-```bash
-# Deploy Dashboard (room-01-dashboard-cockpit, 172.18.0.60:3011)
-cd ../rooms/room-01-dashboard
-docker-compose -f docker-compose.yml up -d
-# Dashboard will show at http://localhost:3011
-
-# Deploy RocketChat (room-09.1-rocketchat-app, 172.18.0.9:3009)
-cd ../room-09-chat
-docker-compose -f docker-compose.yml up -d
-
-# Deploy Supabase (room-16-supabase, 172.18.0.16:54323)
-cd ../room-16-supabase
-docker-compose -f docker-compose.yml up -d
-
-# Deploy NocoDB (room-21-nocodb-ui, 172.18.0.90:8090)
-cd ../room-21-nocodb
-docker-compose -f docker-compose.yml up -d
+```yaml
+# k8s/11-worker-deployment.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sin-solver-worker
+  namespace: sin-solver
+  labels:
+    app: sin-solver-worker
+spec:
+  serviceName: sin-solver-worker
+  replicas: 10
+  selector:
+    matchLabels:
+      app: sin-solver-worker
+  template:
+    metadata:
+      labels:
+        app: sin-solver-worker
+    spec:
+      containers:
+        - name: worker
+          image: sin-solver/worker:v2.1.0
+          envFrom:
+            - configMapRef:
+                name: sin-solver-config
+            - secretRef:
+                name: sin-solver-secrets
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+          volumeMounts:
+            - name: worker-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: worker-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 50Gi
 ```
 
-### 3.6 Phase 5: Solver Services
+### PostgreSQL StatefulSet
 
-```bash
-# Deploy Captcha Worker (solver-1.1-captcha-worker, 172.18.0.8:8019)
-cd ../solvers/solver-1.1-captcha
-docker-compose -f docker-compose.yml up -d
-# Wait for model downloads
-sleep 30
-
-# Deploy Survey Worker (solver-2.1-survey-worker, 172.18.0.9:8018)
-cd ../solver-2.1-survey
-docker-compose -f docker-compose.yml up -d
-# Wait for initialization
-sleep 20
-
-# Verify solvers are running
-docker logs solver-1.1-captcha-worker | grep "Ready" | head -1
-docker logs solver-2.1-survey-worker | grep "Ready" | head -1
+```yaml
+# k8s/20-postgres.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: sin-solver
+spec:
+  serviceName: postgres
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: sinuser
+            - name: POSTGRES_DB
+              value: sinsolver
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sin-solver-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "16Gi"
+              cpu: "4000m"
+            limits:
+              memory: "32Gi"
+              cpu: "8000m"
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: fast-ssd
+        resources:
+          requests:
+            storage: 500Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: sin-solver
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
 ```
 
-### 3.7 Phase 6: Verification
+### Redis Cluster
+
+```yaml
+# k8s/21-redis.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: sin-solver
+spec:
+  serviceName: redis
+  replicas: 5
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+            - containerPort: 16379
+              name: cluster
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --maxmemory
+            - 4gb
+            - --maxmemory-policy
+            - allkeys-lru
+            - --cluster-enabled
+            - "yes"
+            - --cluster-config-file
+            - /data/nodes.conf
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2000m"
+            limits:
+              memory: "16Gi"
+              cpu: "4000m"
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Gi
+```
+
+### Horizontal Pod Autoscaler
+
+```yaml
+# k8s/30-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sin-solver-api-hpa
+  namespace: sin-solver
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sin-solver-api
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sin-solver-worker-hpa
+  namespace: sin-solver
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: sin-solver-worker
+  minReplicas: 10
+  maxReplicas: 100
+  metrics:
+    - type: External
+      external:
+        metric:
+          name: redis_queue_depth
+        target:
+          type: AverageValue
+          averageValue: "100"
+```
+
+### Deploy to Kubernetes
 
 ```bash
-# Check all 39 services are running
-docker ps --format "table {{.Names}}\t{{.Status}}" | wc -l
-# Should output 40 (39 services + header)
+# Apply all manifests
+kubectl apply -f k8s/00-namespace.yaml
+kubectl apply -f k8s/01-config.yaml
+kubectl apply -f k8s/10-api-deployment.yaml
+kubectl apply -f k8s/11-worker-deployment.yaml
+kubectl apply -f k8s/20-postgres.yaml
+kubectl apply -f k8s/21-redis.yaml
+kubectl apply -f k8s/30-hpa.yaml
 
-# Check network connectivity
-docker exec agent-01-n8n-orchestrator \
-  curl -s http://room-03-postgres-master:5432 || echo "PostgreSQL OK"
+# Verify deployment
+kubectl get pods -n sin-solver
+kubectl get svc -n sin-solver
+kubectl get ingress -n sin-solver
 
-docker exec agent-01-n8n-orchestrator \
-  curl -s http://room-04-redis-cache:6379 || echo "Redis OK"
-
-# Test database
-docker exec room-03-postgres-master \
-  psql -U postgres -d sin_solver -c "SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = 'public';"
-# Should output: 54 tables
-
-# Generate deployment report
-./scripts/health-check.sh > /tmp/deployment-report.txt
-cat /tmp/deployment-report.txt
+# Check logs
+kubectl logs -f deployment/sin-solver-api -n sin-solver
 ```
 
 ---
 
-## SECTION 4: SERVICE CONFIGURATION (ALL 39 SERVICES)
+## Docker Swarm Deployment
 
-### Core Services (8)
+### Initialize Swarm
 
-**1. agent-01-n8n-orchestrator**
-```yaml
-- Port: 5678
-- Image: n8nio/n8n:latest
-- Network: sin-solver-network (172.18.0.4)
-- Database: PostgreSQL
-- Configuration:
-    N8N_HOST: agent-01-n8n-orchestrator
-    N8N_PORT: 5678
-    WEBHOOK_URL: http://localhost:5678
-    DB_HOST: room-03-postgres-master
-    DB_PORT: 5432
+```bash
+# Initialize manager
+docker swarm init --advertise-addr <MANAGER-IP>
+
+# Join workers
+docker swarm join --token <TOKEN> <MANAGER-IP>:2377
+
+# Verify nodes
+docker node ls
 ```
 
-**2. agent-03-agentzero-coder**
+### Stack Configuration
+
 ```yaml
-- Port: 8050
-- Image: custom-agent-zero:latest
-- Network: sin-solver-network (172.18.0.6)
-- Configuration:
-    OPENCODE_API_KEY: ${OPENCODE_API_KEY}
-    MAX_ITERATIONS: 100
-    TIMEOUT: 3600
+# docker-stack.yml
+version: '3.8'
+
+services:
+  api:
+    image: sin-solver/api:v2.1.0
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=production
+    networks:
+      - sin-solver
+    ports:
+      - "8000:8000"
+
+  worker:
+    image: sin-solver/worker:v2.1.0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+    environment:
+      - ENVIRONMENT=production
+    networks:
+      - sin-solver
+
+  postgres:
+    image: postgres:15-alpine
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - sin-solver
+
+  redis:
+    image: redis:7-alpine
+    deploy:
+      replicas: 1
+    networks:
+      - sin-solver
+
+secrets:
+  postgres_password:
+    external: true
+
+volumes:
+  postgres-data:
+
+networks:
+  sin-solver:
+    driver: overlay
+    attachable: true
 ```
 
-**3. agent-05-steel-browser**
-```yaml
-- Port: 3005 (HTTP), 9222 (Chrome DevTools)
-- Image: silverspiegeltk/steel:latest
-- Network: sin-solver-network (172.18.0.5)
-- Configuration:
-    CDP_PORT: 9222
-    STEALTH_MODE: true
-```
+### Deploy Stack
 
-**4. agent-06-skyvern-solver**
-```yaml
-- Port: 8030
-- Image: skyvern:latest
-- Network: sin-solver-network (172.18.0.7)
-- Configuration:
-    LOG_LEVEL: info
-    MAX_WORKERS: 4
-```
+```bash
+# Create secrets
+echo "your-postgres-password" | docker secret create postgres_password -
 
-**5. room-03-postgres-master**
-```yaml
-- Port: 5432
-- Image: postgres:15-alpine
-- Network: sin-solver-network (172.18.0.2)
-- Volume: persistent_data:/var/lib/postgresql/data
-- Configuration:
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: ${DB_PASSWORD}
-    POSTGRES_DB: sin_solver
-```
+# Deploy stack
+docker stack deploy -c docker-stack.yml sin-solver
 
-**6. room-04-redis-cache**
-```yaml
-- Port: 6379
-- Image: redis:7-alpine
-- Network: sin-solver-network (172.18.0.3)
-- Volume: redis_data:/data
-- Configuration:
-    requirepass: ${REDIS_PASSWORD}
-```
-
-**7. room-01-dashboard-cockpit**
-```yaml
-- Port: 3011
-- Build: ./Docker/rooms/room-01-dashboard
-- Network: sin-solver-network (172.18.0.60)
-- Configuration:
-    REACT_APP_API_URL: http://localhost:8041
-    REACT_APP_N8N_URL: http://localhost:5678
-```
-
-**8. agent-04.1-codeserver-api**
-```yaml
-- Port: 8041
-- Image: custom-codeserver:latest
-- Network: sin-solver-network (172.18.0.141)
-- Configuration:
-    CODE_PASSWORD: ${CODE_PASSWORD}
-```
-
-### Extended Ecosystem (31)
-
-```yaml
-# room-09.1-rocketchat-app (3009) - Chat Server
-# room-16-supabase-studio (54323) - Backend UI
-# room-21-nocodb-ui (8090) - No-Code Database
-# room-11-plane-* (11 services) - Project Management
-# room-12-delqhi-* (11 services) - CRM Infrastructure
-# room-13-delqhi-* (3 services) - Search & Frontend
-# Plus: Monitoring, storage, and MCP services
+# Verify
+docker stack ps sin-solver
+docker service ls
 ```
 
 ---
 
-## SECTION 5: VAULT SETUP & SECRET MANAGEMENT
+## Terraform Infrastructure
 
-### 5.1 Vault Initialization
+### Directory Structure
 
-```bash
-# Deploy Vault container
-cd Docker/infrastructure
-docker-compose -f docker-compose-vault.yml up -d
-
-# Wait for Vault to be ready
-sleep 5
-
-# Initialize (generates root token + unseal keys)
-docker exec room-02-vault vault operator init \
-  -key-shares=5 \
-  -key-threshold=3 \
-  -format=json > vault-keys.json
-
-# CRITICAL: Secure the keys
-# Store vault-keys.json in secure location (LastPass, 1Password, etc.)
-# DO NOT commit to git
-# DO NOT share publicly
-
-# Extract keys for unsealing
-KEY1=$(jq -r '.unseal_keys_b64[0]' vault-keys.json)
-KEY2=$(jq -r '.unseal_keys_b64[1]' vault-keys.json)
-KEY3=$(jq -r '.unseal_keys_b64[2]' vault-keys.json)
-ROOT_TOKEN=$(jq -r '.root_token' vault-keys.json)
+```
+terraform/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── backend.tf
+├── modules/
+│   ├── vpc/
+│   ├── eks/
+│   ├── rds/
+│   ├── elasticache/
+│   └── vault/
+└── environments/
+    ├── production/
+    ├── staging/
+    └── development/
 ```
 
-### 5.2 Unseal Vault
+### Main Configuration
 
-```bash
-# Unseal with 3 of 5 keys
-docker exec room-02-vault vault operator unseal $KEY1
-docker exec room-02-vault vault operator unseal $KEY2
-docker exec room-02-vault vault operator unseal $KEY3
+```hcl
+# terraform/main.tf
+terraform {
+  required_version = ">= 1.5.0"
+  
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.0"
+    }
+  }
+  
+  backend "s3" {
+    bucket         = "sin-solver-terraform-state"
+    key            = "production/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "sin-solver-terraform-locks"
+  }
+}
 
-# Verify unsealed
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault vault status
-# Sealed: false
+provider "aws" {
+  region = var.aws_region
+  
+  default_tags {
+    tags = {
+      Project     = "SIN-Solver"
+      Environment = var.environment
+      ManagedBy   = "Terraform"
+    }
+  }
+}
+
+# VPC Module
+module "vpc" {
+  source = "./modules/vpc"
+  
+  name               = "sin-solver-${var.environment}"
+  cidr               = var.vpc_cidr
+  availability_zones = var.availability_zones
+  private_subnets    = var.private_subnets
+  public_subnets     = var.public_subnets
+}
+
+# EKS Cluster
+module "eks" {
+  source = "./modules/eks"
+  
+  cluster_name    = "sin-solver-${var.environment}"
+  cluster_version = "1.28"
+  vpc_id          = module.vpc.vpc_id
+  subnet_ids      = module.vpc.private_subnet_ids
+  
+  node_groups = {
+    api = {
+      desired_size   = 3
+      min_size       = 2
+      max_size       = 10
+      instance_types = ["m6i.xlarge"]
+      capacity_type  = "ON_DEMAND"
+    }
+    workers = {
+      desired_size   = 10
+      min_size       = 5
+      max_size       = 50
+      instance_types = ["m6i.2xlarge"]
+      capacity_type  = "SPOT"
+    }
+  }
+}
+
+# RDS PostgreSQL
+module "rds" {
+  source = "./modules/rds"
+  
+  identifier     = "sin-solver-${var.environment}"
+  engine_version = "15.4"
+  instance_class = "db.r6g.xlarge"
+  
+  allocated_storage = 500
+  max_storage       = 2000
+  
+  multi_az               = true
+  db_subnet_group_name   = module.vpc.database_subnet_group
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  
+  backup_retention_period = 30
+  backup_window          = "03:00-04:00"
+  maintenance_window     = "Mon:04:00-Mon:05:00"
+}
+
+# ElastiCache Redis
+module "redis" {
+  source = "./modules/elasticache"
+  
+  cluster_id       = "sin-solver-${var.environment}"
+  engine_version   = "7.0"
+  node_type        = "cache.r6g.xlarge"
+  num_cache_nodes  = 3
+  
+  subnet_group_name  = module.vpc.elasticache_subnet_group
+  security_group_ids = [aws_security_group.redis.id]
+}
 ```
 
-### 5.3 Configure Authentication & Policies
+### Variables
 
-```bash
-# Enable AppRole authentication (for agents)
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault auth enable approle
+```hcl
+# terraform/variables.tf
+variable "environment" {
+  description = "Environment name"
+  type        = string
+}
 
-# Create agent policy
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault policy write agent-policy -<<EOF
-path "secret/data/agents/*" {
-  capabilities = ["read", "list"]
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
 }
-path "secret/data/database/*" {
-  capabilities = ["read"]
-}
-EOF
 
-# Create solver policy
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault policy write solver-policy -<<EOF
-path "secret/data/solvers/*" {
-  capabilities = ["read", "list"]
+variable "vpc_cidr" {
+  description = "VPC CIDR block"
+  type        = string
+  default     = "10.0.0.0/16"
 }
-path "secret/data/database/*" {
-  capabilities = ["read"]
-}
-EOF
 
-# Enable KV V2 secret engine
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault secrets enable -path=secret kv-v2
+variable "availability_zones" {
+  description = "Availability zones"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+}
+
+variable "private_subnets" {
+  description = "Private subnet CIDRs"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+}
+
+variable "public_subnets" {
+  description = "Public subnet CIDRs"
+  type        = list(string)
+  default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
 ```
 
-### 5.4 Populate Secrets
+### Deploy with Terraform
 
 ```bash
-# Store PostgreSQL credentials
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault kv put secret/database/postgres \
-  username=postgres \
-  password=CHANGE_ME_IN_PRODUCTION \
-  host=room-03-postgres-master \
-  port=5432 \
-  database=sin_solver
+# Initialize
+cd terraform/environments/production
+terraform init
 
-# Store Redis credentials
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault kv put secret/database/redis \
-  password=CHANGE_ME_IN_PRODUCTION \
-  host=room-04-redis-cache \
-  port=6379
+# Plan
+terraform plan -out=tfplan
 
-# Store n8n credentials
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault kv put secret/agents/n8n \
-  api_key=CHANGE_ME \
-  webhook_secret=CHANGE_ME
+# Apply
+terraform apply tfplan
 
-# Store agent credentials
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault kv put secret/agents/opencode \
-  api_key=CHANGE_ME
+# Configure kubectl
+aws eks update-kubeconfig --region us-east-1 --name sin-solver-production
 
-# Verify secrets are stored
-docker exec -e VAULT_TOKEN=$ROOT_TOKEN room-02-vault \
-  vault kv list secret/
+# Verify
+kubectl get nodes
 ```
 
-### 5.5 Service Configuration for Vault
+---
 
-**For agents (docker-compose):**
+## CI/CD Pipelines
+
+### GitHub Actions
+
 ```yaml
-environment:
-  VAULT_ADDR: http://room-02-vault:8200
-  VAULT_ROLE_ID: ${VAULT_ROLE_ID}
-  VAULT_SECRET_ID: ${VAULT_SECRET_ID}
-  DATABASE_URL: vault://secret/database/postgres
+# .github/workflows/deploy-production.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: sin-solver
+  EKS_CLUSTER: sin-solver-production
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: Run tests
+        run: pytest tests/ --cov=app --cov-report=xml
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/api:$IMAGE_TAG -f Dockerfile.api .
+          docker build -t $ECR_REGISTRY/worker:$IMAGE_TAG -f Dockerfile.worker .
+          docker push $ECR_REGISTRY/api:$IMAGE_TAG
+          docker push $ECR_REGISTRY/worker:$IMAGE_TAG
+          
+          # Tag as latest
+          docker tag $ECR_REGISTRY/api:$IMAGE_TAG $ECR_REGISTRY/api:latest
+          docker tag $ECR_REGISTRY/worker:$IMAGE_TAG $ECR_REGISTRY/worker:latest
+          docker push $ECR_REGISTRY/api:latest
+          docker push $ECR_REGISTRY/worker:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER
+      
+      - name: Deploy to EKS
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Update image tags
+          sed -i "s|image: sin-solver/api:.*|image: ${{ steps.login-ecr.outputs.registry }}/api:$IMAGE_TAG|" k8s/10-api-deployment.yaml
+          sed -i "s|image: sin-solver/worker:.*|image: ${{ steps.login-ecr.outputs.registry }}/worker:$IMAGE_TAG|" k8s/11-worker-deployment.yaml
+          
+          # Apply manifests
+          kubectl apply -f k8s/
+          
+          # Wait for rollout
+          kubectl rollout status deployment/sin-solver-api -n sin-solver
+          kubectl rollout status statefulset/sin-solver-worker -n sin-solver
+      
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n sin-solver
+          kubectl get svc -n sin-solver
+          
+          # Health check
+          kubectl run health-check --rm -i --restart=Never --image=curlimages/curl -- \
+            curl -f http://sin-solver-api.sin-solver.svc.cluster.local:8000/health
+
+  notify:
+    needs: [test, build, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
-**For Node.js applications:**
-```javascript
-const vault = require('node-vault')({
-  endpoint: process.env.VAULT_ADDR,
-  token: process.env.VAULT_TOKEN,
-});
+### GitLab CI
 
-const secret = await vault.read('secret/data/database/postgres');
-const dbConfig = {
-  host: secret.data.data.host,
-  port: secret.data.data.port,
-  user: secret.data.data.username,
-  password: secret.data.data.password,
-  database: secret.data.data.database,
-};
+```yaml
+# .gitlab-ci.yml
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+.test_template: &test
+  stage: test
+  image: python:3.11
+  script:
+    - pip install -r requirements.txt
+    - pip install pytest pytest-cov
+    - pytest tests/ --cov=app --cov-report=xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/api:$CI_COMMIT_SHA -f Dockerfile.api .
+    - docker build -t $CI_REGISTRY_IMAGE/worker:$CI_COMMIT_SHA -f Dockerfile.worker .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/api:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/worker:$CI_COMMIT_SHA
+
+deploy_production:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - kubectl config use-context production
+    - kubectl set image deployment/sin-solver-api api=$CI_REGISTRY_IMAGE/api:$CI_COMMIT_SHA -n sin-solver
+    - kubectl set image statefulset/sin-solver-worker worker=$CI_REGISTRY_IMAGE/worker:$CI_COMMIT_SHA -n sin-solver
+    - kubectl rollout status deployment/sin-solver-api -n sin-solver
+  environment:
+    name: production
+    url: https://api.sin-solver.io
+  only:
+    - main
 ```
 
 ---
 
-## SECTION 6: VERCEL DEPLOYMENT (DASHBOARD FRONTEND)
+## Backup Strategies
 
-### 6.1 Prepare for Vercel
-
-```bash
-# Create Vercel project
-cd Docker/rooms/room-01-dashboard
-npm install
-
-# Create vercel.json
-cat > vercel.json <<'EOF'
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "env": [
-    "REACT_APP_API_URL",
-    "REACT_APP_N8N_URL",
-    "NEXT_PUBLIC_VAULT_ADDR"
-  ]
-}
-EOF
-
-# Set up environment variables
-npm run vercel env add REACT_APP_API_URL https://api.yourdomain.com
-npm run vercel env add REACT_APP_N8N_URL https://n8n.yourdomain.com
-npm run vercel env add NEXT_PUBLIC_VAULT_ADDR https://vault.yourdomain.com
-```
-
-### 6.2 Deploy to Vercel
-
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy
-vercel --prod
-
-# Get deployment URL
-# Example: https://sin-solver-dashboard.vercel.app
-
-# Add custom domain (if using)
-vercel domains add yourdomain.com
-```
-
-### 6.3 Configure DNS
-
-```bash
-# Add CNAME record to your DNS provider
-# dashboard.yourdomain.com CNAME cname.vercel.app
-
-# Verify DNS
-nslookup dashboard.yourdomain.com
-
-# Test deployment
-curl https://dashboard.yourdomain.com
-# Should return HTML (200 OK)
-```
-
-### 6.4 Configure Reverse Proxy (Optional)
-
-For accessing n8n and Vault APIs through Vercel domain:
-
-```nginx
-# nginx.conf or Cloudflare Worker
-location /api/ {
-  proxy_pass http://your-server.com:8041/;
-  proxy_set_header X-Real-IP $remote_addr;
-  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  proxy_set_header Host $host;
-}
-
-location /n8n/ {
-  proxy_pass http://your-server.com:5678/;
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection "upgrade";
-}
-```
-
----
-
-## SECTION 7: N8N WORKFLOW CONFIGURATION
-
-### 7.1 Access n8n UI
-
-```bash
-# Open in browser
-open http://localhost:5678
-
-# First login (creates admin user)
-Email: admin@yourdomain.com
-Password: (set securely)
-```
-
-### 7.2 Configure Credentials
-
-**PostgreSQL Node Credentials:**
-1. Click "Credentials" in left sidebar
-2. Click "New Credential"
-3. Select "PostgreSQL"
-4. Fill in:
-   - Host: room-03-postgres-master
-   - Port: 5432
-   - User: postgres
-   - Password: (from Vault)
-   - Database: sin_solver
-5. Test connection → Save
-
-**Redis Node Credentials:**
-1. Select "Redis"
-2. Fill in:
-   - Host: room-04-redis-cache
-   - Port: 6379
-   - Password: (from Vault)
-3. Test connection → Save
-
-**HTTP Node Credentials:**
-1. Select "HTTP Header Auth"
-2. Fill in headers for agent APIs
-3. Save
-
-### 7.3 Create Workflows
-
-See **TASKS.md - Phase 7.2.1-7.2.3** for workflow creation instructions.
-
-**Example Workflow: PostgreSQL Insert**
-```
-Trigger (Webhook or Manual)
-  ↓
-Set Data Node (format test record)
-  ↓
-PostgreSQL Node (INSERT into test_table)
-  ↓
-Return Data (success/error response)
-```
-
-### 7.4 Enable Workflow Error Handling
-
-```javascript
-// In n8n workflow error handler
-return {
-  "status": "error",
-  "message": $error.message,
-  "workflow_id": $executionId,
-  "timestamp": new Date().toISOString(),
-  "logs": $node.json.logs
-};
-```
-
----
-
-## SECTION 8: MONITORING & HEALTH CHECKS
-
-### 8.1 Service Health Endpoints
-
-```bash
-# n8n Health
-curl http://localhost:5678/api/health
-# Expected: {"status":"ok"}
-
-# Dashboard Health
-curl http://localhost:3011/health
-# Expected: {"status":"ok","timestamp":"..."}
-
-# PostgreSQL Health
-docker exec room-03-postgres-master pg_isready -U postgres
-# Expected: accepting connections
-
-# Redis Health
-docker exec room-04-redis-cache redis-cli ping
-# Expected: PONG
-
-# Vault Health
-curl http://localhost:8200/v1/sys/health
-# Expected: {"sealed":false,"version":"..."}
-```
-
-### 8.2 Create Monitoring Script
+### PostgreSQL Backup
 
 ```bash
 #!/bin/bash
-# scripts/health-check.sh
+# scripts/backup-postgres.sh
 
-echo "=== SIN-Solver Health Check ==="
-echo "Timestamp: $(date)"
-echo ""
+BACKUP_DIR="/backups/postgres"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+DB_NAME="sinsolver"
+RETENTION_DAYS=30
 
-# Service counts
-echo "Running Services: $(docker ps --quiet | wc -l) / 39"
+# Create backup
+pg_dump -h postgres -U sinuser -d $DB_NAME | gzip > $BACKUP_DIR/backup_$TIMESTAMP.sql.gz
 
-# Critical services
-CRITICAL=("agent-01-n8n-orchestrator" "room-03-postgres-master" "room-04-redis-cache")
+# Upload to S3
+aws s3 cp $BACKUP_DIR/backup_$TIMESTAMP.sql.gz s3://sin-solver-backups/postgres/
 
-for service in "${CRITICAL[@]}"; do
-  status=$(docker inspect -f '{{.State.Running}}' $service 2>/dev/null)
-  if [ "$status" = "true" ]; then
-    echo "✅ $service: UP"
-  else
-    echo "❌ $service: DOWN"
-  fi
-done
-
-# Database check
-db_check=$(docker exec room-03-postgres-master \
-  psql -U postgres -d sin_solver -c "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public';" 2>/dev/null)
-echo "📊 PostgreSQL Tables: $db_check"
-
-# Redis check
-redis_check=$(docker exec room-04-redis-cache redis-cli ping 2>/dev/null)
-if [ "$redis_check" = "PONG" ]; then
-  echo "✅ Redis: UP"
-else
-  echo "❌ Redis: DOWN"
-fi
-
-echo ""
-echo "Full Health Report: $(date +%Y-%m-%d_%H:%M:%S)"
+# Clean old backups
+find $BACKUP_DIR -name "backup_*.sql.gz" -mtime +$RETENTION_DAYS -delete
+aws s3 ls s3://sin-solver-backups/postgres/ | awk '{print $4}' | sort -r | tail -n +$((RETENTION_DAYS+1)) | xargs -I {} aws s3 rm s3://sin-solver-backups/postgres/{}
 ```
 
-### 8.3 Set Up Prometheus Monitoring
+### Kubernetes CronJob for Backups
 
 ```yaml
-# Docker/monitoring/prometheus.yml
+# k8s/40-backup-cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: sin-solver
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: postgres:15-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  pg_dump -h postgres -U sinuser sinsolver | gzip > /backup/backup_$(date +%Y%m%d_%H%M%S).sql.gz
+                  aws s3 cp /backup/*.sql.gz s3://sin-solver-backups/postgres/
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: sin-solver-secrets
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              emptyDir: {}
+          restartPolicy: OnFailure
+```
+
+### Redis Backup
+
+```yaml
+# Redis persistence is enabled (AOF + RDB)
+# Backup the RDB file
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: sin-solver
+spec:
+  schedule: "0 */6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: redis:7-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  redis-cli -h redis SAVE
+                  aws s3 cp /data/dump.rdb s3://sin-solver-backups/redis/dump_$(date +%Y%m%d_%H%M%S).rdb
+              volumeMounts:
+                - name: redis-data
+                  mountPath: /data
+          volumes:
+            - name: redis-data
+              persistentVolumeClaim:
+                claimName: redis-data-redis-0
+          restartPolicy: OnFailure
+```
+
+### Disaster Recovery Plan
+
+```yaml
+# docs/disaster-recovery.yml
+Recovery Objectives:
+  RTO (Recovery Time Objective): 15 minutes
+  RPO (Recovery Point Objective): 5 minutes
+
+Scenarios:
+  Database Failure:
+    Detection: Automated health checks
+    Response: 
+      - Promote read replica to primary
+      - Update application configuration
+      - Alert on-call engineer
+    Testing: Monthly failover drill
+
+  Complete Region Failure:
+    Detection: Global health monitoring
+    Response:
+      - Activate standby region
+      - Update DNS to point to standby
+      - Verify data consistency
+    Testing: Quarterly DR drill
+
+  Data Corruption:
+    Detection: Data integrity checks
+    Response:
+      - Stop writes immediately
+      - Restore from backup
+      - Replay WAL logs to point-in-time
+    Testing: Semi-annual recovery test
+```
+
+---
+
+## Monitoring & Alerting
+
+### Prometheus Configuration
+
+```yaml
+# monitoring/prometheus.yml
 global:
   scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
 
 scrape_configs:
-  - job_name: 'docker'
-    static_configs:
-      - targets: ['localhost:9323']
+  - job_name: 'sin-solver-api'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - sin-solver
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: sin-solver-api
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
 
   - job_name: 'postgres'
     static_configs:
-      - targets: ['room-03-postgres-master:5432']
+      - targets: ['postgres-exporter:9187']
 
   - job_name: 'redis'
     static_configs:
-      - targets: ['room-04-redis-cache:6379']
+      - targets: ['redis-exporter:9121']
+```
+
+### Alert Rules
+
+```yaml
+# monitoring/alert_rules.yml
+groups:
+  - name: sin-solver
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for 5 minutes"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency detected"
+          description: "p99 latency is above 500ms"
+
+      - alert: QueueDepthHigh
+        expr: redis_queue_depth > 1000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue depth is high"
+          description: "Redis queue has {{ $value }} items"
+
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod is crash looping"
+          description: "Pod {{ $labels.pod }} is restarting frequently"
+```
+
+### Grafana Dashboard
+
+```json
+{
+  "dashboard": {
+    "title": "SIN-Solver Production",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Solve Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(captcha_solves_total{status=\"success\"}[5m])) / sum(rate(captcha_solves_total[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Average Solve Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(captcha_solve_duration_seconds_bucket[5m])) by (le))"
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 ---
 
-## SECTION 9: TROUBLESHOOTING & COMMON ISSUES
+## Security Hardening
 
-### Issue 1: Services Not Starting
+### Pod Security Policies
 
-**Symptom:** `docker-compose up` fails or services don't start
-
-**Solution:**
-```bash
-# Check Docker daemon
-docker ps
-# If error: Docker daemon not running
-
-# macOS: Start Docker Desktop
-open /Applications/Docker.app
-
-# Check logs
-docker-compose logs agent-01-n8n-orchestrator
-docker-compose logs room-03-postgres-master
-
-# Common causes:
-# 1. Port already in use
-netstat -an | grep 5678
-
-# 2. Network not created
-docker network create sin-solver-network --driver bridge --subnet 172.18.0.0/16
-
-# 3. Insufficient disk space
-docker system df
-
-# 4. Out of memory
-docker stats  # Check memory usage
+```yaml
+# k8s/security/psp.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: sin-solver-restricted
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
 ```
 
-### Issue 2: Database Connection Failures
+### Network Policies
 
-**Symptom:** `connection refused` or `ECONNREFUSED`
-
-**Solution:**
-```bash
-# Test PostgreSQL connectivity
-docker exec agent-01-n8n-orchestrator \
-  psql -h room-03-postgres-master -U postgres -c "SELECT 1"
-
-# If fails:
-# 1. Check PostgreSQL is running
-docker ps | grep postgres
-
-# 2. Check network connectivity
-docker exec agent-01-n8n-orchestrator ping -c 3 room-03-postgres-master
-
-# 3. Check credentials
-docker exec room-03-postgres-master \
-  psql -U postgres -c "SELECT current_user;"
-
-# 4. Verify database exists
-docker exec room-03-postgres-master \
-  psql -U postgres -l | grep sin_solver
+```yaml
+# k8s/security/network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sin-solver-api
+  namespace: sin-solver
+spec:
+  podSelector:
+    matchLabels:
+      app: sin-solver-api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
 ```
 
-### Issue 3: Vault Sealed/Inaccessible
+### Secrets Management
 
-**Symptom:** `Vault is sealed` error
-
-**Solution:**
 ```bash
-# Check Vault status
-docker exec -e VAULT_ADDR=http://localhost:8200 room-02-vault vault status
+# Use Sealed Secrets for GitOps
+# 1. Install kubeseal
+brew install kubeseal
 
-# If sealed, unseal with keys
-docker exec room-02-vault vault operator unseal KEY1
-docker exec room-02-vault vault operator unseal KEY2
-docker exec room-02-vault vault operator unseal KEY3
+# 2. Create secret
+kubectl create secret generic sin-solver-secrets \
+  --from-literal=API_KEY=secret-value \
+  --dry-run=client -o yaml > secret.yaml
 
-# If keys lost, reinitialize
-docker-compose -f docker-compose-vault.yml down -v
-docker-compose -f docker-compose-vault.yml up -d
-# ... run init steps again
-```
+# 3. Seal the secret
+kubeseal --format=yaml < secret.yaml > sealed-secret.yaml
 
-### Issue 4: n8n Workflow Execution Errors
+# 4. Apply sealed secret
+kubectl apply -f sealed-secret.yaml
 
-**Symptom:** Workflow fails with database/API errors
-
-**Solution:**
-```bash
-# Check n8n logs
-docker logs agent-01-n8n-orchestrator --tail 50
-
-# Verify credentials
-# In n8n UI: Credentials → test each credential
-
-# Common issues:
-# 1. Missing environment variables
-env | grep VAULT
-
-# 2. Database not initialized
-docker exec room-03-postgres-master \
-  psql -U postgres -d sin_solver -c "SELECT COUNT(*) FROM information_schema.tables;"
-
-# 3. Workflow syntax error
-# Re-check node connections in n8n UI
-```
-
-### Issue 5: Out of Disk Space
-
-**Symptom:** `no space left on device` error
-
-**Solution:**
-```bash
-# Check disk usage
-df -h
-docker system df
-
-# Clean up unused images/containers
-docker system prune -a --volumes -f
-
-# Remove specific service volumes
-docker-compose -f Docker/agents/agent-01-n8n/docker-compose.yml down -v
-
-# Check large files
-find /var/lib/docker/volumes -size +1G -type f
-
-# Resize Docker disk (macOS)
-# Docker Desktop → Preferences → Resources → Disk Image Size
+# Sealed secret can be safely committed to git
 ```
 
 ---
 
-## SECTION 10: SECURITY HARDENING & BEST PRACTICES
-
-### 10.1 Secrets Management
-
-**✅ DO:**
-- Store all secrets in Vault
-- Use environment variables for Vault credentials only
-- Rotate secrets every 90 days
-- Use strong passwords (20+ chars, mixed case, numbers, symbols)
-- Audit Vault access logs regularly
-
-**❌ DON'T:**
-- Commit .env files with secrets to git
-- Log secrets in console output
-- Share API keys via email/chat
-- Hardcode passwords in code
-- Use default passwords
-
-### 10.2 Network Security
-
-```bash
-# Firewall configuration (macOS)
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
-
-# Allow specific ports (development only)
-sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
-
-# Linux: UFW firewall
-sudo ufw enable
-sudo ufw allow 22/tcp    # SSH
-sudo ufw allow 80/tcp    # HTTP
-sudo ufw allow 443/tcp   # HTTPS
-# Restrict others to localhost
-sudo ufw allow from 127.0.0.1 to 127.0.0.1 port 5678
-```
-
-### 10.3 Docker Security
-
-```bash
-# Use read-only root filesystem
-version: "3.8"
-services:
-  agent-01-n8n-orchestrator:
-    read_only: true
-    volumes:
-      - /tmp
-      - /var/lib/n8n
-
-# Run as non-root user
-user: "node:node"
-
-# Don't run privileged containers
-privileged: false
-
-# Scan images for vulnerabilities
-docker scan agent-01-n8n-orchestrator:latest
-docker scan room-03-postgres-master:latest
-```
-
-### 10.4 Database Security
-
-```bash
-# PostgreSQL
-ALTER USER postgres WITH PASSWORD 'secure_password_here';
-CREATE ROLE app_user WITH LOGIN PASSWORD 'app_password_here';
-GRANT CONNECT ON DATABASE sin_solver TO app_user;
-GRANT USAGE ON SCHEMA public TO app_user;
-
-# Restrict connections
-# postgresql.conf
-ssl = on
-ssl_cert_file = '/etc/ssl/certs/server.crt'
-ssl_key_file = '/etc/ssl/private/server.key'
-
-# pg_hba.conf
-host    sin_solver  app_user  172.18.0.0/16  md5
-```
-
-### 10.5 API Security
-
-```javascript
-// Express.js example
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-
-app.use(helmet());  // Security headers
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS.split(','),
-  credentials: true
-}));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100,                   // 100 requests per window
-  message: 'Too many requests from this IP'
-});
-
-app.use('/api/', limiter);
-
-// Validate input
-app.use(express.json({ limit: '1mb' }));
-```
-
-### 10.6 Monitoring & Alerts
-
-```bash
-# Set up log aggregation
-# ELK Stack / Splunk / Datadog
-
-# Example: Syslog configuration
-services:
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.0.0
-    environment:
-      LOG_LEVEL: info
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-
-# Alert on critical events
-# - Vault unsealed unexpectedly
-# - Failed authentication attempts
-# - Database connection lost
-# - Memory usage > 80%
-# - Disk usage > 90%
-```
-
----
-
-## 🎯 DEPLOYMENT CHECKLIST
-
-- [ ] Prerequisites installed (Docker, Node.js, Python)
-- [ ] Network created (sin-solver-network)
-- [ ] Environment files configured (.env.production.local)
-- [ ] PostgreSQL deployed and initialized
-- [ ] Redis deployed and healthy
-- [ ] Vault initialized and unsealed
-- [ ] All secrets in Vault
-- [ ] Agents deployed (n8n, AgentZero, Steel, Skyvern)
-- [ ] Rooms deployed (Dashboard, Chat, Supabase, NocoDB)
-- [ ] Solvers deployed (Captcha, Survey)
-- [ ] n8n workflows created and tested
-- [ ] Dashboard deployed to Vercel
-- [ ] Health checks passing (all 39 services)
-- [ ] Security hardening complete
-- [ ] Monitoring & alerts configured
-- [ ] Backup procedures documented
-- [ ] Incident response plan created
-
----
-
-## 📞 SUPPORT & RESOURCES
-
-- **Documentation:** https://github.com/YourOrg/SIN-Solver/wiki
-- **Issues:** https://github.com/YourOrg/SIN-Solver/issues
-- **Discussions:** https://github.com/YourOrg/SIN-Solver/discussions
-- **Email:** support@yourdomain.com
-
----
-
-**Document:** DEPLOYMENT-GUIDE.md (Phase 7)  
-**Status:** PRODUCTION READY  
-**Last Updated:** 2026-01-28T15:30:00Z  
-**Approver:** Sisyphus Agent
+<p align="center">
+  <strong>SIN-Solver Enterprise Deployment Guide</strong><br>
+  <sub>For additional support, contact: enterprise@sin-solver.io</sub>
+</p>

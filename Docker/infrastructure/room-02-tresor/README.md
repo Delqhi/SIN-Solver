@@ -1,8 +1,8 @@
-# 🔐 SIN-Solver Vault Secrets Management
+# 🔐 Delqhi-Platform Vault Secrets Management
 
 ## Overview
 
-This directory contains the complete HashiCorp Vault setup for SIN-Solver, including:
+This directory contains the complete HashiCorp Vault setup for Delqhi-Platform, including:
 - **HashiCorp Vault** container for secure secrets storage
 - **Vault API Wrapper** (FastAPI) for easy REST access
 - **Sync Scripts** for Vercel and n8n integration
@@ -11,7 +11,7 @@ This directory contains the complete HashiCorp Vault setup for SIN-Solver, inclu
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    SIN-Solver Secrets Architecture                       │
+│                    Delqhi-Platform Secrets Architecture                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
 │  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐   │
@@ -40,7 +40,7 @@ This directory contains the complete HashiCorp Vault setup for SIN-Solver, inclu
 ### 1. Start Vault Services
 
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/Docker/infrastructure/room-02-tresor
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/infrastructure/room-02-tresor
 
 # Start all services (Vault + API Wrapper)
 docker-compose up -d
@@ -79,7 +79,7 @@ curl -X POST http://localhost:8201/secrets/postgres \
 
 HashiCorp Vault server running in dev mode with:
 - **Root Token:** `s.root2026SINSolver`
-- **KV v2 Engine:** Mounted at `sin-solver/`
+- **KV v2 Engine:** Mounted at `delqhi-platform/`
 - **Dev Mode:** Auto-unsealed, data persisted in volume
 
 **Direct Access:**
@@ -88,8 +88,8 @@ HashiCorp Vault server running in dev mode with:
 export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=s.root2026SINSolver
 
-vault kv get sin-solver/postgres
-vault kv put sin-solver/redis password=newsecret
+vault kv get delqhi-platform/postgres
+vault kv put delqhi-platform/redis password=newsecret
 ```
 
 ### room-02-tresor-api (Port 8201)
@@ -111,17 +111,17 @@ FastAPI REST wrapper for simplified access:
 
 ## Secret Paths
 
-All secrets are stored under the `sin-solver/` KV v2 mount:
+All secrets are stored under the `delqhi-platform/` KV v2 mount:
 
 | Path | Keys | Description |
 |------|------|-------------|
-| `sin-solver/postgres` | host, port, username, password, database | PostgreSQL credentials |
-| `sin-solver/redis` | host, port, password | Redis credentials |
-| `sin-solver/n8n` | encryption_key, jwt_secret, host | n8n security keys |
-| `sin-solver/opencode` | api_key, base_url | OpenCode API |
-| `sin-solver/vercel` | token, project_id, team_id | Vercel deployment |
-| `sin-solver/github` | token, repo | GitHub access |
-| `sin-solver/codeserver` | api_url, api_key | CodeServer API |
+| `delqhi-platform/postgres` | host, port, username, password, database | PostgreSQL credentials |
+| `delqhi-platform/redis` | host, port, password | Redis credentials |
+| `delqhi-platform/n8n` | encryption_key, jwt_secret, host | n8n security keys |
+| `delqhi-platform/opencode` | api_key, base_url | OpenCode API |
+| `delqhi-platform/vercel` | token, project_id, team_id | Vercel deployment |
+| `delqhi-platform/github` | token, repo | GitHub access |
+| `delqhi-platform/codeserver` | api_url, api_key | CodeServer API |
 
 ## API Usage Examples
 
@@ -234,10 +234,10 @@ Syncs Vault secrets to Vercel environment variables:
 ```
 
 **Mapping:**
-- `sin-solver/postgres/*` → `POSTGRES_*`
-- `sin-solver/redis/*` → `REDIS_*`
-- `sin-solver/opencode/*` → `OPENCODE_*`
-- `sin-solver/vercel/NEXT_PUBLIC_*` → `NEXT_PUBLIC_*`
+- `delqhi-platform/postgres/*` → `POSTGRES_*`
+- `delqhi-platform/redis/*` → `REDIS_*`
+- `delqhi-platform/opencode/*` → `OPENCODE_*`
+- `delqhi-platform/vercel/NEXT_PUBLIC_*` → `NEXT_PUBLIC_*`
 
 ### vault-to-n8n.sh
 
@@ -248,10 +248,10 @@ Syncs Vault secrets to n8n credentials:
 ```
 
 **Creates n8n Credentials:**
-- `SIN-Solver PostgreSQL` (postgres type)
-- `SIN-Solver Redis` (redis type)
-- `SIN-Solver OpenCode API` (httpHeaderAuth type)
-- `SIN-Solver GitHub` (githubApi type)
+- `Delqhi-Platform PostgreSQL` (postgres type)
+- `Delqhi-Platform Redis` (redis type)
+- `Delqhi-Platform OpenCode API` (httpHeaderAuth type)
+- `Delqhi-Platform GitHub` (githubApi type)
 
 ## Security Considerations
 
@@ -290,7 +290,7 @@ For production deployment:
 
 5. **Set Up Access Policies:**
    ```hcl
-   path "sin-solver/data/postgres" {
+   path "delqhi-platform/data/postgres" {
      capabilities = ["read"]
    }
    ```
@@ -304,7 +304,7 @@ For production deployment:
 docker-compose logs room-02-tresor-vault
 
 # Verify network
-docker network ls | grep sin-solver
+docker network ls | grep delqhi-platform
 ```
 
 ### API Wrapper Can't Connect
@@ -378,8 +378,8 @@ async def get_secret(path: str):
 ## Related Documentation
 
 - [HashiCorp Vault Documentation](https://developer.hashicorp.com/vault/docs)
-- [SIN-Solver Docker README](/Users/jeremy/dev/SIN-Solver/Docker/README.md)
-- [AGENTS.md - Security Mandates](/Users/jeremy/dev/SIN-Solver/AGENTS.md)
+- [Delqhi-Platform Docker README](/Users/jeremy/dev/Delqhi-Platform/Docker/README.md)
+- [AGENTS.md - Security Mandates](/Users/jeremy/dev/Delqhi-Platform/AGENTS.md)
 
 ---
 

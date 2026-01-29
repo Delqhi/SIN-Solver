@@ -9,7 +9,7 @@
 
 # 🔍 Zimmer-08: QA-Prüfer
 
-**Port:** 8080 | **IP:** 172.20.0.8 | **Network:** sin-solver-network
+**Port:** 8080 | **IP:** 172.20.0.8 | **Network:** delqhi-platform-network
 
 > *"Quality Assurance Guardian - The relentless tester of the 23-Room Empire"*
 
@@ -41,7 +41,7 @@
 
 ### Was ist der QA-Prüfer?
 
-Zimmer-08 ist der zentrale Quality Assurance Service des SIN-Solver Ökosystems. Als "Prüfer" des 23-Room Empire ist er verantwortlich für:
+Zimmer-08 ist der zentrale Quality Assurance Service des Delqhi-Platform Ökosystems. Als "Prüfer" des 23-Room Empire ist er verantwortlich für:
 
 - **Test Execution** - Automatisierte Ausführung von Test-Suites
 - **Coverage Analysis** - Detaillierte Code-Coverage Reports
@@ -488,7 +488,7 @@ REDIS_URL=redis://zimmer-15-surfsense:6379
 ```dockerfile
 FROM node:20-alpine
 
-LABEL maintainer="SIN-Solver Team"
+LABEL maintainer="Delqhi-Platform Team"
 LABEL service="zimmer-08-qa"
 LABEL version="2.0.0"
 
@@ -523,7 +523,7 @@ version: '3.8'
 services:
   zimmer-08-qa:
     build: .
-    image: sin-solver/zimmer-08-qa:latest
+    image: delqhi-platform/zimmer-08-qa:latest
     container_name: zimmer-08-qa
     hostname: zimmer-08-qa
     restart: unless-stopped
@@ -538,7 +538,7 @@ services:
       - qa-reports:/app/reports
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      sin-solver-network:
+      delqhi-platform-network:
         ipv4_address: 172.20.0.8
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
@@ -561,7 +561,7 @@ volumes:
   qa-reports:
 
 networks:
-  sin-solver-network:
+  delqhi-platform-network:
     external: true
 ```
 
@@ -569,23 +569,23 @@ networks:
 
 ```bash
 # Build Image
-docker build -t sin-solver/zimmer-08-qa:latest .
+docker build -t delqhi-platform/zimmer-08-qa:latest .
 
 # Run Container
 docker run -d \
   --name zimmer-08-qa \
-  --network sin-solver-network \
+  --network delqhi-platform-network \
   --ip 172.20.0.8 \
   -p 8008:8080 \
   -v qa-reports:/app/reports \
-  sin-solver/zimmer-08-qa:latest
+  delqhi-platform/zimmer-08-qa:latest
 
 # View Logs
 docker logs -f zimmer-08-qa
 
 # Save Image (Docker Sovereignty)
-docker save sin-solver/zimmer-08-qa:latest \
-  -o /Users/jeremy/dev/SIN-Code/Docker/sin-solver/images/zimmer-08-qa.tar
+docker save delqhi-platform/zimmer-08-qa:latest \
+  -o /Users/jeremy/dev/SIN-Code/Docker/delqhi-platform/images/zimmer-08-qa.tar
 ```
 
 ---
@@ -960,9 +960,9 @@ Alle verwendeten Test-Tools sind Open Source und kostenlos.
 
 ## 🔗 Verwandte Dokumentation
 
-- [AGENTS.md](/Users/jeremy/dev/SIN-Solver/AGENTS.md) - 23-Room Empire Übersicht
-- [Zimmer-04 OpenCode](/Users/jeremy/dev/SIN-Solver/services/zimmer-04-opencode/README.md)
-- [Zimmer-13 API Coordinator](/Users/jeremy/dev/SIN-Solver/services/zimmer-13-api-coordinator/README.md)
+- [AGENTS.md](/Users/jeremy/dev/Delqhi-Platform/AGENTS.md) - 23-Room Empire Übersicht
+- [Zimmer-04 OpenCode](/Users/jeremy/dev/Delqhi-Platform/services/zimmer-04-opencode/README.md)
+- [Zimmer-13 API Coordinator](/Users/jeremy/dev/Delqhi-Platform/services/zimmer-13-api-coordinator/README.md)
 
 ---
 

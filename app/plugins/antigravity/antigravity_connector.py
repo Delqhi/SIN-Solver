@@ -224,7 +224,7 @@ class AntigravityConnector:
         url = urljoin(account.base_url, endpoint)
         headers = {
             'Authorization': f'Bearer {account.api_token}',
-            'User-Agent': 'SIN-Solver/1.0',
+            'User-Agent': 'Delqhi-Platform/1.0',
             'Content-Type': 'application/json'
         }
         

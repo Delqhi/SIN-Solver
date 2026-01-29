@@ -112,7 +112,7 @@ docker build -t room-13-delqhi-api .
 docker run -p 3000:3000 \
   -e DB_HOST=room-03-archiv-postgres \
   -e DB_USER=sin_admin \
-  -e DB_PASSWORD=sin-solver-2026 \
+  -e DB_PASSWORD=delqhi-platform-2026 \
   -e JWT_SECRET=your-secret-key \
   room-13-delqhi-api
 ```

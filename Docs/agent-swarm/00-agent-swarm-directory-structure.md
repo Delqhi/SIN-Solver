@@ -1,4 +1,4 @@
-# Verzeichnisstruktur Agent Swarm (SIN-Solver)
+# Verzeichnisstruktur Agent Swarm (Delqhi-Platform)
 Docs/agent-swarm/
 ├── 00-agent-swarm-directory-structure.md  ← Diese Datei
 ├── 01-agent-swarm-readme.md               # Swarm Roles & Orchestration

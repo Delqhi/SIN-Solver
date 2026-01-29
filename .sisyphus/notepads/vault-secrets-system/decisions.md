@@ -4,7 +4,7 @@
 
 ### Architecture Decisions
 
-1. **KV v2 Engine Mount Path: `sin-solver/`**
+1. **KV v2 Engine Mount Path: `delqhi-platform/`**
    - **Decision:** Use dedicated mount path instead of default `secret/`
    - **Rationale:** Namespace isolation, clearer path structure
    - **Trade-off:** Requires explicit mount enable vs. using default
@@ -35,9 +35,9 @@
    - **Alternative considered:** Vault Agent for continuous sync
 
 5. **Secret Path Structure**
-   - **Decision:** Flat hierarchy under `sin-solver/`
+   - **Decision:** Flat hierarchy under `delqhi-platform/`
    ```
-   sin-solver/
+   delqhi-platform/
    ├── postgres
    ├── redis
    ├── n8n
@@ -47,7 +47,7 @@
    └── codeserver
    ```
    - **Rationale:** Simple, easy to understand, matches service names
-   - **Alternative considered:** Nested paths like `sin-solver/databases/postgres`
+   - **Alternative considered:** Nested paths like `delqhi-platform/databases/postgres`
 
 ### Security Decisions
 

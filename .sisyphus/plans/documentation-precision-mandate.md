@@ -6,7 +6,7 @@
 Der User möchte eine neue globale Anweisung in der `AGENTS.md`: Jede MD-Datei und jeder Abschnitt darin muss einen Kopfzeilen-Zeitstempel (Uhrzeit, Grund, zugehörige Dateien) haben. Dies gilt für Berichte, Dokumentationen und jede Form von MD-Dateien.
 
 ### Interview Summary
-- **Globale Reichweite**: Die Regel muss in `/Users/jeremy/dev/AGENTS.md`, `/Users/jeremy/dev/SIN-Solver/AGENTS.md` und `~/.opencode/Agents.md` verankert werden.
+- **Globale Reichweite**: Die Regel muss in `/Users/jeremy/dev/AGENTS.md`, `/Users/jeremy/dev/Delqhi-Platform/AGENTS.md` und `~/.opencode/Agents.md` verankert werden.
 - **Granularität**: Zeitstempel müssen auf Dokumentenebene (Header) UND auf Abschnittsebene (H2, H3) erfolgen.
 - **Inhalt**: [ZEITSTEMPEL] [GRUND] [DATEIEN].
 
@@ -19,7 +19,7 @@ Implementierung des "Documentation Precision Mandate" in allen globalen und loka
 
 ### Concrete Deliverables
 - [ ] Modifizierte `/Users/jeremy/dev/AGENTS.md`
-- [ ] Modifizierte `/Users/jeremy/dev/SIN-Solver/AGENTS.md`
+- [ ] Modifizierte `/Users/jeremy/dev/Delqhi-Platform/AGENTS.md`
 - [ ] Modifizierte `/Users/jeremy/.opencode/Agents.md`
 
 ### Definition of Done
@@ -42,7 +42,7 @@ Implementierung des "Documentation Precision Mandate" in allen globalen und loka
 ---
 
 ## Task Flow
-Task 1 (Global Dev) -> Task 2 (Local SIN-Solver) -> Task 3 (Home Opencode) -> Task 4 (Verification)
+Task 1 (Global Dev) -> Task 2 (Local Delqhi-Platform) -> Task 3 (Home Opencode) -> Task 4 (Verification)
 
 ---
 
@@ -55,7 +55,7 @@ Task 1 (Global Dev) -> Task 2 (Local SIN-Solver) -> Task 3 (Home Opencode) -> Ta
   **Parallelizable**: NO
   **Acceptance Criteria**: Datei enthält das Mandat.
 
-- [ ] 2. Update Local AGENTS.md (`/Users/jeremy/dev/SIN-Solver/AGENTS.md`)
+- [ ] 2. Update Local AGENTS.md (`/Users/jeremy/dev/Delqhi-Platform/AGENTS.md`)
   **What to do**:
   - Synchronisiere Kapitel 0.3 mit der globalen Version.
   **Parallelizable**: YES

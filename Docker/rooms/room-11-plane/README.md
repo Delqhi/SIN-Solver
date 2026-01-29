@@ -53,7 +53,7 @@ docker compose up -d room-11-plane-*
 
 ### Admin Account
 ```
-Email: admin@sin-solver.local
+Email: admin@delqhi-platform.local
 Password: SINSolver2026!
 ```
 
@@ -156,4 +156,4 @@ docker exec -it room-11-plane-api python manage.py migrate
 
 ---
 
-*Part of the SIN-Solver V18.3 Modular Infrastructure*
+*Part of the Delqhi-Platform V18.3 Modular Infrastructure*

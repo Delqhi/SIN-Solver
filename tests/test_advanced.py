@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 
-sys.path.append("/Users/jeremy/dev/SIN-Solver")
+sys.path.append("/Users/jeremy/dev/Delqhi-Platform")
 
 from app.services.advanced_solver import get_advanced_solver
 from app.core.config import settings
@@ -16,7 +16,7 @@ async def test_single():
     print(f"Mistral Key configured: {bool(settings.mistral_api_key)}")
     
     advanced = get_advanced_solver()
-    test_image = "/Users/jeremy/dev/SIN-Solver/demo_step1.png"
+    test_image = "/Users/jeremy/dev/Delqhi-Platform/demo_step1.png"
     
     if not os.path.exists(test_image):
         print("Image missing")

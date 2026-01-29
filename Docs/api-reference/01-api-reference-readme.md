@@ -1,8 +1,8 @@
-# SIN-Solver API Reference - V17.10
+# Delqhi-Platform API Reference - V17.10
 
 ## 📚 Complete API Documentation
 
-Diese Dokumentation beschreibt alle verfügbaren API Endpoints im SIN-Solver System.
+Diese Dokumentation beschreibt alle verfügbaren API Endpoints im Delqhi-Platform System.
 
 ---
 

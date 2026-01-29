@@ -25,9 +25,9 @@ This document provides support information for the Room-01 Dashboard Cockpit.
 
 ### Contact Information
 
-- **Email**: support@sin-solver.io
-- **GitHub**: https://github.com/Delqhi/SIN-Solver/issues
-- **Slack**: #sin-solver-support
+- **Email**: support@delqhi-platform.io
+- **GitHub**: https://github.com/Delqhi/Delqhi-Platform/issues
+- **Slack**: #delqhi-platform-support
 - **Phone**: +1-XXX-XXX-XXXX (Enterprise)
 
 ---

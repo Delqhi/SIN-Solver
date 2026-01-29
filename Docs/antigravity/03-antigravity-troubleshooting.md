@@ -1,4 +1,4 @@
-# Troubleshooting Antigravity (SIN-Solver)
+# Troubleshooting Antigravity (Delqhi-Platform)
 
 ## 🚑 MODEL ID ERRORS
 - **Problem**: `models/gemini-3-flash not found`.

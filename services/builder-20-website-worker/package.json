@@ -1,5 +1,5 @@
 {
-  "name": "sin-solver-website-worker",
+  "name": "delqhi-platform-website-worker",
   "version": "1.0.0",
   "description": "Automated customer acquisition and website automation worker",
   "main": "server.js",

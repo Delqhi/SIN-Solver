@@ -126,7 +126,7 @@
 
 ```bash
 # Build and run
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 docker-compose up -d zimmer-19-captcha-worker
 
 # Test health

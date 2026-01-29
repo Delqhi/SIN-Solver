@@ -49,7 +49,7 @@
 
 ### Gesamtes System
 ```bash
-cd /Users/jeremy/dev/SIN-Solver
+cd /Users/jeremy/dev/Delqhi-Platform
 docker-compose up -d
 ```
 
@@ -65,7 +65,7 @@ docker-compose up -d zimmer-13-api-koordinator
 docker run -d --name Zimmer-14-Worker-Arbeiter-1 \
   --network haus-netzwerk \
   -e API_COORDINATOR_URL=http://172.20.0.31:8000 \
-  sin-solver-zimmer-14-worker-arbeiter:latest
+  delqhi-platform-zimmer-14-worker-arbeiter:latest
 
 # Captcha Worker
 ./bin/zimmer-19-captcha-worker.sh start
@@ -92,7 +92,7 @@ ls -la bin/
 
 ### Main Compose File
 ```
-/Users/jeremy/dev/SIN-Solver/docker-compose.yml
+/Users/jeremy/dev/Delqhi-Platform/docker-compose.yml
 ```
 
 ### Key Sections:
@@ -213,11 +213,11 @@ curl -s http://localhost:8000/health | jq .
 
 ### Lokale Images
 ```bash
-# Alle SIN-Solver Images
-docker images | grep sin-solver
+# Alle Delqhi-Platform Images
+docker images | grep delqhi-platform
 
 # Image Size
-docker images --format "{{.Repository}}:{{.Tag}} - {{.Size}}" | grep sin-solver
+docker images --format "{{.Repository}}:{{.Tag}} - {{.Size}}" | grep delqhi-platform
 ```
 
 ### Build Commands
@@ -235,7 +235,7 @@ docker-compose build --no-cache zimmer-19-captcha-worker
 ### Image Backup (Best Practice)
 ```bash
 # Lokal speichern
-docker save sin-solver-zimmer-19-captcha-worker:latest > /path/to/backup/zimmer-19.tar
+docker save delqhi-platform-zimmer-19-captcha-worker:latest > /path/to/backup/zimmer-19.tar
 
 # Wiederherstellen
 docker load < /path/to/backup/zimmer-19.tar
@@ -270,7 +270,7 @@ iptables -A INPUT -p tcp --dport 8000 -j DROP
 ```yaml
 # prometheus.yml
 scrape_configs:
-  - job_name: 'sin-solver'
+  - job_name: 'delqhi-platform'
     static_configs:
       - targets:
         - '172.20.0.31:8000'  # API Koordinator

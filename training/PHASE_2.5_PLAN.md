@@ -257,7 +257,7 @@ from pathlib import Path
 
 class TestCaptchaSolver:
     def test_text_captcha_recognition(self, solver):
-        test_images = Path('/dev/SIN-Solver/training').glob('**/Text_Captcha/*.jpg')
+        test_images = Path('/dev/Delqhi-Platform/training').glob('**/Text_Captcha/*.jpg')
         results = []
         for img in test_images[:10]:
             result = solver.ocr_text_captcha(str(img))
@@ -268,7 +268,7 @@ class TestCaptchaSolver:
     
     def test_classification_accuracy(self, solver):
         for class_name in solver.yolo_model.names.values():
-            test_dir = Path(f'/dev/SIN-Solver/training/{class_name}')
+            test_dir = Path(f'/dev/Delqhi-Platform/training/{class_name}')
             if test_dir.exists():
                 images = list(test_dir.glob('*.jpg'))[:5]
                 correct = sum(1 for img in images if solver.classify_captcha(str(img))[0] == class_name)

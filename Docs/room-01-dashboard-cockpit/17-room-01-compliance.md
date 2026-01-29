@@ -79,7 +79,7 @@ docker exec room-03-archiv-postgres psql -U postgres -c "
 "
 
 # Archive old audit logs
-aws s3 cp /var/log/audit/ s3://sin-solver-archive/audit/ --recursive
+aws s3 cp /var/log/audit/ s3://delqhi-platform-archive/audit/ --recursive
 
 # Clean session data
 docker exec room-04-memory-redis redis-cli EVAL "

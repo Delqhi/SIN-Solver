@@ -11,7 +11,7 @@
 ### ✅ COMPLETED: Strategic Architecture & Planning (3 Documents)
 
 **1. ARCHITECTURE-ENTERPRISE-ELITE.md** (Primary Reference)
-- Location: `/Users/jeremy/dev/SIN-Solver/ARCHITECTURE-ENTERPRISE-ELITE.md`
+- Location: `/Users/jeremy/dev/Delqhi-Platform/ARCHITECTURE-ENTERPRISE-ELITE.md`
 - Size: Comprehensive technical specification (1000+ lines)
 - Content:
   - Executive Summary of current problems (poll-loop, no state tracking, scattered interactions)
@@ -23,8 +23,8 @@
   - Phase-by-phase roadmap (Phases 1-3)
   - Success metrics and acceptance criteria
 
-**2. Master Plan: sin-solver-enterprise-elite-refactor.md**
-- Location: `.sisyphus/plans/sin-solver-enterprise-elite-refactor.md`
+**2. Master Plan: delqhi-platform-enterprise-elite-refactor.md**
+- Location: `.sisyphus/plans/delqhi-platform-enterprise-elite-refactor.md`
 - Format: Structured task breakdown with checkboxes
 - Content:
   - Phase 1 Tasks (1.1-1.4): Foundation work
@@ -192,8 +192,8 @@ Delegate to enterprise-grade agent with full Python expertise:
 ## 📚 REFERENCE DOCUMENTS
 
 **For Implementation:**
-- `/Users/jeremy/dev/SIN-Solver/ARCHITECTURE-ENTERPRISE-ELITE.md` (primary spec)
-- `.sisyphus/plans/sin-solver-enterprise-elite-refactor.md` (task checklist)
+- `/Users/jeremy/dev/Delqhi-Platform/ARCHITECTURE-ENTERPRISE-ELITE.md` (primary spec)
+- `.sisyphus/plans/delqhi-platform-enterprise-elite-refactor.md` (task checklist)
 
 **Existing Codebase:**
 - `.opencode/task_manager.py` - TaskManager (dependency resolution works)
@@ -221,7 +221,7 @@ Delegate to enterprise-grade agent with full Python expertise:
 
 ## 🔐 ENTERPRISE-ELITE MANDATE
 
-This refactor represents SIN-Solver's transformation from **prototype-grade** to **production-grade**:
+This refactor represents Delqhi-Platform's transformation from **prototype-grade** to **production-grade**:
 
 **Current Problem:** "Shot in the dark" - execute actions, hope they work, no feedback  
 **After Refactor:** "Precision execution" - validate before every action, verify after, full audit trail  

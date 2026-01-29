@@ -1,9 +1,9 @@
-# Agent Assignment Rules - SIN-Solver Multi-Agent Swarm System
+# Agent Assignment Rules - Delqhi-Platform Multi-Agent Swarm System
 
 **Created:** 2026-01-29 10:00  
 **Version:** 1.0.0  
 **Status:** ACTIVE  
-**Applies To:** All AI Agents in SIN-Solver Project
+**Applies To:** All AI Agents in Delqhi-Platform Project
 
 ---
 
@@ -234,7 +234,7 @@ Notes: [Detailed notes about current state]
 
 ### Step 1: Task Identification
 ```
-1. Read master TODO: .sisyphus/todos/sin-solver-master-todo.md
+1. Read master TODO: .sisyphus/todos/delqhi-platform-master-todo.md
 2. Identify next pending task
 3. Check dependencies
 ```
@@ -392,11 +392,11 @@ Update this section in real-time:
 ## 🔧 TOOLS & RESOURCES
 
 ### Required Reading
-- Master TODO: `.sisyphus/todos/sin-solver-master-todo.md`
+- Master TODO: `.sisyphus/todos/delqhi-platform-master-todo.md`
 - Arbeitsbereich Tracking: `.sisyphus/todos/arbeitsbereich-tracking.md`
 - Last Changes: `lastchanges.md`
 - User Prompts: `userprompts.md`
-- AGENTS.md: `/Users/jeremy/dev/SIN-Solver/AGENTS.md`
+- AGENTS.md: `/Users/jeremy/dev/Delqhi-Platform/AGENTS.md`
 
 ### Communication Channels
 - Status Updates: TODO files

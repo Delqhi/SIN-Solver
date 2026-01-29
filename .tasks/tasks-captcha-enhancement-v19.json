@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "project": "SIN-Solver Captcha Worker Enhancement",
+  "project": "Delqhi-Platform Captcha Worker Enhancement",
   "lastUpdated": "2026-01-29T04:47:00Z",
   "status": "ACTIVE_DEVELOPMENT",
   "description": "Ultimate captcha-worker enhancement based on OpenAlternative research - Integrating ALTCHA, Private Captcha, Procaptcha, Skyvern, Browser Use, and Lightpanda best practices",
@@ -987,7 +987,7 @@
                 "payload": {
                   "type": "deployment",
                   "target": "solver-1.1-captcha-worker",
-                  "image": "sin-solver-solver-1.1-captcha-worker:v2.0.0"
+                  "image": "delqhi-platform-solver-1.1-captcha-worker:v2.0.0"
                 }
               },
               {
@@ -1005,8 +1005,8 @@
                 "payload": {
                   "type": "documentation",
                   "files": [
-                    "/Users/jeremy/dev/SIN-Solver/Docker/solvers/solver-1.1-captcha/README.md",
-                    "/Users/jeremy/dev/SIN-Solver/Docs/API-REFERENCE.md"
+                    "/Users/jeremy/dev/Delqhi-Platform/Docker/solvers/solver-1.1-captcha/README.md",
+                    "/Users/jeremy/dev/Delqhi-Platform/Docs/API-REFERENCE.md"
                   ]
                 }
               }

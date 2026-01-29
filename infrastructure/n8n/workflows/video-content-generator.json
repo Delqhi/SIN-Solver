@@ -1,5 +1,5 @@
 {
-  "name": "SIN-Solver Video Content Generator",
+  "name": "Delqhi-Platform Video Content Generator",
   "nodes": [
     {
       "parameters": {
@@ -256,5 +256,5 @@
   "settings": { "executionOrder": "v1" },
   "versionId": "1",
   "meta": { "templateCredsSetupCompleted": true },
-  "tags": ["video", "content", "tts", "social-media", "sin-solver"]
+  "tags": ["video", "content", "tts", "social-media", "delqhi-platform"]
 }

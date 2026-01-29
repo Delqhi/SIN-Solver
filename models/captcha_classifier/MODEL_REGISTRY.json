@@ -1,0 +1,15 @@
+{
+  "model_name": "captcha-classifier-yolov8n",
+  "version": "1.0.0",
+  "architecture": "yolov8n-cls",
+  "classes": 12,
+  "top1_accuracy": 0.4911,
+  "top5_accuracy": 0.9643,
+  "training_epochs": 20,
+  "training_time": "03:13:59",
+  "dataset_size": 528,
+  "best_weights": "best.pt",
+  "last_weights": "last.pt",
+  "deployed_at": "2026-01-29T17:55:00Z",
+  "status": "production_ready"
+}

@@ -412,7 +412,7 @@ services:
       - REDIS_URL=redis://room-04-redis:6379
       - API_BRAIN_URL=http://room-13-vault-api:8000
     networks:
-      - sin-solver
+      - delqhi-platform
     depends_on:
       - room-04-redis
       - room-03-postgres

@@ -45,7 +45,7 @@ Despite the blocking issue, ALL code and configuration files have been created:
 
 Once disk space is freed, simply run:
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/Docker/infrastructure/room-02-tresor
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/infrastructure/room-02-tresor
 docker-compose up -d
 curl -X POST http://localhost:8201/secrets/init
 ```

@@ -2,7 +2,7 @@
 
 **Port:** 8080 | **IP:** 172.20.0.14
 
-General-purpose task worker for SIN-Solver.
+General-purpose task worker for Delqhi-Platform.
 
 ## 🎯 Purpose
 

@@ -1,7 +1,7 @@
 {
   "name": "sin-chronos",
   "version": "1.0.0",
-  "description": "Cron-based job scheduler for SIN-Solver",
+  "description": "Cron-based job scheduler for Delqhi-Platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -10,7 +10,7 @@
 ### 1. API Keys Eingetragen ✅
 - **Mistral API Key:** `xAdrCbU85fFA4vhDMMAgWJ5tyruL9U4z` ✅
 - **Kimi API Key:** `sk-Bt2UBz3Goujnk9KA9lE534yZGHK8JEPR9O1ZyEyvJmNN5zr7` ✅
-- **Location:** `/Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker/.env`
+- **Location:** `/Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker/.env`
 - **Secrets Registry:** `/Users/jeremy/dev/environments-jeremy.md` ✅
 
 ### 2. Modulare Architektur Implementiert ✅
@@ -59,7 +59,7 @@ Der Build wurde mehrfach unterbrochen (Timeout). Das Image ist **teilweise** geb
 ### Lösung:
 **Option 1: Langsamer Build (Empfohlen)**
 ```bash
-cd /Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker
 docker-compose build --no-cache
 # Warten bis fertig (10-15 Minuten)
 docker-compose up -d
@@ -131,7 +131,7 @@ Um den Container fertig zu deployen:
 
 ```bash
 # 1. Zu Verzeichnis wechseln
-cd /Users/jeremy/dev/SIN-Solver/Docker/builders/builder-1.1-captcha-worker
+cd /Users/jeremy/dev/Delqhi-Platform/Docker/builders/builder-1.1-captcha-worker
 
 # 2. Build starten (dauert 10-15 Min!)
 docker-compose build --no-cache

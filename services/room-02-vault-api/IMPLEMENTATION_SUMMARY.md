@@ -4,7 +4,7 @@
 
 ### 1. Directory Structure Created
 ```
-✅ /Users/jeremy/dev/SIN-Solver/services/room-02-vault-api/
+✅ /Users/jeremy/dev/Delqhi-Platform/services/room-02-vault-api/
   ├── ✅ server.js (187 lines)
   ├── ✅ package.json
   ├── ✅ Dockerfile
@@ -178,7 +178,7 @@ REST endpoints for synchronization:
 VAULT_ADDR - Vault server address
 VAULT_TOKEN - Root token for authentication
 VERCEL_TOKEN - Vercel API token (optional)
-VERCEL_PROJECT_ID - SIN-Solver project ID (optional)
+VERCEL_PROJECT_ID - Delqhi-Platform project ID (optional)
 N8N_API_URL - n8n API endpoint (optional)
 N8N_API_KEY - n8n API key (optional)
 ```

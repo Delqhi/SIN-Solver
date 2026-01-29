@@ -114,7 +114,7 @@ Your branch is ahead of 'origin/main' by 3 commits.
 
 1. **Monitor YOLO Training**
    ```bash
-   cd /Users/jeremy/dev/SIN-Solver/training
+   cd /Users/jeremy/dev/Delqhi-Platform/training
    ./monitoring_training.sh
    ```
 
