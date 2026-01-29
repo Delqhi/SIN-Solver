@@ -1,0 +1,43 @@
+# SIN-Solver CAPTCHA Worker - Production Requirements
+# VERKAUFSBEREIT JANUAR 2026 - NO MOCKS
+
+# Core Dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# HTTP Client
+httpx==0.26.0
+aiohttp==3.9.1
+
+# Image Processing
+pillow==10.2.0
+opencv-python==4.9.0.80
+numpy==1.26.0
+
+# OCR Engine - REAL IMPLEMENTATION (NO PLACEHOLDER)
+ddddocr==1.5.5
+
+# Monitoring & Metrics (Production)
+prometheus-client==0.19.0
+
+# Retry Logic & Resilience
+tenacity==8.2.0
+
+# Caching & Queue
+redis==5.0.1
+hiredis==2.3.2
+
+# Utilities
+python-dotenv==1.0.0
+structlog==24.1.0
+
+# Testing
+pytest==7.4.0
+pytest-asyncio==0.21.0
+httpx==0.26.0
+
+# Type Checking
+mypy==1.8.0
+types-redis==4.6.0.20240106

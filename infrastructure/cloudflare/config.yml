@@ -46,9 +46,9 @@ ingress:
   - hostname: survey.delqhi.com
     service: http://solver-18-survey-worker:8018
 
-  # Captcha Worker
+  # Captcha Worker (NEW - builder-1.1)
   - hostname: captcha.delqhi.com
-    service: http://solver-19-captcha-worker:8019
+    service: http://builder-1.1-captcha-worker:8019
 
   # RocketChat
   - hostname: chat.delqhi.com

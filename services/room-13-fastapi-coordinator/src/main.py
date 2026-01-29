@@ -21,6 +21,7 @@ from src.services.service_registry import ServiceRegistry
 from src.routes import services as services_routes
 from src.routes import credentials as credentials_routes
 from src.routes import gateway as gateway_routes
+from src.routes import captcha as captcha_routes
 from src.middleware import AuthMiddleware
 from src.middleware.logging import LoggingMiddleware
 
@@ -80,6 +81,7 @@ app.add_middleware(
 app.include_router(services_routes.router)
 app.include_router(credentials_routes.router)
 app.include_router(gateway_routes.router)
+app.include_router(captcha_routes.router)
 
 
 @app.get("/health")

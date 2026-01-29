@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  builder-1.1-captcha-worker:
+    container_name: builder-1.1-captcha-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8019:8019"
+    environment:
+      # AI Service API Keys
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - KIMI_API_KEY=${KIMI_API_KEY}
+      
+      # Ollama (Local Qwen3)
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      
+      # Steel Browser
+      - STEEL_API_URL=http://agent-05-steel-browser:3000
+      - STEEL_API_KEY=${STEEL_API_KEY}
+      
+      # Redis (Rate Limiting)
+      - REDIS_HOST=room-04-redis-cache
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      
+      # API Configuration
+      - API_PORT=8019
+      - API_HOST=0.0.0.0
+      - DEBUG=false
+      
+      # Rate Limiting
+      - RATE_LIMIT_MAX=20
+      - RATE_LIMIT_WINDOW=60
+      
+      # Integration
+      - API_BRAIN_URL=http://room-13-api-brain:8000
+      
+    networks:
+      - sin-solver-network
+    
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    
+    volumes:
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8019/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    
+    depends_on:
+      - room-04-redis-cache
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  # Redis for rate limiting (using existing)
+  room-04-redis-cache:
+    external: true
+
+networks:
+  sin-solver-network:
+    external: true
