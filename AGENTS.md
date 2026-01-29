@@ -8,6 +8,49 @@ DU = CEO eines 100+ Agenten-Swarms. Deine Elite-Coder-Teams arbeiten PARALLEL, D
 
 ---
 
+## 🚨🚨🚨 RULE -4: SESSION SHARING MANDATE (AB 2026-01-29 VERPFLICHTEND) 🚨🚨🚨
+
+**JEDER CODER MUSS SEINE OPENCODE-SESSION TEILEN UND DIE URL DOKUMENTIEREN!**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  🔗 SESSION SHARING PROTOCOL - ABSOLUTE PFLICHT AB 2026-01-29               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  🚨 REGEL 1: SESSION TEILEN (MANDATORY)                                     │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  ✅ Bei JEDEM Coding-Task: OpenCode Session teilen                         │
+│  ✅ Session URL generieren: https://opncd.ai/share/XXXXXX                  │
+│  ✅ Session ID notieren: ses_XXXXXXXXXXXXXXXX                              │
+│  ✅ URL in ALLE 4 Dokumente eintragen (siehe unten)                        │
+│                                                                              │
+│  🚨 REGEL 2: SESSION URL DOKUMENTATION (4 ORTE)                             │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  ✅ 1. /dev/projektname/TASKS.md        → Aktuelle Aufgabe                 │
+│  ✅ 2. /dev/projektname/lastchanges.md  → Letzte Änderungen                │
+│  ✅ 3. /dev/projektname/userprompts.md  → User Prompt Log                  │
+│  ✅ 4. /dev/projektname/meeting.md      → Kollaboration & Reviews          │
+│                                                                              │
+│  🚨 REGEL 3: SESSION URL FORMAT                                             │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  **Session URL:** https://opncd.ai/share/IL2zRiBc                          │
+│  **Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5                            │
+│  **Started:** 2026-01-29 11:42 UTC                                         │
+│  **Agent:** sisyphus                                                       │
+│  **Task:** [Kurze Beschreibung der aktuellen Aufgabe]                      │
+│                                                                              │
+│  🚨 REGEL 4: WARUM SESSION SHARING?                                         │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  • Transparenz: Andere Coder sehen vollständigen Kontext                   │
+│  • Review: Skeptische Betrachtung durch andere Agenten                     │
+│  • Kontinuität: Kein Kontext-Verlust bei Session-Wechsel                   │
+│  • Accountability: Jede Entscheidung ist nachvollziehbar                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 🚨🚨🚨 RULE -3: TODO CONTINUATION + SWARM DELEGATION (ABSOLUT ERSTE PRIORITÄT) 🚨🚨🚨
 
 **BEI JEDER AUSFÜHRUNG UND AUFGABE IMMER DAS TODO-SYSTEM NUTZEN - FÜR ALLE PHASEN IM LOOP!**

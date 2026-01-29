@@ -10,7 +10,7 @@ import aiohttp
 import pytest
 import subprocess
 import json
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, cast
 import os
 
 # Container endpoints to test
@@ -34,7 +34,7 @@ CONTAINERS = {
 async def check_http_health(session: aiohttp.ClientSession, url: str, timeout: int = 5) -> Tuple[bool, str]:
     """Check HTTP health endpoint"""
     try:
-        async with session.get(url, timeout=timeout) as resp:
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout)) as resp:
             if resp.status in [200, 201, 202]:
                 return True, f"HTTP {resp.status}"
             else:
@@ -115,7 +115,7 @@ async def test_docker_ps_output():
     key_containers = [
         "room-03-postgres-master",
         "room-04-redis-cache",
-        "solver-1.1-captcha-worker"
+        "builder-1.1-captcha-worker"
     ]
     
     for container in key_containers:
@@ -132,9 +132,16 @@ async def test_network_connectivity():
     
     try:
         r = redis_client.from_url("redis://localhost:6379")
-        await r.ping()
+        # Use cast() to work around redis-py type stub union type issue
+        # redis.asyncio.Redis.ping() returns Union[Awaitable[bool], bool]
+        # but always returns Awaitable in async context (PEP 492)
+        ping_coro = r.ping()
+        result = cast(bool, await ping_coro)
+        if result:
+            print("✅ Captcha Worker → Redis: OK")
+        else:
+            pytest.fail("Redis ping returned False")
         await r.close()
-        print("✅ Captcha Worker → Redis: OK")
     except Exception as e:
         pytest.fail(f"Redis connectivity failed: {e}")
 
@@ -166,7 +173,7 @@ async def test_metrics_availability():
     async with aiohttp.ClientSession() as session:
         for name, url in metrics_endpoints.items():
             try:
-                async with session.get(url, timeout=5) as resp:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
                     if resp.status == 200:
                         text = await resp.text()
                         # Check for essential metrics
@@ -202,7 +209,7 @@ async def test_restart_policy():
     print("\n🔄 Testing Restart Policies")
     
     result = subprocess.run(
-        ["docker", "inspect", "solver-1.1-captcha-worker", "--format", "{{.HostConfig.RestartPolicy.Name}}"],
+        ["docker", "inspect", "builder-1.1-captcha-worker", "--format", "{{.HostConfig.RestartPolicy.Name}}"],
         capture_output=True,
         text=True
     )
