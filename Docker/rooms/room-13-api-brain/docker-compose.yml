@@ -1,0 +1,51 @@
+# room-13-api-brain: Main API Gateway
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-13-api-brain:
+    build:
+      context: ../../../services/room-13-fastapi-coordinator
+      dockerfile: Dockerfile
+    platform: linux/arm64  # Mac M1 native support
+    container_name: room-13-api-brain
+    hostname: room-13-api-brain
+    environment:
+      POSTGRES_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-rOB8IxDEYUqNb8Oxe8xeNP2VzHGkyNHVlsCju1p8ewE=}
+      JWT_SECRET: ${JWT_SECRET:-default-jwt-secret-change}
+      VAULT_ADDR: http://room-02-tresor-vault:8200
+      VAULT_TOKEN: ${VAULT_TOKEN:-s.root2026SINSolver}
+    ports:
+      - "8000:8000"
+    networks:
+      - sin-solver-network
+    # Note: Depends on room-03-postgres-master, room-04-redis-cache, room-02-tresor-vault
+    # Start infrastructure first: make start-infrastructure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

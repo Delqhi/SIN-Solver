@@ -3,6 +3,26 @@
 
 services:
   # ==========================================
+  # EBENE 0: ACCESS & TUNNELS
+  # ==========================================
+
+  room-00-cloudflared-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: room-00-cloudflared-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    volumes:
+      - ./infrastructure/cloudflare/config.yml:/etc/cloudflared/config.yml
+      - ./infrastructure/cloudflare/credentials.json:/etc/cloudflared/credentials.json
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.5
+    depends_on:
+      room-01-dashboard-cockpit: { condition: service_healthy }
+
+  # ==========================================
   # EBENE 5: INFRASTRUKTUR (Fundament)
   # ==========================================
   
@@ -92,9 +112,9 @@ services:
     environment:
       N8N_SECURE_COOKIE: "false"
       N8N_BLOCK_IFRAMES: "false"
-      N8N_EDITOR_BASE_URL: http://192.168.178.21:5678/
+      N8N_EDITOR_BASE_URL: https://n8n.delqhi.com/
       N8N_USE_SAMESITE_COOKIE: "none"
-      WEBHOOK_URL: http://192.168.178.21:5678/
+      WEBHOOK_URL: https://n8n.delqhi.com/
     volumes: [n8n_data:/home/node/.n8n]
     networks:
       haus-netzwerk:
@@ -105,11 +125,11 @@ services:
       timeout: 10s
       retries: 5
 
-  room-13-fastapi-coordinator:
+  room-13-api-brain:
     build:
       context: ./services/room-13-fastapi-coordinator
       dockerfile: Dockerfile
-    container_name: room-13-fastapi-coordinator
+    container_name: room-13-api-brain
     env_file: .env
     environment:
       POSTGRES_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
@@ -133,22 +153,24 @@ services:
   # EBENE 2: INTERFACES
   # ==========================================
 
-  room-11-dashboard-cockpit:
+  room-01-dashboard-cockpit:
     build:
-      context: ./services/room-11-dashboard-cockpit
+      context: ./dashboard
       dockerfile: Dockerfile
-    container_name: room-11-dashboard-cockpit
+    container_name: room-01-dashboard-cockpit
     environment:
       NODE_ENV: production
-      API_URL: http://room-13-fastapi-coordinator:8000
-    ports: ["3001:80"]
+      API_URL: http://room-13-api-brain:8000
+    ports: ["3011:3011"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      room-13-fastapi-coordinator: { condition: service_healthy }
+      room-13-api-brain: { condition: service_healthy }
     networks:
       haus-netzwerk:
-        ipv4_address: 172.20.0.40
+        ipv4_address: 172.20.0.60
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3011/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -165,7 +187,7 @@ services:
       REDIS_URL: redis://room-04-redis-cache:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
     ports: ["3002:9000"]
     depends_on:
       room-03-postgres-master: { condition: service_healthy }
@@ -193,8 +215,8 @@ services:
     environment:
       PYTHONPATH: .
       ROLE: master_agent
-      STEEL_CDP_URL: ws://172.20.0.20:3000/
-      DATABASE_URL: postgresql+asyncpg://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production
+      STEEL_CDP_URL: ws://agent-05-steel-browser:3000/
+      DATABASE_URL: postgresql+asyncpg://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.50
@@ -204,9 +226,9 @@ services:
     container_name: agent-06-skyvern-solver
     ports: ["8002:8000"]
     environment:
-      DATABASE_STRING: postgresql+asyncpg://librarian:secure-knowledge-2026@172.20.0.12:5432/knowledge_base
+      DATABASE_STRING: postgresql+asyncpg://librarian:secure-knowledge-2026@room-10-postgres-knowledge:5432/knowledge_base
       BROWSER_TYPE: cdp-connect
-      BROWSER_URL: http://172.20.0.20:3000
+      BROWSER_URL: http://agent-05-steel-browser:3000
       LLM_KEY: OPENAI
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
@@ -225,7 +247,7 @@ services:
     environment:
       ROLE: researcher
       PYTHONPATH: .
-      STEEL_CDP_URL: ws://172.20.0.20:3000/
+      STEEL_CDP_URL: ws://agent-05-steel-browser:3000/
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.54
@@ -240,7 +262,7 @@ services:
       PORT: 8080
       DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
       REDIS_URL: redis://room-04-redis-cache:6379
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
       STEEL_CDP_URL: ws://agent-05-steel-browser:3000/
       CONCURRENT_TASKS: 3
     depends_on:
@@ -264,11 +286,11 @@ services:
       NODE_ENV: production
       PORT: 3001
       DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
-      API_BRAIN_URL: http://room-13-fastapi-coordinator:8000
+      API_BRAIN_URL: http://room-13-api-brain:8000
     ports: ["3001:3001"]
     depends_on:
       room-03-postgres-master: { condition: service_healthy }
-      room-13-fastapi-coordinator: { condition: service_healthy }
+      room-13-api-brain: { condition: service_healthy }
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.52
@@ -288,7 +310,7 @@ services:
       PORT: 8080
       DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
       REDIS_URL: redis://room-04-redis-cache:6379
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
     ports: ["8004:8080"]
@@ -315,7 +337,7 @@ services:
       PORT: 8080
       DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
       REDIS_URL: redis://room-04-redis-cache:6379
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
     ports: ["8005:8080"]
     depends_on:
       room-03-postgres-master: { condition: service_healthy }
@@ -339,7 +361,7 @@ services:
       PORT: 8000
       DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
       REDIS_URL: redis://room-04-redis-cache:6379
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
     ports: ["8006:8000"]
     depends_on:
       room-03-postgres-master: { condition: service_healthy }
@@ -363,7 +385,7 @@ services:
       PORT: 8080
       DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
       REDIS_URL: redis://room-04-redis-cache:6379
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
     ports: ["8007:8080"]
     depends_on:
       room-03-postgres-master: { condition: service_healthy }
@@ -386,7 +408,7 @@ services:
       NODE_ENV: production
       PORT: 8018
       REDIS_URL: redis://room-04-redis-cache:6379
-      API_COORDINATOR_URL: http://room-13-fastapi-coordinator:8000
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
       STEEL_CDP_URL: ws://agent-05-steel-browser:3000/
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       MISTRAL_API_KEY: ${MISTRAL_API_KEY}
@@ -413,7 +435,7 @@ services:
     container_name: room-15-surfsense-archiv
     ports: ["3003:3000", "8000:8000"]
     environment:
-      NEXT_PUBLIC_BACKEND_URL: http://192.168.178.21:8000
+      NEXT_PUBLIC_BACKEND_URL: https://surfsense.delqhi.com
     volumes:
       - surfsense_data:/data
     networks:
@@ -445,7 +467,7 @@ services:
     image: supabase/postgres-meta:v0.95.1
     container_name: room-16-pg-meta
     environment:
-      PG_META_DB_URL: postgres://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production
+      PG_META_DB_URL: postgres://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
     networks:
       haus-netzwerk:
         ipv4_address: 172.20.0.71

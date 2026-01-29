@@ -1,0 +1,55 @@
+# agent-09-clawdbot-messenger: Social Media Bots
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  agent-09-clawdbot-messenger:
+    build:
+      context: ../../../services/agent-09-clawdbot-messenger
+      dockerfile: Dockerfile
+    platform: linux/arm64
+    container_name: agent-09-clawdbot-messenger
+    hostname: agent-09-clawdbot-messenger
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+    ports:
+      - "8004:8080"
+    networks:
+      - sin-solver-network
+    depends_on:
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

@@ -1,0 +1,54 @@
+# room-02-tresor-api: Vault Integration Layer
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-02-tresor-api:
+    build:
+      context: ../../../services/room-02-vault-api
+      dockerfile: Dockerfile
+    platform: linux/arm64  # Mac M1 native support
+    container_name: room-02-tresor-api
+    hostname: room-02-tresor-api
+    environment:
+      NODE_ENV: production
+      PORT: 8002
+      VAULT_ADDR: http://room-02-tresor-vault:8200
+      VAULT_TOKEN: ${VAULT_TOKEN:-s.root2026SINSolver}
+      VERCEL_TOKEN: ${VERCEL_TOKEN}
+      VERCEL_PROJECT_ID: ${VERCEL_PROJECT_ID}
+      N8N_API_URL: http://agent-01-n8n-orchestrator:5678
+      N8N_API_KEY: ${N8N_API_KEY}
+    ports:
+      - "8002:8002"
+    networks:
+      - sin-solver-network
+    depends_on:
+      room-02-tresor-vault:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

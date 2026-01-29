@@ -1,0 +1,40 @@
+# room-00-cloudflared-tunnel: Public Access Tunnel
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-00-cloudflared-tunnel:
+    image: cloudflare/cloudflared:latest
+    platform: linux/arm64
+    container_name: room-00-cloudflared-tunnel
+    hostname: room-00-cloudflared-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    volumes:
+      - ../../../infrastructure/cloudflare/config.yml:/etc/cloudflared/config.yml:ro
+      - ../../../infrastructure/cloudflare/credentials.json:/etc/cloudflared/credentials.json:ro
+    networks:
+      - sin-solver-network
+    # Note: Depends on room-01-dashboard-cockpit and room-13-api-brain
+    # Start these services first before starting cloudflared
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

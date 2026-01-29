@@ -1,0 +1,51 @@
+# room-03-postgres-master: Main Database
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-03-postgres-master:
+    image: postgres:15-alpine
+    platform: linux/arm64  # Mac M1 native support
+    container_name: room-03-postgres-master
+    hostname: room-03-postgres-master
+    environment:
+      POSTGRES_DB: sin_solver_production
+      POSTGRES_USER: ceo_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_ceo_password_2026}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_master_data:/var/lib/postgresql/data
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ceo_admin -d sin_solver_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+volumes:
+  postgres_master_data:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

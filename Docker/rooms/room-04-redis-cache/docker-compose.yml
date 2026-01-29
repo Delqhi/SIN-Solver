@@ -1,0 +1,47 @@
+# room-04-redis-cache: Session & Cache Store
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-04-redis-cache:
+    image: redis:7.2-alpine
+    platform: linux/arm64  # Mac M1 native support
+    container_name: room-04-redis-cache
+    hostname: room-04-redis-cache
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sin-solver-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

@@ -4,6 +4,15 @@
 **🚨 ULTRA MANDATE 0.0: IMMUTABILITY OF KNOWLEDGE (THE SUPREME LAW)**
 No existing line in ANY document or configuration file (e.g., Agents.md, opencode.json, oh-my-opencode.json, BLUEPRINT.md, Guides, Reports, or any project file) may EVER be deleted or overwritten with less information. Any modification MUST be an additive enhancement. This document is a chronological fortress of our collective intelligence. Deleting, truncating, or "cleaning up" by removing information is a termination-level offense (Technical Treason). Every coder MUST verify the full integrity and totality of EVERY file before saving. Blind and dumb deletion of code or configuration (e.g., in opencode.json) is strictly prohibited.
 
+**🚨 MANDATE 0.0a: CONTAINER REGISTRY REQUIREMENT (DOCKER WORK)**
+**BEFORE** modifying ANY Docker configuration, containers, or compose files, the coder MUST first read and understand `/Users/jeremy/dev/SIN-Solver/CONTAINER-REGISTRY.md`. This registry contains:
+- Master list of ALL containers with correct names
+- Strict naming convention enforcement
+- Public domain mappings
+- Container purposes and functions
+- Available number slots for new containers
+**Failure to consult the registry before Docker work results in naming violations and architectural errors.**
+
 **Status:** SUPREME GLOBAL MANDATE (Autonomous Agentic Corporation)  
 **Version:** 17.10 "VIDEO-GEN MCP EMPIRE" (UPDATED 2026-01-27)  
 **Architecture:** 23-ROOM DISTRIBUTED FORTRESS (STEEL + VISION + VERCEL + SURFSENSE + SUPABASE + SIN-PLUGINS + SURVEY-WORKER + CAPTCHA-WORKER + WEBSITE-WORKER + SOCIAL-MCP + DEEP-RESEARCH-MCP + VIDEO-GEN-MCP)

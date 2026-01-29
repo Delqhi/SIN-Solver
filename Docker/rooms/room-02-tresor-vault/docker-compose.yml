@@ -1,0 +1,55 @@
+# room-02-tresor-vault: Secrets Management
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-02-tresor-vault:
+    image: hashicorp/vault:1.15
+    platform: linux/arm64  # Mac M1 native support
+    container_name: room-02-tresor-vault
+    hostname: room-02-tresor-vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_ADDR: http://0.0.0.0:8200
+      VAULT_API_ADDR: http://0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-s.root2026SINSolver}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault_data:/vault/file
+      - ./config:/vault/config:ro
+    networks:
+      - sin-solver-network
+    command: server -dev -dev-root-token-id="${VAULT_TOKEN:-s.root2026SINSolver}"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8200/v1/sys/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+volumes:
+  vault_data:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

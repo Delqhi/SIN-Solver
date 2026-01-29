@@ -151,6 +151,206 @@ curl http://localhost:8000/api/solve \
 
 ## Architecture
 
+### 🎯 For Non-Developers: How It Works
+
+```mermaid
+flowchart TB
+    subgraph "Your Computer (Mac M1)"
+        direction TB
+        
+        subgraph "🌐 Public Access"
+            CF[Cloudflare Tunnel<br/>*.delqhi.com]
+        end
+        
+        subgraph "🎛️ Control Center"
+            DASH[Dashboard<br/>dashboard.delqhi.com]
+            API[API Brain<br/>api.delqhi.com]
+        end
+        
+        subgraph "🤖 AI Workers"
+            N8N[n8n Orchestrator<br/>Automates Workflows]
+            STEEL[Steel Browser<br/>Stealth Web Scraping]
+            SKY[Skyvern<br/>Visual AI Agent]
+        end
+        
+        subgraph "💰 Money Makers"
+            SURVEY[Survey Worker<br/>Auto-fills Forms]
+            CAPTCHA[Captcha Worker<br/>Solves Puzzles]
+        end
+        
+        subgraph "🔒 Secure Storage"
+            VAULT[Vault<br/>Keeps Secrets Safe]
+            DB[(Postgres<br/>Database)]
+            CACHE[(Redis<br/>Fast Cache)]
+        end
+    end
+    
+    USER[You] -->|Open URL| CF
+    CF --> DASH
+    CF --> API
+    DASH -->|Controls| N8N
+    DASH -->|Controls| STEEL
+    DASH -->|Controls| SKY
+    API -->|Uses| VAULT
+    API -->|Uses| DB
+    API -->|Uses| CACHE
+    N8N -->|Uses| STEEL
+    SKY -->|Uses| STEEL
+    SURVEY -->|Uses| STEEL
+    SURVEY -->|Uses| CAPTCHA
+```
+
+### 🏗️ For Developers: Container Architecture
+
+```mermaid
+flowchart LR
+    subgraph "External"
+        USER[User/Browser]
+        CF[Cloudflare Tunnel<br/>*.delqhi.com]
+    end
+    
+    subgraph "SIN-Solver Empire"
+        direction TB
+        
+        subgraph "Access Layer"
+            CT[room-00<br/>cloudflared]
+        end
+        
+        subgraph "Interface Layer"
+            DASH[room-01<br/>dashboard:3011]
+        end
+        
+        subgraph "API Layer"
+            API[room-13<br/>api-brain:8000]
+        end
+        
+        subgraph "Agent Workers"
+            A01[agent-01<br/>n8n:5678]
+            A05[agent-05<br/>steel:3000]
+            A06[agent-06<br/>skyvern:8030]
+            A04[agent-04<br/>opencode:9000]
+        end
+        
+        subgraph "Solver Workers"
+            S14[solver-14<br/>automation:8080]
+            S18[solver-18<br/>survey:8018]
+            S19[solver-19<br/>captcha:8019]
+        end
+        
+        subgraph "Data Layer"
+            R03[room-03<br/>postgres:5432]
+            R04[room-04<br/>redis:6379]
+            R02V[room-02<br/>vault:8200]
+            R02A[room-02<br/>vault-api:8002]
+        end
+    end
+    
+    USER -->|HTTPS| CF
+    CF --> CT
+    CT --> DASH
+    CT --> API
+    DASH -->|HTTP| API
+    API -->|HTTP| A01
+    API -->|HTTP| A05
+    API -->|HTTP| A06
+    A01 -->|CDP| A05
+    A06 -->|CDP| A05
+    API -->|HTTP| S14
+    S14 -->|CDP| A05
+    API -->|SQL| R03
+    API -->|Redis| R04
+    API -->|HTTP| R02A
+    R02A -->|HTTP| R02V
+```
+
+### 🔄 Data Flow Example: Solving a CAPTCHA
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant Dash as Dashboard
+    participant API as API Brain
+    participant Solver as Captcha Worker
+    participant Browser as Steel Browser
+    participant AI as Gemini/Mistral
+    participant DB as Postgres
+
+    User->>Dash: "Solve this CAPTCHA"
+    Dash->>API: POST /api/solve
+    API->>DB: Log request
+    API->>Solver: Assign task
+    Solver->>Browser: Open target page
+    Browser-->>Solver: Page loaded (stealth)
+    Solver->>Solver: Detect CAPTCHA type
+    Solver->>AI: Analyze image/text
+    AI-->>Solver: Solution: "XYZ123"
+    Solver->>Browser: Enter solution
+    Browser-->>Solver: Success!
+    Solver-->>API: Result + metadata
+    API->>DB: Store result
+    API-->>Dash: Success response
+    Dash-->>User: "CAPTCHA solved in 3.2s"
+```
+
+### 📊 Container Communication Map
+
+```mermaid
+flowchart TD
+    subgraph legend["Legend"]
+        direction LR
+        pub[Public URL]:::public
+        int[Internal Only]:::internal
+        db[Database]:::database
+    end
+    
+    style legend fill:none,stroke:none
+    
+    subgraph agents["🤖 Agents (AI Workers)"]
+        A01[agent-01-n8n<br/>n8n.delqhi.com]:::public
+        A04[agent-04-opencode<br/>codeserver.delqhi.com]:::public
+        A05[agent-05-steel<br/>steel.delqhi.com]:::public
+        A06[agent-06-skyvern<br/>skyvern.delqhi.com]:::public
+        A07[agent-07-stagehand<br/>stagehand.delqhi.com]:::public
+        A08[agent-08-playwright]:::internal
+        A09[agent-09-clawdbot<br/>chat.delqhi.com]:::public
+        A12[agent-12-optimizer]:::internal
+    end
+    
+    subgraph rooms["🏢 Rooms (Infrastructure)"]
+        R01[room-01-dashboard<br/>dashboard.delqhi.com]:::public
+        R02V[room-02-vault<br/>vault.delqhi.com]:::public
+        R02A[room-02-vault-api<br/>vault-api.delqhi.com]:::public
+        R03[room-03-postgres]:::database
+        R04[room-04-redis]:::database
+        R13[room-13-api<br/>api.delqhi.com]:::public
+        R16[room-16-supabase<br/>supabase.delqhi.com]:::public
+    end
+    
+    subgraph solvers["💰 Solvers (Money Workers)"]
+        S14[solver-14-automation]:::internal
+        S18[solver-18-survey<br/>survey.delqhi.com]:::public
+        S19[solver-19-captcha<br/>captcha.delqhi.com]:::public
+    end
+    
+    R01 -->|Uses| R13
+    R13 -->|Uses| R03
+    R13 -->|Uses| R04
+    R13 -->|Uses| R02A
+    R02A -->|Uses| R02V
+    A01 -->|Uses| R03
+    A01 -->|Uses| R04
+    A06 -->|Uses| A05
+    S14 -->|Uses| A05
+    S18 -->|Uses| A05
+    S19 -->|Uses| A05
+    
+    classDef public fill:#90EE90,stroke:#228B22,stroke-width:2px
+    classDef internal fill:#FFD700,stroke:#FFA500,stroke-width:2px
+    classDef database fill:#87CEEB,stroke:#4169E1,stroke-width:2px
+```
+
+### 📋 ASCII Architecture (Legacy View)
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         SIN-SOLVER EMPIRE (23 Rooms)                        │

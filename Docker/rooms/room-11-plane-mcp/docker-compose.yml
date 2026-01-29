@@ -1,0 +1,54 @@
+# room-11-plane-mcp: Project Management (Plane)
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  room-11-plane-mcp:
+    build:
+      context: ../../../services/room-11-plane
+      dockerfile: Dockerfile
+    platform: linux/arm64
+    container_name: room-11-plane-mcp
+    hostname: room-11-plane-mcp
+    environment:
+      NODE_ENV: production
+      PORT: 8216
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/plane
+      REDIS_URL: redis://room-04-redis-cache:6379
+      API_URL: https://plane.delqhi.com
+      SECRET_KEY: ${PLANE_SECRET_KEY:-plane-secret-key-change-in-production}
+    ports:
+      - "8216:8216"
+    networks:
+      - sin-solver-network
+    depends_on:
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8216/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

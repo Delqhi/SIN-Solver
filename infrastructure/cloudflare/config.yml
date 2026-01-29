@@ -12,7 +12,7 @@ ingress:
 
   # Skyvern (Visual Solver)
   - hostname: skyvern.delqhi.com
-    service: http://agent-06-skyvern-solver:8030
+    service: http://agent-06-skyvern-solver:8000
 
   # Steel Browser (Stealth)
   - hostname: steel.delqhi.com
@@ -20,39 +20,39 @@ ingress:
 
   # Stagehand (Research)
   - hostname: stagehand.delqhi.com
-    service: http://agent-07-stagehand-research:3000
+    service: http://agent-07-stagehand-research:8000
 
-  # Vault API
+  # Vault UI (HashiCorp Vault)
   - hostname: vault.delqhi.com
-    service: http://room-02-tresor-api:8201
+    service: http://room-02-tresor-vault:8200
+
+  # Vault API (Integration Layer)
+  - hostname: vault-api.delqhi.com
+    service: http://room-02-tresor-api:8002
 
   # NocoDB (Database UI)
   - hostname: nocodb.delqhi.com
-    service: http://room-21-nocodb-ui:8090
+    service: http://room-21-nocodb-ui:8080
 
   # Supabase Studio
   - hostname: supabase.delqhi.com
-    service: http://room-16-supabase-studio:54323
+    service: http://room-16-supabase-studio:3000
 
   # CodeServer API
   - hostname: codeserver.delqhi.com
-    service: http://agent-04.1-codeserver-api:8041
-
-  # CodeServer IDE
-  - hostname: code.delqhi.com
-    service: http://agent-04.1-openhands-codeserver:3041
+    service: http://agent-04-opencode-secretary:9000
 
   # Survey Worker
   - hostname: survey.delqhi.com
-    service: http://solver-2.1-survey-worker:8018
+    service: http://solver-18-survey-worker:8018
 
   # Captcha Worker
   - hostname: captcha.delqhi.com
-    service: http://solver-1.1-captcha-worker:8019
+    service: http://solver-19-captcha-worker:8019
 
   # RocketChat
   - hostname: chat.delqhi.com
-    service: http://room-09.1-rocketchat-app:3009
+    service: http://room-09-clawdbot-messenger:8080
 
   # Video Generator
   - hostname: video.delqhi.com
@@ -64,7 +64,11 @@ ingress:
 
   # Deep Research MCP
   - hostname: research.delqhi.com
-    service: http://room-20.4-deep-research-mcp:8214
+    service: http://agent-07-stagehand-research:3000
+
+  # Plane (Project Management)
+  - hostname: plane.delqhi.com
+    service: http://room-11-plane-mcp:8216
 
   # Default Fallback
   - service: http_status:404

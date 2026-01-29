@@ -1,0 +1,55 @@
+# agent-04-opencode-secretary: OpenCode AI Integration
+# Best Practices 2026: Modular Architecture
+
+version: '3.9'
+
+services:
+  agent-04-opencode-secretary:
+    build:
+      context: ../../../services/agent-04-opencode-secretary
+      dockerfile: Dockerfile
+    platform: linux/arm64
+    container_name: agent-04-opencode-secretary
+    hostname: agent-04-opencode-secretary
+    environment:
+      NODE_ENV: production
+      PORT: 9000
+      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      REDIS_URL: redis://room-04-redis-cache:6379
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      API_COORDINATOR_URL: http://room-13-api-brain:8000
+    ports:
+      - "9000:9000"
+    networks:
+      - sin-solver-network
+    depends_on:
+      room-03-postgres-master:
+        condition: service_healthy
+      room-04-redis-cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network
