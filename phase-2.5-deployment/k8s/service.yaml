@@ -1,0 +1,162 @@
+---
+# Kubernetes Service for SIN-Solver CAPTCHA Solver
+# Phase: 2.5 Kubernetes Deployment (Day 2)
+# Purpose: Expose captcha-solver pods to external traffic and internal services
+# Date: 2026-01-30
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sin-solver-captcha-solver
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+    app.kubernetes.io/version: "2.5"
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "LoadBalancer service for SIN-Solver CAPTCHA Solver"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+
+spec:
+  type: LoadBalancer
+  
+  # Session affinity for consistency
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+
+  # Load balancer source ranges (optional - restrict access)
+  # loadBalancerSourceRanges:
+  #   - 0.0.0.0/0
+
+  # Cluster IP for internal service discovery
+  clusterIP: None  # Headless service for StatefulSet-like behavior
+
+  # Port configuration
+  ports:
+    # HTTP API traffic
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+    # HTTPS (if configured in ingress)
+    - name: https
+      port: 443
+      targetPort: 8000
+      protocol: TCP
+    # Metrics for Prometheus
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+    # Debug port (if enabled)
+    - name: debug
+      port: 5678
+      targetPort: 5678
+      protocol: TCP
+      appProtocol: debugger
+
+  # Pod selector
+  selector:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+
+  # External traffic policy for preserving source IP
+  externalTrafficPolicy: Local
+
+---
+# Internal ClusterIP Service for inter-pod communication
+apiVersion: v1
+kind: Service
+metadata:
+  name: sin-solver-captcha-solver-internal
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+    app.kubernetes.io/version: "2.5"
+    tier: internal
+
+spec:
+  type: ClusterIP
+
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+
+  selector:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+
+---
+# Headless Service for DNS discovery (useful for clients connecting to specific pods)
+apiVersion: v1
+kind: Service
+metadata:
+  name: sin-solver-captcha-solver-headless
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+    app.kubernetes.io/version: "2.5"
+
+spec:
+  type: ClusterIP
+  clusterIP: None  # This makes it a headless service
+  
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+
+  selector:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+
+---
+# Endpoints for manual traffic management (optional)
+# Uncomment and modify if you need to manually control service endpoints
+# apiVersion: v1
+# kind: Endpoints
+# metadata:
+#   name: sin-solver-captcha-solver
+#   namespace: sin-solver
+# subsets:
+#   - addresses:
+#       - ip: 10.0.1.10
+#         targetRef:
+#           kind: Pod
+#           name: sin-solver-captcha-solver-0
+#           namespace: sin-solver
+#     ports:
+#       - name: http
+#         port: 8000
+
+---
+# StatefulSet variant (optional - for ordered pod deployment)
+# Uncomment if you prefer StatefulSet over Deployment
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: sin-solver-captcha-solver
+#   namespace: sin-solver
+# spec:
+#   serviceName: sin-solver-captcha-solver-headless
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app.kubernetes.io/name: sin-solver
+#       app.kubernetes.io/component: captcha-solver
+#   template:
+#     # ... (same as Deployment template)

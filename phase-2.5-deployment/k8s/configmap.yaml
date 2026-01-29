@@ -1,0 +1,246 @@
+---
+# Kubernetes ConfigMap for SIN-Solver Configuration
+# Phase: 2.5 Kubernetes Deployment (Day 2)
+# Purpose: Store non-sensitive configuration data
+# Date: 2026-01-30
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sin-solver-config
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/version: "2.5"
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "Non-sensitive configuration for SIN-Solver CAPTCHA solver"
+    last-updated: "2026-01-30"
+
+data:
+  # Application Configuration
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+  
+  # API Configuration
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  API_WORKERS: "4"
+  API_TIMEOUT: "300"
+  
+  # Database Configuration (Host and port only, credentials in Secrets)
+  DATABASE_HOST: "sin-solver-postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "captcha_db"
+  DATABASE_SCHEMA: "captcha_solver"
+  DATABASE_POOL_SIZE: "20"
+  DATABASE_MAX_OVERFLOW: "40"
+  DATABASE_POOL_TIMEOUT: "30"
+  DATABASE_POOL_RECYCLE: "3600"
+  
+  # Redis Configuration (Host and port only, password in Secrets)
+  REDIS_HOST: "sin-solver-redis"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_CACHE_TTL: "86400"
+  REDIS_MAX_CONNECTIONS: "50"
+  
+  # YOLO Model Configuration
+  YOLO_MODEL_NAME: "best.pt"
+  YOLO_CONFIDENCE_THRESHOLD: "0.5"
+  YOLO_IOU_THRESHOLD: "0.45"
+  YOLO_DEVICE: "cpu"
+  YOLO_MAX_DET: "300"
+  YOLO_IMGSZ: "640"
+  
+  # Captcha Solver Configuration
+  SUPPORTED_CAPTCHA_TYPES: |
+    text,
+    image,
+    slider,
+    click,
+    puzzle,
+    rotate,
+    audio,
+    math,
+    checkbox,
+    grid,
+    sequence,
+    custom
+  
+  # OCR Configuration
+  OCR_ENABLED: "true"
+  OCR_PROVIDER: "ddddocr"
+  OCR_CONFIDENCE_THRESHOLD: "0.6"
+  
+  # Audio Processing
+  AUDIO_ENABLED: "true"
+  AUDIO_PROVIDER: "whisper"
+  AUDIO_MODEL_SIZE: "tiny"
+  
+  # Model Management
+  MODEL_AUTO_LOAD: "true"
+  MODEL_CACHE_DIR: "/app/models"
+  MODEL_DOWNLOAD_TIMEOUT: "600"
+  MODEL_VERSION: "2.5.0"
+  
+  # Performance Configuration
+  MAX_WORKERS: "8"
+  BATCH_SIZE: "1"
+  INFERENCE_TIMEOUT: "60"
+  QUEUE_MAX_SIZE: "1000"
+  
+  # Health Check Configuration
+  HEALTH_CHECK_INTERVAL: "30"
+  LIVENESS_PROBE_TIMEOUT: "10"
+  READINESS_PROBE_TIMEOUT: "10"
+  
+  # Monitoring Configuration
+  METRICS_ENABLED: "true"
+  METRICS_PORT: "9090"
+  SENTRY_ENABLED: "false"
+  
+  # Security Configuration
+  CORS_ORIGINS: "http://localhost:3000,https://localhost:3443"
+  ALLOWED_IPS: "0.0.0.0/0"
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_REQUESTS: "100"
+  RATE_LIMIT_PERIOD: "60"
+  
+  # Storage Configuration
+  LOG_DIR: "/var/log/captcha-solver"
+  TEMP_DIR: "/tmp/captcha-solver"
+  DATA_DIR: "/data/captcha-solver"
+  
+  # Kubernetes Configuration
+  KUBERNETES_NAMESPACE: "sin-solver"
+  KUBERNETES_POD_NAME: "${HOSTNAME}"
+  KUBERNETES_POD_NAMESPACE: "sin-solver"
+  
+  # Feature Flags
+  FEATURE_EXPERIMENTAL: "false"
+  FEATURE_ADVANCED_LOGGING: "false"
+  FEATURE_DISTRIBUTED_CACHE: "true"
+
+---
+# Kubernetes ConfigMap for application-level configuration files
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sin-solver-app-config
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: application-config
+    app.kubernetes.io/version: "2.5"
+
+data:
+  # Python application configuration
+  logging-config.json: |
+    {
+      "version": 1,
+      "disable_existing_loggers": false,
+      "formatters": {
+        "standard": {
+          "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(message)s"
+        },
+        "detailed": {
+          "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(funcName)s() %(message)s"
+        }
+      },
+      "handlers": {
+        "default": {
+          "level": "INFO",
+          "class": "logging.StreamHandler",
+          "formatter": "standard",
+          "stream": "ext://sys.stdout"
+        },
+        "file": {
+          "level": "DEBUG",
+          "class": "logging.handlers.RotatingFileHandler",
+          "formatter": "detailed",
+          "filename": "/var/log/captcha-solver/app.log",
+          "maxBytes": 10485760,
+          "backupCount": 5
+        }
+      },
+      "loggers": {
+        "": {
+          "handlers": ["default", "file"],
+          "level": "INFO"
+        }
+      }
+    }
+
+  # YOLO model configuration
+  yolo-config.yaml: |
+    task: detect
+    mode: predict
+    model: best.pt
+    data: null
+    imgsz: 640
+    conf: 0.5
+    iou: 0.45
+    device: cpu
+    workers: 0
+    project: /app/results
+    name: predict
+    exist_ok: true
+    pretrained: true
+    verbose: true
+    seed: 0
+    deterministic: true
+    single_cls: false
+    rect: false
+    keras: false
+    optimize: false
+    int8: false
+    dynamic: false
+    half: false
+    dnn: false
+    plots: false
+    source: null
+    conf_threshold: 0.5
+    max_det: 300
+    augment: false
+    visualize: false
+    save_crop: false
+
+---
+# Kubernetes ConfigMap for database initialization scripts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sin-solver-db-init
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: database-init
+    app.kubernetes.io/version: "2.5"
+
+data:
+  init-database.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "Waiting for PostgreSQL to be ready..."
+    until pg_isready -h $DATABASE_HOST -p $DATABASE_PORT -U $POSTGRES_USER; do
+      echo "PostgreSQL is unavailable - sleeping"
+      sleep 1
+    done
+    
+    echo "PostgreSQL is ready!"
+    echo "Creating captcha_db database if not exists..."
+    
+    PGPASSWORD=$POSTGRES_PASSWORD psql -h $DATABASE_HOST -U $POSTGRES_USER -tc \
+      "SELECT 1 FROM pg_database WHERE datname = 'captcha_db'" | grep -q 1 || \
+      PGPASSWORD=$POSTGRES_PASSWORD psql -h $DATABASE_HOST -U $POSTGRES_USER -c \
+      "CREATE DATABASE captcha_db;"
+    
+    echo "Running database initialization script..."
+    PGPASSWORD=$POSTGRES_PASSWORD psql -h $DATABASE_HOST -d captcha_db -U $POSTGRES_USER \
+      -f /docker-entrypoint-initdb.d/postgres-init.sql
+    
+    echo "Database initialization complete!"

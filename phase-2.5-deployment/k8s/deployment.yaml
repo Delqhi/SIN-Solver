@@ -1,0 +1,380 @@
+---
+# Kubernetes Deployment for SIN-Solver CAPTCHA Solver
+# Phase: 2.5 Kubernetes Deployment (Day 2)
+# Purpose: Deploy YOLO-based CAPTCHA solving service with auto-scaling
+# Date: 2026-01-30
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sin-solver-captcha-solver
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+    app.kubernetes.io/version: "2.5"
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "YOLO-based CAPTCHA solving service with distributed inference"
+    phase: "2.5-kubernetes-deployment"
+    date: "2026-01-30"
+
+spec:
+  # Initial replicas - will be managed by HPA
+  replicas: 3
+
+  # Revision history for rollback capability
+  revisionHistoryLimit: 10
+
+  # Progressive deployment strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1           # One extra pod during deployment
+      maxUnavailable: 0     # Zero pods down (graceful)
+
+  # Pod selector
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sin-solver
+      app.kubernetes.io/component: captcha-solver
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sin-solver
+        app.kubernetes.io/component: captcha-solver
+        app.kubernetes.io/version: "2.5"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        description: "SIN-Solver CAPTCHA Solver Pod"
+
+    spec:
+      # Pod scheduling
+      affinity:
+        # Spread pods across nodes for high availability
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - sin-solver
+                    - key: app.kubernetes.io/component
+                      operator: In
+                      values:
+                        - captcha-solver
+                topologyKey: kubernetes.io/hostname
+
+      # Security context for pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Service account
+      serviceAccountName: sin-solver-captcha-solver
+      automountServiceAccountToken: true
+
+      # Init containers
+      initContainers:
+        # Wait for dependencies to be ready
+        - name: wait-for-postgres
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              until nc -zv sin-solver-postgres 5432 2>/dev/null; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "50m"
+              memory: "64Mi"
+
+        - name: wait-for-redis
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              until nc -zv sin-solver-redis 6379 2>/dev/null; do
+                echo "Waiting for Redis..."
+                sleep 2
+              done
+              echo "Redis is ready!"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "50m"
+              memory: "64Mi"
+
+      # Containers
+      containers:
+        - name: captcha-solver
+          image: sin-solver:2.5.0
+          imagePullPolicy: IfNotPresent
+
+          # Container ports
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+            - name: debug
+              containerPort: 5678
+              protocol: TCP
+
+          # Environment variables from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: sin-solver-config
+
+          # Environment variables from Secrets
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sin-solver-postgres-credentials
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sin-solver-postgres-credentials
+                  key: DATABASE_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sin-solver-redis-credentials
+                  key: REDIS_PASSWORD
+            - name: API_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sin-solver-api-secrets
+                  key: API_SECRET_KEY
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+
+          # Volume mounts
+          volumeMounts:
+            # Models directory (cached, persistent)
+            - name: models
+              mountPath: /app/models
+            # Logs directory
+            - name: logs
+              mountPath: /var/log/captcha-solver
+            # Temp directory
+            - name: temp
+              mountPath: /tmp/captcha-solver
+            # Config files
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: "1000m"        # 1 full CPU
+              memory: "1Gi"       # 1GB RAM
+            limits:
+              cpu: "2000m"        # 2 CPUs max
+              memory: "2Gi"       # 2GB RAM max
+
+          # Liveness probe - restart if unhealthy
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe - exclude from traffic if not ready
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+          # Startup probe - give container time to start
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30          # 30 * 10 = 300 seconds max startup
+
+          # Security context for container
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+
+          # Lifecycle hooks
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - sleep 15 && kill -TERM 1 || true
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - echo "Pod started at $(date)" > /proc/1/fd/1
+
+      # Volumes
+      volumes:
+        # Models - persistent volume (should be backed by storage class)
+        - name: models
+          persistentVolumeClaim:
+            claimName: sin-solver-models-pvc
+        # Logs - empty dir (cleaned up after pod termination)
+        - name: logs
+          emptyDir:
+            sizeLimit: 5Gi
+        # Temp - empty dir (cleaned up after pod termination)
+        - name: temp
+          emptyDir:
+            sizeLimit: 10Gi
+        # Config from ConfigMap
+        - name: config
+          configMap:
+            name: sin-solver-app-config
+            defaultMode: 0644
+
+      # Pod disruption budget (for graceful shutdown during updates)
+      terminationGracePeriodSeconds: 30
+
+      # DNS policy
+      dnsPolicy: ClusterFirst
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Host aliases (if needed)
+      hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+            - localhost
+            - localhost.localdomain
+
+---
+# ServiceAccount for Deployment
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sin-solver-captcha-solver
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+    app.kubernetes.io/version: "2.5"
+
+---
+# Role for pod operations
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sin-solver-captcha-solver
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+
+rules:
+  # Read ConfigMaps and Secrets
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+  # Read pod info
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  # Read services
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sin-solver-captcha-solver
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: captcha-solver
+
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sin-solver-captcha-solver
+subjects:
+  - kind: ServiceAccount
+    name: sin-solver-captcha-solver
+    namespace: sin-solver
+
+---
+# PersistentVolumeClaim for models
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sin-solver-models-pvc
+  namespace: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/component: models-storage
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 20Gi

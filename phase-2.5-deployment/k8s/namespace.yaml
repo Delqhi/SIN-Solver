@@ -1,0 +1,87 @@
+---
+# Kubernetes Namespace for SIN-Solver CAPTCHA Solving System
+# Phase: 2.5 Kubernetes Deployment (Day 2)
+# Purpose: Isolate SIN-Solver resources in dedicated namespace
+# Date: 2026-01-30
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sin-solver
+  labels:
+    app.kubernetes.io/name: sin-solver
+    app.kubernetes.io/version: "2.5"
+    app.kubernetes.io/managed-by: kubectl
+    environment: production
+    team: captcha-solver
+  annotations:
+    description: "Dedicated namespace for SIN-Solver CAPTCHA solving system"
+    created-at: "2026-01-30"
+    phase: "2.5-kubernetes-deployment"
+
+---
+# Optional: ResourceQuota to limit namespace resource usage
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: sin-solver-quota
+  namespace: sin-solver
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: "20Gi"
+    limits.cpu: "20"
+    limits.memory: "40Gi"
+    pods: "50"
+    services: "10"
+    persistentvolumeclaims: "5"
+  scopeSelector:
+    matchExpressions:
+      - operator: In
+        scopeName: PriorityClass
+        values: ["high", "medium"]
+
+---
+# Optional: NetworkPolicy for namespace isolation
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sin-solver-network-policy
+  namespace: sin-solver
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from same namespace
+    - from:
+        - podSelector: {}
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow traffic within namespace
+    - to:
+        - podSelector: {}
+    # Allow external HTTPS (for model downloads, API calls)
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
