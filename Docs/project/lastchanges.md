@@ -2,7 +2,7 @@
 
 **Project:** SIN-Solver (Delqhi-Platform)  
 **Created:** 2026-01-29  
-**Last Updated:** 2026-01-29 19:45  
+**Last Updated:** 2026-01-29 19:50  
 
 ---
 
@@ -178,6 +178,55 @@ All services now accessible via delqhi.com:
 
 ---
 
+## [2026-01-29 19:50] - CRITICAL: Docker Container Migration
+
+**Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5  
+**Agent:** sisyphus  
+**Severity:** CRITICAL
+
+### Problem Discovered
+Docker containers were **SPLIT** between two directories:
+- **~/dev/sin-code/Docker/rooms/** (14 containers - WRONG LOCATION)
+- **~/dev/SIN-Solver/Docker/rooms/** (14 containers - CORRECT LOCATION)
+
+### Critical Issues Found
+1. **room-16-supabase** running from wrong location
+2. **8 duplicate containers** in both locations
+3. **5 containers only in sin-code** (not in SIN-Solver)
+
+### Migration Executed
+
+#### Moved to SIN-Solver (5 containers)
+- [x] room-05-generator
+- [x] room-06-plugins  
+- [x] room-09-firecrawl
+- [x] room-16-supabase
+- [x] room-21-nocodb
+
+#### Removed Duplicates from sin-code (8 containers)
+- [x] room-01-dashboard
+- [x] room-03-postgres
+- [x] room-04-redis
+- [x] room-09-chat
+- [x] room-11-plane
+- [x] room-12-delqhi-db
+- [x] room-13-delqhi-network
+- [x] room-24-hoppscotch
+
+### Backup Created
+- **Location:** ~/dev/backups/sin-code-docker-20260129/
+- **Contents:** All 13 containers from sin-code before deletion
+
+### Final State
+- **Total containers in SIN-Solver:** 19
+- **Containers in sin-code:** 0 (cleaned up)
+- **Status:** ✅ All containers centralized
+
+### Documentation
+- [x] Created: docs/project/DOCKER-MIGRATION-CRITICAL.md
+
+---
+
 **Status:** ✅ COMPLETE  
 **Next Review:** 2026-01-30
 
@@ -238,6 +287,55 @@ Fixed remaining localhost references in dashboard components after comprehensive
 2. Test dashboard: https://dashboard.delqhi.com
 3. Verify all iframe views load correctly
 4. Monitor for any runtime localhost references in logs
+
+---
+
+## [2026-01-29 19:50] - CRITICAL: Docker Container Migration
+
+**Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5  
+**Agent:** sisyphus  
+**Severity:** CRITICAL
+
+### Problem Discovered
+Docker containers were **SPLIT** between two directories:
+- **~/dev/sin-code/Docker/rooms/** (14 containers - WRONG LOCATION)
+- **~/dev/SIN-Solver/Docker/rooms/** (14 containers - CORRECT LOCATION)
+
+### Critical Issues Found
+1. **room-16-supabase** running from wrong location
+2. **8 duplicate containers** in both locations
+3. **5 containers only in sin-code** (not in SIN-Solver)
+
+### Migration Executed
+
+#### Moved to SIN-Solver (5 containers)
+- [x] room-05-generator
+- [x] room-06-plugins  
+- [x] room-09-firecrawl
+- [x] room-16-supabase
+- [x] room-21-nocodb
+
+#### Removed Duplicates from sin-code (8 containers)
+- [x] room-01-dashboard
+- [x] room-03-postgres
+- [x] room-04-redis
+- [x] room-09-chat
+- [x] room-11-plane
+- [x] room-12-delqhi-db
+- [x] room-13-delqhi-network
+- [x] room-24-hoppscotch
+
+### Backup Created
+- **Location:** ~/dev/backups/sin-code-docker-20260129/
+- **Contents:** All 13 containers from sin-code before deletion
+
+### Final State
+- **Total containers in SIN-Solver:** 19
+- **Containers in sin-code:** 0 (cleaned up)
+- **Status:** ✅ All containers centralized
+
+### Documentation
+- [x] Created: docs/project/DOCKER-MIGRATION-CRITICAL.md
 
 ---
 

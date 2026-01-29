@@ -1,0 +1,26 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+services:
+  room-06-sin-plugins:
+    build:
+      context: ../../services/mcp
+      dockerfile: Dockerfile
+    image: sin-plugins-mcp:latest
+    container_name: room-06-sin-plugins
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - API_BRAIN_URL=http://room-02-vault-secrets:8000
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.40
+    ports:
+      - "8040:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

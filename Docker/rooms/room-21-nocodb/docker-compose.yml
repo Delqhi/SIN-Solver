@@ -1,0 +1,28 @@
+networks:
+  haus-netzwerk:
+    external: true
+
+volumes:
+  nocodb_data:
+
+services:
+  room-21-nocodb-ui:
+    image: nocodb/nocodb:latest
+    container_name: room-21-nocodb-ui
+    restart: unless-stopped
+    environment:
+      - NC_DB=pg://room-03-postgres-master:5432?u=sin_admin&p=${POSTGRES_PASSWORD:-sin-solver-2026}&d=sin_solver
+      - PORT=8080
+    volumes:
+      - nocodb_data:/usr/app/data
+    networks:
+      haus-netzwerk:
+        ipv4_address: 172.20.0.90
+    ports:
+      - "8090:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').connect(8080, '0.0.0.0').on('error', () => process.exit(1)).on('connect', () => process.exit(0))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
