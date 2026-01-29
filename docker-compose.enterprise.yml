@@ -258,6 +258,7 @@ services:
     networks:
       - sin-solver-network
     logging: *default-logging
+    restart: unless-stopped
 
   solver-2.1-survey-worker:
     container_name: solver-2.1-survey-worker
@@ -271,6 +272,7 @@ services:
     networks:
       - sin-solver-network
     logging: *default-logging
+    restart: unless-stopped
 
   # ==================== MONITORING (Rooms 25-29) ====================
 
