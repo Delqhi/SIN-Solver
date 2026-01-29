@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-01-29 10:27:55",
+  "dataset_summary": {
+    "total_types": 12,
+    "total_images": 528,
+    "total_size_mb": 12.58604621887207
+  },
+  "type_details": {
+    "reCaptcha_v2": {
+      "count": 44,
+      "size_mb": 1.0696897506713867,
+      "train": 35,
+      "val": 9
+    },
+    "reCaptcha_v3": {
+      "count": 44,
+      "size_mb": 1.0632133483886719,
+      "train": 35,
+      "val": 9
+    },
+    "hCaptcha": {
+      "count": 44,
+      "size_mb": 1.0395679473876953,
+      "train": 35,
+      "val": 9
+    },
+    "FunCaptcha": {
+      "count": 44,
+      "size_mb": 1.0455780029296875,
+      "train": 35,
+      "val": 9
+    },
+    "Cloudflare_Turnstile": {
+      "count": 44,
+      "size_mb": 1.058309555053711,
+      "train": 35,
+      "val": 9
+    },
+    "GeeTest": {
+      "count": 44,
+      "size_mb": 1.0329246520996094,
+      "train": 35,
+      "val": 9
+    },
+    "Text_Captcha": {
+      "count": 44,
+      "size_mb": 1.0466156005859375,
+      "train": 35,
+      "val": 9
+    },
+    "Slide_Captcha": {
+      "count": 44,
+      "size_mb": 1.043686866760254,
+      "train": 35,
+      "val": 9
+    },
+    "Image_Click_Captcha": {
+      "count": 44,
+      "size_mb": 1.0577735900878906,
+      "train": 35,
+      "val": 9
+    },
+    "Puzzle_Captcha": {
+      "count": 44,
+      "size_mb": 1.0424823760986328,
+      "train": 35,
+      "val": 9
+    },
+    "Math_Captcha": {
+      "count": 44,
+      "size_mb": 1.031484603881836,
+      "train": 35,
+      "val": 9
+    },
+    "Audio_Captcha": {
+      "count": 44,
+      "size_mb": 1.0547199249267578,
+      "train": 35,
+      "val": 9
+    }
+  },
+  "splits": {
+    "train": {
+      "count": 420,
+      "percentage": 79.54545454545455
+    },
+    "val": {
+      "count": 108,
+      "percentage": 20.454545454545457
+    }
+  }
+}

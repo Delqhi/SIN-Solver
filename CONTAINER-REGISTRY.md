@@ -60,8 +60,19 @@
 |----------------|---------|------|---------|--------|
 | `solver-14-worker-automation` | Node.js | 8080 | Task Automation | ✅ Active |
 | `solver-18-survey-worker` | Python | 8018 | Survey Automation | ⏳ Planned |
-| `solver-19-captcha-worker` | Python | 8019 | CAPTCHA Solving | ⏳ Planned |
+| `solver-19-captcha-worker` | Python | 8019 | CAPTCHA Solving | 🔄 Migrating to builder-1.1 |
 | `solver-20-website-worker` | Node.js | 8020 | Website Tasks | ⏳ Planned |
+
+### BUILDERS (Content & Solver Workers)
+
+| Container Name | Service | Port | Purpose | Status |
+|----------------|---------|------|---------|--------|
+| `builder-1.1-captcha-worker` | Python/FastAPI | 8019 | Multi-AI CAPTCHA Solver | 🆕 NEW - Best Practices 2026 |
+| `builder-1.1-captcha-worker` | | | • Mistral Pixtral 12B Vision | |
+| `builder-1.1-captcha-worker` | | | • Qwen3-VL 8B Local (Ollama) | |
+| `builder-1.1-captcha-worker` | | | • Kimi k2.5 Veto/Joker | |
+| `builder-1.1-captcha-worker` | | | • Steel Browser Integration | |
+| `builder-1.1-captcha-worker` | | | • Rate Limiting: 20/min | |
 
 ### MCP SERVICES (Room 20.x Series)
 

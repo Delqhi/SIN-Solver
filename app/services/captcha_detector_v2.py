@@ -27,7 +27,7 @@ import logging
 import time
 import hashlib
 import json
-from typing import Dict, List, Optional, Tuple, Any, Callable
+from typing import Dict, List, Optional, Tuple, Any, Callable, Type
 from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime, timedelta
@@ -46,6 +46,7 @@ import cv2
 from prometheus_client import Counter, Histogram, Gauge, Info, start_http_server
 from pydantic import BaseModel, Field, validator
 import redis
+import redis.asyncio as async_redis
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 # Configure logging
@@ -110,11 +111,11 @@ APP_INFO.info({'version': '2.1.0', 'status': 'production', 'date': '2026-01-29'}
 
 class CaptchaSolveRequest(BaseModel):
     """Validated CAPTCHA solve request"""
-    image_data: str = Field(..., description="Base64 encoded CAPTCHA image")
-    captcha_type: Optional[str] = Field(None, description="Known CAPTCHA type")
-    timeout: int = Field(30, ge=1, le=300, description="Timeout in seconds")
-    priority: str = Field("normal", regex="^(high|normal|low)$")
-    client_id: str = Field(..., min_length=1, max_length=100)
+    image_data: str = Field(description="Base64 encoded CAPTCHA image")
+    captcha_type: Optional[str] = Field(default=None, description="Known CAPTCHA type")
+    timeout: int = Field(default=30, ge=1, le=300, description="Timeout in seconds")
+    priority: str = Field(default="normal", pattern="^(high|normal|low)$")
+    client_id: str = Field(min_length=1, max_length=100)
     
     @validator('image_data')
     def validate_image_size(cls, v):
@@ -129,8 +130,8 @@ class CaptchaSolveRequest(BaseModel):
 
 class BatchCaptchaRequest(BaseModel):
     """Batch CAPTCHA processing request"""
-    requests: List[CaptchaSolveRequest] = Field(..., max_items=100)
-    batch_id: str = Field(..., min_length=1)
+    requests: List[CaptchaSolveRequest] = Field(max_length=100)
+    batch_id: str = Field(min_length=1)
 
 class CaptchaSolveResponse(BaseModel):
     """CAPTCHA solve response"""
@@ -239,8 +240,8 @@ class CircuitBreaker:
         self,
         name: str,
         failure_threshold: int = 5,
-        recovery_timeout: float = 60.0,
-        expected_exception: type = Exception
+        recovery_timeout: int = 60,
+        expected_exception: Type[Exception] = Exception
     ):
         self.name = name
         self.failure_threshold = failure_threshold
@@ -354,7 +355,7 @@ class RateLimiter:
         self.window_seconds = window_seconds
         self.burst_size = burst_size
     
-    def is_allowed(self, client_id: str) -> Tuple[bool, Dict[str, Any]]:
+    async def is_allowed(self, client_id: str) -> Tuple[bool, Dict[str, Any]]:
         """
         Check if request is allowed
         Returns (is_allowed, rate_limit_info)
@@ -364,17 +365,16 @@ class RateLimiter:
         
         try:
             # Token bucket algorithm using Redis
-            pipe = self.redis.pipeline()
-            
+            pipe = self.redis.pipeline(transaction=True)
             # Get current state
             pipe.hgetall(key)
             
-            # Execute
-            result = pipe.execute()
-            current = result[0] if result else {}
+            # Execute pipeline
+            results = await pipe.execute()
+            current = results[0] if results and isinstance(results, list) else {}
             
-            tokens = float(current.get(b'tokens', self.burst_size))
-            last_update = float(current.get(b'last_update', now))
+            tokens = float(current.get('tokens', self.burst_size))
+            last_update = float(current.get('last_update', now))
             
             # Add tokens based on time passed
             time_passed = now - last_update
@@ -392,11 +392,11 @@ class RateLimiter:
                 RATE_LIMIT_HITS.labels(client_id=client_id).inc()
             
             # Update Redis
-            self.redis.hmset(key, {
-                'tokens': tokens,
-                'last_update': now
+            await self.redis.hset(key, mapping={
+                'tokens': str(tokens),
+                'last_update': str(now)
             })
-            self.redis.expire(key, self.window_seconds * 2)
+            await self.redis.expire(key, self.window_seconds * 2)
             
             reset_time = now + (1 - tokens) * self.window_seconds / self.max_requests
             
@@ -407,7 +407,7 @@ class RateLimiter:
                 'window': self.window_seconds
             }
             
-        except redis.RedisError as e:
+        except Exception as e:
             logger.error(f"Redis rate limit error: {e}")
             # Fail open if Redis is unavailable
             return True, {'limit': self.max_requests, 'remaining': 1, 'error': str(e)}
@@ -451,7 +451,7 @@ class AsyncQueueManager:
         
         job_data = {
             'job_id': job_id,
-            'request': request.dict(),
+            'request': request.model_dump(),
             'batch_id': batch_id,
             'priority': request.priority,
             'enqueued_at': datetime.utcnow().isoformat(),
@@ -460,11 +460,11 @@ class AsyncQueueManager:
         
         # Add to sorted set with priority score
         score = self.PRIORITY_SCORES.get(request.priority, 2)
-        self.redis.zadd(self.queue_key, {json.dumps(job_data): score})
+        await self.redis.zadd(self.queue_key, {json.dumps(job_data): score})
         
         # Update queue size metric
         for priority in ['high', 'normal', 'low']:
-            size = self.redis.zcount(self.queue_key, 1, self.PRIORITY_SCORES[priority])
+            size = await self.redis.zcount(self.queue_key, 1, self.PRIORITY_SCORES[priority])
             QUEUE_SIZE.labels(priority=priority).set(size)
         
         logger.info(f"Enqueued job {job_id} (priority: {request.priority})")
@@ -473,42 +473,43 @@ class AsyncQueueManager:
     async def dequeue(self) -> Optional[Dict[str, Any]]:
         """Get next job from queue"""
         # Get job with lowest score (highest priority)
-        items = self.redis.zrange(self.queue_key, 0, 0)
+        items = await self.redis.zrange(self.queue_key, 0, 0)
         
-        if not items:
+        # Ensure items is a list
+        if not items or not isinstance(items, list):
             return None
         
         job_json = items[0]
         job_data = json.loads(job_json)
         
         # Remove from queue and add to processing
-        self.redis.zrem(self.queue_key, job_json)
+        await self.redis.zrem(self.queue_key, job_json)
         job_data['started_at'] = datetime.utcnow().isoformat()
         job_data['status'] = 'processing'
-        self.redis.hset(self.processing_key, job_data['job_id'], json.dumps(job_data))
+        await self.redis.hset(self.processing_key, job_data['job_id'], json.dumps(job_data))
         
         return job_data
     
     async def mark_completed(self, job_id: str, result: CaptchaSolveResponse):
         """Mark job as completed with result"""
         # Remove from processing
-        self.redis.hdel(self.processing_key, job_id)
+        await self.redis.hdel(self.processing_key, job_id)
         
         # Store result (expires in 1 hour)
         result_key = f"{self.result_key_prefix}{job_id}"
-        self.redis.setex(
+        await self.redis.setex(
             result_key,
             3600,  # 1 hour TTL
-            result.json()
+            result.model_dump_json()
         )
     
     async def get_result(self, job_id: str) -> Optional[CaptchaSolveResponse]:
         """Get job result if available"""
         result_key = f"{self.result_key_prefix}{job_id}"
-        result_json = self.redis.get(result_key)
+        result_json = await self.redis.get(result_key)
         
         if result_json:
-            return CaptchaSolveResponse.parse_raw(result_json)
+            return CaptchaSolveResponse.model_validate_json(result_json)
         return None
     
     async def start_workers(self, process_func: Callable):
@@ -934,34 +935,35 @@ class UniversalCaptchaDetectorV2:
         })
         self.zone_analyzer = ZoneAnalyzer(self.gemini_client, self.mistral_client)
         
-        # Initialize Redis
-        try:
-            self.redis = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
-            self.redis.ping()
-            logger.info("Connected to Redis")
-        except redis.RedisError as e:
-            logger.error(f"Redis connection failed: {e}")
-            self.redis = None
+        # Initialize Async Redis
+        self.redis = async_redis.Redis(
+            host=redis_host, 
+            port=redis_port, 
+            decode_responses=True
+        )
         
         # Rate limiter
-        if self.redis:
-            self.rate_limiter = RateLimiter(self.redis)
-        else:
-            self.rate_limiter = None
+        self.rate_limiter = RateLimiter(self.redis)
         
         # Queue manager
-        if self.redis:
-            self.queue_manager = AsyncQueueManager(self.redis)
-        else:
-            self.queue_manager = None
+        self.queue_manager = AsyncQueueManager(self.redis)
         
         # Health check status
         self._health_status = {
             'gemini_api': True,
             'mistral_api': True,
-            'redis': self.redis is not None,
+            'redis': True,
             'ocr_engine': True
         }
+    
+    async def connect_redis(self):
+        """Verify Redis connection"""
+        try:
+            await self.redis.ping()
+            logger.info("✅ Connected to Async Redis")
+        except Exception as e:
+            logger.error(f"❌ Redis connection failed: {e}")
+            self._health_status['redis'] = False
     
     async def detect(
         self,
@@ -1029,14 +1031,13 @@ class UniversalCaptchaDetectorV2:
         start_time = time.time()
         
         # Rate limiting check
-        if self.rate_limiter:
-            allowed, rate_info = self.rate_limiter.is_allowed(request.client_id)
-            if not allowed:
-                return CaptchaSolveResponse(
-                    success=False,
-                    error="Rate limit exceeded",
-                    solve_time_ms=int((time.time() - start_time) * 1000)
-                )
+        allowed, rate_info = await self.rate_limiter.is_allowed(request.client_id)
+        if not allowed:
+            return CaptchaSolveResponse(
+                success=False,
+                error="Rate limit exceeded",
+                solve_time_ms=int((time.time() - start_time) * 1000)
+            )
         
         try:
             # Decode image

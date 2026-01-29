@@ -10,3 +10,5 @@ numpy==1.26.2
 prometheus-client==0.19.0
 structlog==23.2.0
 tenacity==8.2.3
+opencv-python==4.8.1.78
+ddddocr==1.4.11

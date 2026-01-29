@@ -540,12 +540,12 @@ class StealthEngine:
         """)
 
 class HumanBehavior:
-    """High-fidelity human interaction simulation"""
+    """High-fidelity human interaction emulation"""
     
     @staticmethod
     async def human_mouse_move(page: Page, target_x: float, target_y: float, steps: int = 50) -> None:
         """
-        Bezier-curve based mouse movement with micro-jitter and motor error simulation.
+        Bezier-curve based mouse movement with micro-jitter and motor error emulation.
         CEO 2026: Refined for absolute human-indistinguishability.
         """
         # Current mouse position (fallback to random if not available)

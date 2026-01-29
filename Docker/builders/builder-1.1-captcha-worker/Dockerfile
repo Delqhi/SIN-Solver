@@ -2,15 +2,15 @@
 # Production-ready CAPTCHA solver with multi-AI consensus
 
 # Stage 1: Dependencies
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for building
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -30,7 +30,7 @@ WORKDIR /app
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -47,19 +47,9 @@ ENV PATH=/root/.local/bin:$PATH
 
 # Copy application code
 COPY src/ ./src/
-COPY config/ ./config/
-COPY scripts/ ./scripts/
 
-# Make scripts executable
-RUN chmod +x scripts/*.sh
-
-# Create non-root user
-RUN useradd -m -u 1000 captcha && \
-    mkdir -p /app/logs /app/temp && \
-    chown -R captcha:captcha /app
-
-# Switch to non-root user
-USER captcha
+# Create directories
+RUN mkdir -p /app/logs /app/temp
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

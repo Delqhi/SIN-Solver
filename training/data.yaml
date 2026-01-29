@@ -1,0 +1,24 @@
+# YOLO Classification Dataset Configuration
+# Auto-generated: 2026-01-29
+# Purpose: Fix YOLO class detection bug by providing explicit config
+# Issue: YOLO auto-detection was incorrectly setting nc=14 instead of nc=12
+
+path: /Users/jeremy/dev/sin-solver/training
+train: training_split/train
+val: training_split/val
+
+nc: 12
+
+names:
+  0: Audio_Captcha
+  1: Cloudflare_Turnstile
+  2: FunCaptcha
+  3: GeeTest
+  4: Image_Click_Captcha
+  5: Math_Captcha
+  6: Puzzle_Captcha
+  7: Slide_Captcha
+  8: Text_Captcha
+  9: hCaptcha
+  10: reCaptcha_v2
+  11: reCaptcha_v3
