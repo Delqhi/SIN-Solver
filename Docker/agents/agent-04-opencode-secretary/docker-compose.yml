@@ -10,10 +10,12 @@ services:
     platform: linux/arm64
     container_name: agent-04-opencode-secretary
     hostname: agent-04-opencode-secretary
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       PORT: 9000
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: redis://room-04-redis-cache:6379
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
