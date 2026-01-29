@@ -1,0 +1,267 @@
+---
+# SIN-Solver CD: Deploy to Kubernetes
+# Purpose: Deploy to Kubernetes cluster on release or manual trigger
+# Triggers: Release published, Manual workflow dispatch
+# Target: Kubernetes cluster with kubectl access
+
+name: Deploy to Kubernetes
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: false
+        default: 'latest'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  KUBECONFIG_PATH: '/tmp/kubeconfig'
+  NAMESPACE: 'sin-solver'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ===========================================================================
+  # DEPLOY PREPARATION
+  # ===========================================================================
+  prepare:
+    name: 'Prepare Deployment'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      image_tag: ${{ steps.set-tag.outputs.image_tag }}
+      cluster: ${{ steps.set-env.outputs.cluster }}
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Determine environment'
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "cluster=prod-cluster" >> $GITHUB_OUTPUT
+          else
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "cluster=staging-cluster" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 'Determine image tag'
+        id: set-tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="${{ github.event.inputs.image_tag }}"
+          fi
+          echo "image_tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: 'Output deployment info'
+        run: |
+          echo "📦 Deployment Details"
+          echo "Environment: ${{ steps.set-env.outputs.environment }}"
+          echo "Cluster: ${{ steps.set-env.outputs.cluster }}"
+          echo "Image Tag: ${{ steps.set-tag.outputs.image_tag }}"
+
+  # ===========================================================================
+  # KUBERNETES DEPLOYMENT
+  # ===========================================================================
+  deploy:
+    name: 'Deploy to K8s'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [prepare]
+    environment:
+      name: ${{ needs.prepare.outputs.environment }}
+      url: https://sin-solver-${{ needs.prepare.outputs.environment }}.example.com
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup kubectl'
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: 'Configure kubectl credentials'
+        run: |
+          # Save kubeconfig from secrets
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ${{ env.KUBECONFIG_PATH }}
+          chmod 600 ${{ env.KUBECONFIG_PATH }}
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          # Verify connection
+          kubectl cluster-info
+          kubectl get nodes
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+
+      - name: 'Create namespace if not exists'
+        run: |
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+
+      - name: 'Apply Kubernetes manifests'
+        run: |
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          # Apply namespace & networking
+          kubectl apply -f phase-2.5-deployment/k8s/namespace.yaml
+          
+          # Apply secrets (with environment-specific overrides)
+          kubectl apply -f phase-2.5-deployment/k8s/secrets.yaml --namespace=${{ env.NAMESPACE }}
+          
+          # Apply ConfigMap
+          kubectl apply -f phase-2.5-deployment/k8s/configmap.yaml --namespace=${{ env.NAMESPACE }}
+          
+          # Apply deployment
+          kubectl apply -f phase-2.5-deployment/k8s/deployment.yaml --namespace=${{ env.NAMESPACE }}
+          
+          # Apply service
+          kubectl apply -f phase-2.5-deployment/k8s/service.yaml --namespace=${{ env.NAMESPACE }}
+          
+          echo "✅ Kubernetes manifests applied"
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+
+      - name: 'Update deployment image'
+        run: |
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          # Update image references in deployment
+          kubectl set image deployment/sin-solver-captcha-solver \
+            sin-solver-captcha-solver=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/sin-solver-captcha-worker:${{ needs.prepare.outputs.image_tag }} \
+            --namespace=${{ env.NAMESPACE }}
+          
+          echo "✅ Deployment image updated"
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+        continue-on-error: true
+
+      - name: 'Verify deployment rollout'
+        run: |
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          # Wait for rollout to complete (max 5 minutes)
+          kubectl rollout status deployment/sin-solver-captcha-solver \
+            --namespace=${{ env.NAMESPACE }} \
+            --timeout=5m
+          
+          echo "✅ Deployment rollout completed"
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+
+      - name: 'Run health checks'
+        run: |
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          # Wait for service to be ready
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/name=sin-solver \
+            -l app.kubernetes.io/component=captcha-solver \
+            --namespace=${{ env.NAMESPACE }} \
+            --timeout=300s
+          
+          # Port forward and test API
+          kubectl port-forward svc/sin-solver-api 8000:8000 \
+            --namespace=${{ env.NAMESPACE }} &
+          
+          sleep 5
+          
+          # Test health endpoint
+          for i in {1..10}; do
+            if curl -f http://localhost:8000/health 2>/dev/null; then
+              echo "✅ Health check passed"
+              break
+            fi
+            echo "⏳ Waiting for API... ($i/10)"
+            sleep 5
+          done
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+        timeout-minutes: 10
+
+  # ===========================================================================
+  # POST-DEPLOYMENT VALIDATION
+  # ===========================================================================
+  validate:
+    name: 'Validate Deployment'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [prepare, deploy]
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Configure kubectl'
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ${{ env.KUBECONFIG_PATH }}
+          chmod 600 ${{ env.KUBECONFIG_PATH }}
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          # Get deployment status
+          kubectl get deployment -n ${{ env.NAMESPACE }}
+          kubectl get pods -n ${{ env.NAMESPACE }}
+          kubectl get svc -n ${{ env.NAMESPACE }}
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+
+      - name: 'Collect deployment logs'
+        if: always()
+        run: |
+          export KUBECONFIG=${{ env.KUBECONFIG_PATH }}
+          
+          echo "## Pod Logs" >> $GITHUB_STEP_SUMMARY
+          kubectl logs -n ${{ env.NAMESPACE }} \
+            -l app.kubernetes.io/name=sin-solver \
+            --tail=50 >> $GITHUB_STEP_SUMMARY 2>&1 || true
+        env:
+          KUBECONFIG: ${{ env.KUBECONFIG_PATH }}
+        continue-on-error: true
+
+  # ===========================================================================
+  # DEPLOYMENT STATUS
+  # ===========================================================================
+  status:
+    name: 'Deployment Status'
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy, validate]
+    if: always()
+
+    steps:
+      - name: 'Generate deployment summary'
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ needs.prepare.outputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cluster | ${{ needs.prepare.outputs.cluster }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Image Tag | ${{ needs.prepare.outputs.image_tag }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment | ${{ needs.deploy.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation | ${{ needs.validate.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: 'Fail if deployment failed'
+        if: needs.deploy.result == 'failure'
+        run: exit 1
