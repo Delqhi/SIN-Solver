@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   solver-2.1-survey-worker:

@@ -1,7 +1,6 @@
 # room-13-api-brain: Main API Gateway
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   room-13-api-brain:

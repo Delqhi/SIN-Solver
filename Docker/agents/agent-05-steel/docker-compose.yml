@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   agent-05-steel-browser:

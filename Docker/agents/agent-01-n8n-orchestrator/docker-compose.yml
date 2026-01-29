@@ -1,7 +1,6 @@
 # agent-01-n8n-orchestrator: Workflow Automation
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   agent-01-n8n-orchestrator:

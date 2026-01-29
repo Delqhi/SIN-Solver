@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   room-04-redis-cache:

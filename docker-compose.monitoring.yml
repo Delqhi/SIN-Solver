@@ -20,7 +20,6 @@
 #   - AlertManager: http://172.20.0.27:9093
 #   - Jaeger: http://172.20.0.29:16686
 
-version: "3.8"
 
 networks:
   sin-solver-network:

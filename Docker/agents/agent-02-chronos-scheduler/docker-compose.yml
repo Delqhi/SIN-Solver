@@ -1,7 +1,6 @@
 # agent-02-chronos-scheduler: Task Scheduler
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   agent-02-chronos-scheduler:

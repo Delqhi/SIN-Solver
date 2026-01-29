@@ -1,7 +1,6 @@
 # room-11-plane-mcp: Project Management (Plane)
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   room-11-plane-mcp:

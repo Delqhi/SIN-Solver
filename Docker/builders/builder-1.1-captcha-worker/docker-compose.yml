@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   builder-1.1-captcha-worker:

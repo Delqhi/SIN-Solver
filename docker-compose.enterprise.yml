@@ -1,7 +1,6 @@
 # SIN-Solver Enterprise - Production Docker Compose
 # February 2026 - Complete 26-Room Infrastructure
 
-version: '3.8'
 
 x-default-logging: &default-logging
   driver: "json-file"

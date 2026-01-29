@@ -72,3 +72,5 @@ room-30-scira-ai-search/
 # Explicitly block production env files (defense in depth)
 .env.production
 .env.*.production
+room-30-scira-ai-search/.git
+room-30-scira-ai-search/.git

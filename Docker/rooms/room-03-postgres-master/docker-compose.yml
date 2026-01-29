@@ -1,7 +1,6 @@
 # room-03-postgres-master: Main Database
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   room-03-postgres-master:

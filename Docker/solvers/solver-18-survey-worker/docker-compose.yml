@@ -1,7 +1,6 @@
 # solver-18-survey-worker: Survey Automation
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   solver-18-survey-worker:

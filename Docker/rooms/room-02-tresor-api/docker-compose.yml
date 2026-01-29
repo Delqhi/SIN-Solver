@@ -1,7 +1,6 @@
 # room-02-tresor-api: Vault Integration Layer
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   room-02-tresor-api:

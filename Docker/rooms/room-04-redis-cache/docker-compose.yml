@@ -1,7 +1,6 @@
 # room-04-redis-cache: Session & Cache Store
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   room-04-redis-cache:

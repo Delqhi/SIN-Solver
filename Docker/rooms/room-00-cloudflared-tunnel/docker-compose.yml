@@ -1,7 +1,6 @@
 # room-00-cloudflared-tunnel: Public Access Tunnel
 # Best Practices 2026: Modular Architecture
 
-version: '3.9'
 
 services:
   room-00-cloudflared-tunnel:
