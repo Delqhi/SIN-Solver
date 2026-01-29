@@ -189,9 +189,9 @@ services:
       
       # ========== Editor Configuration ==========
       # Base URL for editor access (where N8N is reachable from)
-      N8N_EDITOR_BASE_URL: http://localhost:5678/
+      N8N_EDITOR_BASE_URL: http://192.168.178.21:5678/
       # Webhook URL for external integrations and webhooks
-      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-https://n8n.delqhi.com/}
       
       # ========== Database Configuration ==========
       # Use PostgreSQL for persistent storage
@@ -242,7 +242,7 @@ services:
   # ⚠️ CRITICAL: Requires shm_size for Chrome/Chromium memory allocation
   # ========================================================================
   agent-05-steel-browser:
-    image: steel-browser:latest
+    image: ghcr.io/steel-dev/steel-browser:latest
     container_name: agent-05-steel-browser
     ports:
       - "3005:3000"
@@ -329,14 +329,14 @@ services:
   # Features: Service monitoring, workflow management, results visualization
   # ========================================================================
   room-01-dashboard:
-    image: dashboard:latest
+    image: sin-dashboard-cockpit:latest
     container_name: room-01-dashboard
     ports:
       - "3011:3000"
     environment:
       # ========== API Configuration ==========
       # External API URL for dashboard to communicate with backend
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://codeserver-api.delqhi.com}
       # Environment name (used for feature flags and logging)
       NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-production}
       
