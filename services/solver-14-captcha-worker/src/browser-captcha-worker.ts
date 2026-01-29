@@ -111,7 +111,8 @@ export class BrowserCaptchaWorker {
 
     try {
       // Connect to Steel Browser via CDP
-      this.browser = await chromium.connectOverCDP(this.config.steelBrowserUrl);
+      const browserUrl = this.config.steelBrowserUrl || 'http://localhost:3005';
+      this.browser = await chromium.connectOverCDP(browserUrl);
       
       // Get or create context
       const contexts = this.browser.contexts();
