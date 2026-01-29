@@ -23,7 +23,7 @@ services:
     ports:
       - "3001:3001"
     networks:
-      - haus-netzwerk
+      - sin-solver-network
     depends_on:
       room-03-postgres-master:
         condition: service_healthy
@@ -53,6 +53,6 @@ services:
         max-file: "3"
 
 networks:
-  haus-netzwerk:
+  sin-solver-network:
     external: true
-    name: haus-netzwerk
+    name: sin-solver-network
