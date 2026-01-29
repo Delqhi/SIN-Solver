@@ -817,6 +817,82 @@ Delqhi-Platform System erfolgreich deployed. 100% REAL DATA - keine Mocks, keine
 
 ---
 
+## [2026-01-29 23:45] [CRITICAL-WORKER-MODE-CLARIFICATION] **WIR SIND DER WORKER - NICHT DER DIENSTLEISTER!**
+
+**Session URL:** https://opncd.ai/share/[CURRENT_SESSION]
+**Agent:** sisyphus
+**Task:** KRITISCHE Klarstellung: Captcha Worker Modus korrigieren
+
+### 🚨 KRITISCHE KORREKTUR
+
+**Das FALSCHE Verständnis (was andere Entwickler dachten):**
+```
+2captcha API (in.php/res.php) ← Kunden schicken Captchas → Wir lösen → Geld verdienen
+```
+
+**Das RICHTIGE Verständnis:**
+```
+WIR sind der Worker! 
+→ Wir gehen auf 2captcha.com (oder andere Anbieter)
+→ Klicken "Start Work" / "Solve"
+→ Lösen Captchas direkt auf deren Website
+→ Bekommen Geld pro gelöstem Captcha
+```
+
+### Was das bedeutet:
+
+| FALSCH (Dienstleister) | RICHTIG (Worker) |
+|------------------------|------------------|
+| Wir bieten eine Captcha-API an | Wir NUTZEN Anbieter-Websites |
+| Kunden schicken uns Captchas | Wir lösen Captchas FÜR Anbieter |
+| `/in.php` und `/res.php` Endpunkte | Steel Browser auf 2captcha.com |
+| Eigene Queue und Job-System | Browser-Automation auf deren Seite |
+
+### Technische Konsequenzen:
+
+1. **KEINE** eigene Captcha-API implementieren
+2. **KEINE** in.php/res.php Endpunkte
+3. **KEINE** Kunden-Queue
+4. **STATTDESSEN:** Steel Browser Automation auf Anbieter-Websites
+
+### Workflow (KORREKT):
+
+```
+1. User erstellt Workflow (via Dashboard oder Prompt)
+2. KI generiert n8n Workflow für Browser-Automation
+3. Steel Browser öffnet 2captcha.com / anti-captcha.com / etc.
+4. Loggt sich ein mit Worker-Account
+5. Klickt "Start Solving" / "Begin Work"
+6. Löst Captchas automatisch (mit Vision AI)
+7. Sammelt Earnings (Geld pro gelöstem Captcha)
+8. Bei Fehlern: KI korrigiert Workflow autonom
+9. Benachrichtigt User per Chat
+```
+
+### Betroffene Dateien (müssen korrigiert werden):
+
+- ❌ `docs/api-reference/openapi-specification.yaml` - FALSCHER ANSATZ
+- ❌ `docs/api-reference/types.ts` - FALSCHER ANSATZ
+- ✅ Dashboard Components - KORREKT (Workflow-orientiert)
+- ✅ ChatSidebar - KORREKT (für autonome Korrektur)
+- ✅ WorkflowModal - KORREKT (für Workflow-Erstellung)
+
+### AGENTS.md Update:
+
+Diese Regel wurde zu `~/.config/opencode/AGENTS.md` und `/SIN-Solver/AGENTS.md` hinzugefügt unter "ABSOLUTE REGEL: CAPTCHA WORKER MODUS".
+
+### Next Steps:
+
+1. Dashboard-Integration der neuen Komponenten abschließen
+2. Ersten Captcha Worker Workflow erstellen (Browser-Automation)
+3. Steel Browser Integration für 2captcha.com
+4. Testen: Prompt → KI-Workflow → Automatische Korrektur
+
+**Arbeitsbereich:**
+{CRITICAL-WORKER-MODE};CLARIFICATION-DOCUMENTED
+
+---
+
 ## [2026-01-29 14:45] [VISUAL-ENGINEERING-2026-JANUARY-UPDATE] **Tactile Maximalism & Bento Grid 2.0**
 
 **Session URL:** https://opncd.ai/share/[CURRENT_SESSION]

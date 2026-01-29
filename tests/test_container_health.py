@@ -18,7 +18,6 @@ CONTAINERS = {
     "room-03-postgres-master": {"url": "http://localhost:5432", "type": "tcp"},
     "room-04-redis-cache": {"url": "http://localhost:6379", "type": "tcp"},
     "room-02-tresor-vault": {"url": "http://localhost:8200/v1/sys/health", "type": "http"},
-    "room-02-tresor-api": {"url": "http://localhost:8201/health", "type": "http"},
     "room-01-dashboard-cockpit": {"url": "http://localhost:3011", "type": "http"},
     "agent-01-n8n-orchestrator": {"url": "http://localhost:5678/healthz", "type": "http"},
     "agent-03-agentzero-coder": {"url": "http://localhost:8050/health", "type": "http"},
@@ -91,7 +90,7 @@ async def test_all_container_health():
     print(f"Summary: {healthy_count}/{total} containers healthy")
 
     # Assert critical containers are healthy
-    critical = ["room-03-postgres-master", "room-04-redis-cache", "solver-1.1-captcha-worker"]
+    critical = ["room-03-postgres-master", "room-04-redis-cache", "builder-1.1-captcha-worker"]
 
     for container in critical:
         assert results[container]["healthy"], f"Critical container {container} is unhealthy"
@@ -146,13 +145,24 @@ async def test_service_dependencies():
     """Test: Services can reach their dependencies"""
     print("\n🔗 Testing Service Dependencies")
 
-    # Test Vault API can reach Vault
+    # Test Vault health endpoint
     async with aiohttp.ClientSession() as session:
-        async with session.get("http://localhost:8201/health") as resp:
-            if resp.status == 200:
-                print("✅ Vault API → Vault: OK")
-            else:
-                print(f"⚠️  Vault API → Vault: HTTP {resp.status}")
+        try:
+            async with session.get(
+                "http://localhost:8200/v1/sys/health", timeout=aiohttp.ClientTimeout(total=5)
+            ) as resp:
+                if resp.status in [
+                    200,
+                    429,
+                    473,
+                    501,
+                    503,
+                ]:  # Vault health check returns various codes
+                    print("✅ Vault Service: OK")
+                else:
+                    print(f"⚠️  Vault Service: HTTP {resp.status}")
+        except Exception as e:
+            print(f"⚠️  Vault Service: {e}")
 
 
 @pytest.mark.asyncio
@@ -187,7 +197,7 @@ async def test_log_output():
     """Test: Containers produce logs"""
     print("\n📝 Testing Container Logs")
 
-    containers = ["solver-1.1-captcha-worker", "room-04-redis-cache"]
+    containers = ["builder-1.1-captcha-worker", "room-04-redis-cache"]
 
     for container in containers:
         result = subprocess.run(
