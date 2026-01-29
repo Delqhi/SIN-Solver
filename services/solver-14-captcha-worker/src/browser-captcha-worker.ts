@@ -86,20 +86,55 @@ export class BrowserCaptchaWorker {
     this.isRunning = true;
     this.logger.info('🚀 STARTING BROWSER WORKER');
 
-    try {
-      // Step 1: Connect to Steel Browser
-      await this.connectToBrowser();
-      
-      // Step 2: Navigate to provider and login
-      await this.loginToProvider();
-      
-      // Step 3: Start the main work loop
-      this.logger.info('💰 STARTING TO EARN MONEY!');
-      await this.workLoop();
+    // Retry logic with exponential backoff
+    let retries = 0;
+    const maxRetries = 5;
+    const baseDelay = 5000; // 5 seconds
 
-    } catch (error) {
-      this.logger.error({ error }, 'Fatal error in worker');
-      throw error;
+    while (retries < maxRetries && this.isRunning) {
+      try {
+        // Step 1: Connect to Steel Browser
+        await this.connectToBrowser();
+        
+        // Step 2: Navigate to provider and login
+        await this.loginToProvider();
+        
+        // Step 3: Start the main work loop
+        this.logger.info('💰 STARTING TO EARN MONEY!');
+        await this.workLoop();
+        
+        // If workLoop completes, reset retry counter
+        retries = 0;
+
+      } catch (error) {
+        retries++;
+        const delay = baseDelay * Math.pow(2, retries - 1);
+        
+        if (retries < maxRetries) {
+          this.logger.warn(
+            { error, retry: retries, maxRetries, delayMs: delay },
+            `⚠️ Worker error, retrying in ${Math.round(delay / 1000)}s...`
+          );
+          
+          // Clean up browser before retry
+          if (this.browser) {
+            try {
+              await this.browser.close();
+            } catch (e) {
+              // Ignore close errors
+            }
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          this.logger.error(
+            { error, totalRetries: retries },
+            '❌ Worker crashed after max retries'
+          );
+          throw error;
+        }
+      }
     }
   }
 
@@ -166,23 +201,151 @@ export class BrowserCaptchaWorker {
   private async login2captcha(): Promise<void> {
     if (!this.page) return;
 
-    // Navigate to login page
-    await this.page.goto('https://2captcha.com/auth/login');
-    await this.page.waitForLoadState('networkidle');
+    try {
+      // Navigate to login page
+      this.logger.debug('📍 Navigating to 2captcha.com login page...');
+      await this.page.goto('https://2captcha.com/auth/login', { waitUntil: 'networkidle' });
 
-    // Fill credentials
-    await this.page.fill('input[name="username"], input[type="email"]', this.config.username);
-    await this.page.fill('input[name="password"], input[type="password"]', this.config.password);
+      // Fill credentials
+      this.logger.debug('🔑 Filling credentials...');
+      const usernameSelectors = ['input[name="username"]', 'input[type="email"]', 'input[placeholder*="email"]', 'input[placeholder*="username"]'];
+      const passwordSelectors = ['input[name="password"]', 'input[type="password"]', 'input[placeholder*="password"]'];
 
-    // Click login
-    await this.page.click('button[type="submit"], input[type="submit"]');
-    
-    // Wait for dashboard
-    await this.page.waitForSelector('.dashboard, .worker-dashboard, [data-testid="dashboard"]', {
-      timeout: 30000
-    });
+      let usernameFilled = false;
+      for (const selector of usernameSelectors) {
+        try {
+          const exists = await this.page.$(selector);
+          if (exists) {
+            await this.page.fill(selector, this.config.username);
+            usernameFilled = true;
+            this.logger.debug(`✓ Username filled using selector: ${selector}`);
+            break;
+          }
+        } catch (e) {
+          // Try next selector
+        }
+      }
 
-    this.logger.info('✅ Logged into 2captcha');
+      let passwordFilled = false;
+      for (const selector of passwordSelectors) {
+        try {
+          const exists = await this.page.$(selector);
+          if (exists) {
+            await this.page.fill(selector, this.config.password);
+            passwordFilled = true;
+            this.logger.debug(`✓ Password filled using selector: ${selector}`);
+            break;
+          }
+        } catch (e) {
+          // Try next selector
+        }
+      }
+
+      if (!usernameFilled || !passwordFilled) {
+        throw new Error(`Could not fill credentials. Username: ${usernameFilled}, Password: ${passwordFilled}`);
+      }
+
+      // Click login button
+      this.logger.debug('🔐 Clicking login button...');
+      const submitSelectors = ['button[type="submit"]', 'input[type="submit"]', 'button:has-text("Login")', 'button:has-text("Sign in")'];
+      let clicked = false;
+
+      for (const selector of submitSelectors) {
+        try {
+          const exists = await this.page.$(selector);
+          if (exists) {
+            await this.page.click(selector);
+            clicked = true;
+            this.logger.debug(`✓ Clicked login button using selector: ${selector}`);
+            break;
+          }
+        } catch (e) {
+          // Try next selector
+        }
+      }
+
+      if (!clicked) {
+        throw new Error('Could not find or click login button');
+      }
+
+      // Wait for navigation after login
+      this.logger.debug('⏳ Waiting for page load after login...');
+      try {
+        await this.page.waitForLoadState('networkidle', { timeout: 15000 });
+      } catch (e) {
+        this.logger.warn('Page still loading, continuing anyway...');
+      }
+
+      // Check if login was successful by looking for dashboard or user menu
+      const dashboardSelectors = [
+        '.dashboard',
+        '.worker-dashboard',
+        '[data-testid="dashboard"]',
+        '[class*="dashboard"]',
+        '[class*="account"]',
+        'nav [class*="user"]',
+        '.header-user',
+        '.nav-user'
+      ];
+
+      let loginSuccessful = false;
+      for (const selector of dashboardSelectors) {
+        try {
+          const element = await this.page.waitForSelector(selector, { timeout: 5000 });
+          if (element) {
+            loginSuccessful = true;
+            this.logger.info(`✅ Dashboard found with selector: ${selector}`);
+            break;
+          }
+        } catch (e) {
+          // Continue to next selector
+        }
+      }
+
+      if (!loginSuccessful) {
+        // Check if error message is displayed
+        const errorSelectors = [
+          '[class*="error"]',
+          '[class*="alert-danger"]',
+          '[role="alert"]',
+          '.error-message'
+        ];
+
+        let errorFound = false;
+        let errorMsg = '';
+        for (const selector of errorSelectors) {
+          try {
+            const errorElement = await this.page.$(selector);
+            if (errorElement) {
+              errorMsg = await errorElement.textContent() || '';
+              errorFound = true;
+              break;
+            }
+          } catch (e) {
+            // Continue
+          }
+        }
+
+        if (errorFound) {
+          throw new Error(`Login failed: ${errorMsg}`);
+        } else {
+          throw new Error(
+            'Login page loaded but dashboard selectors not found. ' +
+            'This may indicate invalid credentials or a changed website layout. ' +
+            'Current URL: ' + this.page.url()
+          );
+        }
+      }
+
+      this.logger.info('✅ Logged into 2captcha');
+      
+    } catch (error) {
+      this.logger.error(
+        { error, url: this.page?.url() },
+        '🔴 Login failed for 2captcha'
+      );
+      throw error;
+    }
   }
 
   private async loginKolotibablo(): Promise<void> {
