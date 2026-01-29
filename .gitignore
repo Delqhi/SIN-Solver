@@ -67,3 +67,4 @@ training_split/
 runs/
 .yolo/
 *.cache
+room-30-scira-ai-search/
