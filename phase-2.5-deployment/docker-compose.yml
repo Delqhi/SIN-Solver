@@ -1,0 +1,248 @@
+version: '3.9'
+
+# ============================================================================
+# SIN-Solver Phase 2.5 Development & Testing Environment
+# Docker Compose Configuration
+# Date: 2026-01-30
+# Purpose: Container and orchestration setup for CAPTCHA solver + dependencies
+# ============================================================================
+
+services:
+  # =========================================================================
+  # MAIN APPLICATION: CAPTCHA Solver Worker
+  # =========================================================================
+  captcha-solver:
+    build:
+      context: ../
+      dockerfile: phase-2.5-deployment/Dockerfile
+      args:
+        - PYTHON_VERSION=3.11
+    container_name: solver-14-captcha-worker-dev
+    
+    # Port Configuration
+    ports:
+      - "8000:8000"
+    
+    # Environment Variables
+    environment:
+      # Application
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+      - PYTHON_LOG_LEVEL=INFO
+      
+      # Database Connection
+      - DATABASE_URL=postgresql://captcha_user:captcha_pass@postgres:5432/captcha_db
+      - DATABASE_POOL_SIZE=10
+      - DATABASE_MAX_OVERFLOW=20
+      
+      # Redis Connection
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_TTL=3600
+      
+      # API Configuration
+      - API_PORT=8000
+      - API_TIMEOUT=30
+      - WORKER_THREADS=4
+      - MAX_BATCH_SIZE=32
+      
+      # Model Configuration
+      - MODEL_INFERENCE_TIMEOUT=10
+      - MODEL_CACHE_DIR=/app/models
+      - USE_GPU=false
+      
+      # CORS Configuration
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001,http://localhost:8000
+      - CORS_ALLOW_CREDENTIALS=true
+      - CORS_MAX_AGE=3600
+    
+    # Volume Mounts
+    volumes:
+      - ./services/solver-14-captcha-worker/src:/app/src:ro
+      - ./services/solver-14-captcha-worker/models:/app/models
+      - captcha_worker_logs:/app/logs
+      - captcha_worker_temp:/app/temp
+    
+    # Dependencies
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    # Network
+    networks:
+      - sin-solver
+    
+    # Resource Limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Restart Policy
+    restart: unless-stopped
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=captcha-solver,phase=2.5"
+
+  # =========================================================================
+  # DATABASE: PostgreSQL Master
+  # =========================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: room-03-postgres-master-dev
+    
+    # Port Configuration
+    ports:
+      - "5432:5432"
+    
+    # Environment Variables
+    environment:
+      - POSTGRES_USER=captcha_user
+      - POSTGRES_PASSWORD=captcha_pass
+      - POSTGRES_DB=captcha_db
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    
+    # Volume Mounts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./phase-2.5-deployment/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    
+    # Network
+    networks:
+      - sin-solver
+    
+    # Resource Limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Restart Policy
+    restart: unless-stopped
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U captcha_user -d captcha_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=postgres,phase=2.5"
+
+  # =========================================================================
+  # CACHE: Redis
+  # =========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: room-04-redis-cache-dev
+    
+    # Port Configuration (internal only - no external port mapping in production)
+    ports:
+      - "6379:6379"
+    
+    # Command Configuration
+    command: >
+      redis-server
+      --requirepass redis_pass
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+    
+    # Volume Mounts
+    volumes:
+      - redis_data:/data
+    
+    # Network
+    networks:
+      - sin-solver
+    
+    # Resource Limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # Restart Policy
+    restart: unless-stopped
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=redis,phase=2.5"
+
+# ============================================================================
+# VOLUMES: Persistent Data Storage
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  redis_data:
+    driver: local
+  captcha_worker_logs:
+    driver: local
+  captcha_worker_temp:
+    driver: local
+
+# ============================================================================
+# NETWORKS: Service Communication
+# ============================================================================
+networks:
+  sin-solver:
+    name: sin-solver-phase-2.5
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-sin-solver
+      com.docker.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1

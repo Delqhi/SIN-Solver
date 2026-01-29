@@ -1,0 +1,148 @@
+# ============================================================================
+# .dockerignore - Exclude unnecessary files from Docker build context
+# Purpose: Reduce build context size and build time
+# ============================================================================
+
+# Version Control
+.git
+.gitignore
+.gitattributes
+.gitmodules
+.github
+
+# IDE & Editor Files
+.vscode
+.idea
+.DS_Store
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Node/JavaScript
+node_modules/
+npm-debug.log
+npm-error.log
+yarn.lock
+package-lock.json
+.npm
+
+# Environment
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+
+# Build Artifacts
+dist/
+build/
+*.o
+*.a
+*.so
+.libs
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+docs.md
+*.md
+
+# Testing
+tests/
+test/
+.coverage
+coverage/
+htmlcov/
+.tox/
+.hypothesis/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+Jenkinsfile
+.travis.yml
+.azure-pipelines/
+
+# Project Files
+logs/
+log/
+*.log
+tmp/
+temp/
+.cache
+.venv
+
+# Docker files (don't include in build context to avoid recursion)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Large files
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.iso
+*.dmg
+
+# OS Files
+.DS_Store
+Thumbs.db
+.directory
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Models (will be mounted at runtime)
+models/
+*.pt
+*.onnx
+*.pb
+*.pth
+weights/
+
+# Data Files
+data/
+datasets/
+*.csv
+*.json
+*.parquet

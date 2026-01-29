@@ -1,0 +1,189 @@
+version: '3.9'
+
+services:
+  # ==================================================
+  # CAPTCHA SOLVER - AI Models (YOLO + OCR)
+  # ==================================================
+  
+  captcha-solver:
+    build:
+      context: ../../app
+      dockerfile: Dockerfile.solver
+    container_name: captcha-solver
+    ports:
+      - "8019:8019"
+    environment:
+      - YOLO_MODEL=/app/models/best.pt
+      - TEXT_OCR_MODEL=/app/models/text_ocr_model
+      - MATH_OCR_MODEL=/app/models/math_ocr_model
+      - AUDIO_MODEL=/app/models/audio_whisper_model
+      - SOLVER_CONFIDENCE_THRESHOLD=0.60
+      - LOG_LEVEL=info
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../../models:/app/models:ro
+      - ../../app:/app
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8019/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ==================================================
+  # BROWSER CAPTCHA WORKER - Steel Browser Automation
+  # ==================================================
+  
+  captcha-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: captcha-worker
+    ports:
+      - "8080:8080"
+    environment:
+      # Worker credentials (MUST be set!)
+      - PROVIDER=2captcha
+      - USERNAME=${CAPTCHA_WORKER_USERNAME:-your_worker_username}
+      - PASSWORD=${CAPTCHA_WORKER_PASSWORD:-your_worker_password}
+      
+      # Browser settings
+      - HEADLESS=false
+      - STEEL_BROWSER_URL=http://steel-browser:3005
+      
+      # Solver service
+      - CAPTCHA_SOLVER_URL=http://captcha-solver:8019
+      
+      # Logging
+      - LOG_LEVEL=info
+      - NODE_ENV=production
+      - DEBUG=false
+    depends_on:
+      captcha-solver:
+        condition: service_healthy
+      steel-browser:
+        condition: service_started
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ==================================================
+  # STEEL BROWSER - Stealth Browser Automation
+  # ==================================================
+  
+  steel-browser:
+    image: ghcr.io/steel-dev/steel:latest
+    container_name: steel-browser
+    ports:
+      - "3005:3005"
+    environment:
+      - LOG_LEVEL=info
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    shm_size: 2gb
+
+  # ==================================================
+  # POSTGRES - Stats & History Database
+  # ==================================================
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: captcha-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=captcha_worker
+      - POSTGRES_USER=worker
+      - POSTGRES_PASSWORD=worker_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U worker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================================================
+  # REDIS - Cache & Session Storage
+  # ==================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: captcha-redis
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes --requirepass redis_password
+    volumes:
+      - redis-data:/data
+    networks:
+      - captcha-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================================================
+  # PROMETHEUS - Metrics Collection
+  # ==================================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: captcha-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - captcha-network
+    restart: unless-stopped
+
+  # ==================================================
+  # GRAFANA - Monitoring Dashboard
+  # ==================================================
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: captcha-grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    depends_on:
+      - prometheus
+    networks:
+      - captcha-network
+    restart: unless-stopped
+
+networks:
+  captcha-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

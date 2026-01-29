@@ -1,65 +1,53 @@
 import 'dotenv/config';
-import express from 'express';
-import { WorkerRuntime } from './worker-runtime';
-import { WorkerConfig, WorkerType } from './types';
+import { BrowserCaptchaWorker } from './browser-captcha-worker';
+import pino from 'pino';
 
-const app = express();
-app.use(express.json());
+const logger = pino();
 
-const config: WorkerConfig = {
-  name: process.env.WORKER_NAME || `worker-${Date.now()}`,
-  type: (process.env.WORKER_TYPE || 'general') as WorkerType,
-  capabilities: (process.env.WORKER_CAPABILITIES || '').split(',').filter(Boolean),
-  apiBrainUrl: process.env.API_COORDINATOR_URL || process.env.API_BRAIN_URL || 'http://room-13-api-coordinator:8000',
-  stagehandUrl: process.env.STAGEHAND_URL || 'http://stagehand:3000',
-  heartbeatInterval: parseInt(process.env.HEARTBEAT_INTERVAL || '30000', 10),
+const config = {
+  provider: (process.env.PROVIDER || '2captcha') as '2captcha' | 'kolotibablo' | 'captcha-guru' | 'anti-captcha',
+  username: process.env.USERNAME || '',
+  password: process.env.PASSWORD || '',
+  headless: process.env.HEADLESS !== 'false',
+  steelBrowserUrl: process.env.STEEL_BROWSER_URL || 'http://localhost:3000'
 };
 
-const worker = new WorkerRuntime(config);
+if (!config.username || !config.password) {
+  logger.error('❌ Missing USERNAME or PASSWORD environment variables');
+  logger.error('Set them in .env file or environment:');
+  logger.error('  USERNAME=your_worker_username');
+  logger.error('  PASSWORD=your_worker_password');
+  process.exit(1);
+}
 
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    worker: config.name,
-    type: config.type,
-    uptime: process.uptime(),
-  });
-});
+logger.info({
+  provider: config.provider,
+  username: config.username,
+  headless: config.headless
+}, '🌐 STARTING BROWSER CAPTCHA WORKER');
 
-app.get('/status', (req, res) => {
-  res.json({
-    name: config.name,
-    type: config.type,
-    capabilities: config.capabilities,
-    apiBrainUrl: config.apiBrainUrl,
-  });
-});
+const worker = new BrowserCaptchaWorker(config);
 
-const PORT = process.env.PORT || 8080;
-
-const start = async () => {
+const startWorker = async () => {
   try {
     await worker.start();
-    
-    app.listen(PORT, () => {
-      console.log(`Worker health server running on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Failed to start worker:', err);
+  } catch (error) {
+    logger.error(error, '❌ Worker crashed');
     process.exit(1);
   }
 };
 
 process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, shutting down...');
+  logger.info('📋 SIGTERM received, shutting down gracefully...');
   await worker.stop();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('Received SIGINT, shutting down...');
+  logger.info('📋 SIGINT received, shutting down gracefully...');
   await worker.stop();
   process.exit(0);
 });
 
-start();
+startWorker();
+

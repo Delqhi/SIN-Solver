@@ -1,3 +1,33 @@
+export interface BrowserWorkerConfig {
+  provider: '2captcha' | 'kolotibablo' | 'captcha-guru' | 'anti-captcha';
+  username: string;
+  password: string;
+  headless?: boolean;
+  steelBrowserUrl?: string;
+}
+
+export interface BrowserWorkerStats {
+  totalSolved: number;
+  totalFailed: number;
+  totalEarned: number;
+  startTime: number;
+  currentStreak: number;
+}
+
+export interface CaptchaTask {
+  id: string;
+  type: string;
+  imageData?: string;
+  question?: string;
+  instructions?: string;
+}
+
+export interface SolverResponse {
+  confidence: number;
+  answer: string;
+  solveTime: number;
+}
+
 export interface WorkerConfig {
   name: string;
   type: WorkerType;
@@ -48,3 +78,4 @@ export interface WebSocketMessage {
   data?: unknown;
   workerId?: string;
 }
+

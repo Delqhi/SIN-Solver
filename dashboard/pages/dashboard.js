@@ -4,6 +4,8 @@ import LogViewer from '../components/Terminal/LogViewer';
 import CaptchaWorkerStatusCard from '../components/Captcha/CaptchaWorkerStatusCard';
 import CaptchaTestModal from '../components/Captcha/CaptchaTestModal';
 import CaptchaStatsSection from '../components/Captcha/CaptchaStatsSection';
+import ChatSidebar from '../components/Chat/ChatSidebar';
+import WorkflowModal from '../components/Workflow/WorkflowModal';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -16,6 +18,7 @@ export default function Dashboard() {
   const [selectedContainer, setSelectedContainer] = useState(null);
   const [isCaptchaTestOpen, setIsCaptchaTestOpen] = useState(false);
   const [isCaptchaWorkflowOpen, setIsCaptchaWorkflowOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const fetchDashboardData = async () => {
     setRefreshing(true);
@@ -317,6 +320,11 @@ export default function Dashboard() {
             onClose={() => setIsCaptchaTestOpen(false)}
           />
 
+          <WorkflowModal
+            isOpen={isCaptchaWorkflowOpen}
+            onClose={() => setIsCaptchaWorkflowOpen(false)}
+          />
+
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Captcha Solver</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -387,6 +395,11 @@ export default function Dashboard() {
             <p>SIN-Solver Cockpit Dashboard v1.0.0 | All systems operational</p>
           </div>
         </footer>
+
+        <ChatSidebar 
+          isOpen={isChatOpen} 
+          onToggle={setIsChatOpen} 
+        />
       </div>
     </>
   );
