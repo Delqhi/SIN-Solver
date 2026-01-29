@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import LogViewer from '../components/Terminal/LogViewer';
+import CaptchaWorkerStatusCard from '../components/Captcha/CaptchaWorkerStatusCard';
+import CaptchaTestModal from '../components/Captcha/CaptchaTestModal';
+import CaptchaStatsSection from '../components/Captcha/CaptchaStatsSection';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -11,6 +14,8 @@ export default function Dashboard() {
   const [timestamp, setTimestamp] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState(null);
+  const [isCaptchaTestOpen, setIsCaptchaTestOpen] = useState(false);
+  const [isCaptchaWorkflowOpen, setIsCaptchaWorkflowOpen] = useState(false);
 
   const fetchDashboardData = async () => {
     setRefreshing(true);
@@ -300,12 +305,32 @@ export default function Dashboard() {
           </section>
 
           {selectedContainer && (
-            <LogViewer 
+            <LogViewer
               containerId={selectedContainer.id}
               containerName={selectedContainer.name}
               onClose={() => setSelectedContainer(null)}
             />
           )}
+
+          <CaptchaTestModal
+            isOpen={isCaptchaTestOpen}
+            onClose={() => setIsCaptchaTestOpen(false)}
+          />
+
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Captcha Solver</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1">
+                <CaptchaWorkerStatusCard
+                  onTestClick={() => setIsCaptchaTestOpen(true)}
+                  onWorkflowClick={() => setIsCaptchaWorkflowOpen(true)}
+                />
+              </div>
+              <div className="lg:col-span-2">
+                <CaptchaStatsSection />
+              </div>
+            </div>
+          </section>
 
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6">API Documentation</h2>
