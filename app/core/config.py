@@ -9,6 +9,12 @@ from pydantic import Field, field_validator
 logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
+    # Configuration Directory (for storing keys, accounts, etc.)
+    config_dir: str = Field(
+        default_factory=lambda: os.path.expanduser("~/.sin-solver/config"),
+        env="CONFIG_DIR"
+    )
+    
     # API Security
     secret_key: str = Field(..., env="SECRET_KEY")
     algorithm: str = "HS256"

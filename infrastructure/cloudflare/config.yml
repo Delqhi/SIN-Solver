@@ -2,37 +2,70 @@ tunnel: SIN-Solver
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  # Zimmer-11: Dashboard (Frontend)
-  - hostname: dashboard.sin-solver.example.com
-    service: http://172.20.0.60:3000
+  # Dashboard (Mission Control)
+  - hostname: dashboard.delqhi.com
+    service: http://room-01-dashboard-cockpit:3011
 
-  # Zimmer-13: API Coordinator
-  - hostname: api.sin-solver.example.com
-    service: http://172.20.0.31:8000
+  # n8n Orchestrator
+  - hostname: n8n.delqhi.com
+    service: http://agent-01-n8n-orchestrator:5678
 
-  # Zimmer-18: Survey Worker
-  - hostname: survey.sin-solver.example.com
-    service: http://172.20.0.80:8018
+  # Skyvern (Visual Solver)
+  - hostname: skyvern.delqhi.com
+    service: http://agent-06-skyvern-solver:8030
 
-  # Zimmer-19: Captcha Worker
-  - hostname: captcha.sin-solver.example.com
-    service: http://172.20.0.81:8019
+  # Steel Browser (Stealth)
+  - hostname: steel.delqhi.com
+    service: http://agent-05-steel-browser:3000
 
-  # Zimmer-01: N8N Orchestrator
-  - hostname: n8n.sin-solver.example.com
-    service: http://172.20.0.10:5678
+  # Stagehand (Research)
+  - hostname: stagehand.delqhi.com
+    service: http://agent-07-stagehand-research:3000
 
-  # Zimmer-05: Steel Browser (WebSocket)
-  - hostname: steel.sin-solver.example.com
-    service: http://172.20.0.20:3000
+  # Vault API
+  - hostname: vault.delqhi.com
+    service: http://room-02-tresor-api:8201
 
-  # Zimmer-15: SurfSense
-  - hostname: surfsense.sin-solver.example.com
-    service: http://172.20.0.60:3000
+  # NocoDB (Database UI)
+  - hostname: nocodb.delqhi.com
+    service: http://room-21-nocodb-ui:8090
 
-  # Zimmer-16: Supabase Studio
-  - hostname: supabase.sin-solver.example.com
-    service: http://172.20.0.70:3000
+  # Supabase Studio
+  - hostname: supabase.delqhi.com
+    service: http://room-16-supabase-studio:54323
 
-  # Catch-all (404)
+  # CodeServer API
+  - hostname: codeserver.delqhi.com
+    service: http://agent-04.1-codeserver-api:8041
+
+  # CodeServer IDE
+  - hostname: code.delqhi.com
+    service: http://agent-04.1-openhands-codeserver:3041
+
+  # Survey Worker
+  - hostname: survey.delqhi.com
+    service: http://solver-2.1-survey-worker:8018
+
+  # Captcha Worker
+  - hostname: captcha.delqhi.com
+    service: http://solver-1.1-captcha-worker:8019
+
+  # RocketChat
+  - hostname: chat.delqhi.com
+    service: http://room-09.1-rocketchat-app:3009
+
+  # Video Generator
+  - hostname: video.delqhi.com
+    service: http://room-05-generator-video:8215
+
+  # Social MCP
+  - hostname: social.delqhi.com
+    service: http://room-20.3-social-mcp:8213
+
+  # Deep Research MCP
+  - hostname: research.delqhi.com
+    service: http://room-20.4-deep-research-mcp:8214
+
+  # Default Fallback
   - service: http_status:404
+

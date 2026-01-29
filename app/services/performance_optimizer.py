@@ -372,7 +372,10 @@ class PerformanceOptimizer:
             raise ValueError("Tesseract only for text CAPTCHAs")
         
         import base64
-        import pytesseract
+        try:
+            import pytesseract
+        except ImportError:
+            raise RuntimeError("pytesseract not installed. Install with: pip install pytesseract")
         from PIL import Image
         import io
         
@@ -524,7 +527,7 @@ class APIKeyRotator:
             if error_code == 429: cooldown = 300 # Rate limit: 5 mins
             if error_code in [401, 403]: cooldown = 3600 * 24 # Invalid: 24h cooldown (until manual check)
             
-            state["cooldown"] = time.time() + cooldown
+            state["cooldown"] = int(time.time() + cooldown)
             logger.error(f"🚨 Key {key_id[:8]}... for {service} FAILED. Cooldown: {cooldown}s")
 
         await self.redis.set_json(redis_key, state, ttl=86400)

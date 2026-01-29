@@ -23,3 +23,9 @@ out/
 # Build outputs
 *.tsbuildinfo
 .env.production
+
+# Archive directory (development artifacts)
+archive/
+
+# Knowledge data
+knowledge_data/

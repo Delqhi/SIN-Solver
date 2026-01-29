@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import LogViewer from '../components/Terminal/LogViewer';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [services, setServices] = useState([]);
+  const [telemetry, setTelemetry] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timestamp, setTimestamp] = useState(new Date());
-
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedContainer, setSelectedContainer] = useState(null);
 
   const fetchDashboardData = async () => {
     setRefreshing(true);
@@ -21,12 +23,41 @@ export default function Dashboard() {
       const servicesData = await servicesResponse.json();
       setServices(servicesData.services);
 
+      const telemetryResponse = await fetch('/api/docker/stats');
+      if (telemetryResponse.ok) {
+        const telemetryData = await telemetryResponse.json();
+        const telMap = {};
+        telemetryData.forEach(t => {
+          telMap[t.id] = t;
+        });
+        setTelemetry(telMap);
+      }
+
       setTimestamp(new Date());
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const handleControl = async (containerId, action) => {
+    try {
+      const response = await fetch('/api/docker/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ containerId, action })
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || `Failed to ${action} container`);
+      }
+      
+      fetchDashboardData();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -175,47 +206,106 @@ export default function Dashboard() {
                   <tr className="border-b border-slate-600 bg-slate-600">
                     <th className="px-6 py-4 text-left font-semibold">Service</th>
                     <th className="px-6 py-4 text-left font-semibold">Status</th>
+                    <th className="px-6 py-4 text-left font-semibold">CPU / RAM</th>
                     <th className="px-6 py-4 text-left font-semibold">Port</th>
-                    <th className="px-6 py-4 text-left font-semibold">Last Check</th>
-                    <th className="px-6 py-4 text-left font-semibold">Action</th>
+                    <th className="px-6 py-4 text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {services.map((service, idx) => (
-                    <tr key={idx} className="border-b border-slate-600 hover:bg-slate-600 transition">
-                      <td className="px-6 py-4">
-                        <span className="flex items-center gap-2">
-                          <span className="text-xl">{service.icon}</span>
-                          <span className="font-semibold">{service.name}</span>
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center w-fit gap-2 ${
-                          service.status === 'healthy' 
-                            ? 'bg-green-900/50 text-green-400 border border-green-700' 
-                            : 'bg-red-900/50 text-red-400 border border-red-700'
-                        }`}>
-                          <span className={`w-2 h-2 rounded-full ${
-                            service.status === 'healthy' ? 'bg-green-400 animate-pulse' : 'bg-red-400'
-                          }`}></span>
-                          {service.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-300">{service.port}</td>
-                      <td className="px-6 py-4 text-xs text-slate-400">
-                        {service.lastChecked ? new Date(service.lastChecked).toLocaleTimeString() : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <button className="px-3 py-1 bg-slate-600 hover:bg-slate-500 rounded text-sm font-semibold transition">
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {services.map((service, idx) => {
+                    const tel = telemetry[service.containerId] || {};
+                    return (
+                      <tr key={idx} className="border-b border-slate-600 hover:bg-slate-600 transition">
+                        <td className="px-6 py-4">
+                          <span className="flex items-center gap-2">
+                            <span className="text-xl">{service.icon}</span>
+                            <div>
+                              <div className="font-semibold">{service.name}</div>
+                              <div className="text-[10px] text-slate-400 font-mono">{service.containerId}</div>
+                            </div>
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center w-fit gap-2 ${
+                            service.status === 'healthy' 
+                              ? 'bg-green-900/50 text-green-400 border border-green-700' 
+                              : 'bg-red-900/50 text-red-400 border border-red-700'
+                          }`}>
+                            <span className={`w-2 h-2 rounded-full ${
+                              service.status === 'healthy' ? 'bg-green-400 animate-pulse' : 'bg-red-400'
+                            }`}></span>
+                            {service.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {tel.cpu ? (
+                            <div className="text-xs space-y-1">
+                              <div className="flex justify-between gap-4">
+                                <span className="text-slate-400">CPU:</span>
+                                <span className="font-mono text-blue-400">{tel.cpu}%</span>
+                              </div>
+                              <div className="flex justify-between gap-4">
+                                <span className="text-slate-400">RAM:</span>
+                                <span className="font-mono text-purple-400">{tel.memory?.percent}%</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500 text-xs italic">No telemetry</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-slate-300 font-mono text-sm">{service.port || 'N/A'}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex gap-2">
+                            {service.status === 'healthy' ? (
+                              <>
+                                <button 
+                                  onClick={() => handleControl(service.containerId, 'stop')}
+                                  className="p-1.5 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded transition border border-red-800/50"
+                                  title="Stop"
+                                >
+                                  ⏹️
+                                </button>
+                                <button 
+                                  onClick={() => handleControl(service.containerId, 'restart')}
+                                  className="p-1.5 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 rounded transition border border-blue-800/50"
+                                  title="Restart"
+                                >
+                                  🔄
+                                </button>
+                              </>
+                            ) : (
+                              <button 
+                                onClick={() => handleControl(service.containerId, 'start')}
+                                className="p-1.5 bg-green-900/30 hover:bg-green-900/50 text-green-400 rounded transition border border-green-800/50"
+                                title="Start"
+                              >
+                                ▶️
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => setSelectedContainer({ id: service.containerId, name: service.name })}
+                              className="p-1.5 bg-slate-600 hover:bg-slate-500 text-white rounded transition border border-slate-500"
+                              title="View Logs"
+                            >
+                              📋
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </section>
+
+          {selectedContainer && (
+            <LogViewer 
+              containerId={selectedContainer.id}
+              containerName={selectedContainer.name}
+              onClose={() => setSelectedContainer(null)}
+            />
+          )}
 
           <section className="mb-12">
             <h2 className="text-2xl font-bold mb-6">API Documentation</h2>

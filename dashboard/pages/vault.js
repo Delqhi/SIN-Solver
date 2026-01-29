@@ -164,21 +164,40 @@ export default function VaultDashboard() {
     setIsLoadingSecrets(true);
     setSecretsError(null);
     try {
-      const res = await fetch(`${VAULT_API_URL}/api/secrets`);
-      if (res.ok) {
-        const data = await res.json();
-        // Transform API response to expected format
-        const formattedSecrets = Array.isArray(data) ? data : (data.secrets || []);
-        setSecrets(formattedSecrets.map(s => ({
-          path: s.path || s.name || s.key,
-          keys: s.keys || Object.keys(s.data || {}),
-          lastUpdated: s.lastUpdated || s.updated_at || new Date().toISOString(),
-          ...s
-        })));
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        setSecretsError(errorData.message || `Failed to fetch secrets (${res.status})`);
+      // 1. Get list of secret paths
+      const res = await fetch(`${VAULT_API_URL}/api/secrets?path=secret/sin-solver/`);
+      if (!res.ok) throw new Error(`Failed to fetch secrets list (${res.status})`);
+      
+      const data = await res.json();
+      const keys = data.keys || [];
+      
+      if (keys.length === 0) {
+        setSecrets([]);
+        return;
       }
+
+      // 2. Fetch details for each secret
+      const secretDetails = await Promise.all(
+        keys.map(async (key) => {
+          try {
+            const detailRes = await fetch(`${VAULT_API_URL}/api/secrets/${key}`);
+            if (detailRes.ok) {
+              const detailData = await detailRes.json();
+              return {
+                path: key,
+                keys: Object.keys(detailData.data || {}),
+                lastUpdated: detailData.metadata?.updated_time || new Date().toISOString(),
+                data: detailData.data || {}
+              };
+            }
+          } catch (e) {
+            console.error(`Failed to fetch details for ${key}`, e);
+          }
+          return null;
+        })
+      );
+
+      setSecrets(secretDetails.filter(s => s !== null));
     } catch (e) {
       console.error('Failed to fetch secrets', e);
       setSecretsError(`Connection error: ${e.message}`);
@@ -443,14 +462,42 @@ export default function VaultDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {secrets.map((secret, idx) => (
-                      <SecretRow 
-                        key={idx} 
-                        secret={secret}
-                        onEdit={(s) => setEditingSecret(s)}
-                        onDelete={(s) => setDeletingSecret(s)}
-                      />
-                    ))}
+                    {isLoadingSecrets ? (
+                      <tr>
+                        <td colSpan="4" className="py-10 text-center">
+                          <RefreshCw size={24} className="animate-spin text-blue-400 mx-auto mb-2" />
+                          <p className="text-gray-500 text-sm">Loading secrets...</p>
+                        </td>
+                      </tr>
+                    ) : secretsError ? (
+                      <tr>
+                        <td colSpan="4" className="py-10 text-center">
+                          <X size={24} className="text-red-400 mx-auto mb-2" />
+                          <p className="text-red-400 text-sm">{secretsError}</p>
+                          <button 
+                            onClick={fetchSecrets}
+                            className="mt-2 text-xs text-blue-400 hover:underline"
+                          >
+                            Try again
+                          </button>
+                        </td>
+                      </tr>
+                    ) : secrets.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="py-10 text-center">
+                          <p className="text-gray-500 text-sm">No secrets found</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      secrets.map((secret, idx) => (
+                        <SecretRow 
+                          key={idx} 
+                          secret={secret}
+                          onEdit={(s) => alert('Edit modal coming soon')}
+                          onDelete={(s) => setDeletingSecret(s)}
+                        />
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>

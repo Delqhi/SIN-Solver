@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, Settings, Terminal, Code, GitBranch, FileText, Cpu, Activity, Database, Save, MessageSquare } from 'lucide-react';
+import { Send, X, Settings, Terminal, Code, GitBranch, FileText, Cpu, Activity, Database, Save, MessageSquare, Zap, Shield, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 interface ChatMessage {
   role: 'user' | 'ai';
@@ -235,7 +242,6 @@ const AIChat: React.FC<{
     }
 
     try {
-      // Route free-text chat through the /api/code endpoint (AI coding assistant)
       const response = await fetch(`${CODESERVER_API_URL}/api/code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -247,7 +253,6 @@ const AIChat: React.FC<{
 
       if (response.ok) {
         const data = await response.json();
-        // For async tasks, show task ID and instructions
         if (data.task_id) {
           setMessages(prev => [...prev, {
             role: 'ai',
@@ -283,7 +288,7 @@ const AIChat: React.FC<{
   const renderMessageContent = (msg: ChatMessage) => {
     if (msg.isCode) {
       return (
-        <pre className="bg-slate-950 p-3 rounded border border-slate-800 overflow-x-auto font-mono text-xs text-emerald-400">
+        <pre className="bg-black/60 p-4 rounded-xl border border-white/5 overflow-x-auto font-mono text-[10px] text-emerald-400 leading-relaxed">
           <code>{msg.content}</code>
         </pre>
       );
@@ -294,93 +299,106 @@ const AIChat: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <aside className="fixed right-0 top-0 w-96 h-screen bg-gradient-to-b from-slate-950 to-black border-l border-slate-700 flex flex-col shadow-2xl" style={{zIndex: 150}}>
-      {/* Header */}
-      <div className="h-14 border-b border-slate-700 flex items-center justify-between px-5 bg-slate-900/50 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span className="text-sm font-bold text-slate-100">AI COMMAND CHAT</span>
+    <motion.aside 
+      initial={{ x: 400 }}
+      animate={{ x: 0 }}
+      className="fixed right-0 top-0 w-[400px] h-screen bg-black/80 backdrop-blur-2xl border-l border-white/5 flex flex-col shadow-2xl z-[150]"
+    >
+      <div className="h-14 border-b border-white/5 flex items-center justify-between px-5 bg-slate-900/20">
+        <div className="flex items-center gap-3">
+          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+          <span className="text-[10px] font-bold text-slate-100 uppercase tracking-[0.2em]">AI Command Interface</span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowAgents(!showAgents)}
-            className="p-1.5 hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-slate-200"
-            title="View Agents"
+            className="p-1.5 hover:bg-white/5 rounded-lg transition-all text-slate-500 hover:text-white"
           >
             <Settings size={16} />
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-800 rounded transition-colors text-slate-400 hover:text-slate-200"
+            className="p-1.5 hover:bg-white/5 rounded-lg transition-all text-slate-500 hover:text-white"
           >
             <X size={18} />
           </button>
         </div>
       </div>
 
-      {/* Agent Panel */}
       {showAgents && (
-        <div className="h-40 border-b border-slate-700 bg-slate-900/30 overflow-y-auto p-3 space-y-2">
-          <div className="text-xs font-bold text-slate-400 uppercase">Available Agents</div>
-          {[
-            { name: 'Skyvern', icon: '👁️' },
-            { name: 'Steel', icon: '🔧' },
-            { name: 'Stagehand', icon: '🎭' },
-            { name: 'ClawdBot', icon: '🐱' },
-            { name: 'Agent Zero', icon: '🤖' },
-            { name: 'OpenCode', icon: '⚡' },
-            { name: 'n8n Manager', icon: '🔄' }
-          ].map(agent => (
-            <button
-              key={agent.name}
-              className="w-full text-left px-3 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-sm"
-              onClick={() => {
-                setMessages(prev => [...prev, {
-                  role: 'ai',
-                  content: `🔗 Connecting to ${agent.name}...`,
-                  timestamp: Date.now()
-                }]);
-                setShowAgents(false);
-              }}
-            >
-              {agent.icon} {agent.name}
-            </button>
-          ))}
-        </div>
+        <motion.div 
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          className="border-b border-white/5 bg-slate-900/10 overflow-hidden p-4 space-y-3"
+        >
+          <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Active Intelligence Units</div>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { name: 'Skyvern', icon: '👁️' },
+              { name: 'Steel', icon: '🔧' },
+              { name: 'Stagehand', icon: '🎭' },
+              { name: 'ClawdBot', icon: '🐱' },
+              { name: 'Agent Zero', icon: '🤖' },
+              { name: 'OpenCode', icon: '⚡' }
+            ].map(agent => (
+              <button
+                key={agent.name}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all text-xs border border-white/5"
+                onClick={() => {
+                  setMessages(prev => [...prev, {
+                    role: 'ai',
+                    content: `🔗 Establishing neural link to ${agent.name}...`,
+                    timestamp: Date.now()
+                  }]);
+                  setShowAgents(false);
+                }}
+              >
+                <span className="text-sm">{agent.icon}</span>
+                <span className="font-medium">{agent.name}</span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
       )}
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-black/20 to-transparent">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-none">
         {messages.map((msg, idx) => (
-          <div
+          <motion.div
             key={idx}
-            className={`animate-in fade-in slide-in-from-bottom-2 ${
-              msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'
-            }`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "flex",
+              msg.role === 'user' ? 'justify-end' : 'justify-start'
+            )}
           >
             <div
-              className={`max-w-sm rounded-lg px-4 py-3 text-sm leading-relaxed ${
+              className={cn(
+                "max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed border",
                 msg.role === 'user'
-                  ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 text-white'
+                  ? "bg-emerald-600/10 border-emerald-500/20 text-emerald-100"
                   : msg.status === 'error'
-                  ? 'bg-red-900/30 border border-red-500/30 text-red-100'
-                  : 'bg-slate-800/60 border border-slate-700 text-slate-100'
-              } ${msg.isCode ? 'w-full' : ''}`}
+                  ? "bg-red-900/20 border-red-500/20 text-red-200"
+                  : "bg-white/5 border-white/5 text-slate-200",
+                msg.isCode && "w-full max-w-full"
+              )}
             >
               {renderMessageContent(msg)}
               {msg.status === 'pending' && (
-                <span className="block text-xs mt-2 text-slate-400">⏳ Processing...</span>
+                <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-500 uppercase tracking-tighter">
+                  <RefreshCw size={10} className="animate-spin" /> Processing Shard...
+                </div>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-slate-800/60 border border-slate-700 rounded-lg px-4 py-3">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="bg-white/5 border border-white/5 rounded-2xl px-4 py-3">
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce" />
+                <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce [animation-delay:0.4s]" />
               </div>
             </div>
           </div>
@@ -388,55 +406,63 @@ const AIChat: React.FC<{
         <div ref={messagesEndRef} />
       </div>
 
-      {showCommands && (
-        <div className="absolute bottom-20 left-4 right-4 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto">
-          <div className="p-2 border-b border-slate-800 bg-slate-950 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Available Commands
-          </div>
-          {COMMANDS.filter(c => c.command.startsWith(input)).map(c => (
-            <button
-              key={c.command}
-              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-slate-800 text-left transition-colors group"
-              onClick={() => {
-                setInput(c.command + ' ');
-                setShowCommands(false);
-              }}
-            >
-              <span className="text-slate-500 group-hover:text-emerald-400 transition-colors">
-                {c.icon}
-              </span>
-              <div className="flex flex-col">
-                <span className="text-sm font-mono text-slate-200">{c.command}</span>
-                <span className="text-[10px] text-slate-500">{c.description}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {showCommands && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute bottom-24 left-4 right-4 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 max-h-60 overflow-y-auto"
+          >
+            <div className="p-3 border-b border-white/5 bg-black/40 text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+              System Commands
+            </div>
+            {COMMANDS.filter(c => c.command.startsWith(input)).map(c => (
+              <button
+                key={c.command}
+                className="w-full flex items-center gap-4 px-4 py-3 hover:bg-white/5 text-left transition-all group"
+                onClick={() => {
+                  setInput(c.command + ' ');
+                  setShowCommands(false);
+                }}
+              >
+                <span className="text-slate-500 group-hover:text-emerald-400 transition-colors">
+                  {c.icon}
+                </span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-mono font-bold text-slate-200">{c.command}</span>
+                  <span className="text-[10px] text-slate-500 uppercase tracking-tighter">{c.description}</span>
+                </div>
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Input */}
-      <div className="border-t border-slate-700 bg-slate-900/50 backdrop-blur-sm p-4">
-        <div className="flex gap-2">
+      <div className="p-6 border-t border-white/5 bg-slate-900/10 backdrop-blur-md">
+        <div className="relative flex items-center gap-2">
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyPress={e => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-            placeholder="Ask AI or use /command..."
-            className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
+            placeholder="Issue directive..."
+            className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/10 transition-all"
             disabled={isLoading}
           />
           <button
             onClick={handleSendMessage}
             disabled={isLoading || !input.trim()}
-            className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-lg p-2 transition-colors"
+            className="bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-xl p-3 transition-all shadow-lg shadow-emerald-900/20"
           >
             <Send size={18} />
           </button>
         </div>
-        <p className="text-xs text-slate-500 mt-2">💡 AI has access to all 17 rooms and Docker orchestration</p>
+        <div className="flex items-center gap-2 mt-4 text-[9px] text-slate-600 font-mono uppercase tracking-widest">
+          <Shield size={10} /> Secure Neural Link Active
+        </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 };
 

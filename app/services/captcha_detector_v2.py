@@ -150,8 +150,18 @@ class ZoneAnalyzer:
             logger.error(f"Zone {zone_id} analysis failed: {e}")
             return self._default_zone_result(zone_id)
         
+        # Handle exceptions from gather - convert BaseException to empty dict
+        gemini_dict: Dict[str, Any] = gemini_result if isinstance(gemini_result, dict) else {}
+        mistral_dict: Dict[str, Any] = mistral_result if isinstance(mistral_result, dict) else {}
+        
+        # Log any exceptions that occurred
+        if isinstance(gemini_result, BaseException):
+            logger.warning(f"Gemini analysis failed for zone {zone_id}: {gemini_result}")
+        if isinstance(mistral_result, BaseException):
+            logger.warning(f"Mistral analysis failed for zone {zone_id}: {mistral_result}")
+        
         # Merge results
-        captcha_type, confidence = self._merge_zone_results(gemini_result, mistral_result)
+        captcha_type, confidence = self._merge_zone_results(gemini_dict, mistral_dict)
         
         analysis_time = int((asyncio.get_event_loop().time() - start_time) * 1000)
         
@@ -161,8 +171,8 @@ class ZoneAnalyzer:
             confidence=confidence,
             elements=[],  # Placeholder
             text_content="",  # Placeholder
-            gemini_result=gemini_result or {},
-            mistral_result=mistral_result or {},
+            gemini_result=gemini_dict,
+            mistral_result=mistral_dict,
             analysis_time_ms=analysis_time
         )
     
@@ -412,8 +422,7 @@ class UniversalCaptchaDetectorV2:
         if not type_votes:
             return CaptchaType.UNKNOWN, 0.0
         
-        # Winner by vote count
-        winner = max(type_votes, key=type_votes.get)
+        winner = max(type_votes.keys(), key=lambda k: type_votes[k])
         avg_confidence = confidence_sum / len(zones) if zones else 0.0
         
         return winner, avg_confidence
@@ -464,7 +473,7 @@ class UniversalCaptchaDetectorV2:
     def _resize_image(self, image: np.ndarray, size: Tuple[int, int]) -> np.ndarray:
         """Resize image to specified size"""
         pil_image = Image.fromarray(image)
-        pil_image = pil_image.resize(size, Image.LANCZOS)
+        pil_image = pil_image.resize(size, Image.Resampling.LANCZOS)
         return np.array(pil_image)
     
     def _to_grayscale(self, image: np.ndarray) -> np.ndarray:

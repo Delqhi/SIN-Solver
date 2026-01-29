@@ -5,6 +5,7 @@ Handles authentication and API communication with antigravity services
 import json
 import logging
 import os
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urljoin
 
@@ -12,9 +13,8 @@ import httpx
 from cryptography.fernet import Fernet
 
 from app.core.config import settings
-from app.utils.logger import setup_logging
 
-logger = setup_logging(__name__)
+logger = logging.getLogger(__name__)
 
 
 class AntigravityAccount:
@@ -60,30 +60,34 @@ class AntigravityConnector:
         self.accounts: Dict[str, AntigravityAccount] = {}
         self.current_account: Optional[str] = None
         self.encryption_key: Optional[bytes] = None
-        self.config_file = os.path.join(settings.CONFIG_DIR, 'antigravity_accounts.json')
+        self.config_file = os.path.join(settings.config_dir, 'antigravity_accounts.json')
         self._load_encryption_key()
         self._load_accounts()
     
     def _load_encryption_key(self):
         """Load or generate encryption key for account tokens"""
-        key_file = os.path.join(settings.CONFIG_DIR, 'antigravity.key')
+        key_file = os.path.join(settings.config_dir, 'antigravity.key')
         if os.path.exists(key_file):
             with open(key_file, 'rb') as f:
                 self.encryption_key = f.read()
         else:
             self.encryption_key = Fernet.generate_key()
-            os.makedirs(settings.CONFIG_DIR, exist_ok=True)
+            os.makedirs(settings.config_dir, exist_ok=True)
             with open(key_file, 'wb') as f:
                 f.write(self.encryption_key)
             os.chmod(key_file, 0o600)  # Secure file permissions
     
     def _encrypt_token(self, token: str) -> str:
         """Encrypt API token"""
+        if self.encryption_key is None:
+            raise RuntimeError("Encryption key not initialized")
         cipher = Fernet(self.encryption_key)
         return cipher.encrypt(token.encode()).decode()
     
     def _decrypt_token(self, encrypted_token: str) -> str:
         """Decrypt API token"""
+        if self.encryption_key is None:
+            raise RuntimeError("Encryption key not initialized")
         cipher = Fernet(self.encryption_key)
         return cipher.decrypt(encrypted_token.encode()).decode()
     
@@ -191,7 +195,7 @@ class AntigravityConnector:
                 'current_account': self.current_account
             }
             
-            os.makedirs(settings.CONFIG_DIR, exist_ok=True)
+            os.makedirs(settings.config_dir, exist_ok=True)
             with open(self.config_file, 'w') as f:
                 json.dump(accounts_data, f, indent=2)
                 
@@ -227,7 +231,7 @@ class AntigravityConnector:
         try:
             with httpx.Client(timeout=30.0) as client:
                 response = client.request(method, url, headers=headers)
-                account.last_used = httpx.Headers.date
+                account.last_used = datetime.now(timezone.utc).isoformat()
                 account.request_count += 1
                 self._save_accounts()
                 return response

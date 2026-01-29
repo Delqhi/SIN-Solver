@@ -8,21 +8,72 @@ import ReactFlow, {
   useEdgesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Save, Play, Loader2 } from 'lucide-react';
+import { Save, Play, Loader2, Zap, AlertTriangle, Layout, Cpu } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
 
 const initialNodes = [
-  { id: '1', position: { x: 250, y: 50 }, data: { label: 'Start Mission' }, type: 'input', style: { background: '#10b981', color: '#000', border: 'none', fontWeight: '700' } },
-  { id: '2', position: { x: 250, y: 150 }, data: { label: 'Navigate to URL' }, style: { background: '#111', color: '#fff', border: '1px solid #333' } },
-  { id: '3', position: { x: 250, y: 250 }, data: { label: 'Detect Captcha' }, style: { background: '#111', color: '#fff', border: '1px solid #333' } },
+  { 
+    id: '1', 
+    position: { x: 250, y: 50 }, 
+    data: { label: 'Start Mission' }, 
+    type: 'input', 
+    style: { 
+      background: 'rgba(16, 185, 129, 0.1)', 
+      color: '#10b981', 
+      border: '1px solid rgba(16, 185, 129, 0.2)', 
+      borderRadius: '12px',
+      fontSize: '10px',
+      fontWeight: '700',
+      fontFamily: 'JetBrains Mono',
+      textTransform: 'uppercase',
+      letterSpacing: '0.1em',
+      padding: '10px'
+    } 
+  },
+  { 
+    id: '2', 
+    position: { x: 250, y: 150 }, 
+    data: { label: 'Navigate to URL' }, 
+    style: { 
+      background: 'rgba(15, 23, 42, 0.6)', 
+      color: '#fff', 
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      fontSize: '10px',
+      fontFamily: 'JetBrains Mono',
+      padding: '10px'
+    } 
+  },
+  { 
+    id: '3', 
+    position: { x: 250, y: 250 }, 
+    data: { label: 'Detect Captcha' }, 
+    style: { 
+      background: 'rgba(15, 23, 42, 0.6)', 
+      color: '#fff', 
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      fontSize: '10px',
+      fontFamily: 'JetBrains Mono',
+      padding: '10px'
+    } 
+  },
 ];
 
 const initialEdges = [
-  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#555' } },
-  { id: 'e2-3', source: '2', target: '3', animated: true, style: { stroke: '#555' } },
+  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#334155' } },
+  { id: 'e2-3', source: '2', target: '3', animated: true, style: { stroke: '#334155' } },
 ];
 
+import { API_URL } from '../lib/config';
+
 export default function WorkflowBuilder() {
-   const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_CODESERVER_API_URL || 'http://localhost:8080';
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [saving, setSaving] = useState(false);
@@ -45,7 +96,7 @@ export default function WorkflowBuilder() {
         body: JSON.stringify({ nodes, edges })
       });
       if (res.ok) {
-        showNotification('Workflow saved to Zimmer-16 (Supabase)', 'success');
+        showNotification('Workflow synchronized to Zimmer-16', 'success');
       } else {
         showNotification('Failed to save workflow', 'error');
       }
@@ -79,47 +130,65 @@ export default function WorkflowBuilder() {
   };
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {notification && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          background: notification.type === 'success' ? '#10b981' : '#ef4444',
-          color: '#fff',
-          fontWeight: '600',
-          fontSize: '13px',
-          zIndex: 1000,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-        }}>
-          {notification.message}
-        </div>
-      )}
-      <header style={{ padding: '20px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0a0a0a' }}>
+    <div className="h-full flex flex-col bg-black relative overflow-hidden">
+      <AnimatePresence>
+        {notification && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className={cn(
+              "fixed top-6 right-6 px-6 py-3 rounded-2xl border backdrop-blur-xl z-[100] shadow-2xl flex items-center gap-3",
+              notification.type === 'success' 
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                : "bg-red-500/10 border-red-500/20 text-red-400"
+            )}
+          >
+            {notification.type === 'success' ? <Zap size={16} /> : <AlertTriangle size={16} />}
+            <span className="text-xs font-bold uppercase tracking-widest">{notification.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <header className="p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/20 backdrop-blur-md z-10">
          <div>
-            <h2 style={{ fontSize: '18px', fontWeight: '700' }}>Workflow Architect</h2>
-            <p style={{ fontSize: '12px', color: '#666' }}>Design agent behavior logic visually.</p>
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Layout className="text-blue-500" size={24} />
+              Workflow Architect
+            </h2>
+            <p className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.2em] mt-1">Visual Logic Designer // v1.0</p>
          </div>
-         <div style={{ display: 'flex', gap: '12px' }}>
+         <div className="flex gap-3">
             <button 
               onClick={handleSave}
               disabled={saving}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: saving ? '#333' : '#222', border: '1px solid #333', color: '#fff', borderRadius: '6px', cursor: saving ? 'not-allowed' : 'pointer' }}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all border",
+                saving 
+                  ? "bg-slate-800 border-white/5 text-slate-500 cursor-not-allowed" 
+                  : "bg-white/5 border-white/10 text-white hover:bg-white/10"
+              )}
             >
-               {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />} {saving ? 'Saving...' : 'Save'}
+               {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 
+               {saving ? 'Syncing...' : 'Save Logic'}
             </button>
             <button 
               onClick={handleTestRun}
               disabled={testing}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: testing ? '#2a8ac4' : '#38bdf8', border: 'none', color: '#000', borderRadius: '6px', cursor: testing ? 'not-allowed' : 'pointer', fontWeight: '600' }}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-lg",
+                testing 
+                  ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20"
+              )}
             >
-               {testing ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Play size={14} />} {testing ? 'Running...' : 'Test Run'}
+               {testing ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} 
+               {testing ? 'Executing...' : 'Test Run'}
             </button>
          </div>
       </header>
-      <div style={{ flex: 1, background: '#000' }}>
+
+      <div className="flex-1 relative bg-black">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -128,9 +197,16 @@ export default function WorkflowBuilder() {
           onConnect={onConnect}
           fitView
         >
-          <Background color="#222" gap={16} />
-          <Controls style={{ fill: '#fff', backgroundColor: '#111', borderColor: '#333' }} />
-          <MiniMap style={{ backgroundColor: '#111' }} nodeColor={() => '#333'} />
+          <Background color="#1e293b" gap={20} size={1} />
+          <Controls 
+            className="bg-slate-900/80 border border-white/10 rounded-xl overflow-hidden backdrop-blur-md" 
+            showInteractive={false}
+          />
+          <MiniMap 
+            className="bg-slate-900/80 border border-white/10 rounded-xl overflow-hidden backdrop-blur-md"
+            nodeColor={() => '#334155'}
+            maskColor="rgba(0,0,0,0.5)"
+          />
         </ReactFlow>
       </div>
     </div>

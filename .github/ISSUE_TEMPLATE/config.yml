@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/Delqhi/SIN-Solver#readme
+    about: Check the documentation before opening an issue
+  - name: 💬 Discussions
+    url: https://github.com/Delqhi/SIN-Solver/discussions
+    about: Ask questions and discuss ideas
+  - name: 🔒 Security Vulnerability
+    url: https://github.com/Delqhi/SIN-Solver/security/advisories/new
+    about: Report security vulnerabilities privately
