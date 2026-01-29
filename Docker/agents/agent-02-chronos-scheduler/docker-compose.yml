@@ -1,6 +1,8 @@
-# agent-02-chronos-scheduler: Task Scheduler
-# Best Practices 2026: Modular Architecture
+version: '3.8'
 
+# agent-02-chronos-scheduler: Task Scheduler & Event Orchestration
+# Best Practices 2026: Modular Architecture
+# Credentials: Loaded from .env file (see .env.example for template)
 
 services:
   agent-02-chronos-scheduler:
@@ -10,16 +12,18 @@ services:
     platform: linux/arm64
     container_name: agent-02-chronos-scheduler
     hostname: agent-02-chronos-scheduler
+    env_file: .env
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: postgresql://ceo_admin:secure_ceo_password_2026@room-03-postgres-master:5432/sin_solver_production
+      DATABASE_URL: ${DATABASE_URL}
       API_BRAIN_URL: http://room-13-api-brain:8000
-      REDIS_URL: redis://room-04-redis-cache:6379
+      REDIS_URL: ${REDIS_URL}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
     ports:
       - "3001:3001"
     networks:
-      - sin-solver-network
+      - haus-netzwerk
     depends_on:
       room-03-postgres-master:
         condition: service_healthy
@@ -49,6 +53,6 @@ services:
         max-file: "3"
 
 networks:
-  sin-solver-network:
+  haus-netzwerk:
     external: true
-    name: sin-solver-network
+    name: haus-netzwerk
