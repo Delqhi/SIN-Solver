@@ -2,7 +2,7 @@
 
 **Project:** SIN-Solver (Delqhi-Platform)  
 **Created:** 2026-01-29  
-**Last Updated:** 2026-01-29 19:50  
+**Last Updated:** 2026-01-29 21:15  
 
 ---
 
@@ -341,3 +341,77 @@ Docker containers were **SPLIT** between two directories:
 
 **Status:** ✅ COMPLETE  
 **Next Review:** 2026-01-30  
+
+---
+
+## [2026-01-29 21:15] - CRITICAL: 5 Security & Config Issues Fixed
+
+**Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5  
+**Agent:** sisyphus  
+**Severity:** CRITICAL
+
+### Issues Discovered During Audit
+Comprehensive error search revealed 5 critical issues requiring immediate attention.
+
+### Fixes Applied
+
+#### 1. 🔴 Embedded Git Repository (CRITICAL)
+- **Location:** ./room-30-scira-ai-search/.git
+- **Issue:** Complete git repository embedded in main repo
+- **Fix:** Removed .git directory, added to .gitignore
+- **Status:** ✅ RESOLVED
+
+#### 2. 🔴 Hardcoded API Keys (CRITICAL)
+- **Location:** 3 docker-compose files
+- **Issue:** MISTRAL_API_KEY exposed in plain text
+- **Files Fixed:**
+  * docker-compose.enterprise.yml
+  * Docker/builders/builder-1.1-captcha-worker/docker-compose.yml
+  * Docker/solvers/solver-18-survey-worker/docker-compose.yml
+- **Fix:** Changed to environment variable ${MISTRAL_API_KEY}
+- **Status:** ✅ RESOLVED
+
+#### 3. 🔴 Missing Environment Variables (CRITICAL)
+- **Issue:** 20+ required env vars not documented
+- **Fix:** Created comprehensive .env.example
+- **Variables Added:** All required for Supabase, Stripe, PayPal, APIs, etc.
+- **Status:** ✅ RESOLVED
+
+#### 4. 🟡 Obsolete Docker Compose Version (HIGH)
+- **Issue:** 27 files had obsolete "version" attribute
+- **Fix:** Removed all version lines from docker-compose.yml files
+- **Status:** ✅ RESOLVED
+
+#### 5. 🟡 Missing Main docker-compose.yml (HIGH)
+- **Issue:** No main compose file for quick start
+- **Fix:** Created docker-compose.yml with essential services
+- **Services:** postgres, redis, n8n, steel, dashboard
+- **Status:** ✅ RESOLVED
+
+#### 6. 🟡 Backup File in Repository (MEDIUM)
+- **Issue:** docker-compose.yml.backup.legacy.2026-01-29 tracked
+- **Fix:** Removed from git
+- **Status:** ✅ RESOLVED
+
+### Git Commit
+```bash
+git add -A
+git commit -m "fix: resolve 5 critical issues identified in audit"
+git push origin main
+```
+**Commit:** 0d3ec42
+
+### Documentation Created
+- [x] docs/project/CRITICAL-ISSUES-FOUND-2026-01-29.md
+- [x] Updated .env.example (comprehensive)
+
+### Verification
+- [x] All 5 critical issues resolved
+- [x] Git push successful
+- [x] Security vulnerabilities patched
+- [x] Configuration standardized
+
+---
+
+**Status:** ✅ COMPLETE  
+**Next Review:** 2026-01-30
