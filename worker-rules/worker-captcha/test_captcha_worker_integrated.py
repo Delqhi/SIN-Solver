@@ -205,6 +205,7 @@ class TestIntegratedCaptchaWorkerAsync:
             worker.session_manager.check_ip_health = AsyncMock(return_value=False)
             worker.session_manager.reconnect_and_cooldown = AsyncMock()
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.take_micro_break = Mock()  # Don't block async loop
             worker.behavior.reset_patterns = Mock()
             worker._solve_captcha_internal = AsyncMock(return_value=0)
             worker._check_worker_health = AsyncMock(return_value=False)

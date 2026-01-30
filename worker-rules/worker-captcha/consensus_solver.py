@@ -838,8 +838,6 @@ class ConsensusCaptchaSolver:
                 and "," not in image_path
             ):
                 # Treat as file path - check if it exists
-                import os
-
                 if not os.path.exists(image_path) and not image_path.startswith("http"):
                     return SolverResult(
                         status=SolutionStatus.INVALID_INPUT,
