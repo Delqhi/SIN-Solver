@@ -347,7 +347,7 @@ class TestConsensusEngine:
             AgentResponse(AgentType.PATTERN_RECOGNITION, "TEST124", 0.85),
         ]
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         
         # FIX: decision should be ConsensusDecision dataclass
         assert isinstance(decision, ConsensusDecision)
@@ -365,7 +365,7 @@ class TestConsensusEngine:
             AgentResponse(AgentType.PATTERN_RECOGNITION, "TEST125", 0.85),
         ]
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         
         assert isinstance(decision, ConsensusDecision)
         assert decision.reached is False
@@ -380,7 +380,7 @@ class TestConsensusEngine:
             AgentResponse(AgentType.PATTERN_RECOGNITION, "TEST123", 0.91),
         ]
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         
         assert isinstance(decision, ConsensusDecision)
         assert decision.reached is True
@@ -395,7 +395,7 @@ class TestConsensusEngine:
             AgentResponse(AgentType.PATTERN_RECOGNITION, "TEST123", 0.85),
         ]
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         
         assert isinstance(decision, ConsensusDecision)
 
@@ -532,7 +532,7 @@ class TestEdgeCases:
         
         responses = []
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         assert isinstance(decision, ConsensusDecision)
         assert decision.reached is False
 
@@ -544,7 +544,7 @@ class TestEdgeCases:
             AgentResponse(AgentType.GEMINI_VISION, "TEST123", 0.95),
         ]
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         assert isinstance(decision, ConsensusDecision)
 
     def test_consensus_all_errors(self):
@@ -557,7 +557,7 @@ class TestEdgeCases:
             AgentResponse(AgentType.PATTERN_RECOGNITION, None, 0.0, error="AWS Error"),
         ]
         
-        decision = engine.make_decision(responses)
+        decision = engine.check_consensus(responses)
         assert isinstance(decision, ConsensusDecision)
         assert decision.reached is False
 
