@@ -413,18 +413,22 @@ export class WorkerService extends EventEmitter {
     try {
       // Anti-ban: Pre-CAPTCHA routine (delays, checks, skip decision)
       if (this.antiBan) {
-        const preResult = await this.antiBan.beforeCaptcha();
-        if (preResult.shouldSkip) {
-          job.status = 'completed';
-          job.result = {
-            success: false,
-            message: 'Skipped for anti-ban behavior simulation',
-            jobId: job.id,
-          };
-          job.completedAt = new Date();
-          this.metrics.completedJobs++;
-          this.emit('job-completed', { jobId: job.id, result: job.result });
-          return;
+        try {
+          await this.antiBan.beforeCaptcha();
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('unsolvable')) {
+            job.status = 'completed';
+            job.result = {
+              success: false,
+              message: 'CAPTCHA marked as unsolvable by anti-ban system',
+              jobId: job.id,
+            };
+            job.completedAt = new Date();
+            this.metrics.completedJobs++;
+            this.emit('job-completed', { jobId: job.id, result: job.result });
+            return;
+          }
+          throw error;
         }
       }
 
@@ -450,7 +454,7 @@ export class WorkerService extends EventEmitter {
 
       // Anti-ban: Post-CAPTCHA routine (recording, break checks, limits)
       if (this.antiBan) {
-        await this.antiBan.afterCaptcha(result.success);
+        await this.antiBan.afterCaptcha();
       }
 
       // Mark as completed
