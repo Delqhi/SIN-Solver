@@ -38,17 +38,20 @@ env:
 
 jobs:
   # ===========================================================================
-  # BUILD MATRIX: Build multiple Docker images
+  # BUILD MATRIX: Build multiple Docker images (SEQUENTIAL to avoid resource contention)
   # ===========================================================================
   build:
     name: 'Build Docker Images'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     permissions:
       contents: read
       packages: write
 
     strategy:
+      # Use max-parallel: 1 for sequential builds to avoid resource exhaustion
+      # This prevents GitHub Actions timeout during large image extraction
+      max-parallel: 1
       matrix:
         include:
           - name: 'Dashboard (Next.js)'
