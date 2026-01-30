@@ -96,14 +96,14 @@ def test_captcha_types():
 
     # Record different types
     for i in range(10):
-        monitor.record_attempt(success=True, captcha_type="text")
+        monitor.record_attempt(success=True, solve_time=4.2, captcha_type="text")
 
     for i in range(8):
-        monitor.record_attempt(success=True, captcha_type="slider")
-        monitor.record_attempt(success=False, captcha_type="slider")
+        monitor.record_attempt(success=True, solve_time=5.1, captcha_type="slider")
+        monitor.record_attempt(success=False, solve_time=3.8, captcha_type="slider")
 
     for i in range(5):
-        monitor.record_attempt(success=True, captcha_type="click")
+        monitor.record_attempt(success=True, solve_time=6.5, captcha_type="click")
 
     # Check rates by type
     text_rate = monitor.get_success_rate("text")
@@ -140,10 +140,10 @@ def test_health_checks():
 
     # Record attempts to trigger warning (15 fail, 85 success = 85% < 96%)
     for i in range(10):
-        monitor.record_attempt(success=True)
+        monitor.record_attempt(success=True, solve_time=4.2)
 
     for i in range(15):
-        monitor.record_attempt(success=False)
+        monitor.record_attempt(success=False, solve_time=2.5)
 
     # Force health check
     monitor._check_health()
@@ -159,7 +159,7 @@ def test_health_checks():
 
     # Record more failures to drop below 95% (< 95% = critical)
     for i in range(10):
-        monitor.record_attempt(success=False)
+        monitor.record_attempt(success=False, solve_time=2.5)
 
     monitor._check_health()
     rate = monitor.get_success_rate()

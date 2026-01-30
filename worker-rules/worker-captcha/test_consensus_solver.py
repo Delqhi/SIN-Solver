@@ -182,9 +182,6 @@ class TestAgent2_TesseractOCR:
         # Test checks agent_type instead
         assert hasattr(agent, "agent_type")
 
-    @pytest.mark.skipif(
-        not pytest.importorskip("pytesseract", minversion=None), reason="pytesseract not installed"
-    )
     @pytest.mark.skip(reason="pytesseract module not installed")
     @pytest.mark.asyncio
     async def test_agent_solve_with_valid_image(self, sample_captcha_image):

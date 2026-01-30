@@ -672,7 +672,30 @@ class ConsensusEngine:
             # All 3 agents available
             avg_similarity = np.mean(similarities) if similarities else 0.0
 
-            if avg_similarity >= self.CONSENSUS_THRESHOLD:
+            # Check if 2+ agents have 100% agreement (exact match)
+            perfect_pairs = sum(1 for s in similarities if s >= 1.0)
+
+            if perfect_pairs >= 1:
+                # 2+ agents agree exactly on same solution
+                # Find which solution has perfect agreement
+                for i in range(len(valid_responses)):
+                    for j in range(i + 1, len(valid_responses)):
+                        similarity = self._levenshtein_ratio(
+                            valid_responses[i].solution, valid_responses[j].solution
+                        )
+                        if similarity >= 1.0:
+                            # Found perfect match - use this solution
+                            consensus_reached = True
+                            final_solution = valid_responses[i].solution
+                            consensus_strength = 1.0
+                            self.logger.info(
+                                f"✅ CONSENSUS REACHED (3 agents, 2+ exact match): {final_solution}"
+                            )
+                            break
+                    if consensus_reached:
+                        break
+
+            elif avg_similarity >= self.CONSENSUS_THRESHOLD:
                 # All pairs have >95% similarity
                 consensus_reached = True
                 final_solution = valid_responses[0].solution  # Use first agent's solution
