@@ -412,22 +412,18 @@ export class WorkerService extends EventEmitter {
     try {
       // Anti-ban: Pre-CAPTCHA routine (delays, checks, skip decision)
       if (this.antiBan) {
-        try {
-          await this.antiBan.beforeCaptcha();
-        } catch (error) {
-          if (error instanceof Error && error.message.includes('unsolvable')) {
-            job.status = 'completed';
-            job.result = {
-              jobId: job.id,
-              status: 'cancelled' as const,
-              durationMs: Date.now() - (job.startedAt?.getTime() || Date.now()),
-            };
-            job.completedAt = new Date();
-            this.metrics.completedJobs++;
-            this.emit('job-completed', { jobId: job.id, result: job.result });
-            return;
-          }
-          throw error;
+        const preResult = await this.antiBan.beforeCaptcha();
+        if (preResult.shouldSkip) {
+          job.status = 'completed';
+          job.result = {
+            success: false,
+            message: 'Skipped for anti-ban behavior simulation',
+            jobId: job.id,
+          };
+          job.completedAt = new Date();
+          this.metrics.completedJobs++;
+          this.emit('job-completed', { jobId: job.id, result: job.result });
+          return;
         }
       }
 
@@ -453,7 +449,7 @@ export class WorkerService extends EventEmitter {
 
       // Anti-ban: Post-CAPTCHA routine (recording, break checks, limits)
       if (this.antiBan) {
-        await this.antiBan.afterCaptcha();
+        await this.antiBan.afterCaptcha(result.success);
       }
 
       // Mark as completed
@@ -486,8 +482,7 @@ export class WorkerService extends EventEmitter {
 
       // Alert on consecutive failures
       if (consecutiveFailures >= 5) {
-        const failureThreshold = 5;
-        this.alertSystem.consecutiveFailures(consecutiveFailures, failureThreshold);
+        this.alertSystem.consecutiveFailures(consecutiveFailures);
       }
 
       // Check if error is anti-ban related
@@ -564,9 +559,9 @@ export class WorkerService extends EventEmitter {
           // Check accuracy thresholds and send alerts
           const accuracyPercentage = this.metrics.successRate * 100;
           if (accuracyPercentage < 80) {
-            this.alertSystem.emergencyStop(accuracyPercentage, 'Accuracy below emergency threshold (80%)');
+            this.alertSystem.emergencyStop();
           } else if (accuracyPercentage < 95) {
-            this.alertSystem.accuracyWarning(accuracyPercentage, 95);
+            this.alertSystem.accuracyWarning();
           }
         }
       }
@@ -598,10 +593,7 @@ export class WorkerService extends EventEmitter {
   ): Promise<WorkerJobResponse> {
     const request = job.request as any; // Type assertion for detect-specific fields
     
-    const result = await this.detector.detect(request.page, {
-      ...request.options,
-      abortSignal: abortController.signal,
-    });
+    const result = await this.detector.detect();
 
     return {
       jobId: job.id,
@@ -641,7 +633,7 @@ export class WorkerService extends EventEmitter {
       status: job.status,
       request: job.request,
       result: job.result,
-      error: job.error ? { message: job.error.message, code: (job.error as any).code } : undefined,
+      error: job.error ? { message: job.error.message, code: (job.error as any).code, timestamp: new Date().toISOString() } : undefined,
       createdAt: job.createdAt.toISOString(),
       startedAt: job.startedAt?.toISOString(),
       completedAt: job.completedAt?.toISOString(),
@@ -692,15 +684,13 @@ export class WorkerService extends EventEmitter {
       if (this.isRunning) {
         const metrics = this.getMetrics();
         this.alertSystem.hourlyStatus({
-          total: metrics.totalJobs,
-          successful: metrics.completedJobs,
-          accuracy: metrics.successRate * 100,
-          earnings: 0,
-          averageEarnings: 0,
-          totalTime: metrics.totalProcessingTimeMs,
-          averageTime: metrics.averageProcessingTimeMs,
-          uptime: 100,
-          lastUpdated: new Date().toISOString(),
+          totalJobs: metrics.totalJobs,
+          completedJobs: metrics.completedJobs,
+          failedJobs: metrics.failedJobs,
+          activeJobs: metrics.activeJobs,
+          queuedJobs: metrics.queuedJobs,
+          successRate: metrics.successRate,
+          averageProcessingTimeMs: metrics.averageProcessingTimeMs,
         });
       }
     }, 60 * 60 * 1000); // 60 minutes
@@ -714,15 +704,13 @@ export class WorkerService extends EventEmitter {
       if (this.isRunning) {
         const metrics = this.getMetrics();
         this.alertSystem.dailyReport({
-          total: metrics.totalJobs,
-          successful: metrics.completedJobs,
-          accuracy: metrics.successRate * 100,
-          earnings: metrics.completedJobs * 0.05,
-          averageEarnings: metrics.completedJobs > 0 ? (metrics.completedJobs * 0.05) / metrics.completedJobs : 0,
-          totalTime: metrics.totalProcessingTimeMs,
-          averageTime: metrics.averageProcessingTimeMs,
-          uptime: 100,
-          lastUpdated: new Date().toISOString(),
+          date: new Date().toISOString().split('T')[0],
+          totalJobs: metrics.totalJobs,
+          completedJobs: metrics.completedJobs,
+          failedJobs: metrics.failedJobs,
+          successRate: metrics.successRate,
+          totalProcessingTimeMs: metrics.totalProcessingTimeMs,
+          estimatedEarnings: metrics.completedJobs * 0.05, // Example: $0.05 per job
         });
 
         // Re-schedule for next day
@@ -730,15 +718,13 @@ export class WorkerService extends EventEmitter {
           if (this.isRunning) {
             const updatedMetrics = this.getMetrics();
             this.alertSystem.dailyReport({
-              total: updatedMetrics.totalJobs,
-              successful: updatedMetrics.completedJobs,
-              accuracy: updatedMetrics.successRate * 100,
-              earnings: updatedMetrics.completedJobs * 0.05,
-              averageEarnings: updatedMetrics.completedJobs > 0 ? (updatedMetrics.completedJobs * 0.05) / updatedMetrics.completedJobs : 0,
-              totalTime: updatedMetrics.totalProcessingTimeMs,
-              averageTime: updatedMetrics.averageProcessingTimeMs,
-              uptime: 100,
-              lastUpdated: new Date().toISOString(),
+              date: new Date().toISOString().split('T')[0],
+              totalJobs: updatedMetrics.totalJobs,
+              completedJobs: updatedMetrics.completedJobs,
+              failedJobs: updatedMetrics.failedJobs,
+              successRate: updatedMetrics.successRate,
+              totalProcessingTimeMs: updatedMetrics.totalProcessingTimeMs,
+              estimatedEarnings: updatedMetrics.completedJobs * 0.05,
             });
           }
         }, 24 * 60 * 60 * 1000); // 24 hours
