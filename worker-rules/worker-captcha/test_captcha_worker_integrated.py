@@ -179,6 +179,7 @@ class TestIntegratedCaptchaWorkerAsync:
             # Mock IP check to succeed
             worker.session_manager.check_ip_health = AsyncMock(return_value=True)
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.take_micro_break = Mock()  # Don't block async loop
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
             worker._solve_captcha_internal = AsyncMock(return_value=4.2)
@@ -231,6 +232,7 @@ class TestIntegratedCaptchaWorkerAsync:
             # Mock components
             worker.session_manager.check_ip_health = AsyncMock(return_value=True)
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.take_micro_break = Mock()  # Don't block async loop
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
             worker._solve_captcha_internal = AsyncMock(return_value=4.2)
@@ -260,6 +262,7 @@ class TestIntegratedCaptchaWorkerAsync:
 
             # Mock monitor to simulate health issue
             worker.monitor.check_health = Mock(return_value=False)
+            worker.behavior.take_micro_break = Mock()  # Don't block async loop
 
             # Trigger health check
             health = worker._check_worker_health()

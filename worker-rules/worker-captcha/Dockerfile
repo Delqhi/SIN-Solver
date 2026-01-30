@@ -72,15 +72,15 @@ ENV PATH=/root/.local/bin:$PATH
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:${MONITOR_PORT}/health || exit 1
 
+# Copy entrypoint script
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+
 # Create non-root user for security
 RUN useradd -m -u 1000 worker && \
     chown -R worker:worker /app
 
 USER worker
-
-# Copy entrypoint script
-COPY entrypoint.sh /app/
-RUN chmod +x /app/entrypoint.sh
 
 # Expose ports
 EXPOSE 8080 8081 8082
