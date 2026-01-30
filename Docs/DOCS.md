@@ -17,6 +17,21 @@
 
 ### 📚 Core Documentation
 
+#### Architecture Decision Records (ADRs)
+| Document | Purpose | Status |
+|----------|---------|--------|
+| [docs/project/adr/README.md](project/adr/README.md) | ADR Index & Overview | 10 ADRs |
+| [ADR-001: 26-Room Architecture](project/adr/ADR-001-26-room-architecture.md) | Why 26-room structure? | ✅ Accepted |
+| [ADR-002: Cloudflare Tunnel](project/adr/ADR-002-cloudflare-tunnel.md) | Why Cloudflare over direct IPs? | ✅ Accepted |
+| [ADR-003: MCP Wrapper Pattern](project/adr/ADR-003-mcp-wrapper-pattern.md) | Why MCP wrappers for Docker? | ✅ Accepted |
+| [ADR-004: Docker Compose vs K8s](project/adr/ADR-004-docker-compose-vs-kubernetes.md) | Why Compose over Kubernetes? | ✅ Accepted |
+| [ADR-005: Next.js 14](project/adr/ADR-005-nextjs-14-dashboard.md) | Why Next.js for Dashboard? | ✅ Accepted |
+| [ADR-006: PostgreSQL + Redis](project/adr/ADR-006-postgresql-redis.md) | Why this database stack? | ✅ Accepted |
+| [ADR-007: Vault for Secrets](project/adr/ADR-007-vault-secrets.md) | Why HashiCorp Vault? | ✅ Accepted |
+| [ADR-008: 26-Pillar Documentation](project/adr/ADR-008-26-pillar-documentation.md) | Why 26-pillar docs? | ✅ Accepted |
+| [ADR-009: Semantic Commits](project/adr/ADR-009-semantic-commits.md) | Why Conventional Commits? | ✅ Accepted |
+| [ADR-010: Free-First Philosophy](project/adr/ADR-010-free-first-philosophy.md) | Why free-first approach? | ✅ Accepted |
+
 #### Project Status & Planning
 | Document | Purpose | Last Updated |
 |----------|---------|--------------|
@@ -258,9 +273,11 @@ Every major module follows the 26-pillar documentation standard:
 ---
 
 **Document Statistics:**
-- Total Documents: 100+
-- Total Lines: 15,000+
+- Total Documents: 110+
+- Total Lines: 20,000+
 - Modules Documented: 8
+- ADRs Created: 10
 - Last Updated: 2026-01-29
 
 **Status:** ✅ Documentation Consolidated per Best Practices 2026
+**Status:** ✅ Architecture Decision Records Complete (SWARM-16)
