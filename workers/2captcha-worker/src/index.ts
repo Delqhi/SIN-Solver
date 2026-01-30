@@ -15,9 +15,19 @@ import { WorkerService } from './worker.service';
 import { createApiServer } from './api';
 import { startServer as startMultiAgentServer } from './server';
 import { ConfigurationError, BrowserInitializationError } from './errors';
+import { AlertSystem } from './alerts';
 import { config as loadEnv } from 'dotenv';
 import path from 'path';
 import { createCategoryLogger, LogCategory } from './logger';
+
+// Type declarations
+declare global {
+  interface Window {
+    chrome?: {
+      runtime: Record<string, unknown>;
+    };
+  }
+}
 
 // Load environment variables
 loadEnv({ path: path.resolve(__dirname, '../.env') });
@@ -141,64 +151,64 @@ function initializeWorkerService(
 
   // Set up event listeners
   workerService.on('job-created', (data) => {
-    console.log(`[Queue] Job created: ${data.jobId} (priority: ${data.priority})`);
+    queueLogger.info('Job created', { metadata: { jobId: data.jobId, priority: data.priority } });
   });
 
   workerService.on('job-started', (data) => {
-    console.log(`[Queue] Job started: ${data.jobId} (attempt ${data.attempt})`);
+    queueLogger.info('Job started', { metadata: { jobId: data.jobId, attempt: data.attempt } });
   });
 
   workerService.on('job-completed', (data) => {
-    console.log(`[Queue] Job completed: ${data.jobId}`);
+    queueLogger.info('Job completed', { metadata: { jobId: data.jobId } });
   });
 
   workerService.on('job-failed', (data) => {
-    console.error(`[Queue] Job failed: ${data.jobId} - ${data.error} (attempts: ${data.attempts})`);
+    queueLogger.error('Job failed', { metadata: { jobId: data.jobId, error: data.error, attempts: data.attempts } });
   });
 
   workerService.on('job-retry', (data) => {
-    console.log(`[Queue] Job queued for retry: ${data.jobId} (attempt ${data.attempt})`);
+    queueLogger.info('Job queued for retry', { metadata: { jobId: data.jobId, attempt: data.attempt } });
   });
 
    workerService.on('job-cancelled', (data) => {
-     console.log(`[Queue] Job cancelled: ${data.jobId} - ${data.reason}`);
+     queueLogger.info('Job cancelled', { metadata: { jobId: data.jobId, reason: data.reason } });
    });
 
-   // Anti-ban event listeners
-   workerService.on('anti-ban-delay', (data) => {
-     if (process.env.VERBOSE_ANTI_BAN === 'true') {
-       console.log(`[AntiBan] ⏸️  Applying delay: ${data.ms}ms`);
-     }
-   });
+    // Anti-ban event listeners
+    workerService.on('anti-ban-delay', (data) => {
+      if (process.env.VERBOSE_ANTI_BAN === 'true') {
+        antiBanLogger.info('⏸️  Applying delay', { metadata: { ms: data.ms } });
+      }
+    });
 
-   workerService.on('anti-ban-break', (data) => {
-     console.log(`[AntiBan] 🛑 Break required: ${data.duration}ms`);
-   });
+    workerService.on('anti-ban-break', (data) => {
+      antiBanLogger.info('🛑 Break required', { metadata: { duration: data.duration } });
+    });
 
-   workerService.on('anti-ban-captcha-skipped', () => {
-     if (process.env.VERBOSE_ANTI_BAN === 'true') {
-       console.log(`[AntiBan] ⊘ CAPTCHA skipped (anti-ban protection)`);
-     }
-   });
+    workerService.on('anti-ban-captcha-skipped', () => {
+      if (process.env.VERBOSE_ANTI_BAN === 'true') {
+        antiBanLogger.info('⊘ CAPTCHA skipped (anti-ban protection)');
+      }
+    });
 
-   workerService.on('anti-ban-captcha-solved', (data) => {
-     if (process.env.VERBOSE_ANTI_BAN === 'true') {
-       console.log(`[AntiBan] ✅ CAPTCHA solved (total in session: ${data.totalInSession})`);
-     }
-   });
+    workerService.on('anti-ban-captcha-solved', (data) => {
+      if (process.env.VERBOSE_ANTI_BAN === 'true') {
+        antiBanLogger.info('✅ CAPTCHA solved', { metadata: { totalInSession: data.totalInSession } });
+      }
+    });
 
-   workerService.on('anti-ban-work-hours-exceeded', () => {
-     console.warn(`[AntiBan] ⚠️  Work hours exceeded - pausing job processing`);
-   });
+    workerService.on('anti-ban-work-hours-exceeded', () => {
+      antiBanLogger.warn('⚠️  Work hours exceeded - pausing job processing');
+    });
 
-   workerService.on('anti-ban-session-limit', () => {
-     console.warn(`[AntiBan] ⚠️  Session limit reached - no more jobs will be processed`);
-   });
+    workerService.on('anti-ban-session-limit', () => {
+      antiBanLogger.warn('⚠️  Session limit reached - no more jobs will be processed');
+    });
 
-   workerService.on('anti-ban-session-started', () => {
-     const pattern = process.env.ANTI_BAN_PATTERN || 'normal';
-     console.log(`[AntiBan] ✅ Anti-ban session started (pattern: ${pattern})`);
-   });
+    workerService.on('anti-ban-session-started', () => {
+      const pattern = process.env.ANTI_BAN_PATTERN || 'normal';
+      antiBanLogger.info('✅ Anti-ban session started', { metadata: { pattern } });
+    });
 
     workerService.on('anti-ban-session-stopped', () => {
       antiBanLogger.info('⏹️  Anti-ban session stopped');
@@ -212,68 +222,82 @@ function initializeWorkerService(
  * Start the worker service
  */
 async function startWorker(): Promise<void> {
-   try {
-     console.log('\n[Startup] Starting 2captcha worker with multi-agent solver...\n');
+    try {
+      startupLogger.info('Starting 2captcha worker with multi-agent solver...');
 
-     // Initialize browser
-     browser = await initializeBrowser();
+      // Initialize browser
+      browser = await initializeBrowser();
 
-     // Initialize detector
-     detector = await initializeDetector(browser);
+      // Initialize detector
+      detector = await initializeDetector(browser);
 
-     // Initialize worker service
-     workerService = initializeWorkerService(detector);
+      // Initialize worker service
+      workerService = initializeWorkerService(detector);
 
-      // Start processing
-      await workerService.start();
+       // Start processing
+       await workerService.start();
 
-      // Initialize and start browser automation API server (port 8019)
-      const browsAutomationPort = parseInt(process.env.PORT || '8019', 10);
-      apiServer = createApiServer(workerService, detector, browsAutomationPort);
-      await apiServer.start();
+       // Initialize and start browser automation API server (port 8019)
+       const browsAutomationPort = parseInt(process.env.PORT || '8019', 10);
+       apiServer = createApiServer(workerService, detector, browsAutomationPort);
+       await apiServer.start();
 
-      // Initialize and start multi-agent CAPTCHA solver API server (port 8000)
-      const multiAgentSolverPort = parseInt(process.env.SOLVER_API_PORT || '8000', 10);
-      try {
-        multiAgentServer = await startMultiAgentServer(multiAgentSolverPort);
-        console.log(`[MultiAgent] ✅ Multi-agent solver API started on port ${multiAgentSolverPort}`);
-      } catch (error) {
-        console.warn(`[MultiAgent] ⚠️  Multi-agent solver API failed to start: ${error instanceof Error ? error.message : String(error)}`);
-        console.warn('[MultiAgent] Browser automation API will continue working...');
-      }
-
-       console.log('\n✅ 2captcha worker started successfully\n');
-       console.log('Environment:');
-       console.log(`  - Max workers: ${process.env.MAX_WORKERS || 5}`);
-       console.log(`  - Queue size: ${process.env.MAX_QUEUE_SIZE || 1000}`);
-       console.log(`  - Timeout: ${process.env.DEFAULT_TIMEOUT_MS || 60000}ms`);
-       console.log(`  - Max retries: ${process.env.MAX_RETRIES || 3}`);
-       console.log(`  - Headless: ${process.env.HEADLESS !== 'false'}`);
-       
-       // Anti-ban configuration
-       const antiBanEnabled = process.env.ANTI_BAN_ENABLED !== 'false';
-       if (antiBanEnabled) {
-         console.log(`  - Anti-Ban: enabled (pattern: ${process.env.ANTI_BAN_PATTERN || 'normal'}, hours: ${process.env.WORK_HOURS_START || 8}-${process.env.WORK_HOURS_END || 22})`);
-       } else {
-         console.log(`  - Anti-Ban: disabled`);
+       // Initialize and start multi-agent CAPTCHA solver API server (port 8000)
+       const multiAgentSolverPort = parseInt(process.env.SOLVER_API_PORT || '8000', 10);
+       try {
+         multiAgentServer = await startMultiAgentServer(multiAgentSolverPort);
+         multiAgentLogger.info('✅ Multi-agent solver API started', { metadata: { port: multiAgentSolverPort } });
+       } catch (error) {
+         multiAgentLogger.warn('⚠️  Multi-agent solver API failed to start', { metadata: { error: error instanceof Error ? error.message : String(error) } });
+         multiAgentLogger.info('Browser automation API will continue working...');
        }
-       
-       console.log('\n✅ Browser Automation API Server (Port 8019):');
-       console.log(`  - Server: http://0.0.0.0:${browsAutomationPort}`);
-       console.log(`  - Health Check: GET http://localhost:${browsAutomationPort}/health`);
-       console.log(`  - Metrics: GET http://localhost:${browsAutomationPort}/api/metrics`);
-       console.log(`  - Queue Status: GET http://localhost:${browsAutomationPort}/api/queue`);
-       console.log(`  - Job Submission: POST http://localhost:${browsAutomationPort}/api/jobs\n`);
 
-       console.log('✅ Multi-Agent CAPTCHA Solver API Server (Port 8000):');
-       console.log(`  - Server: http://0.0.0.0:${multiAgentSolverPort}`);
-       console.log(`  - Health Check: GET http://localhost:${multiAgentSolverPort}/health`);
-       console.log(`  - Solver Info: GET http://localhost:${multiAgentSolverPort}/api/solver-info`);
-       console.log(`  - Solve CAPTCHA: POST http://localhost:${multiAgentSolverPort}/api/solve-captcha\n`);
-   } catch (error) {
-     console.error('\n❌ Failed to start worker:', error);
-     await gracefulShutdown(1);
-   }
+        startupLogger.info('✅ 2captcha worker started successfully');
+        startupLogger.info('Environment configuration', {
+          metadata: {
+            maxWorkers: process.env.MAX_WORKERS || 5,
+            queueSize: process.env.MAX_QUEUE_SIZE || 1000,
+            timeoutMs: process.env.DEFAULT_TIMEOUT_MS || 60000,
+            maxRetries: process.env.MAX_RETRIES || 3,
+            headless: process.env.HEADLESS !== 'false'
+          }
+        });
+        
+        // Anti-ban configuration
+        const antiBanEnabled = process.env.ANTI_BAN_ENABLED !== 'false';
+        if (antiBanEnabled) {
+          startupLogger.info('Anti-Ban enabled', {
+            metadata: {
+              pattern: process.env.ANTI_BAN_PATTERN || 'normal',
+              workHours: `${process.env.WORK_HOURS_START || 8}-${process.env.WORK_HOURS_END || 22}`
+            }
+          });
+        } else {
+          startupLogger.info('Anti-Ban disabled');
+        }
+        
+        startupLogger.info('Browser Automation API Server', {
+          metadata: {
+            server: `http://0.0.0.0:${browsAutomationPort}`,
+            healthCheck: `GET http://localhost:${browsAutomationPort}/health`,
+            metrics: `GET http://localhost:${browsAutomationPort}/api/metrics`,
+            queueStatus: `GET http://localhost:${browsAutomationPort}/api/queue`,
+            jobSubmission: `POST http://localhost:${browsAutomationPort}/api/jobs`
+          }
+        });
+
+        startupLogger.info('Multi-Agent CAPTCHA Solver API Server', {
+          metadata: {
+            server: `http://0.0.0.0:${multiAgentSolverPort}`,
+            healthCheck: `GET http://localhost:${multiAgentSolverPort}/health`,
+            solverInfo: `GET http://localhost:${multiAgentSolverPort}/api/solver-info`,
+            solveCaptcha: `POST http://localhost:${multiAgentSolverPort}/api/solve-captcha`
+          }
+        });
+    } catch (error) {
+      startupLogger.errorWithStack('Failed to start worker', error);
+      await gracefulShutdown(1);
+    }
 }
 
 /**
@@ -281,46 +305,46 @@ async function startWorker(): Promise<void> {
  */
 async function gracefulShutdown(exitCode: number = 0): Promise<void> {
    if (isShuttingDown) {
-     console.log('[Shutdown] Shutdown already in progress...');
+     shutdownLogger.info('Shutdown already in progress...');
      process.exit(exitCode);
    }
 
    isShuttingDown = true;
-   console.log('\n[Shutdown] Initiating graceful shutdown...');
+   shutdownLogger.info('\nInitiating graceful shutdown...');
 
    try {
      // Stop multi-agent solver server first
      if (multiAgentServer) {
-       console.log('[Shutdown] Stopping multi-agent solver API server...');
+       shutdownLogger.info('Stopping multi-agent solver API server...');
        await multiAgentServer.stop();
-       console.log('[Shutdown] ✅ Multi-agent solver API server stopped');
+       shutdownLogger.info('✅ Multi-agent solver API server stopped');
      }
 
      // Stop browser automation API server
      if (apiServer) {
-       console.log('[Shutdown] Stopping browser automation API server...');
+       shutdownLogger.info('Stopping browser automation API server...');
        await apiServer.stop();
-       console.log('[Shutdown] ✅ Browser automation API server stopped');
+       shutdownLogger.info('✅ Browser automation API server stopped');
      }
 
      // Stop worker service
      if (workerService) {
-       console.log('[Shutdown] Stopping worker service...');
+       shutdownLogger.info('Stopping worker service...');
        await workerService.stop();
-       console.log('[Shutdown] ✅ Worker service stopped');
+       shutdownLogger.info('✅ Worker service stopped');
      }
 
      // Close browser
      if (browser) {
-       console.log('[Shutdown] Closing browser...');
+       shutdownLogger.info('Closing browser...');
        await browser.close();
-       console.log('[Shutdown] ✅ Browser closed');
+       shutdownLogger.info('✅ Browser closed');
      }
 
-     console.log('[Shutdown] ✅ Graceful shutdown completed\n');
+     shutdownLogger.info('✅ Graceful shutdown completed\n');
      process.exit(exitCode);
    } catch (error) {
-     console.error('[Shutdown] Error during shutdown:', error);
+     shutdownLogger.errorWithStack('Error during shutdown', error);
      process.exit(1);
    }
 }
@@ -330,27 +354,27 @@ async function gracefulShutdown(exitCode: number = 0): Promise<void> {
  */
 function setupSignalHandlers(): void {
   process.on('SIGTERM', async () => {
-    console.log('\n[Signal] Received SIGTERM');
+    signalLogger.info('\nReceived SIGTERM');
     await gracefulShutdown(0);
   });
 
   process.on('SIGINT', async () => {
-    console.log('\n[Signal] Received SIGINT');
+    signalLogger.info('\nReceived SIGINT');
     await gracefulShutdown(0);
   });
 
   process.on('SIGHUP', async () => {
-    console.log('\n[Signal] Received SIGHUP');
+    signalLogger.info('\nReceived SIGHUP');
     await gracefulShutdown(0);
   });
 
   process.on('uncaughtException', (error) => {
-    console.error('\n[Error] Uncaught Exception:', error);
+    signalLogger.errorWithStack('\nUncaught Exception', error);
     gracefulShutdown(1);
   });
 
   process.on('unhandledRejection', (reason, promise) => {
-    console.error('\n[Error] Unhandled Rejection:', reason);
+    signalLogger.errorWithStack('\nUnhandled Rejection', reason);
     gracefulShutdown(1);
   });
 }
@@ -385,7 +409,7 @@ export function getBrowser(): Browser {
 if (require.main === module) {
   setupSignalHandlers();
   startWorker().catch(error => {
-    console.error('Fatal error:', error);
+    startupLogger.errorWithStack('Fatal error', error);
     gracefulShutdown(1);
   });
 }

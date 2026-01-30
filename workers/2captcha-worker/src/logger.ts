@@ -176,28 +176,28 @@ class StructuredLogger {
    * Log error
    */
   error(message: string, context?: LoggerContext): void {
-    this.log('error', message, context);
+    this.log(LogLevel.ERROR, message, context);
   }
 
   /**
    * Log warning
    */
   warn(message: string, context?: LoggerContext): void {
-    this.log('warn', message, context);
+    this.log(LogLevel.WARN, message, context);
   }
 
   /**
    * Log info
    */
   info(message: string, context?: LoggerContext): void {
-    this.log('info', message, context);
+    this.log(LogLevel.INFO, message, context);
   }
 
   /**
    * Log debug
    */
   debug(message: string, context?: LoggerContext): void {
-    this.log('debug', message, context);
+    this.log(LogLevel.DEBUG, message, context);
   }
 
   /**
@@ -292,19 +292,19 @@ class CategoryLogger {
   }
 
   error(message: string, metadata?: Record<string, any>): void {
-    this.log('error', message, metadata);
+    this.log(LogLevel.ERROR, message, metadata);
   }
 
   warn(message: string, metadata?: Record<string, any>): void {
-    this.log('warn', message, metadata);
+    this.log(LogLevel.WARN, message, metadata);
   }
 
   info(message: string, metadata?: Record<string, any>): void {
-    this.log('info', message, metadata);
+    this.log(LogLevel.INFO, message, metadata);
   }
 
   debug(message: string, metadata?: Record<string, any>): void {
-    this.log('debug', message, metadata);
+    this.log(LogLevel.DEBUG, message, metadata);
   }
 
   private log(level: LogLevel, message: string, metadata?: Record<string, any>): void {
