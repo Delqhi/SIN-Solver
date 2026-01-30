@@ -18,10 +18,45 @@ Docker Container (HTTP API) → MCP Wrapper (stdio) → OpenCode
 **File:** `plane-mcp-wrapper.js`  
 **Purpose:** Project management integration with Plane  
 **API URL:** `https://plane.delqhi.com`  
-**Tools:**
-- `list_projects` - List all projects
-- `create_issue` - Create new issue
-- `list_issues` - List issues in project
+**Version:** 2.0.0  
+**Tools (30 total):**
+
+**Project Tools:**
+- `plane_list_projects` - List all projects
+- `plane_get_project` - Get project details
+
+**Issue Tools:**
+- `plane_list_issues` - List issues with filters (state, priority, assignee)
+- `plane_create_issue` - Create new issue with priority, assignees, labels
+- `plane_get_issue` - Get issue details
+- `plane_update_issue` - Update issue fields
+- `plane_delete_issue` - Delete an issue
+- `plane_search_issues` - Search issues by query
+
+**Comment Tools:**
+- `plane_list_comments` - List comments on an issue
+- `plane_add_comment` - Add comment to issue
+
+**Cycle Tools:**
+- `plane_list_cycles` - List cycles/sprints
+- `plane_create_cycle` - Create new cycle
+- `plane_get_cycle` - Get cycle details
+
+**Module Tools:**
+- `plane_list_modules` - List modules
+- `plane_create_module` - Create module
+- `plane_get_module` - Get module details
+
+**Member & Metadata Tools:**
+- `plane_list_members` - List workspace members
+- `plane_list_states` - List issue states
+- `plane_list_labels` - List labels
+
+**AI Agent Tools:**
+- `plane_list_agents` - List available AI agents
+- `plane_get_agent` - Get agent details
+- `plane_mention_agent` - Mention/assign agent to task
+- `plane_agent_suggestion` - Submit agent suggestion
 
 ### 2. Captcha Solver MCP Wrapper
 **File:** `captcha-mcp-wrapper.js`  
