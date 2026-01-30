@@ -58,3 +58,39 @@ NEW RUNS (after fix - 23:50:26+):
 - State: OPEN
 - mergeStateStatus: BLOCKED (until new tests pass)
 - Last updated: 2026-01-29T23:51:00Z
+
+---
+
+## 2026-01-30 01:20 - SWARM-4: Endpoint Health Check Complete
+
+**Status:** 🔴 CRITICAL FINDING
+
+### Beobachtungen:
+- ✅ DNS funktioniert (alle delqhi.com subdomains auflösbar)
+- ✅ SSL Zertifikate gültig (Google Trust Services, 27.01.2026)
+- ✅ 11 Backend Services laufen lokal (Docker healthy)
+- ❌ **Cloudflare Tunnel Container NICHT VORHANDEN**
+- ❌ **ALLE 19 externe Endpunkte sind DOWN (530 Error)**
+
+### Root Cause:
+- `cloudflared-tunnel` Container existiert nicht
+- Tunnel-Konfiguration liegt vor (`~/.cloudflared/config.yml` - 150 Zeilen)
+- Aber Tunnel wird nicht ausgeführt
+- Resultat: Externe Anfragen → 530 Cloudflare Backend Error
+
+### Nächste Schritte:
+1. Cloudflare Tunnel Container starten (docker-compose.yml oder manual)
+2. Status verifizieren (docker logs cloudflared-tunnel)
+3. Endpunkte neu testen (sollte dann 200 OK sein)
+4. Update: ENDPOINT-TEST-RESULTS-2026-01-30.md erstellt
+
+### Verzeichnisse:
+- 📊 Report: `/dev/SIN-Solver/ENDPOINT-TEST-RESULTS-2026-01-30.md`
+- 🔧 Tunnel Config: `~/.cloudflared/config.yml` (vorhanden, nicht aktiv)
+- 🐳 Container: 11/12 running, cloudflared-tunnel missing
+
+### Kosten:
+- Diagnose-Zeit: ~5 min
+- Geschätzter Fix: ~2 min (tunnel start)
+- Impact: Alle externen Services offline bis fix
+

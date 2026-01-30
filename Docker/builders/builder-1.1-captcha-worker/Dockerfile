@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for builder-1.1-captcha-worker
-# Production-ready CAPTCHA solver with multi-AI consensus
+# Production-ready CAPTCHA solver with YOLO + OCR + Multi-AI consensus
 
 # Stage 1: Dependencies
 FROM python:3.11-slim AS builder
@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender-dev \
     libgomp1 \
     wget \
+    libsndfile1 \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -37,6 +39,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender-dev \
     libgomp1 \
     curl \
+    libsndfile1 \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Python packages from builder
@@ -48,8 +52,20 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy application code
 COPY src/ ./src/
 
+# Copy unified captcha solver
+COPY app/tools/captcha_solver.py ./app/tools/
+
+# Copy model files
+COPY models/ ./models/
+
 # Create directories
-RUN mkdir -p /app/logs /app/temp
+RUN mkdir -p /app/logs /app/temp /app/models
+
+# Set environment variables
+ENV YOLO_MODEL_PATH=/app/models/best.pt
+ENV OCR_MODELS_PATH=/app/models/ocr_models
+ENV WHISPER_MODEL_PATH=/app/models/ocr_models/audio_whisper_model
+ENV PYTHONPATH=/app:$PYTHONPATH
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

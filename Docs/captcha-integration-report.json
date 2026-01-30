@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-01-30 09:17:59",
+  "model_path": "/Users/jeremy/runs/classify/runs/classify/captcha_classifier/weights/best.pt",
+  "confidence_threshold": 0.7,
+  "captcha_types_supported": [
+    "Audio_Captcha",
+    "Cloudflare_Turnstile",
+    "FunCaptcha",
+    "GeeTest",
+    "Image_Click_Captcha",
+    "Math_Captcha",
+    "Puzzle_Captcha",
+    "Slide_Captcha",
+    "Text_Captcha",
+    "hCaptcha",
+    "reCaptcha_v2",
+    "reCaptcha_v3"
+  ],
+  "components": {
+    "yolo_classifier": "\u2705 Loaded",
+    "ocr_solver": "\u26a0\ufe0f  ddddocr not installed (optional)",
+    "slider_solver": "\u26a0\ufe0f  ddddocr not installed (optional)",
+    "audio_solver": "\u26a0\ufe0f  whisper not installed (optional)",
+    "api_fallback": "\u2705 Configured"
+  },
+  "solver_mapping": {
+    "Text_Captcha": "ocr",
+    "Math_Captcha": "math",
+    "Slide_Captcha": "slider",
+    "Audio_Captcha": "audio",
+    "Cloudflare_Turnstile": "browser",
+    "FunCaptcha": "vision",
+    "GeeTest": "vision",
+    "Image_Click_Captcha": "click",
+    "Puzzle_Captcha": "vision",
+    "hCaptcha": "vision",
+    "reCaptcha_v2": "browser",
+    "reCaptcha_v3": "browser"
+  }
+}
