@@ -86,7 +86,7 @@ class TestIntegratedCaptchaWorkerInit:
         worker = IntegratedCaptchaWorker(config)
 
         assert worker.config.router_config == router_config
-        assert worker.session_manager.config.get("router_config") == router_config
+        assert worker.session_manager.router_config == router_config
 
 
 class TestIntegratedCaptchaWorkerCallbacks:
@@ -156,6 +156,8 @@ class TestIntegratedCaptchaWorkerAsync:
             worker.behavior.simulate_user_delay = AsyncMock()
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
+            worker._solve_captcha_internal = AsyncMock(return_value=4.2)
+            worker._check_worker_health = AsyncMock(return_value=True)
 
             captcha_data = {"id": "test-001", "image": "base64data", "type": "text"}
 
@@ -181,6 +183,8 @@ class TestIntegratedCaptchaWorkerAsync:
             worker.behavior.simulate_user_delay = AsyncMock()
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
+            worker._solve_captcha_internal = AsyncMock(return_value=4.2)
+            worker._check_worker_health = AsyncMock(return_value=True)
 
             captcha_data = {"id": "test-001", "type": "text"}
 
@@ -204,6 +208,8 @@ class TestIntegratedCaptchaWorkerAsync:
             worker.session_manager.reconnect_and_cooldown = AsyncMock()
             worker.behavior.wait_natural_delay = AsyncMock()
             worker.behavior.reset_patterns = Mock()
+            worker._solve_captcha_internal = AsyncMock(return_value=0)
+            worker._check_worker_health = AsyncMock(return_value=False)
 
             captcha_data = {"id": "test-001", "type": "text"}
 
@@ -229,10 +235,10 @@ class TestIntegratedCaptchaWorkerAsync:
             worker.behavior.simulate_user_delay = AsyncMock()
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
+            worker._solve_captcha_internal = AsyncMock(return_value=4.2)
+            worker._check_worker_health = AsyncMock(return_value=True)
 
-            captchas = [
-                {"id": f"test-{i:03d}", "type": "text"} for i in range(5)
-            ]
+            captchas = [{"id": f"test-{i:03d}", "type": "text"} for i in range(5)]
 
             results = await worker.solve_batch(captchas, batch_size=2)
 
@@ -285,7 +291,10 @@ class TestIntegratedCaptchaWorkerAsync:
             health = worker._check_worker_health()
 
             # Should trigger emergency stop
-            assert health is False or worker.monitor.get_success_rate() < config.emergency_stop_threshold
+            assert (
+                health is False
+                or worker.monitor.get_success_rate() < config.emergency_stop_threshold
+            )
 
 
 class TestIntegratedCaptchaWorkerStats:
