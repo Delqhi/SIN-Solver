@@ -374,6 +374,219 @@ Antworte NUR im JSON-Format:
     
     return steps;
   }
+
+  /**
+   * Submit CAPTCHA solution to form
+   */
+  private async submitAnswer(solution: string): Promise<void> {
+    console.log(`[SUBMIT] Sende Lösung: ${solution}`);
+    
+    // Try multiple common selectors
+    const selectors = [
+      'input[name="captcha"]',
+      'input[name="solution"]',
+      'input[name="answer"]',
+      'textarea[name="captcha"]',
+      '.captcha-input input',
+      '#captcha-answer'
+    ];
+
+    let submitted = false;
+
+    for (const selector of selectors) {
+      try {
+        const element = await this.page.$(selector);
+        if (element) {
+          await this.page.fill(selector, solution);
+          submitted = true;
+          console.log(`[SUBMIT] ✅ Gelöst mit Selektor: ${selector}`);
+          break;
+        }
+      } catch (e) {
+        // Continue to next selector
+      }
+    }
+
+    if (!submitted) {
+      console.log('[SUBMIT] Kein spezifischer Selektor gefunden, versuche Enter zu drücken');
+      await this.page.press('body', 'Enter');
+    }
+  }
+
+  /**
+   * Analyze CAPTCHA with OpenCode Vision AI
+   */
+  private async analyzeWithOpenCode(
+    screenshot: Buffer,
+    type: CaptchaType
+  ): Promise<string> {
+    console.log(`[ANALYSIS] Analysiere ${type} CAPTCHA mit OpenCode...`);
+
+    try {
+      // Generate context-aware prompt
+      const prompt = this.generateAnalysisPrompt(type);
+
+      // Call OpenCode Vision API
+      const response = await this.callOpenCode({
+        image: screenshot,
+        prompt: prompt,
+        type: type
+      });
+
+      // Extract solution from AI response
+      const solution = this.extractSolutionFromResponse(response);
+      console.log(`[ANALYSIS] ✅ Lösung extrahiert: ${solution}`);
+
+      return solution;
+    } catch (error) {
+      console.error('[ANALYSIS] ❌ Fehler bei OpenCode-Analyse:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate AI analysis prompt based on CAPTCHA type
+   */
+  private generateAnalysisPrompt(type: CaptchaType): string {
+    switch (type) {
+      case 'image':
+        return 'Identify all text/numbers in this CAPTCHA image. Only return the text.';
+      case 'text':
+        return 'Extract the text content from this CAPTCHA. Return ONLY the text without explanation.';
+      case 'recaptcha':
+        return 'This is a reCAPTCHA. Describe what image tiles need to be clicked. Return ONLY the targets.';
+      default:
+        return 'Solve this CAPTCHA and return ONLY the solution.';
+    }
+  }
+
+  /**
+   * Extract solution from AI response text
+   */
+  private extractSolutionFromResponse(response: string): string {
+    console.log('[EXTRACT] Extrahiere Lösung aus KI-Antwort...');
+
+    // Clean markdown code blocks
+    let cleaned = response.replace(/```[\s\S]*?```/g, '');
+    cleaned = cleaned.replace(/`/g, '');
+
+    // Remove quotes
+    cleaned = cleaned.replace(/^["']|["']$/g, '');
+
+    // Remove common prefixes
+    cleaned = cleaned.replace(/^(The answer is|Solution:|CAPTCHA:)\s*/i, '');
+
+    // Trim whitespace
+    cleaned = cleaned.trim();
+
+    console.log(`[EXTRACT] ✅ Bereinigt: "${cleaned}"`);
+    return cleaned;
+  }
+
+  /**
+   * Find alternative selector using AI
+   */
+  private async findAlternativeSelector(
+    originalSelector: string,
+    screenshot: Buffer
+  ): Promise<string | null> {
+    console.log(`[SELECTOR] Suche alternativen Selektor für: ${originalSelector}`);
+
+    try {
+      const prompt = `The selector "${originalSelector}" is broken. Looking at this screenshot, suggest an alternative CSS selector or XPath that would select the same element. Return ONLY the selector, nothing else.`;
+
+      const response = await this.callOpenCode({
+        image: screenshot,
+        prompt: prompt,
+        type: 'text'
+      });
+
+      const newSelector = this.extractSolutionFromResponse(response);
+
+      // Validate selector by testing it
+      try {
+        const element = await this.page.$(newSelector);
+        if (element) {
+          console.log(`[SELECTOR] ✅ Neuer Selektor funktioniert: ${newSelector}`);
+          return newSelector;
+        }
+      } catch {
+        console.log(`[SELECTOR] ❌ Neuer Selektor funktioniert nicht: ${newSelector}`);
+        return null;
+      }
+    } catch (error) {
+      console.error('[SELECTOR] ❌ Fehler bei Selektor-Suche:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Self-healing error recovery orchestration
+   */
+  private async selfHeal(
+    step: WorkflowStep,
+    error: Error,
+    stepIndex: number
+  ): Promise<boolean> {
+    console.log(`[SELBSTHEILUNG] Versuche Fehler zu beheben: ${error.message}`);
+
+    // Strategie 1: Warte länger bei timeout
+    if (error.message.includes('timeout')) {
+      console.log('[SELBSTHEILUNG] Strategie 1: Warte länger...');
+      try {
+        await this.page.waitForTimeout(5000);
+        await this.executeStep(step);
+        console.log('[SELBSTHEILUNG] ✅ Strategie 1 erfolgreich');
+        return true;
+      } catch {
+        // Weiter zur nächsten Strategie
+      }
+    }
+
+    // Strategie 2: Suche alternativen Selektor
+    if (error.message.includes('selector')) {
+      console.log('[SELBSTHEILUNG] Strategie 2: Suche alternativen Selektor...');
+      try {
+        const screenshot = await this.page.screenshot() as Buffer;
+        const newSelector = await this.findAlternativeSelector(
+          step.selector!,
+          screenshot
+        );
+
+        if (newSelector) {
+          step.selector = newSelector;
+          await this.executeStep(step);
+          
+          // Update workflow
+          this.currentWorkflow[stepIndex] = step;
+          await this.notifyUser({
+            type: 'healed',
+            step: stepIndex + 1,
+            action: step.action,
+            error: '',
+            suggestion: `Selektor automatisch korrigiert: ${newSelector}`
+          });
+          
+          console.log('[SELBSTHEILUNG] ✅ Strategie 2 erfolgreich');
+          return true;
+        }
+      } catch {
+        // Weiter zur nächsten Strategie
+      }
+    }
+
+    // Strategie 3: Benachrichtige User
+    console.log('[SELBSTHEILUNG] Strategie 3: Benachrichtige User...');
+    await this.notifyUser({
+      type: 'error',
+      step: stepIndex + 1,
+      action: step.action,
+      error: error.message,
+      suggestion: 'Bitte überprüfen Sie den Screenshot und versuchen Sie es manuell'
+    });
+
+    return false;
+  }
 }
 
 // Selbstheilungs-Funktion

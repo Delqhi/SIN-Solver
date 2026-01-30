@@ -231,7 +231,7 @@ export class ConsensusEngine {
       A_equals_C: A.answer === C.answer,
       A_above_threshold: A.confidence >= this.CONFIDENCE_THRESHOLD,
       C_above_threshold: C.confidence >= this.CONFIDENCE_THRESHOLD,
-      guard_not_triggered: !allThreeAgreeButBIsBelow,
+      guard_not_triggered: C ? !allThreeAgreeButBIsBelow : true, // If no C, guard doesn't apply
     };
 
     this.logger.info('[CONSENSUS-DEBUG] A-C Majority Check Conditions', {
@@ -247,7 +247,7 @@ export class ConsensusEngine {
       A.answer === C.answer &&
       A.confidence >= this.CONFIDENCE_THRESHOLD &&
       C.confidence >= this.CONFIDENCE_THRESHOLD &&
-      !allThreeAgreeButBIsBelow // Guard: Don't accept if all 3 agreed but B is below
+      (C ? !allThreeAgreeButBIsBelow : true) // Guard: Only applies if C exists
     ) {
       const minConfidence = Math.min(A.confidence, C.confidence);
       const decision: ConsensusDecision = {
