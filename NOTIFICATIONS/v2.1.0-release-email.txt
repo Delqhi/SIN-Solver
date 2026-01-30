@@ -1,0 +1,199 @@
+🔐 SIN-Solver v2.1.0 Released - SECURITY HARDENING + MANDATORY API UPDATE REQUIRED
+
+================================
+
+Hi Team,
+
+🚀 SIN-Solver v2.1.0 is now available with enterprise-grade security hardening.
+
+⚠️  CRITICAL: All API clients must be updated by 2026-02-02 to continue working.
+
+---
+
+## 🔐 WHAT'S NEW IN v2.1.0
+
+✅ API Key Authentication - All endpoints now require Bearer token
+✅ CORS Hardening - Origin whitelist instead of dangerous wildcard
+✅ Secret Management - Environment-based configuration (no hardcoding)
+
+---
+
+## 🚨 ACTION REQUIRED (DEADLINE: 2026-02-02)
+
+Your API client code MUST be updated to include authentication headers:
+
+### Quick Example (Python):
+
+```python
+import os
+import requests
+
+api_key = os.getenv('CAPTCHA_API_KEY')
+
+response = requests.post(
+    'https://api.delqhi.com/api/solve',
+    headers={
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    },
+    json={'image': base64_image, 'type': 'text'}
+)
+```
+
+### Quick Example (JavaScript):
+
+```javascript
+const apiKey = process.env.REACT_APP_CAPTCHA_API_KEY;
+
+const response = await fetch('https://api.delqhi.com/api/solve', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${apiKey}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ image: base64Image, type: 'text' })
+});
+```
+
+### Quick Example (cURL):
+
+```bash
+export CAPTCHA_API_KEY="sk-captcha-worker-production-2026"
+
+curl -X POST https://api.delqhi.com/api/solve \
+  -H "Authorization: Bearer $CAPTCHA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"image": "...", "type": "text"}'
+```
+
+---
+
+## 📚 DOCUMENTATION
+
+📖 **Release Notes:** RELEASES/v2.1.0-SECURITY-HARDENING.md
+📖 **Migration Guide:** MIGRATION-v2.1.0.md (Examples for 5+ languages)
+📖 **Security Guide:** SECURITY.md (Complete security implementation)
+📖 **API Security:** API-SECURITY.md (Advanced security topics)
+
+---
+
+## 🚀 MIGRATION STEPS
+
+1. ✅ Get your API key from: https://delqhi.com/dashboard/api-keys
+2. ✅ Create .env file with: CAPTCHA_API_KEY=sk-captcha-worker-production-2026
+3. ✅ Update all API calls to include Authorization header
+4. ✅ Test in staging environment
+5. ✅ Deploy updated code to production
+
+**See MIGRATION-v2.1.0.md for detailed step-by-step instructions!**
+
+---
+
+## ⏰ TIMELINE
+
+2026-01-30 → v2.1.0 Released (Update your code NOW)
+2026-02-02 → 🚨 DEADLINE - Old API key stops working
+2026-02-05 → Legacy support ends
+2026-02-10 → v2.0 sunset
+
+---
+
+## 🎯 IMPACT
+
+| Scenario | Status |
+|----------|--------|
+| Response format changed? | ❌ NO - Responses identical |
+| Database schema changed? | ❌ NO - Data compatible |
+| Endpoint URLs changed? | ❌ NO - Same endpoints |
+| **API authentication required?** | **✅ YES - BREAKING CHANGE** |
+| CORS policy changed? | ✅ YES - More restrictive |
+
+**ONLY authentication is required - nothing else changes!**
+
+---
+
+## 🧪 TESTING
+
+After you update your code, test immediately:
+
+```bash
+# Set your API key
+export CAPTCHA_API_KEY="sk-captcha-worker-production-2026"
+
+# Test your updated code
+python your_api_client.py
+
+# Or with cURL
+curl -X POST https://api.delqhi.com/api/solve \
+  -H "Authorization: Bearer $CAPTCHA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"image": "...", "type": "text"}'
+
+# Expected: HTTP 200 OK (or 400 for invalid image format)
+# NOT expected: HTTP 401 Unauthorized
+```
+
+---
+
+## ❓ COMMON QUESTIONS
+
+Q: Will I lose data?
+A: No! v2.1.0 is backward compatible. Only authentication changed.
+
+Q: What if I miss the deadline?
+A: Your API calls will fail with 401 Unauthorized. Update immediately!
+
+Q: Can I extend the deadline?
+A: Extensions available for enterprise customers. Contact support@delqhi.com
+
+Q: Do I need different keys for dev/staging/prod?
+A: Recommended (different keys per environment), but one key works everywhere.
+
+Q: What if my origin is blocked by CORS?
+A: Email support@delqhi.com and request your domain be whitelisted.
+
+Q: Is there a rollback plan?
+A: Contact support@delqhi.com for v2.0 extension if absolutely necessary.
+
+---
+
+## 📞 SUPPORT
+
+Need help? Contact us:
+
+📧 **Email:** support@delqhi.com
+💬 **Slack:** #sin-solver-support
+📱 **Phone (24/7):** +1-555-DELQHI-1
+
+For detailed technical help:
+📖 **MIGRATION-v2.1.0.md** - Step-by-step guide with code examples
+📖 **SECURITY.md** - Security implementation details
+📖 **API-SECURITY.md** - Advanced topics
+
+---
+
+## 🎉 SUMMARY
+
+✅ v2.1.0 is production-ready and highly secure
+✅ Migration is straightforward (add 2 lines to your code)
+✅ Full backward compatibility (except authentication)
+✅ Complete documentation and examples provided
+
+**START MIGRATING TODAY - DEADLINE IS 2026-02-02**
+
+Questions? See MIGRATION-v2.1.0.md or email support@delqhi.com
+
+---
+
+Best regards,
+
+**SIN-Solver Team**
+security@delqhi.com
+https://delqhi.com
+
+---
+
+**Version:** v2.1.0 Release Notification
+**Date:** 2026-01-30
+**Deadline:** 2026-02-02
+**Status:** Production Ready
