@@ -186,16 +186,24 @@ export class AutoCorrector extends EventEmitter {
         { errorResolved: false, performanceImproved: false, dataPreserved: false, timeToFix: Date.now() - startTime }
       );
 
-      return this.createResult(
-        jobId,
-        workflowId,
-        errorId,
-        { errorType: 'CORRECTION_FAILURE' } as any,
-        'MANUAL_REQUIRED',
-        [],
-        startTime,
-        `Auto-correction failed: ${errorMessage}`
-      );
+      return {
+        ...this.createResult(
+          jobId,
+          workflowId,
+          errorId,
+          { errorType: 'CORRECTION_FAILURE' } as any,
+          'MANUAL_REQUIRED',
+          [],
+          startTime,
+          `Auto-correction failed: ${errorMessage}`
+        ),
+        chatNotification: {
+          sent: false,
+          message: `Correction failed: ${errorMessage}`,
+          timestamp: new Date(),
+        },
+        timestamp: new Date(),
+      };
     }
   }
 

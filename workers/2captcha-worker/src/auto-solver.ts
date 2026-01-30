@@ -82,6 +82,7 @@ export interface AutoSolverConfig {
  */
 export class AutoSolver {
   private page: Page;
+  private alertSystem: AlertSystem;
   private detector: TwoCaptchaDetector;
   private solver: MultiAgentSolver;
   private submitter: CaptchaSubmitter;
@@ -91,10 +92,12 @@ export class AutoSolver {
   
   constructor(
     page: Page,
+    alertSystem: AlertSystem,
     solver?: MultiAgentSolver,
     config?: AutoSolverConfig
   ) {
     this.page = page;
+    this.alertSystem = alertSystem;
     this.sessionId = `session-${Date.now()}`;
     
     // Set defaults for config
@@ -120,16 +123,26 @@ export class AutoSolver {
     };
     
     // Initialize components
-    this.detector = new TwoCaptchaDetector(page, this.config.detectionTimeoutMs);
-    this.solver = solver ?? createDefaultMultiAgentSolver({
-      timeout: this.config.solverTimeoutMs,
-      minConfidence: this.config.minSolverConfidence,
-      parallel: this.config.useSolverParallel,
-    });
-    this.submitter = new CaptchaSubmitter(page, this.alertSystem, {
+    this.detector = new TwoCaptchaDetector(page, alertSystem, this.config.detectionTimeoutMs);
+    this.solver = solver ?? (null as any);
+    this._initializeAsync(solver);
+    this.submitter = new CaptchaSubmitter(page, {
       screenshotDir: this.config.screenshotDir,
       timeout: this.config.submissionTimeoutMs,
     });
+  }
+
+  /**
+   * Asynchronously initialize the solver if not provided
+   */
+  private async _initializeAsync(solver?: MultiAgentSolver): Promise<void> {
+    if (!solver) {
+      this.solver = await createDefaultMultiAgentSolver({
+        timeout: this.config.solverTimeoutMs,
+        minConfidence: this.config.minSolverConfidence,
+        parallel: this.config.useSolverParallel,
+      });
+    }
   }
   
   /**

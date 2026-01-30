@@ -4,14 +4,85 @@
  * This module provides a JavaScript-compatible version of the AutoCorrector
  * that can be imported by Next.js API routes.
  * 
- * In Phase 2, this will call the actual worker implementation.
+ * Phase 2: Integrates with 6 real service clients for production execution
  */
+
+// Import service clients
+const { RedisClient } = require('./services/redis-client');
+const { PostgresClient } = require('./services/postgres-client');
+const { ChatNotificationService } = require('./services/chat-notification-service');
+const { ApiBrainClient } = require('./services/api-brain-client');
+const { CaptchaClient } = require('./services/captcha-client');
+const { MonitoringService } = require('./services/monitoring-service');
 
 class AutoCorrectorAdapter {
   constructor(chatWebSocketUrl = 'ws://localhost:3009/api/chat/notify') {
     this.chatWebSocketUrl = chatWebSocketUrl;
     this.maxAttempts = 5;
     this.auditLog = [];
+    
+    // Initialize all service clients
+    this.redisClient = new RedisClient();
+    this.postgresClient = new PostgresClient();
+    this.chatService = new ChatNotificationService();
+    this.apiBrainClient = new ApiBrainClient();
+    this.captchaClient = new CaptchaClient();
+    this.monitoringService = new MonitoringService();
+    
+    // Flag to track if services are initialized
+    this._servicesInitialized = false;
+  }
+
+  /**
+   * Initialize all services (call once on startup)
+   */
+  async initializeServices() {
+    if (this._servicesInitialized) {
+      console.log('[AutoCorrectorAdapter] Services already initialized');
+      return;
+    }
+    
+    try {
+      console.log('[AutoCorrectorAdapter] Initializing services...');
+      
+      // Initialize PostgreSQL (creates tables if needed)
+      await this.postgresClient.initialize();
+      console.log('✅ PostgreSQL initialized');
+      
+      // Check Redis
+      const redisHealthy = await this.redisClient.healthCheck();
+      console.log(`✅ Redis: ${redisHealthy ? 'HEALTHY' : 'UNHEALTHY'}`);
+      
+      // Check chat service
+      const chatHealthy = await this.chatService.healthCheck();
+      console.log(`✅ Chat Service: ${chatHealthy ? 'HEALTHY' : 'UNAVAILABLE (will use fallbacks)'}`);
+      
+      // Check API Brain
+      const apiBrainHealthy = await this.apiBrainClient.healthCheck();
+      console.log(`✅ API Brain: ${apiBrainHealthy ? 'HEALTHY' : 'UNAVAILABLE'}`);
+      
+      // Check CAPTCHA service
+      const captchaHealthy = await this.captchaClient.healthCheck();
+      console.log(`✅ CAPTCHA Service: ${captchaHealthy ? 'HEALTHY' : 'UNAVAILABLE'}`);
+      
+      // Check monitoring
+      const monitoringHealth = await this.monitoringService.healthCheck();
+      console.log(`✅ Monitoring: ${monitoringHealth.overall ? 'HEALTHY' : 'UNAVAILABLE'}`);
+      
+      this._servicesInitialized = true;
+      
+      return {
+        postgres: true,
+        redis: redisHealthy,
+        chatService: chatHealthy,
+        apiBrain: apiBrainHealthy,
+        captcha: captchaHealthy,
+        monitoring: monitoringHealth.overall
+      };
+    } catch (error) {
+      console.error('[AutoCorrectorAdapter] Service initialization error:', error.message);
+      throw error;
+    }
   }
 
   /**
@@ -90,12 +161,33 @@ class AutoCorrectorAdapter {
           timestamp: new Date().toISOString(),
         });
 
-        if (attemptResult.success) {
-          fixStatus = 'FIXED';
-          successfulStrategy = strategy.type;
-          break;
+       // Record the attempt in monitoring service
+        try {
+          await this.monitoringService.recordAttempt(
+            strategy.type,
+            attemptResult.success,
+            attemptResult.duration || 0
+          );
+
+          // Log to audit trail
+          await this.monitoringService.sendAuditLog(jobId, {
+            timestamp: new Date().toISOString(),
+            level: attemptResult.success ? 'INFO' : 'WARN',
+            message: `Strategy ${strategy.type} - ${attemptResult.success ? 'SUCCESS' : 'FAILED'}`,
+            action: strategy.type,
+            result: attemptResult,
+            context: { error: error.code, jobId }
+          });
+        } catch (monitorError) {
+          console.error('[AutoCorrectorAdapter] Monitoring error:', monitorError.message);
         }
-      }
+
+        if (attemptResult.success) {
+           fixStatus = 'FIXED';
+           successfulStrategy = strategy.type;
+           break;
+         }
+       }
 
       // Step 5: Determine final status
       if (fixStatus !== 'FIXED' && strategies.length > 0) {

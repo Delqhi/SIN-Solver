@@ -123,8 +123,7 @@ export class WorkerService extends EventEmitter {
         pattern: (process.env.ANTI_BAN_PATTERN as any) || 'normal',
         verbose: process.env.VERBOSE_ANTI_BAN === 'true',
         slackWebhook: process.env.SLACK_WEBHOOK_URL,
-        workHoursStart: parseInt(process.env.WORK_HOURS_START || '8'),
-        workHoursEnd: parseInt(process.env.WORK_HOURS_END || '22'),
+        alertOnLimits: true,
       });
 
       // Forward anti-ban events from the protection instance (which is EventEmitter)
@@ -419,9 +418,9 @@ export class WorkerService extends EventEmitter {
           if (error instanceof Error && error.message.includes('unsolvable')) {
             job.status = 'completed';
             job.result = {
-              success: false,
-              message: 'CAPTCHA marked as unsolvable by anti-ban system',
               jobId: job.id,
+              status: 'cancelled' as const,
+              durationMs: Date.now() - (job.startedAt?.getTime() || Date.now()),
             };
             job.completedAt = new Date();
             this.metrics.completedJobs++;
