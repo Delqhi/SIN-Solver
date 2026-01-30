@@ -229,15 +229,48 @@ class AutoCorrectorAdapter {
         processedAt: new Date().toISOString(),
       };
 
-      // Log to audit trail
-      this.auditLog.push({
-        jobId,
-        error: error.code || error.message,
-        result: result.status,
-        timestamp: new Date().toISOString(),
-      });
+       // Log to audit trail
+       this.auditLog.push({
+         jobId,
+         error: error.code || error.message,
+         result: result.status,
+         timestamp: new Date().toISOString(),
+       });
 
-      return result;
+       // Step 8: Persist job to database
+       if (jobId) {
+         const jobRecord = {
+           jobId,
+           initialError: error.code || error.message,
+           fixStatus: result.status,
+           successfulStrategy: result.fixStrategy,
+           attemptCount,
+           totalDuration: Date.now() - startTime,
+           metadata: {
+             strategies: strategies.map(s => s.type),
+             analysis,
+             context
+           }
+         };
+
+         try {
+           await this.postgresClient.saveJob(jobRecord);
+           
+           await this.monitoringService.recordJobMetrics(jobId, {
+             totalAttempts: attemptCount,
+             successfulAttempts: result.status === 'FIXED' ? 1 : 0,
+             totalDuration: Date.now() - startTime,
+             errorType: error.type || error.code,
+             strategies: strategies.map(s => s.type),
+             finalStatus: result.status
+           });
+         } catch (persistError) {
+           console.error('[AutoCorrectorAdapter] Failed to persist job:', persistError.message);
+           // Don't throw - allow result to be returned even if persistence fails
+         }
+       }
+
+       return result;
     } catch (err) {
       console.error('[AutoCorrector] Error in detectAndFix:', err);
       return {
@@ -544,28 +577,47 @@ class AutoCorrectorAdapter {
     }
   }
 
-  /**
-   * Send chat notification about correction attempt
-   */
   async sendChatNotification(status, strategy, error, attemptCount) {
     const messages = {
       FIXED: `✅ Error fixed! Used strategy: ${strategy || 'Unknown'}`,
       PARTIAL_FIX: `⚠️ Partially fixed error after ${attemptCount} attempts. May need manual review.`,
-      MANUAL_REQUIRED: `👤 Error requires manual intervention. ${error.message}`,
-      UNFIXABLE: `❌ Unable to fix error automatically: ${error.message}`,
+      MANUAL_REQUIRED: `👤 Error requires manual intervention. ${error?.message || 'Unknown error'}`,
+      UNFIXABLE: `❌ Unable to fix error automatically: ${error?.message || 'Unknown error'}`,
     };
 
     const message = messages[status] || `Status: ${status}`;
 
-    // In Phase 2, this will send actual WebSocket notifications
-    return {
-      sent: true,
-      message,
-      status,
-      attemptCount,
-      timestamp: new Date().toISOString(),
-      channel: 'workflow-errors',
-    };
+    try {
+      const result = await this.chatService.sendNotification({
+        status,
+        strategy,
+        error,
+        attemptCount,
+        message,
+        timestamp: new Date().toISOString()
+      });
+
+      return {
+        sent: result.sent !== false,
+        message,
+        status,
+        attemptCount,
+        timestamp: new Date().toISOString(),
+        channel: 'workflow-errors'
+      };
+    } catch (notificationError) {
+      console.error('[AutoCorrectorAdapter] Chat notification error:', notificationError.message);
+      
+      return {
+        sent: false,
+        message,
+        status,
+        attemptCount,
+        timestamp: new Date().toISOString(),
+        channel: 'workflow-errors',
+        error: notificationError.message
+      };
+    }
   }
 
   /**

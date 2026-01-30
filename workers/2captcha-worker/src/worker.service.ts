@@ -692,13 +692,15 @@ export class WorkerService extends EventEmitter {
       if (this.isRunning) {
         const metrics = this.getMetrics();
         this.alertSystem.hourlyStatus({
-          totalJobs: metrics.totalJobs,
-          completedJobs: metrics.completedJobs,
-          failedJobs: metrics.failedJobs,
-          activeJobs: metrics.activeJobs,
-          queuedJobs: metrics.queuedJobs,
-          successRate: metrics.successRate,
-          averageProcessingTimeMs: metrics.averageProcessingTimeMs,
+          total: metrics.totalJobs,
+          successful: metrics.completedJobs,
+          accuracy: metrics.successRate * 100,
+          earnings: 0,
+          averageEarnings: 0,
+          totalTime: metrics.totalProcessingTimeMs,
+          averageTime: metrics.averageProcessingTimeMs,
+          uptime: 100,
+          lastUpdated: new Date().toISOString(),
         });
       }
     }, 60 * 60 * 1000); // 60 minutes
@@ -712,13 +714,15 @@ export class WorkerService extends EventEmitter {
       if (this.isRunning) {
         const metrics = this.getMetrics();
         this.alertSystem.dailyReport({
-          date: new Date().toISOString().split('T')[0],
-          totalJobs: metrics.totalJobs,
-          completedJobs: metrics.completedJobs,
-          failedJobs: metrics.failedJobs,
-          successRate: metrics.successRate,
-          totalProcessingTimeMs: metrics.totalProcessingTimeMs,
-          estimatedEarnings: metrics.completedJobs * 0.05, // Example: $0.05 per job
+          total: metrics.totalJobs,
+          successful: metrics.completedJobs,
+          accuracy: metrics.successRate * 100,
+          earnings: metrics.completedJobs * 0.05,
+          averageEarnings: metrics.completedJobs > 0 ? (metrics.completedJobs * 0.05) / metrics.completedJobs : 0,
+          totalTime: metrics.totalProcessingTimeMs,
+          averageTime: metrics.averageProcessingTimeMs,
+          uptime: 100,
+          lastUpdated: new Date().toISOString(),
         });
 
         // Re-schedule for next day
@@ -726,13 +730,15 @@ export class WorkerService extends EventEmitter {
           if (this.isRunning) {
             const updatedMetrics = this.getMetrics();
             this.alertSystem.dailyReport({
-              date: new Date().toISOString().split('T')[0],
-              totalJobs: updatedMetrics.totalJobs,
-              completedJobs: updatedMetrics.completedJobs,
-              failedJobs: updatedMetrics.failedJobs,
-              successRate: updatedMetrics.successRate,
-              totalProcessingTimeMs: updatedMetrics.totalProcessingTimeMs,
-              estimatedEarnings: updatedMetrics.completedJobs * 0.05,
+              total: updatedMetrics.totalJobs,
+              successful: updatedMetrics.completedJobs,
+              accuracy: updatedMetrics.successRate * 100,
+              earnings: updatedMetrics.completedJobs * 0.05,
+              averageEarnings: updatedMetrics.completedJobs > 0 ? (updatedMetrics.completedJobs * 0.05) / updatedMetrics.completedJobs : 0,
+              totalTime: updatedMetrics.totalProcessingTimeMs,
+              averageTime: updatedMetrics.averageProcessingTimeMs,
+              uptime: 100,
+              lastUpdated: new Date().toISOString(),
             });
           }
         }, 24 * 60 * 60 * 1000); // 24 hours
