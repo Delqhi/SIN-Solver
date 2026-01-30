@@ -122,39 +122,29 @@ class IntegratedCaptchaWorker:
         solution = None
 
         try:
-            # Pre-solve behavior (introduce realistic delay)
-            await self.behavior.wait_natural_delay()
+            self.behavior.wait_before_action()
 
-            # Check session health
             if not await self.session_manager.check_ip_health():
                 self.logger.warning("IP health degraded, triggering reconnection...")
                 await self._handle_reconnection()
 
-            # Solve captcha (placeholder - replace with actual solver)
             solve_time = await self._solve_captcha_internal(captcha_data)
             success = solve_time > 0
 
-            # Record metrics
             self.total_solves += 1
             if success:
                 self.successful_solves += 1
-            else:
-                self.session_manager.record_failed_attempt()
 
-            # Update monitors
             self.monitor.record_attempt(
                 success=success, solve_time=solve_time, captcha_type=self.config.captcha_type
             )
 
             self.session_manager.record_solve_attempt(success=success, solve_time=solve_time)
 
-            # Post-solve behavior
-            await self.behavior.simulate_user_delay()
+            self.behavior.take_micro_break()
 
-            # Check health after solve
             await self._check_worker_health()
 
-            # Trigger callbacks
             for callback in self.on_solve_completed:
                 try:
                     callback(success, solve_time)
