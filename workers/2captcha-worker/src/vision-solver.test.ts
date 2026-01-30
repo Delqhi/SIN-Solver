@@ -18,6 +18,21 @@ import { createLogger } from 'winston';
 const mockLogger = createLogger({ silent: true });
 
 /**
+ * Mock DDDDOCRSolver to return consistent confidence
+ * This ensures all three agents (Gemini, Mistral, OCR) have the same confidence
+ */
+jest.mock('./solvers/ddddocr-solver', () => ({
+  DDDDOCRSolver: jest.fn().mockImplementation(() => ({
+    solve: jest.fn().mockResolvedValue({
+      answer: 'ANSWER123',
+      confidence: 0.97,
+      time: 50,
+      error: null,
+    }),
+  })),
+}));
+
+/**
  * Mock fetch responses for Gemini and Mistral APIs
  */
 global.fetch = jest.fn();
