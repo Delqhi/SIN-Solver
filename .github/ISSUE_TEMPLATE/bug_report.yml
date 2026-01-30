@@ -6,106 +6,157 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report this bug! Please fill out the form below.
+        Thanks for taking the time to report this bug! Please fill out the form below to help us resolve the issue quickly.
 
   - type: textarea
     id: description
     attributes:
       label: Bug Description
-      description: A clear and concise description of what the bug is.
-      placeholder: What happened?
-    validations:
-      required: true
+      description: A clear and concise description of what the bug is
+      placeholder: |
+        What is the problem you're experiencing?
+        Be as specific as possible.
+      validations:
+        required: true
 
   - type: textarea
     id: expected
     attributes:
       label: Expected Behavior
-      description: What did you expect to happen?
-      placeholder: What should have happened?
-    validations:
-      required: true
+      description: What did you expect to happen instead?
+      placeholder: |
+        Describe the behavior you expected.
+      validations:
+        required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? How is the current behavior different from expected?
+      placeholder: |
+        Describe what actually happened instead of the expected behavior.
+      validations:
+        required: true
 
   - type: textarea
     id: reproduction
     attributes:
       label: Steps to Reproduce
-      description: How can we reproduce this issue?
+      description: How can we reproduce this issue? Provide clear, numbered steps.
       placeholder: |
-        1. Run command '...'
-        2. Navigate to '...'
-        3. Click on '...'
-        4. See error
-    validations:
-      required: true
+        1. Run command '...' or navigate to '...'
+        2. Click on '...'
+        3. Observe '...'
+        4. See error/unexpected behavior
+      validations:
+        required: true
 
   - type: dropdown
     id: component
     attributes:
       label: Component
-      description: Which component is affected?
+      description: Which component is affected by this bug?
       options:
-        - Dashboard (Next.js)
-        - API (FastAPI)
-        - Captcha Detection
-        - Anti-Detection Engine
+        - Dashboard (Next.js/Frontend)
+        - API (FastAPI/Backend)
+        - CAPTCHA Detection & Solving
+        - Anti-Detection Engine (Stealth Browser)
         - Docker/Infrastructure
         - n8n Workflows
+        - Database (PostgreSQL/Redis)
         - CLI
+        - Documentation
         - Other
-    validations:
-      required: true
+      validations:
+        required: true
 
   - type: dropdown
     id: severity
     attributes:
       label: Severity
-      description: How severe is this bug?
+      description: How severe is this bug? How much does it impact functionality?
       options:
-        - Critical (System unusable)
-        - High (Major feature broken)
-        - Medium (Feature partially broken)
-        - Low (Minor issue)
-    validations:
-      required: true
+        - 🔴 Critical (System completely unusable)
+        - 🟠 High (Major feature broken)
+        - 🟡 Medium (Feature partially broken or major inconvenience)
+        - 🟢 Low (Minor issue, workaround available)
+      validations:
+        required: true
 
   - type: textarea
     id: environment
     attributes:
-      label: Environment
-      description: Please provide your environment details
+      label: Environment Details
+      description: Please provide your environment and system information
       placeholder: |
         - OS: macOS 14.0 / Ubuntu 22.04 / Windows 11
         - Docker version: 24.0.x
-        - Python version: 3.11.x
-        - Node version: 20.x
-        - Delqhi-Platform version: 2.0.0
+        - Docker Compose version: 2.15.x
+        - Python version: 3.9+ / 3.11.x
+        - Node version: 20.x (if applicable)
+        - SIN-Solver version/branch: main / develop / v1.0.0
+        - Are you using docker-compose.yml or docker-compose.enterprise.yml?
       render: markdown
-    validations:
-      required: true
+      validations:
+        required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: Relevant Logs
-      description: Please paste any relevant log output
-      placeholder: Paste logs here...
+      label: Relevant Error Messages or Logs
+      description: Please paste any relevant error messages or logs. Check `docker-compose logs service-name`.
+      placeholder: |
+        Paste error messages, stack traces, or relevant log output here.
+        Use code blocks for formatting (```bash or ```python).
       render: shell
 
   - type: textarea
     id: screenshots
     attributes:
-      label: Screenshots
-      description: If applicable, add screenshots to help explain the problem.
+      label: Screenshots or Video Recording
+      description: If applicable, add screenshots, GIFs, or video recordings to help explain the problem.
+      placeholder: |
+        You can also paste images or drag/drop them here.
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration (if relevant)
+      description: If the bug is related to configuration, please share relevant config (sanitize secrets)
+      placeholder: |
+        Share relevant configuration, environment variables, or docker-compose overrides.
+        REMOVE any API keys, passwords, or secrets before pasting!
+      render: yaml
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround (if any)
+      description: If you've found a workaround for this bug, please describe it here.
+      placeholder: |
+        Have you found a temporary solution or workaround?
 
   - type: checkboxes
     id: checklist
     attributes:
-      label: Checklist
+      label: Pre-Submission Checklist
+      description: Please verify you've completed these checks
       options:
         - label: I have searched existing issues to ensure this is not a duplicate
           required: true
-        - label: I have read the [documentation](https://github.com/Delqhi/Delqhi-Platform#readme)
+        - label: I have read the [documentation](https://github.com/delqhi/SIN-Solver/docs)
           required: true
-        - label: I am using the latest version of Delqhi-Platform
+        - label: I am using the latest version of SIN-Solver (or latest develop branch)
           required: false
+        - label: I have included all relevant logs and error messages
+          required: true
+        - label: I have verified this is not a configuration issue (if applicable)
+          required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Thank you for reporting this bug!** We'll investigate and get back to you as soon as possible.
+        For urgent issues, please reach out on [GitHub Discussions](https://github.com/delqhi/SIN-Solver/discussions).

@@ -1,0 +1,29 @@
+# Default owners for all code
+* @jeremy
+
+# Frontend code
+/app/ui/ @jeremy
+/app/components/ @jeremy
+
+# Backend services
+/services/ @jeremy
+/app/api/ @jeremy
+
+# Infrastructure & Docker
+/Docker/ @jeremy
+/.github/ @jeremy
+/docker-compose.yml @jeremy
+
+# Documentation
+/docs/ @jeremy
+*.md @jeremy
+
+# Tests
+/tests/ @jeremy
+/training/ @jeremy
+
+# Configuration
+/.env* @jeremy
+/package.json @jeremy
+/pyproject.toml @jeremy
+/tsconfig.json @jeremy

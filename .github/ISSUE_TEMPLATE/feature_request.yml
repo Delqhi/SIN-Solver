@@ -6,82 +6,144 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a new feature! Please fill out the form below.
+        Thanks for suggesting a new feature! We'd love to hear your ideas for improving SIN-Solver.
+        Please fill out the form below to help us understand and prioritize your request.
 
   - type: textarea
     id: problem
     attributes:
       label: Problem Statement
-      description: What problem does this feature solve? Is this related to a frustration?
-      placeholder: I'm always frustrated when...
-    validations:
-      required: true
+      description: What problem does this feature solve? Is this related to a frustration you're experiencing?
+      placeholder: |
+        I'm always frustrated when...
+        or
+        We need a way to...
+      validations:
+        required: true
 
   - type: textarea
     id: solution
     attributes:
       label: Proposed Solution
-      description: Describe the solution you'd like
-      placeholder: I would like to see...
-    validations:
-      required: true
+      description: Describe the solution you'd like. Be as specific as possible.
+      placeholder: |
+        I would like to see...
+        Here's how it should work...
+      validations:
+        required: true
 
   - type: textarea
     id: alternatives
     attributes:
       label: Alternatives Considered
-      description: Any alternative solutions or features you've considered?
-      placeholder: I've also thought about...
+      description: Have you considered alternative solutions or approaches?
+      placeholder: |
+        I've also thought about...
+        Other approaches could be...
 
   - type: dropdown
     id: component
     attributes:
-      label: Component
+      label: Affected Component
       description: Which component would this feature affect?
       options:
-        - Dashboard (Next.js)
-        - API (FastAPI)
-        - Captcha Detection
-        - Anti-Detection Engine
-        - New Captcha Provider Support
+        - Dashboard (Frontend/Next.js)
+        - API (Backend/FastAPI)
+        - CAPTCHA Detection & Solving
+        - Anti-Detection Engine (Stealth Browser)
+        - New CAPTCHA Provider Support
         - Docker/Infrastructure
-        - n8n Workflows
-        - CLI
+        - n8n Workflows & Orchestration
+        - Monitoring & Observability
+        - CLI Tools
         - Documentation
+        - Testing
         - Other
-    validations:
-      required: true
+      validations:
+        required: true
 
   - type: dropdown
     id: priority
     attributes:
-      label: Priority
+      label: Priority/Importance
       description: How important is this feature to you?
       options:
-        - Nice to have
-        - Important
-        - Critical for my use case
+        - 🟢 Nice to have (would be cool)
+        - 🟡 Important (would improve workflow)
+        - 🔴 Critical for my use case (blocking)
 
   - type: textarea
     id: use_case
     attributes:
       label: Use Case
-      description: Describe a real-world scenario where this feature would be useful
+      description: Describe a real-world scenario where this feature would be useful.
       placeholder: |
         As a [type of user], I want [goal] so that [benefit].
+        
+        Example: As a DevOps engineer, I want automated health checks so that I can monitor system status without manual intervention.
+      validations:
+        required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How would we know this feature is complete? What are the success criteria?
+      placeholder: |
+        - [ ] Feature works for use case X
+        - [ ] API endpoint responds within 200ms
+        - [ ] Documented in README
+        - [ ] Added tests with 80%+ coverage
+      render: markdown
 
   - type: textarea
     id: additional
     attributes:
       label: Additional Context
-      description: Add any other context, screenshots, or mockups about the feature request.
+      description: Add any other context, sketches, mockups, or screenshots about the feature request.
+      placeholder: |
+        - Any relevant links?
+        - Competitive analysis?
+        - Performance requirements?
+        - Design mockups or wireframes?
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential Impact Analysis
+      description: What might be the impact of adding this feature?
+      placeholder: |
+        - Performance impact (if any)
+        - Breaking changes (if any)
+        - Dependencies needed
+        - Complexity level (simple/medium/complex)
 
   - type: checkboxes
     id: contribution
     attributes:
-      label: Contribution
-      description: Would you be willing to help implement this feature?
+      label: Contribution Willingness
+      description: Are you willing to help implement this feature?
       options:
         - label: I would be willing to submit a PR for this feature
         - label: I can help test this feature
         - label: I can help document this feature
+        - label: I can help design/plan this feature
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-Submission Checklist
+      options:
+        - label: I have searched existing issues and discussions to avoid duplicates
+          required: true
+        - label: I have read the [documentation](https://github.com/delqhi/SIN-Solver/docs)
+          required: true
+        - label: This feature aligns with the project's goals and scope
+          required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Thank you for the feature request!** We'll review it and discuss with the team.
+        Your input helps shape the future of SIN-Solver!
