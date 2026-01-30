@@ -12,7 +12,8 @@
  */
 
 // 2captcha.com - Most popular CAPTCHA work platform
-export { TwoCaptchaWorker } from './2captcha-worker';
+// export { TwoCaptchaWorker } from './2captcha-worker';
+// TODO: Fix TypeScript module resolution issue with TwoCaptchaWorker
 
 // Future workflows (to be implemented):
 // export { KolotibabloWorker } from './kolotibablo-worker';
@@ -40,14 +41,6 @@ export type ProviderName = typeof AVAILABLE_PROVIDERS[number];
  * @returns Worker class for the specified provider
  */
 export function getWorkerClass(provider: ProviderName) {
-  switch (provider) {
-    case '2captcha':
-      return TwoCaptchaWorker;
-    // case 'kolotibablo':
-    //   return KolotibabloWorker;
-    // case 'anti-captcha':
-    //   return AntiCaptchaWorker;
-    default:
-      throw new Error(`Unknown provider: ${provider}. Available: ${AVAILABLE_PROVIDERS.join(', ')}`);
-  }
+  // TODO: Re-enable factory pattern once TypeScript resolution is fixed
+  throw new Error(`Provider ${provider} not yet implemented. Currently using BrowserCaptchaWorker directly in index.ts`);
 }
