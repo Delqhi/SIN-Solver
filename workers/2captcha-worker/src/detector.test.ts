@@ -13,6 +13,14 @@ import {
   pollForCaptcha,
   CaptchaDetectionResult,
 } from './detector';
+import { AlertSystem } from './alerts';
+
+// Mock alert system for tests (no external alerts, console only)
+const mockAlertSystem = new AlertSystem({
+  enableTelegram: false,
+  enableSlack: false,
+  enableConsole: true
+});
 
 describe('TwoCaptchaDetector', () => {
   let browser: Browser;
@@ -34,7 +42,7 @@ describe('TwoCaptchaDetector', () => {
     it('should detect image CAPTCHA on 2captcha.com', async () => {
       // This would require a real 2captcha worker page
       // For testing, we'd mock the page content
-      const detector = new TwoCaptchaDetector(page);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem);
 
       // Mock: navigate to a test CAPTCHA page
       // const result = await detector.detect();
@@ -46,7 +54,7 @@ describe('TwoCaptchaDetector', () => {
     });
 
     it('should timeout when CAPTCHA not found', async () => {
-      const detector = new TwoCaptchaDetector(page, 1000); // 1 second timeout
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 1000); // 1 second timeout
 
       // Empty page has no CAPTCHA
       await page.goto('about:blank');
@@ -56,7 +64,7 @@ describe('TwoCaptchaDetector', () => {
     });
 
     it('should detect CAPTCHA type correctly', async () => {
-      const detector = new TwoCaptchaDetector(page);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem);
 
       // Verify type detection logic exists
       expect(detector).toHaveProperty('detectCaptchaType');
@@ -74,7 +82,7 @@ describe('TwoCaptchaDetector', () => {
         </form>
       `);
 
-      const detector = new TwoCaptchaDetector(page);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem);
       // Note: actual detection would fail (no image), but element location would work
     });
 
@@ -103,7 +111,7 @@ describe('TwoCaptchaDetector', () => {
 
   describe('Timeout Tracking', () => {
     it('should track timeout correctly', async () => {
-      const detector = new TwoCaptchaDetector(page, 120000); // 2 minutes
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 120000); // 2 minutes
 
       const remaining = detector.getRemainingTime();
       expect(remaining).toBeLessThanOrEqual(120000);
@@ -111,7 +119,7 @@ describe('TwoCaptchaDetector', () => {
     });
 
     it('should warn when timeout approaching', async () => {
-      const detector = new TwoCaptchaDetector(page, 5000); // 5 second timeout
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 5000); // 5 second timeout
 
       // Immediately should not be approaching
       expect(detector.isTimeoutApproaching(1000)).toBe(false);
@@ -122,7 +130,7 @@ describe('TwoCaptchaDetector', () => {
     });
 
     it('should format remaining time correctly', async () => {
-      const detector = new TwoCaptchaDetector(page, 75500);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 75500);
 
       const formatted = detector.getFormattedRemainingTime();
       expect(formatted).toMatch(/\d+s \d+ms/);
@@ -149,7 +157,7 @@ describe('TwoCaptchaDetector', () => {
     it('should provide quick detection function', async () => {
       await page.goto('about:blank');
 
-      const result = await detectCaptchaQuick(page);
+      const result = await detectCaptchaQuick(page, mockAlertSystem);
       expect(result).toBeDefined();
       expect(result.detected).toBe(false);
     });
@@ -158,7 +166,7 @@ describe('TwoCaptchaDetector', () => {
   describe('Timeout Configuration', () => {
     it('should respect custom timeout', async () => {
       const customTimeout = 60000;
-      const detector = new TwoCaptchaDetector(page, customTimeout);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, customTimeout);
 
       // Should initialize with custom timeout
       expect(detector).toBeDefined();
@@ -167,7 +175,7 @@ describe('TwoCaptchaDetector', () => {
     it('should allow timeout with detection function', async () => {
       await page.goto('about:blank');
 
-      const result = await detectCaptchaWithTimeout(page, 30000);
+      const result = await detectCaptchaWithTimeout(page, mockAlertSystem, 30000);
       expect(result.timeoutMs).toBe(30000);
     });
   });
@@ -178,7 +186,7 @@ describe('TwoCaptchaDetector', () => {
 
       let callbackCalled = false;
 
-      const result = await pollForCaptcha(page, 2000, async () => {
+      const result = await pollForCaptcha(page, mockAlertSystem, 2000, async () => {
         callbackCalled = true;
       });
 
@@ -203,7 +211,7 @@ describe('TwoCaptchaDetector', () => {
     it('should handle missing elements gracefully', async () => {
       await page.goto('about:blank');
 
-      const detector = new TwoCaptchaDetector(page);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem);
       const result = await detector.detect();
 
       expect(result.detected).toBe(false);
@@ -216,7 +224,7 @@ describe('TwoCaptchaDetector', () => {
     });
 
     it('should recover from transient failures', async () => {
-      const detector = new TwoCaptchaDetector(page, 10000);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 10000);
 
       // Navigate to page, detector should handle gracefully
       await page.goto('about:blank').catch(() => null);
@@ -247,7 +255,7 @@ describe('TwoCaptchaDetector', () => {
 
   describe('Metadata Collection', () => {
     it('should collect detection metadata', async () => {
-      const detector = new TwoCaptchaDetector(page, 120000);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 120000);
 
       await page.goto('about:blank');
       const result = await detector.detect();
@@ -271,7 +279,7 @@ describe('TwoCaptchaDetector', () => {
     it('should detect CAPTCHA within reasonable time', async () => {
       const startTime = Date.now();
 
-      const detector = new TwoCaptchaDetector(page, 5000);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 5000);
       await page.goto('about:blank');
 
       try {
@@ -305,7 +313,7 @@ describe('Integration Tests', () => {
     await page.goto('about:blank');
 
     // Create detector
-    const detector = new TwoCaptchaDetector(page, 5000);
+    const detector = new TwoCaptchaDetector(page, mockAlertSystem, 5000);
 
     // Attempt detection (will timeout on blank page, but that's expected)
     const result = await detector.detect();
