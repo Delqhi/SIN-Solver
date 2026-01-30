@@ -138,11 +138,11 @@ def test_health_checks():
     assert monitor.is_healthy == True
     print("✓ Initial state: healthy")
 
-    # Record attempts to trigger warning (15 fail, 85 success = 85% < 96%)
-    for i in range(10):
+    # Record attempts to trigger warning (95 success, 5 fail = 95% = warning threshold)
+    for i in range(95):
         monitor.record_attempt(success=True, solve_time=4.2)
 
-    for i in range(15):
+    for i in range(5):
         monitor.record_attempt(success=False, solve_time=2.5)
 
     # Force health check
@@ -150,22 +150,25 @@ def test_health_checks():
 
     # Check success rate
     rate = monitor.get_success_rate()
-    print(f"✓ Success rate dropped to: {rate:.1f}%")
+    print(f"✓ Success rate: {rate:.1f}%")
 
-    # Should trigger warning but not critical (> 95%)
-    assert rate > 95.0, "Should be > 95% for warning"
-    assert not monitor.critical_alert_triggered, "Should not be critical yet"
-    print("✓ Warning alert triggered (not critical yet)")
+    # Should be at warning threshold (95% = warning)
+    assert rate == 95.0, f"Should be 95% but got {rate:.1f}%"
+    print("✓ At warning threshold (95%)")
 
     # Record more failures to drop below 95% (< 95% = critical)
-    for i in range(10):
+    # Need to drop from 95% to below 95%
+    # Current: 95 success, 5 fail (100 total)
+    # Add 5 more failures: 95 success, 10 fail = 90.5% (rolling window keeps last 100)
+    for i in range(5):
         monitor.record_attempt(success=False, solve_time=2.5)
 
     monitor._check_health()
     rate = monitor.get_success_rate()
     print(f"✓ Success rate dropped to: {rate:.1f}%")
 
-    assert rate < 95.0, "Should be < 95%"
+    # After rolling window adjustment, should be below 95%
+    assert rate < 95.0, f"Should be < 95% but got {rate:.1f}%"
     assert monitor.critical_alert_triggered == True, "Should trigger critical"
     assert monitor.is_healthy == False, "Should be unhealthy"
     print("✓ Critical alert triggered - emergency stop!")

@@ -20,6 +20,7 @@ Date: 2026-01-29
 import asyncio
 import logging
 import time
+import os
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
@@ -828,6 +829,39 @@ class ConsensusCaptchaSolver:
                     consensus_decision=None,
                     timing_metrics=metrics,
                     error_message="Image path is empty",
+                )
+
+            # Validate file exists (if not base64)
+            if (
+                not image_path.startswith("data:")
+                and not image_path.startswith("/")
+                and "," not in image_path
+            ):
+                # Treat as file path - check if it exists
+                import os
+
+                if not os.path.exists(image_path) and not image_path.startswith("http"):
+                    return SolverResult(
+                        status=SolutionStatus.INVALID_INPUT,
+                        solution=None,
+                        confidence=0.0,
+                        consensus_reached=False,
+                        agent_responses=[],
+                        consensus_decision=None,
+                        timing_metrics=metrics,
+                        error_message=f"Image file not found: {image_path}",
+                    )
+            elif image_path.startswith("/") and not os.path.exists(image_path):
+                # Absolute path doesn't exist
+                return SolverResult(
+                    status=SolutionStatus.INVALID_INPUT,
+                    solution=None,
+                    confidence=0.0,
+                    consensus_reached=False,
+                    agent_responses=[],
+                    consensus_decision=None,
+                    timing_metrics=metrics,
+                    error_message=f"Image file not found: {image_path}",
                 )
 
             # Create async tasks for all 3 agents

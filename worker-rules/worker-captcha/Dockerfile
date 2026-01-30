@@ -78,30 +78,12 @@ RUN useradd -m -u 1000 worker && \
 
 USER worker
 
+# Copy entrypoint script
+COPY entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+
 # Expose ports
 EXPOSE 8080 8081 8082
 
-# Default command - start integrated worker with monitoring
-CMD ["python3", "-u", "-c", "\
-import sys; \
-sys.path.insert(0, '/app'); \
-from captcha_worker_integrated import IntegratedCaptchaWorker, WorkerConfig; \
-import asyncio; \
-\
-async def main(): \
-    config = WorkerConfig( \
-        account_id='worker-001', \
-        captcha_type='text', \
-        target_success_rate=96.0, \
-        emergency_stop_threshold=95.0 \
-    ); \
-    worker = IntegratedCaptchaWorker(config); \
-    await worker.start(); \
-    try: \
-        await asyncio.sleep(86400)  # Run for 24 hours \
-    except KeyboardInterrupt: \
-        print('Shutting down...'); \
-    await worker.stop(); \
-\
-asyncio.run(main()) \
-"]
+# Use entrypoint script for clean startup
+ENTRYPOINT ["/app/entrypoint.sh"]
