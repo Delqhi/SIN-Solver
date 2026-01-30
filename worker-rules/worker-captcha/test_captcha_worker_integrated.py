@@ -264,8 +264,8 @@ class TestIntegratedCaptchaWorkerAsync:
             worker.monitor.check_health = Mock(return_value=False)
             worker.behavior.take_micro_break = Mock()  # Don't block async loop
 
-            # Trigger health check
-            health = worker._check_worker_health()
+            # Trigger health check (MUST AWAIT - it's an async method)
+            health = await worker._check_worker_health()
 
             # Callback should be called
             if not health:
