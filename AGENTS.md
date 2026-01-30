@@ -688,3 +688,175 @@ Before ending ANY session:
 **Effective Date:** 2026-01-30  
 **Mandate:** MANDATE -7 (Session Documentation)  
 **Status:** ACTIVE - All previous documentation rules SUPERSEDED
+
+---
+
+## 🔌 MCP SERVER KONFIGURATION & RESSOURCEN MANAGEMENT
+
+### Aktive MCP Server in opencode.json
+
+| MCP Server | Typ | Status | Ressourcen | Beschreibung |
+|------------|-----|--------|------------|--------------|
+| **serena** | local | ✅ Aktiv | Niedrig | Orchestrierung |
+| **scira** | local | ✅ Aktiv | Mittel | AI Web Search (11 Tools) |
+| **plane** | local | ✅ Aktiv | Niedrig | Project Management (30 Tools) |
+| **captcha-solver** | local | ✅ Aktiv | Niedrig | CAPTCHA Solving (10 Tools) |
+| **sin_social** | remote | ✅ Aktiv | Niedrig | Social Media Posting |
+| **sin_deep_research** | remote | ✅ Aktiv | Niedrig | Web Research (DuckDuckGo FREE) |
+| **sin_video_gen** | remote | ✅ Aktiv | Mittel | Video Generation |
+| **openhands_codeserver** | remote | ⚠️ Konfiguriert | **HOCH** | Universal Coding Layer |
+
+### ⚠️ WICHTIG: OpenHands CodeServer - Ressourcen Warnung
+
+**Container:** `agent-04.1-openhands-codeserver`  
+**Location:** `/Users/jeremy/dev/sin-code/Docker/agents/agent-04.1-openhands-codeserver/`  
+**Status:** Konfiguriert aber NICHT gestartet (Absichtlich!)
+
+**Ressourcen Anforderungen:**
+```yaml
+memory: 4G          # 4 GB RAM!
+cpus: '2'           # 2 CPU Kerne
+reservations:
+  memory: 1G        # Mindestens 1 GB
+  cpus: '0.5'
+```
+
+**Warum nicht gestartet?**
+- 🚨 **Ressourcenfresser**: 4GB RAM + 2 CPUs
+- 🚨 **Nur bei Bedarf starten**: Wenn Code-Generation wirklich benötigt wird
+- 🚨 **Nicht für normale Recherche**: Nur für komplexe Coding-Tasks
+
+**Wann starten:**
+```bash
+# NUR wenn du wirklich Code-Generation brauchst:
+cd /Users/jeremy/dev/sin-code/Docker/agents/agent-04.1-openhands-codeserver
+docker-compose up -d
+
+# Nach Gebrauch sofort stoppen:
+docker-compose down
+```
+
+**Features (wenn gestartet):**
+- 38 API Endpoints
+- 29 Slash Commands (`/code`, `/git-commit`, `/file-write`, etc.)
+- OpenHands Integration (All-Hands-AI)
+- Universal Coding Layer für alle Interfaces
+
+---
+
+## 💰 API KOSTEN & FREE ALTERNATIVEN ÜBERSICHT
+
+### Scira AI Search - API Kosten
+
+| API | Kosten | Free Tier | Alternative |
+|-----|--------|-----------|-------------|
+| **Exa** | 💰 $49-449/Monat | ❌ Nein | DuckDuckGo (FREE) |
+| **Tavily** | 💰 Freemium | ✅ 1,000 req/Monat | DuckDuckGo (FREE) |
+| **Firecrawl** | 💰 Paid | ❌ Nein | ScrapingBee, DIY |
+| **OpenAI** | 💰 Paid | ❌ Nein | OpenCode Zen (FREE) |
+| **Anthropic** | 💰 Paid | ❌ Nein | OpenCode Zen (FREE) |
+| **Google Gemini** | 💰 Freemium | ✅ Generous | OpenCode Zen (FREE) |
+| **xAI Grok** | 💰 Paid | ❌ Nein | - |
+| **Groq** | 💰 Paid | ❌ Nein | - |
+| **TMDB** | 🆓 FREE | ✅ Ja | - |
+| **OpenWeather** | 💰 Freemium | ✅ 1,000 req/Tag | - |
+| **Daytona** | 💰 Paid | ❌ Nein | Local Sandbox |
+| **Supermemory** | 💰 Paid | ❌ Nein | Redis, SQLite |
+| **Smithery** | 💰 Paid | ❌ Nein | - |
+
+### Unsere FREE Alternativen (Bereits implementiert!)
+
+| Tool | Kosten | Features |
+|------|--------|----------|
+| **sin-deep-research** | 🆓 100% FREE | DuckDuckGo Search + Gemini |
+| **OpenCode Zen** | 🆓 100% FREE | kimi-k2.5-free, big-pickle, glm-4.7-free |
+| **Steel Browser** | 🆓 100% FREE | Chrome CDP, Session Persistence |
+| **Skyvern** | 🆓 100% FREE | Visual AI Automation |
+| **Stagehand** | 🆓 100% FREE | Browser Automation |
+
+### ❌ OpenCode Zen Modelle in Scira NICHT nutzbar!
+
+**Wichtig:** OpenCode Zen Modelle (`kimi-k2.5-free`, `big-pickle`, `glm-4.7-free`) sind **NUR innerhalb OpenCode CLI** verfügbar!
+
+```
+❌ FALSCH: Scira Container kann OpenCode Zen nutzen
+✅ RICHTIG: Nur OpenCode CLI kann OpenCode Zen nutzen
+
+Scira ist ein STANDALONE Next.js Container mit eigenem Backend.
+Scira nutzt die Vercel AI SDK direkt, nicht OpenCode's Provider-System.
+```
+
+**Scira's AI Provider (Vercel AI SDK):**
+- OpenAI, Anthropic, Google, xAI, Groq (via API Keys)
+- Keine OpenCode Integration möglich!
+
+---
+
+## 🌐 STAGEHAND vs SKYVERN vs VERCEL AGENT BROWSER
+
+### Vergleich: Browser Automation für Authentifizierte Inhalte
+
+| Feature | Stagehand | Skyvern | Vercel Agent |
+|---------|-----------|---------|--------------|
+| **Login-Automation** | ✅ Ja | ✅ Ja | ✅ Ja |
+| **Session Persistence** | ✅ Ja | ✅ Ja | ✅ Ja |
+| **Visual AI** | ✅ Ja | ✅ Ja (beste!) | ❌ Nein |
+| **CDP Support** | ✅ Ja | ✅ Ja | ✅ Ja |
+| **Self-Hosted** | ✅ Ja | ✅ Ja | ❌ Cloud |
+| **Kosten** | 🆓 FREE | 🆓 FREE | 💰 Paid |
+| **Integration** | Einfach | Mittel | Komplex |
+
+### Empfehlung: SKYVERN für Scira Integration
+
+**Warum Skyvern am besten für Scira ist:**
+1. **Visual AI**: Kann Login-Formulare visuell erkennen und ausfüllen
+2. **FREE**: 100% kostenlos, keine API Keys nötig
+3. **Self-Hosted**: Läuft in unserem Docker Swarm
+4. **Bereits vorhanden**: `agent-06-skyvern-solver` läuft bereits!
+
+**Integration in Scira:**
+```typescript
+// Scira könnte Skyvern nutzen für:
+- Login-Formulare automatisch ausfüllen
+- Geschützte Inhalte scrapen
+- Session-Cookies verwalten
+- 2FA/OTP handling (visuell)
+```
+
+### Best Practice 2026: Skyvern in Scira integrieren
+
+**Sinnvoll? JA!** Aber als **externer Service**, nicht im Scira Container:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  EMPFOHLENE ARCHITEKTUR                                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Scira Container ──► Skyvern API (agent-06-skyvern:8030)   │
+│  (Next.js App)        (Externer Service)                    │
+│       │                        │                            │
+│       │                        ▼                            │
+│       │              Steel Browser (CDP)                   │
+│       │              (agent-05-steel:9223)                 │
+│       │                        │                            │
+│       │                        ▼                            │
+│       │              Geschützte Website                     │
+│       │              (Login + Scraping)                     │
+│       │                                                     │
+│       ▼                                                     │
+│  Öffentliche Suche (Exa/Tavily)                            │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Vorteile:**
+- Scira bleibt schlank (kein Browser im Container)
+- Skyvern ist bereits deployed und läuft
+- Ressourcen getrennt (Skyvern kann separat skaliert werden)
+- Einfache API-Integration
+
+---
+
+**Dokumentation erstellt:** 2026-01-30  
+**Letzte Aktualisierung:** 2026-01-30  
+**Status:** ✅ AKTIV - Muss bei Änderungen aktualisiert werden

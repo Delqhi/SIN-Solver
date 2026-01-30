@@ -12,7 +12,7 @@
 
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
-import { TwoCaptchaDetector, DetectionResult } from './detector';
+import { TwoCaptchaDetector, CaptchaDetectionResult } from './detector';
 import { ErrorHandler, JobTimeoutError, JobNotFoundError, InvalidJobStateError, CancellationError, WorkerPoolExhaustedError } from './errors';
 import { AntiBanWorkerIntegration } from './anti-ban-integration';
 import { AlertSystem } from './alerts';
@@ -122,26 +122,28 @@ export class WorkerService extends EventEmitter {
       this.antiBan = new AntiBanWorkerIntegration({
         pattern: (process.env.ANTI_BAN_PATTERN as any) || 'normal',
         verbose: process.env.VERBOSE_ANTI_BAN === 'true',
-        slackWebhookUrl: process.env.SLACK_WEBHOOK_URL,
+        slackWebhook: process.env.SLACK_WEBHOOK_URL,
         workHoursStart: parseInt(process.env.WORK_HOURS_START || '8'),
         workHoursEnd: parseInt(process.env.WORK_HOURS_END || '22'),
       });
 
-      // Forward anti-ban events
-      this.antiBan.on('delay', (ms) => this.emit('anti-ban-delay', { ms }));
-      this.antiBan.on('break-started', (duration) =>
-        this.emit('anti-ban-break', { duration })
+      // Forward anti-ban events from the protection instance (which is EventEmitter)
+      this.antiBan.protection?.on('delay-start', (data) =>
+        this.emit('anti-ban-delay-start', data)
       );
-      this.antiBan.on('work-hours-exceeded', () =>
+      this.antiBan.protection?.on('break-start', (data) =>
+        this.emit('anti-ban-break-start', data)
+      );
+      this.antiBan.protection?.on('outside-work-hours-detected', () =>
         this.emit('anti-ban-work-hours-exceeded')
       );
-      this.antiBan.on('session-limit-exceeded', () =>
-        this.emit('anti-ban-session-limit')
+      this.antiBan.protection?.on('max-work-time-exceeded', (data) =>
+        this.emit('anti-ban-session-limit', data)
       );
-      this.antiBan.on('captcha-solved', (stats) =>
-        this.emit('anti-ban-captcha-solved', stats)
+      this.antiBan.protection?.on('captcha-solved', (data) =>
+        this.emit('anti-ban-captcha-solved', data)
       );
-      this.antiBan.on('captcha-skipped', () =>
+      this.antiBan.protection?.on('session-limits-reached', () =>
         this.emit('anti-ban-captcha-skipped')
       );
     }
@@ -164,7 +166,7 @@ export class WorkerService extends EventEmitter {
 
     // Start anti-ban session
     if (this.antiBan) {
-      this.antiBan.startSession();
+      this.antiBan.start();
       this.emit('anti-ban-session-started');
     }
 
@@ -196,7 +198,7 @@ export class WorkerService extends EventEmitter {
 
     // Stop anti-ban session
     if (this.antiBan) {
-      await this.antiBan.stopSession();
+      const result = this.antiBan.stop();
       this.emit('anti-ban-session-stopped');
     }
 

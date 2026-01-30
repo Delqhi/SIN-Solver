@@ -79,41 +79,49 @@ describe('VisionSolver', () => {
     });
   });
 
-  describe('Happy Path: 2 Agents Succeed (MAJORITY)', () => {
-    it('should return SUBMIT when 2 agents agree with ≥95% and 1 fails', async () => {
-      const responses = [
-        { ok: true, json: async () => ({ text: 'ANSWER456', confidence: 0.98 }), status: 200 },
-        { ok: true, json: async () => ({ text: 'ANSWER456', confidence: 0.96 }), status: 200 },
-        { ok: false, status: 500 }, // 3rd agent fails
-      ];
+   describe('Happy Path: 2 Agents Succeed (MAJORITY)', () => {
+     it('should return SUBMIT when 2 agents agree with ≥95% and 1 fails', async () => {
+       (global.fetch as jest.Mock)
+         .mockResolvedValueOnce({
+           ok: true,
+           json: async () => ({ text: 'ANSWER456', confidence: 0.98 }),
+           status: 200,
+         })
+         .mockResolvedValueOnce({
+           ok: true,
+           json: async () => ({ text: 'ANSWER456', confidence: 0.96 }),
+           status: 200,
+         })
+         .mockRejectedValueOnce(new Error('API Error'));
 
-      let callCount = 0;
-      (global.fetch as jest.Mock).mockImplementation(() => {
-        return Promise.resolve(responses[callCount++]);
-      });
+       const testImage = Buffer.from('test-image-data');
+       const result = await visionSolver.solveWithConsensus(testImage);
 
-      const testImage = Buffer.from('test-image-data');
-      const result = await visionSolver.solveWithConsensus(testImage);
-
-      // Should return SUBMIT with 2 agents agreeing (majority)
-      // Note: 2 agents at 0.98 and 0.96 average to 0.97, with 1 agent failing
-      expect(result.success).toBe(true);
-      expect(result.solution).toBe('ANSWER456');
-      expect(result.confidence).toBeGreaterThanOrEqual(0.90); // Relaxed to account for 1 failure
-      expect(result.consensusReason).toMatch(/MAJORITY|UNANIMOUS/);
-    });
+       // Should return SUBMIT with 2 agents agreeing (majority)
+       // Note: 2 agents at 0.98 and 0.96 average to 0.97, with 1 agent failing
+       expect(result.success).toBe(true);
+       expect(result.solution).toBe('ANSWER456');
+       expect(result.confidence).toBeGreaterThanOrEqual(0.90); // Relaxed to account for 1 failure
+       expect(result.consensusReason).toMatch(/MAJORITY|UNANIMOUS/);
+     });
 
     it('should return SUBMIT when 2 agents agree and 1 disagrees', async () => {
-      const responses = [
-        { ok: true, json: async () => ({ text: 'CORRECT_ANSWER', confidence: 0.97 }), status: 200 },
-        { ok: true, json: async () => ({ text: 'CORRECT_ANSWER', confidence: 0.96 }), status: 200 },
-        { ok: true, json: async () => ({ text: 'WRONG_ANSWER', confidence: 0.92 }), status: 200 },
-      ];
-
-      let callCount = 0;
-      (global.fetch as jest.Mock).mockImplementation(() => {
-        return Promise.resolve(responses[callCount++]);
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ text: 'CORRECT_ANSWER', confidence: 0.97 }),
+          status: 200,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ text: 'CORRECT_ANSWER', confidence: 0.96 }),
+          status: 200,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ text: 'WRONG_ANSWER', confidence: 0.92 }),
+          status: 200,
+        });
 
       const testImage = Buffer.from('test-image-data');
       const result = await visionSolver.solveWithConsensus(testImage);

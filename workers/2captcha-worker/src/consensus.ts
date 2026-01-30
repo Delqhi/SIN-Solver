@@ -117,6 +117,27 @@ export class ConsensusEngine {
     // CHECK 2: MAJORITY - 2 of 3 agents agree (and both confident)
     // SAFETY CHECK: If all 3 agents agree on SAME answer, require ALL to be confident
     // This prevents accepting a 2/3 majority when the third agent agreed but is below threshold
+
+    // DEBUG LOG: Input data
+    this.logger.info('[CONSENSUS-DEBUG] Evaluating Majority Checks', {
+      A: {
+        agentId: A.agentId,
+        answer: A.answer,
+        confidence: A.confidence,
+      },
+      B: {
+        agentId: B.agentId,
+        answer: B.answer,
+        confidence: B.confidence,
+      },
+      C: {
+        agentId: C.agentId,
+        answer: C.answer,
+        confidence: C.confidence,
+      },
+      CONFIDENCE_THRESHOLD: this.CONFIDENCE_THRESHOLD,
+    });
+
     const allThreeAgreeButCIsBelow = (
       A.answer === B.answer &&
       B.answer === C.answer &&
@@ -133,7 +154,45 @@ export class ConsensusEngine {
       A.confidence < this.CONFIDENCE_THRESHOLD
     );
 
+    // DEBUG LOG: Guard evaluations
+    this.logger.info('[CONSENSUS-DEBUG] Guard Evaluations', {
+      allThreeAgreeButCIsBelow: {
+        A_equals_B: A.answer === B.answer,
+        B_equals_C: B.answer === C.answer,
+        C_below_threshold: C.confidence < this.CONFIDENCE_THRESHOLD,
+        result: allThreeAgreeButCIsBelow,
+      },
+      allThreeAgreeButBIsBelow: {
+        A_equals_B: A.answer === B.answer,
+        B_equals_C: B.answer === C.answer,
+        B_below_threshold: B.confidence < this.CONFIDENCE_THRESHOLD,
+        result: allThreeAgreeButBIsBelow,
+      },
+      allThreeAgreeButAIsBelow: {
+        A_equals_B: A.answer === B.answer,
+        B_equals_C: B.answer === C.answer,
+        A_below_threshold: A.confidence < this.CONFIDENCE_THRESHOLD,
+        result: allThreeAgreeButAIsBelow,
+      },
+    });
+
     // Try A-B
+    const ABMajorityConditions = {
+      A_equals_B: A.answer === B.answer,
+      A_above_threshold: A.confidence >= this.CONFIDENCE_THRESHOLD,
+      B_above_threshold: B.confidence >= this.CONFIDENCE_THRESHOLD,
+      guard_not_triggered: !allThreeAgreeButCIsBelow,
+    };
+
+    this.logger.info('[CONSENSUS-DEBUG] A-B Majority Check Conditions', {
+      ...ABMajorityConditions,
+      all_conditions_met:
+        ABMajorityConditions.A_equals_B &&
+        ABMajorityConditions.A_above_threshold &&
+        ABMajorityConditions.B_above_threshold &&
+        ABMajorityConditions.guard_not_triggered,
+    });
+
     if (
       A.answer === B.answer &&
       A.confidence >= this.CONFIDENCE_THRESHOLD &&
@@ -168,6 +227,22 @@ export class ConsensusEngine {
     }
 
     // Try A-C
+    const ACMajorityConditions = {
+      A_equals_C: A.answer === C.answer,
+      A_above_threshold: A.confidence >= this.CONFIDENCE_THRESHOLD,
+      C_above_threshold: C.confidence >= this.CONFIDENCE_THRESHOLD,
+      guard_not_triggered: !allThreeAgreeButBIsBelow,
+    };
+
+    this.logger.info('[CONSENSUS-DEBUG] A-C Majority Check Conditions', {
+      ...ACMajorityConditions,
+      all_conditions_met:
+        ACMajorityConditions.A_equals_C &&
+        ACMajorityConditions.A_above_threshold &&
+        ACMajorityConditions.C_above_threshold &&
+        ACMajorityConditions.guard_not_triggered,
+    });
+
     if (
       A.answer === C.answer &&
       A.confidence >= this.CONFIDENCE_THRESHOLD &&
@@ -202,6 +277,22 @@ export class ConsensusEngine {
     }
 
     // Try B-C
+    const BCMajorityConditions = {
+      B_equals_C: B.answer === C.answer,
+      B_above_threshold: B.confidence >= this.CONFIDENCE_THRESHOLD,
+      C_above_threshold: C.confidence >= this.CONFIDENCE_THRESHOLD,
+      guard_not_triggered: !allThreeAgreeButAIsBelow,
+    };
+
+    this.logger.info('[CONSENSUS-DEBUG] B-C Majority Check Conditions', {
+      ...BCMajorityConditions,
+      all_conditions_met:
+        BCMajorityConditions.B_equals_C &&
+        BCMajorityConditions.B_above_threshold &&
+        BCMajorityConditions.C_above_threshold &&
+        BCMajorityConditions.guard_not_triggered,
+    });
+
     if (
       B.answer === C.answer &&
       B.confidence >= this.CONFIDENCE_THRESHOLD &&
@@ -240,6 +331,49 @@ export class ConsensusEngine {
     // - All 3 have different answers
     // - Matching pair has confidence < 95%
     // - No pair meets confidence threshold
+
+    // Log detailed analysis of why no consensus was reached
+    this.logger.warn('[CONSENSUS-DEBUG] NO_CONSENSUS Analysis', {
+      description: 'No majority agreement met - detailed analysis below',
+      agent_pair_analysis: {
+        A_vs_B: {
+          answers_match: A.answer === B.answer,
+          A_confidence: A.confidence,
+          B_confidence: B.confidence,
+          both_above_threshold:
+            A.confidence >= this.CONFIDENCE_THRESHOLD &&
+            B.confidence >= this.CONFIDENCE_THRESHOLD,
+          guard_allThreeAgreeButCIsBelow_triggered: allThreeAgreeButCIsBelow,
+        },
+        A_vs_C: {
+          answers_match: A.answer === C.answer,
+          A_confidence: A.confidence,
+          C_confidence: C.confidence,
+          both_above_threshold:
+            A.confidence >= this.CONFIDENCE_THRESHOLD &&
+            C.confidence >= this.CONFIDENCE_THRESHOLD,
+          guard_allThreeAgreeButBIsBelow_triggered: allThreeAgreeButBIsBelow,
+        },
+        B_vs_C: {
+          answers_match: B.answer === C.answer,
+          B_confidence: B.confidence,
+          C_confidence: C.confidence,
+          both_above_threshold:
+            B.confidence >= this.CONFIDENCE_THRESHOLD &&
+            C.confidence >= this.CONFIDENCE_THRESHOLD,
+          guard_allThreeAgreeButAIsBelow_triggered: allThreeAgreeButAIsBelow,
+        },
+      },
+      voting_results: {
+        A_answer: A.answer,
+        B_answer: B.answer,
+        C_answer: C.answer,
+        A_confidence: A.confidence.toFixed(3),
+        B_confidence: B.confidence.toFixed(3),
+        C_confidence: C.confidence.toFixed(3),
+      },
+    });
+
     const decision: ConsensusDecision = {
       action: 'CANNOT_SOLVE',
       answer: null,

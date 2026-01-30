@@ -17,9 +17,20 @@ import { startServer as startMultiAgentServer } from './server';
 import { ConfigurationError, BrowserInitializationError } from './errors';
 import { config as loadEnv } from 'dotenv';
 import path from 'path';
+import { createCategoryLogger, LogCategory } from './logger';
 
 // Load environment variables
 loadEnv({ path: path.resolve(__dirname, '../.env') });
+
+const startupLogger = createCategoryLogger(LogCategory.STARTUP);
+const browserLogger = createCategoryLogger(LogCategory.BROWSER);
+const detectorLogger = createCategoryLogger(LogCategory.DETECTOR);
+const workerLogger = createCategoryLogger(LogCategory.WORKER);
+const multiAgentLogger = createCategoryLogger(LogCategory.API);
+const shutdownLogger = createCategoryLogger(LogCategory.SHUTDOWN);
+const signalLogger = createCategoryLogger(LogCategory.API);
+const queueLogger = createCategoryLogger(LogCategory.QUEUE);
+const antiBanLogger = createCategoryLogger(LogCategory.ANTI_BAN);
 
 /**
  * Worker Service Instance
@@ -36,7 +47,7 @@ let isShuttingDown = false;
  */
 async function initializeBrowser(): Promise<Browser> {
   try {
-    console.log('[Browser] Initializing Playwright browser with stealth mode...');
+    browserLogger.info('Initializing Playwright browser with stealth mode');
 
     const browser = await chromium.launch({
       headless: process.env.HEADLESS !== 'false',
@@ -50,7 +61,7 @@ async function initializeBrowser(): Promise<Browser> {
       ],
     });
 
-    console.log('[Browser] ✅ Browser initialized successfully');
+    browserLogger.info('✅ Browser initialized successfully');
     return browser;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -68,7 +79,7 @@ async function initializeBrowser(): Promise<Browser> {
  */
 async function initializeDetector(browser: Browser): Promise<TwoCaptchaDetector> {
   try {
-    console.log('[Detector] Initializing CAPTCHA detector...');
+    detectorLogger.info('Initializing CAPTCHA detector');
 
     // Create a temporary page for detector initialization
     const page = await browser.newPage();
@@ -101,7 +112,7 @@ async function initializeDetector(browser: Browser): Promise<TwoCaptchaDetector>
     // Close the temporary page (detector will create its own when needed)
     await page.close();
 
-    console.log('[Detector] ✅ CAPTCHA detector initialized successfully');
+    detectorLogger.info('✅ CAPTCHA detector initialized successfully');
     return detector;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -118,7 +129,7 @@ async function initializeDetector(browser: Browser): Promise<TwoCaptchaDetector>
 function initializeWorkerService(
   detector: TwoCaptchaDetector
 ): WorkerService {
-  console.log('[Worker] Initializing worker service...');
+  workerLogger.info('Initializing worker service');
 
   const workerService = new WorkerService(detector, {
     maxWorkers: parseInt(process.env.MAX_WORKERS || '5', 10),
@@ -189,12 +200,12 @@ function initializeWorkerService(
      console.log(`[AntiBan] ✅ Anti-ban session started (pattern: ${pattern})`);
    });
 
-   workerService.on('anti-ban-session-stopped', () => {
-     console.log(`[AntiBan] ⏹️  Anti-ban session stopped`);
-   });
+    workerService.on('anti-ban-session-stopped', () => {
+      antiBanLogger.info('⏹️  Anti-ban session stopped');
+    });
 
-   console.log('[Worker] ✅ Worker service initialized successfully');
-   return workerService;
+    workerLogger.info('✅ Worker service initialized successfully');
+    return workerService;
  }
 
 /**

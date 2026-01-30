@@ -34,7 +34,7 @@ export interface IntegrationConfig {
  * Manages anti-ban behavior throughout worker lifecycle
  */
 export class AntiBanWorkerIntegration {
-  private protection: AntiBanProtection;
+  public protection: AntiBanProtection;
   private patternManager: BehaviorPatternManager;
   private config: IntegrationConfig;
   private isRunning: boolean = false;
@@ -108,12 +108,48 @@ export class AntiBanWorkerIntegration {
         this.notify(message, 'info');
       });
     }
-  }
+   }
 
-  /**
-   * Send notification to Slack (if configured)
-   */
-  private async notify(
+   /**
+    * Subscribe to integration events
+    * Maps public event names to internal protection events
+    */
+   public on(event: string, handler: (...args: any[]) => void): void {
+     const eventMap: { [key: string]: string } = {
+       'delay': 'delay-start',
+       'delay-start': 'delay-start',
+       'break-started': 'break-start',
+       'break-start': 'break-start',
+       'work-hours-exceeded': 'outside-work-hours-detected',
+       'max-captchas-exceeded': 'max-captchas-exceeded',
+       'max-work-time-exceeded': 'max-work-time-exceeded',
+       'captcha-solved': 'captcha-solved',
+       'captcha-skipped': 'captcha-skipped',
+       'session-limit-exceeded': 'session-limit-exceeded',
+     };
+
+     const actualEvent = eventMap[event] || event;
+     this.protection.on(actualEvent, handler);
+   }
+
+   /**
+    * Start an anti-ban protected session
+    */
+   public startSession(): void {
+     this.start();
+   }
+
+   /**
+    * Stop the anti-ban protected session
+    */
+   public stopSession(): void {
+     this.stop();
+   }
+
+   /**
+    * Send notification to Slack (if configured)
+    */
+   private async notify(
     message: string,
     level: 'info' | 'warning' | 'error'
   ): Promise<void> {

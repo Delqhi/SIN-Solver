@@ -243,6 +243,27 @@ export class AlertSystem extends EventEmitter {
   }
 
   /**
+   * Send timeout warning alert
+   */
+  async timeoutWarning(
+    source: string,
+    remainingMs: number,
+    context?: Record<string, any>
+  ): Promise<void> {
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    const contextStr = context ? `\n\nContext: ${JSON.stringify(context, null, 2)}` : '';
+    
+    const message = `⏰ *Timeout Warning*
+
+Source: *${source}*
+Time Remaining: *${remainingSeconds}s* (${remainingMs}ms)${contextStr}
+
+Timestamp: ${new Date().toISOString()}`;
+
+    await this.sendAlert(message, 'warning', 'timeout-warning');
+  }
+
+  /**
    * Send emergency stop notification
    */
   async emergencyStop(accuracy: number, reason: string = 'Accuracy too low'): Promise<void> {

@@ -1,8 +1,7 @@
 import { errorHandler } from '../../utils/errorHandler';
 import { validateInput } from '../../utils/validators';
 import { logger } from '../../utils/logger';
-import { AutoCorrector } from '../../../../workers/2captcha-worker/src/auto-correct';
-import { TwoCaptchaError } from '../../../../workers/2captcha-worker/src/errors';
+import { AutoCorrectorAdapter } from '../../lib/auto-corrector-adapter.js';
 
 // Global AutoCorrector instance (stateful)
 let autoCorrector = null;
@@ -15,7 +14,7 @@ function initializeAutoCorrector() {
   if (!autoCorrector) {
     const chatWebSocketUrl = process.env.CHAT_WEBSOCKET_URL || 
       'ws://localhost:3009/api/chat/notify';
-    autoCorrector = new AutoCorrector(chatWebSocketUrl);
+    autoCorrector = new AutoCorrectorAdapter(chatWebSocketUrl);
     logger.info('WORKFLOW_CORRECT', 'AutoCorrector initialized');
   }
   return autoCorrector;

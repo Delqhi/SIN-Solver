@@ -241,16 +241,15 @@ export interface DetectAndSolveResponse {
 }
 
 /**
- * Worker job request
+ * Worker job request sent to worker service
+ * The worker service adds jobId, priority, createdAt, etc.
+ * See api.ts routes for usage examples
  */
 export interface WorkerJobRequest {
-  jobId: string;
   type: 'detect' | 'solve' | 'detect-and-solve';
-  url?: string;
-  priority: 1 | 2 | 3 | 4 | 5;
-  timeout?: number;
-  metadata?: Record<string, unknown>;
-  createdAt: string;
+  url: string;
+  timeoutMs?: number;
+  captchaType?: string;  // Only used for 'solve' type
 }
 
 /**

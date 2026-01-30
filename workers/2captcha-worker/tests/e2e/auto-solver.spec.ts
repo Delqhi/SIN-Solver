@@ -311,8 +311,8 @@ test.describe('AutoSolver', () => {
   });
 
   test('should handle detection timeout error', async () => {
-    const mockSolver = new MockSolverSuccess(page);
-    const detector = new MockDetectorTimeout(page);
+    const mockSolver = new MockSolverSuccess();
+    const detector = new MockDetectorTimeout();
     
     autoSolver = new AutoSolver(page, mockSolver);
     (autoSolver as any).detector = detector;
@@ -331,7 +331,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should handle solver failure with fallback to Cannot Solve', async () => {
-    const mockSolverFail = new MockSolverFail(page);
+    const mockSolverFail = new MockSolverFail();
     autoSolver = createAutoSolverWithSolver(page, mockSolverFail, {
       enableCannotSolve: true,
       verbose: true,
@@ -349,7 +349,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should reject low-confidence solver results', async () => {
-    const mockSolverLow = new MockSolverLowConfidence(page);
+    const mockSolverLow = new MockSolverLowConfidence();
     const minConfidence = 0.7; // Require 70% confidence
 
     autoSolver = createAutoSolverWithSolver(page, mockSolverLow, {
@@ -366,7 +366,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should track multiple solver failures in error array', async () => {
-    const mockSolverFail = new MockSolverFail(page);
+    const mockSolverFail = new MockSolverFail();
     autoSolver = createAutoSolverWithSolver(page, mockSolverFail, {
       enableCannotSolve: false, // Don't fall back
       verbose: true,
@@ -411,7 +411,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should enable and disable verbose logging', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver, { verbose: false });
 
     // Initially verbose is false
@@ -425,7 +425,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should allow Cannot Solve configuration', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     
     const configWithCannotSolve: AutoSolverConfig = {
       enableCannotSolve: true,
@@ -445,7 +445,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should return properly structured AutoSolveResult', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const result = await autoSolver.solveCaptcha();
@@ -476,7 +476,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should populate optional fields on success', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const result = await autoSolver.solveCaptcha();
@@ -489,7 +489,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should handle errors array correctly', async () => {
-    const mockSolver = new MockSolverFail(page);
+    const mockSolver = new MockSolverFail();
     autoSolver = createAutoSolverWithSolver(page, mockSolver, {
       enableCannotSolve: false,
     });
@@ -508,7 +508,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should generate unique session IDs', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const result1 = await autoSolver.solveCaptcha();
@@ -521,7 +521,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should reset internal state correctly', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     await autoSolver.solveCaptcha();
@@ -535,7 +535,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should maintain consistent metadata', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const result = await autoSolver.solveCaptcha();
@@ -556,7 +556,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should provide statistics aggregation', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     await autoSolver.solveCaptcha();
@@ -569,7 +569,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should track detection attempts', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const result = await autoSolver.solveCaptcha();
@@ -583,7 +583,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should handle concurrent solve attempts sequentially', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     // Sequential calls should work fine
@@ -595,8 +595,8 @@ test.describe('AutoSolver', () => {
   });
 
   test('should handle empty page gracefully', async () => {
-    const mockSolver = new MockSolverSuccess(page);
-    const detector = new MockDetectorNoCapcha(page);
+    const mockSolver = new MockSolverSuccess();
+    const detector = new MockDetectorNoCapcha();
 
     autoSolver = new AutoSolver(page, mockSolver);
     (autoSolver as any).detector = detector;
@@ -608,7 +608,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should handle rapid reset calls', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     // Rapid resets should not cause errors
@@ -625,7 +625,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should complete full pipeline in reasonable time', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const startTime = Date.now();
@@ -637,7 +637,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should maintain low overhead in timing calculations', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const result = await autoSolver.solveCaptcha();
@@ -653,7 +653,7 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should provide descriptive error messages', async () => {
-    const mockSolver = new MockSolverFail(page);
+    const mockSolver = new MockSolverFail();
     autoSolver = createAutoSolverWithSolver(page, mockSolver, {
       enableCannotSolve: false,
     });
@@ -669,7 +669,7 @@ test.describe('AutoSolver', () => {
   });
 
   test('should include stage name in error context', async () => {
-    const mockSolver = new MockSolverFail(page);
+    const mockSolver = new MockSolverFail();
     autoSolver = createAutoSolverWithSolver(page, mockSolver, {
       enableCannotSolve: false,
     });

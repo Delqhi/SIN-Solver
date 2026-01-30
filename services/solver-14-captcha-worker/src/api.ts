@@ -38,7 +38,7 @@ export function createAPI(worker: BrowserCaptchaWorker): Express {
    */
   app.get('/health', (req: Request, res: Response) => {
     try {
-      const isRunning = worker.isRunning();
+      const isRunning = worker.getIsRunning();
       const uptime = worker.getUptime();
 
       const response = {
@@ -131,7 +131,7 @@ export function createAPI(worker: BrowserCaptchaWorker): Express {
    */
   app.post('/start', async (req: Request, res: Response) => {
     try {
-      if (worker.isRunning()) {
+      if (worker.getIsRunning()) {
         return res.status(400).json({
           error: 'Worker is already running'
         });
@@ -161,7 +161,7 @@ export function createAPI(worker: BrowserCaptchaWorker): Express {
    */
   app.post('/stop', async (req: Request, res: Response) => {
     try {
-      if (!worker.isRunning()) {
+      if (!worker.getIsRunning()) {
         return res.status(400).json({
           error: 'Worker is not running'
         });

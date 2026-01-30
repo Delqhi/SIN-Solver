@@ -6,6 +6,14 @@
 
 import { Browser, Page } from 'playwright';
 import { TwoCaptchaDetector, CaptchaType, detectCaptchaQuick, pollForCaptcha } from './detector';
+import { AlertSystem } from './alerts';
+
+// Mock alert system for examples (no external alerts, console only)
+const mockAlertSystem = new AlertSystem({
+  enableTelegram: false,
+  enableSlack: false,
+  enableConsole: true
+});
 
 /**
  * Example 1: Simple CAPTCHA detection
@@ -13,7 +21,7 @@ import { TwoCaptchaDetector, CaptchaType, detectCaptchaQuick, pollForCaptcha } f
 export async function example1_SimplDetection(page: Page) {
   console.log('🔍 Example 1: Simple CAPTCHA Detection');
 
-  const detector = new TwoCaptchaDetector(page);
+  const detector = new TwoCaptchaDetector(page, mockAlertSystem);
   const result = await detector.detect();
 
   console.log(`✓ Detected: ${result.detected}`);
@@ -38,7 +46,7 @@ export async function example1_SimplDetection(page: Page) {
 export async function example2_TimeoutTracking(page: Page) {
   console.log('⏱️ Example 2: Timeout Tracking');
 
-  const detector = new TwoCaptchaDetector(page, 120000); // 120 seconds
+  const detector = new TwoCaptchaDetector(page, mockAlertSystem, 120000); // 120 seconds
   const result = await detector.detect();
 
   console.log(`✓ Timeout: ${result.timeoutMs}ms (2 minutes)`);
@@ -60,7 +68,7 @@ export async function example2_TimeoutTracking(page: Page) {
 export async function example3_PollingCaptcha(page: Page) {
   console.log('🔄 Example 3: Polling for CAPTCHA');
 
-  const result = await pollForCaptcha(page, 30000, async (detected) => {
+  const result = await pollForCaptcha(page, mockAlertSystem, 30000, async (detected) => {
     console.log(`✓ CAPTCHA detected! Type: ${detected.type}`);
 
     // Auto-save screenshot
@@ -86,8 +94,8 @@ export async function example4_FullWorkflow(page: Page, solverFunction: (img: st
   console.log('🚀 Example 4: Full CAPTCHA Workflow');
 
   // Step 1: Detect CAPTCHA
-  const detector = new TwoCaptchaDetector(page, 120000);
-  const detection = await detector.detect();
+   const detector = new TwoCaptchaDetector(page, mockAlertSystem, 120000);
+   const detection = await detector.detect();
 
   if (!detection.detected) {
     console.log('✗ No CAPTCHA detected');
@@ -146,7 +154,7 @@ export async function example5_RobustDetection(page: Page) {
     try {
       console.log(`🔄 Attempt ${attempt}/${maxRetries}`);
 
-      const detector = new TwoCaptchaDetector(page, 30000);
+      const detector = new TwoCaptchaDetector(page, mockAlertSystem, 30000);
       const result = await detector.detect();
 
       if (result.detected) {
@@ -175,7 +183,7 @@ export async function example5_RobustDetection(page: Page) {
 export async function example6_TypeSpecificHandling(page: Page) {
   console.log('🎯 Example 6: Type-Specific Handling');
 
-  const result = await detectCaptchaQuick(page);
+  const result = await detectCaptchaQuick(page, mockAlertSystem);
 
   if (!result.detected) {
     console.log('No CAPTCHA detected');
@@ -217,7 +225,7 @@ export async function example6_TypeSpecificHandling(page: Page) {
 export async function example7_MetadataExtraction(page: Page) {
   console.log('📊 Example 7: Metadata Extraction');
 
-  const result = await detectCaptchaQuick(page);
+  const result = await detectCaptchaQuick(page, mockAlertSystem);
 
   if (!result.detected) {
     console.log('No CAPTCHA to analyze');
@@ -252,7 +260,7 @@ export async function solveViaService(
   solverService: SolverService
 ): Promise<boolean> {
   // Detect
-  const detection = await detectCaptchaQuick(page);
+  const detection = await detectCaptchaQuick(page, mockAlertSystem);
   if (!detection.detected) return false;
 
   // Solve
