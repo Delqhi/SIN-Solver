@@ -63,16 +63,16 @@ jobs:
             context: '.'
             build_args: ''
 
-          - name: 'API Brain'
-            dockerfile: 'services/api-brain/Dockerfile'
-            image_name: 'sin-solver-api-brain'
-            context: 'services/api-brain'
+          - name: 'Vault API'
+            dockerfile: 'services/room-02-vault-api/Dockerfile'
+            image_name: 'sin-solver-vault-api'
+            context: 'services/room-02-vault-api'
             build_args: ''
 
-          - name: 'Captcha Worker'
-            dockerfile: 'services/solver-14-captcha-worker/Dockerfile'
-            image_name: 'sin-solver-captcha-worker'
-            context: 'services/solver-14-captcha-worker'
+          - name: 'Captcha Solver'
+            dockerfile: 'services/solver-19-captcha-solver/Dockerfile'
+            image_name: 'sin-solver-captcha-solver'
+            context: 'services/solver-19-captcha-solver'
             build_args: ''
 
     steps:
@@ -173,8 +173,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Images Built" >> $GITHUB_STEP_SUMMARY
           echo "- \`sin-solver-dashboard\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`sin-solver-api-brain\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`sin-solver-captcha-worker\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`sin-solver-vault-api\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`sin-solver-captcha-solver\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Registry" >> $GITHUB_STEP_SUMMARY
           echo "Registry: \`${{ env.REGISTRY }}\`" >> $GITHUB_STEP_SUMMARY
