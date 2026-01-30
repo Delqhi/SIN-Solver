@@ -128,19 +128,27 @@ export class AutoCorrector extends EventEmitter {
       const analysis = await this.analyzeError(error);
       this.logAudit('error_analysis', 'success', { errorId, analysis });
 
-      // Phase 2: Determine if fixable
-      if (!analysis.fixable) {
-        return this.createResult(
-          jobId,
-          workflowId,
-          errorId,
-          analysis,
-          'UNFIXABLE',
-          [],
-          startTime,
-          'Error is not automatically fixable - manual intervention required'
-        );
-      }
+       // Phase 2: Determine if fixable
+       if (!analysis.fixable) {
+         return {
+           ...this.createResult(
+             jobId,
+             workflowId,
+             errorId,
+             analysis,
+             'UNFIXABLE',
+             [],
+             startTime,
+             'Error is not automatically fixable - manual intervention required'
+           ),
+           chatNotification: {
+             sent: false,
+             message: 'Error cannot be automatically fixed',
+             timestamp: new Date(),
+           },
+           timestamp: new Date(),
+         };
+       }
 
       // Phase 3: Attempt fixes in priority order
       const fixResult = await this.attemptFixes(
