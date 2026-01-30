@@ -42,7 +42,7 @@ export function AccuracyChart({ data }: AccuracyChartProps) {
                 borderRadius: '6px',
                 fontSize: '12px',
               }}
-              formatter={(value: number) => [`${value.toFixed(1)}%`, 'Accuracy']}
+              formatter={(value) => [`${(value as number).toFixed(1)}%`, 'Accuracy']}
             />
             <Line
               type="monotone"

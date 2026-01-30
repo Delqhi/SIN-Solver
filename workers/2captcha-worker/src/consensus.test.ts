@@ -435,8 +435,10 @@ describe('ConsensusEngine', () => {
       const result = validateDecision(decision);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain(
-        expect.stringContaining('is below 95% threshold')
+      expect(result.errors).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('is below 95% threshold')
+        ])
       );
     });
 

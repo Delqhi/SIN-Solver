@@ -228,9 +228,9 @@ export class CaptchaSubmitter {
       // Wait for input to be visible and enabled
       await input.waitFor({ state: 'visible', timeout: this.config.timeout });
       
-      // Clear any existing text
+      // Clear any existing text using keyboard shortcuts (Ctrl+A then Delete)
       await input.click();
-      await input.triple_click();
+      await this.page.keyboard.press('Control+A');
       await this.page.keyboard.press('Delete');
 
       // Random delay before typing (human-like)

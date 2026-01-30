@@ -2,7 +2,8 @@
  * Unit Tests for Multi-Agent CAPTCHA Solver
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+// Jest provides global test functions - no import needed
+// describe, it, expect, beforeEach, afterEach are available globally
 import { MultiAgentSolver } from '../multi-agent-solver';
 import { ICapatchaSolver, SolverResult, MultiAgentResult } from '../types';
 

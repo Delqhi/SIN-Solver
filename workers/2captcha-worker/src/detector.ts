@@ -58,9 +58,11 @@ export class TwoCaptchaDetector {
   private detectionAttempts: number = 0;
   private maxAttempts: number = 10;
   private waitBetweenAttemptsMs: number = 500;
+  private startTime: number = 0; // Track detection start time
 
   constructor(page: Page, timeoutMs?: number) {
     this.page = page;
+    this.startTime = Date.now(); // Initialize start time
     if (timeoutMs) {
       this.timeoutMs = timeoutMs;
     }
@@ -176,21 +178,146 @@ export class TwoCaptchaDetector {
 
   /**
    * Check for generic image CAPTCHA (2captcha format)
+   * 
+   * BEST PRACTICES 2026:
+   * - Don't match on filename alone (avoids logo false positives)
+   * - Check image dimensions (CAPTCHAs are typically 200-400px)
+   * - Verify element is in form context
+   * - Check for associated input field
    */
   private async checkImageCaptcha(): Promise<boolean> {
+    // Smart selectors that avoid logo false positives
     const selectors = [
-      'img[src*="captcha"]',
+      // Class-based (more reliable than src)
       '.captcha__image',
       'img.captcha-image',
-      '[class*="captcha"] img',
-      'img[alt*="captcha" i]',
+      '[class*="captcha-challenge"] img',
+      '[class*="captcha-wrapper"] img',
+      
+      // Form context selectors
+      'form img[src*="captcha"]',
+      '.captcha-container img',
+      '.captcha-box img',
+      
+      // Alt text (logos usually don't have challenge alt text)
+      'img[alt="CAPTCHA" i]',
+      'img[alt="Security code" i]',
+      'img[alt="Verification code" i]',
     ];
 
     for (const selector of selectors) {
-      const exists = await this.page.$(selector);
-      if (exists) return true;
+      const element = await this.page.$(selector);
+      if (element && await this.validateCaptchaImage(element)) {
+        return true;
+      }
     }
     return false;
+  }
+
+  /**
+   * Validate that an image is actually a CAPTCHA (not a logo)
+   * 
+   * Checks:
+   * 1. Image dimensions (CAPTCHAs are typically 150-500px)
+   * 2. Not a logo (position, surrounding context)
+   * 3. Has associated input field nearby
+   */
+  private async validateCaptchaImage(element: ElementHandle): Promise<boolean> {
+    try {
+      // Check 1: Image dimensions
+      const box = await element.boundingBox();
+      if (!box) return false;
+      
+      // CAPTCHAs are typically 150-500px wide and 50-200px tall
+      // Logos are often smaller or much larger
+      const isValidSize = box.width >= 150 && box.width <= 500 && 
+                          box.height >= 50 && box.height <= 200;
+      
+      if (!isValidSize) {
+        console.log(`[CAPTCHA VALIDATION] Rejected: Invalid size ${box.width}x${box.height}`);
+        return false;
+      }
+
+      // Check 2: Look for associated input field
+      // Real CAPTCHAs always have an input field nearby
+      const hasInput = await this.hasNearbyInput(element);
+      if (!hasInput) {
+        console.log('[CAPTCHA VALIDATION] Rejected: No input field nearby');
+        return false;
+      }
+
+      // Check 3: Not in header/footer (where logos usually are)
+      const isInContent = await this.isInContentArea(element);
+      if (!isInContent) {
+        console.log('[CAPTCHA VALIDATION] Rejected: Not in content area');
+        return false;
+      }
+
+      console.log(`[CAPTCHA VALIDATION] Accepted: ${box.width}x${box.height}`);
+      return true;
+
+    } catch (error) {
+      console.error('[CAPTCHA VALIDATION ERROR]', error);
+      return false;
+    }
+  }
+
+  /**
+   * Check if element has an input field nearby (within 200px)
+   */
+  private async hasNearbyInput(captchaElement: ElementHandle): Promise<boolean> {
+    try {
+      // Look for input fields near the CAPTCHA
+      const inputSelectors = [
+        'input[type="text"]',
+        'input[name*="captcha" i]',
+        'input[placeholder*="captcha" i]',
+        'input[placeholder*="code" i]',
+        '.captcha-input',
+      ];
+
+      for (const selector of inputSelectors) {
+        const input = await this.page.$(selector);
+        if (input) {
+          // Check if they're close to each other
+          const captchaBox = await captchaElement.boundingBox();
+          const inputBox = await input.boundingBox();
+          
+          if (captchaBox && inputBox) {
+            const distance = Math.abs(captchaBox.y - inputBox.y);
+            if (distance < 200) { // Within 200px vertically
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if element is in main content area (not header/footer)
+   */
+  private async isInContentArea(element: ElementHandle): Promise<boolean> {
+    try {
+      const box = await element.boundingBox();
+      if (!box) return false;
+
+      // Get viewport size
+      const viewport = await this.page.viewportSize();
+      if (!viewport) return true; // Can't determine, assume valid
+
+      // Check if element is in middle 80% of page (not header/footer)
+      const headerThreshold = viewport.height * 0.15; // Top 15%
+      const footerThreshold = viewport.height * 0.85; // Bottom 15%
+
+      const isInContent = box.y > headerThreshold && box.y < footerThreshold;
+      return isInContent;
+    } catch {
+      return true; // Can't determine, assume valid
+    }
   }
 
   /**

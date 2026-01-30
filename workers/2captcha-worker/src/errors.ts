@@ -88,7 +88,12 @@ export class CaptchaNotDetectedError extends CaptchaDetectionError {
       retryable: true,
       context: { ...context, type: 'no_captcha_detected' },
     });
-    this.code = 'NO_CAPTCHA_DETECTED';
+    Object.defineProperty(this, 'code', {
+      value: 'NO_CAPTCHA_DETECTED',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, CaptchaNotDetectedError.prototype);
   }
 }
@@ -107,7 +112,12 @@ export class InvalidCaptchaTypeError extends CaptchaDetectionError {
         context: { ...context, detectedType, supportedTypes },
       }
     );
-    this.code = 'INVALID_CAPTCHA_TYPE';
+    Object.defineProperty(this, 'code', {
+      value: 'INVALID_CAPTCHA_TYPE',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, InvalidCaptchaTypeError.prototype);
   }
 }
@@ -126,7 +136,12 @@ export class ElementNotFoundError extends CaptchaDetectionError {
         context: { ...context, elementType, selectors },
       }
     );
-    this.code = 'ELEMENT_NOT_FOUND';
+    Object.defineProperty(this, 'code', {
+      value: 'ELEMENT_NOT_FOUND',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, ElementNotFoundError.prototype);
   }
 }
@@ -166,7 +181,12 @@ export class SolverUnavailableError extends CaptchaSolvingError {
         context: { ...context, solverType, reason },
       }
     );
-    this.code = 'SOLVER_UNAVAILABLE';
+    Object.defineProperty(this, 'code', {
+      value: 'SOLVER_UNAVAILABLE',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, SolverUnavailableError.prototype);
   }
 }
@@ -185,7 +205,12 @@ export class SolverTimeoutError extends CaptchaSolvingError {
         context: { ...context, solverType, timeoutMs },
       }
     );
-    this.code = 'SOLVER_TIMEOUT';
+    Object.defineProperty(this, 'code', {
+      value: 'SOLVER_TIMEOUT',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, SolverTimeoutError.prototype);
   }
 }

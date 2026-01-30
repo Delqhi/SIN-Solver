@@ -1,0 +1,101 @@
+{
+  "name": "2captcha-intelligent-test",
+  "description": "Test-Workflow für intelligenten KI-gesteuerten 2Captcha Worker",
+  "version": "1.0.0",
+  "created": "2026-01-30",
+  "worker": {
+    "type": "intelligent-captcha",
+    "file": "src/intelligent-worker.ts"
+  },
+  "instruction": "Gehe auf https://2captcha.com/demo, wähle 'Normal Captcha' aus, löse das CAPTCHA mit 95% Accuracy",
+  "steps": [
+    {
+      "id": 1,
+      "action": "navigate",
+      "url": "https://2captcha.com/demo",
+      "description": "Öffne 2Captcha Demo Seite"
+    },
+    {
+      "id": 2,
+      "action": "click",
+      "selector": "text=Normal Captcha",
+      "description": "Wähle Normal Captcha Typ"
+    },
+    {
+      "id": 3,
+      "action": "waitFor",
+      "selector": ".captcha-image, img[src*='captcha']",
+      "timeout": 10000,
+      "description": "Warte auf CAPTCHA-Ladung"
+    },
+    {
+      "id": 4,
+      "action": "solveCaptcha",
+      "description": "KI löst CAPTCHA mit 3-Agent Consensus",
+      "models": [
+        "opencode/kimi-k2.5-free",
+        "opencode/glm-4.7-free"
+      ],
+      "consensusThreshold": 0.95
+    },
+    {
+      "id": 5,
+      "action": "fill",
+      "selector": "input[name='answer'], .captcha-input",
+      "value": "${CAPTCHA_SOLUTION}",
+      "description": "Trage Lösung ein"
+    },
+    {
+      "id": 6,
+      "action": "click",
+      "selector": "button[type='submit'], .submit-button",
+      "description": "Submit Antwort"
+    },
+    {
+      "id": 7,
+      "action": "verify",
+      "selector": ".success, .correct",
+      "description": "Prüfe ob Lösung korrekt war"
+    }
+  ],
+  "config": {
+    "headless": false,
+    "slowMo": 100,
+    "screenshots": true,
+    "notifications": {
+      "rocketChat": true,
+      "onError": true,
+      "onSuccess": true
+    },
+    "selfHealing": {
+      "enabled": true,
+      "maxRetries": 3,
+      "alternativeSelectors": true
+    },
+    "caching": {
+      "enabled": true,
+      "ttl": 86400
+    }
+  },
+  "api": {
+    "provider": "opencode_zen",
+    "models": {
+      "vision": "opencode/kimi-k2.5-free",
+      "text": "opencode/glm-4.7-free"
+    },
+    "keys": {
+      "OPENCODE_ZEN_API_KEY": "${env.OPENCODE_ZEN_API_KEY}"
+    }
+  },
+  "notifications": {
+    "rocketChat": {
+      "webhook": "${env.ROCKET_CHAT_WEBHOOK}",
+      "channel": "#captcha-worker"
+    }
+  },
+  "test": {
+    "maxRuns": 10,
+    "expectedAccuracy": 0.95,
+    "stopOnLowAccuracy": true
+  }
+}

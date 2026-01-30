@@ -14,6 +14,8 @@ import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import { TwoCaptchaDetector, DetectionResult } from './detector';
 import { ErrorHandler, JobTimeoutError, JobNotFoundError, InvalidJobStateError, CancellationError, WorkerPoolExhaustedError } from './errors';
+import { AntiBanWorkerIntegration } from './anti-ban-integration';
+import { AlertSystem } from './alerts';
 import type { CaptchaJob, JobStatus, WorkerJobRequest, WorkerJobResponse } from './types';
 
 /**
@@ -74,6 +76,8 @@ export class WorkerService extends EventEmitter {
   private config: Required<WorkerServiceConfig>;
   private processingPromise?: Promise<void>;
   private isRunning = false;
+  private antiBan: AntiBanWorkerIntegration;
+  private alertSystem: AlertSystem;
 
   constructor(detector: TwoCaptchaDetector, config: WorkerServiceConfig = {}) {
     super();
@@ -98,6 +102,49 @@ export class WorkerService extends EventEmitter {
       successRate: 0,
       totalProcessingTimeMs: 0,
     };
+
+    // Initialize Alert System
+    this.alertSystem = new AlertSystem({
+      telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+      telegramChatId: process.env.TELEGRAM_CHAT_ID,
+      slackWebhookUrl: process.env.SLACK_WEBHOOK_URL,
+      rateLimitSeconds: parseInt(process.env.ALERT_RATE_LIMIT_SECONDS || '300'),
+      accuracyWarningThreshold: parseInt(process.env.ALERT_ACCURACY_WARNING_THRESHOLD || '95'),
+      emergencyStopThreshold: parseInt(process.env.ALERT_EMERGENCY_STOP_THRESHOLD || '80'),
+    });
+
+    // Forward AlertSystem events
+    this.alertSystem.on('alert', (alert) => this.emit('alert', alert));
+
+    // Initialize anti-ban protection
+    const antiBanEnabled = process.env.ANTI_BAN_ENABLED !== 'false';
+    if (antiBanEnabled) {
+      this.antiBan = new AntiBanWorkerIntegration({
+        pattern: (process.env.ANTI_BAN_PATTERN as any) || 'normal',
+        verbose: process.env.VERBOSE_ANTI_BAN === 'true',
+        slackWebhookUrl: process.env.SLACK_WEBHOOK_URL,
+        workHoursStart: parseInt(process.env.WORK_HOURS_START || '8'),
+        workHoursEnd: parseInt(process.env.WORK_HOURS_END || '22'),
+      });
+
+      // Forward anti-ban events
+      this.antiBan.on('delay', (ms) => this.emit('anti-ban-delay', { ms }));
+      this.antiBan.on('break-started', (duration) =>
+        this.emit('anti-ban-break', { duration })
+      );
+      this.antiBan.on('work-hours-exceeded', () =>
+        this.emit('anti-ban-work-hours-exceeded')
+      );
+      this.antiBan.on('session-limit-exceeded', () =>
+        this.emit('anti-ban-session-limit')
+      );
+      this.antiBan.on('captcha-solved', (stats) =>
+        this.emit('anti-ban-captcha-solved', stats)
+      );
+      this.antiBan.on('captcha-skipped', () =>
+        this.emit('anti-ban-captcha-skipped')
+      );
+    }
   }
 
   /**
@@ -111,6 +158,18 @@ export class WorkerService extends EventEmitter {
 
     this.isRunning = true;
     this.emit('started');
+
+    // Send startup alert
+    this.alertSystem.workerStarted();
+
+    // Start anti-ban session
+    if (this.antiBan) {
+      this.antiBan.startSession();
+      this.emit('anti-ban-session-started');
+    }
+
+    // Setup scheduled alerts (hourly status & daily reports)
+    this.setupScheduledAlerts();
 
     // Start processing queue
     this.processQueue();
@@ -127,10 +186,24 @@ export class WorkerService extends EventEmitter {
       await this.cancelJob(jobId);
     }
 
+    // Stop anti-ban session
+    if (this.antiBan) {
+      await this.antiBan.stopSession();
+      this.emit('anti-ban-session-stopped');
+    }
+
     // Wait for current processing to complete
     if (this.processingPromise) {
       await this.processingPromise;
     }
+
+    // Send shutdown alert with final metrics
+    const metrics = this.getMetrics();
+    this.alertSystem.workerStopped(
+      `Worker stopped. Total: ${metrics.totalJobs} jobs, ` +
+      `Success: ${(metrics.successRate * 100).toFixed(1)}%, ` +
+      `Failed: ${metrics.failedJobs}`
+    );
 
     this.emit('stopped');
   }
@@ -324,7 +397,27 @@ export class WorkerService extends EventEmitter {
     const abortController = new AbortController();
     job.abortController = abortController;
 
+    // Track consecutive failures for alert triggering
+    let consecutiveFailures = this.getConsecutiveFailureCount();
+
     try {
+      // Anti-ban: Pre-CAPTCHA routine (delays, checks, skip decision)
+      if (this.antiBan) {
+        const preResult = await this.antiBan.beforeCaptcha();
+        if (preResult.shouldSkip) {
+          job.status = 'completed';
+          job.result = {
+            success: false,
+            message: 'Skipped for anti-ban behavior simulation',
+            jobId: job.id,
+          };
+          job.completedAt = new Date();
+          this.metrics.completedJobs++;
+          this.emit('job-completed', { jobId: job.id, result: job.result });
+          return;
+        }
+      }
+
       // Set timeout
       const timeoutHandle = setTimeout(() => {
         abortController.abort();
@@ -345,6 +438,11 @@ export class WorkerService extends EventEmitter {
       // Clear timeout
       clearTimeout(timeoutHandle);
 
+      // Anti-ban: Post-CAPTCHA routine (recording, break checks, limits)
+      if (this.antiBan) {
+        await this.antiBan.afterCaptcha(result.success);
+      }
+
       // Mark as completed
       job.status = 'completed';
       job.result = result;
@@ -353,10 +451,52 @@ export class WorkerService extends EventEmitter {
 
       this.metrics.completedJobs++;
 
+      // Reset consecutive failures on success
+      this.resetConsecutiveFailureCount();
+
       this.emit('job-completed', { jobId: job.id, result });
     } catch (error) {
       clearTimeout(job.timeoutHandle);
       job.timeoutHandle = undefined;
+
+      // Track consecutive failures
+      consecutiveFailures = this.incrementConsecutiveFailureCount();
+
+      // Send error alert
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.alertSystem.errorAlert(error instanceof Error ? error : new Error(errorMsg), {
+        jobId: job.id,
+        jobType: job.request.type,
+        attempt: job.attempts,
+        consecutiveFailures,
+      });
+
+      // Alert on consecutive failures
+      if (consecutiveFailures >= 5) {
+        this.alertSystem.consecutiveFailures(consecutiveFailures);
+      }
+
+      // Check if error is anti-ban related
+      if (this.antiBan && error instanceof Error) {
+        if (
+          error.message.includes('OutsideWorkHours') ||
+          error.message.includes('SessionLimitExceeded')
+        ) {
+          // Anti-ban errors: fail gracefully, don't retry
+          job.status = 'failed';
+          job.error = error;
+          job.completedAt = new Date();
+          this.metrics.failedJobs++;
+
+          this.emit('job-failed', {
+            jobId: job.id,
+            error: error.message,
+            attempts: job.attempts,
+            reason: 'anti-ban-limit',
+          });
+          return;
+        }
+      }
 
       // Check if we should retry
       const shouldRetry =
@@ -371,7 +511,6 @@ export class WorkerService extends EventEmitter {
         );
         job.nextRetryAt = new Date(Date.now() + backoffDelay);
 
-        // Re-add to queue
         this.queue.push(job);
         this.metrics.retriedJobs++;
 
@@ -407,6 +546,14 @@ export class WorkerService extends EventEmitter {
           this.metrics.averageProcessingTimeMs =
             this.metrics.totalProcessingTimeMs / totalCompleted;
           this.metrics.successRate = this.metrics.completedJobs / totalCompleted;
+
+          // Check accuracy thresholds and send alerts
+          const accuracyPercentage = this.metrics.successRate * 100;
+          if (accuracyPercentage < 80) {
+            this.alertSystem.emergencyStop();
+          } else if (accuracyPercentage < 95) {
+            this.alertSystem.accuracyWarning();
+          }
         }
       }
 
