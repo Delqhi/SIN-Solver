@@ -12,10 +12,14 @@ COPY package*.json ./
 RUN npm ci --only=production && \
     npm cache clean --force
 
-# Copy source code
-COPY src/ ./src/
-COPY config/ ./config/ 2>/dev/null || true
-COPY .env.example ./.env.example 2>/dev/null || true
+# Copy source code and TypeScript config (from workers/2captcha-worker/)
+COPY workers/2captcha-worker/src/ ./src/
+COPY workers/2captcha-worker/tsconfig.json ./
+COPY workers/2captcha-worker/config/ ./config/ 2>/dev/null || true
+COPY workers/2captcha-worker/.env.example ./.env.example 2>/dev/null || true
+
+# Build TypeScript to JavaScript
+RUN npm run build
 
 # Create logs and screenshots directories
 RUN mkdir -p ./logs ./screenshots ./temp
@@ -24,11 +28,11 @@ RUN mkdir -p ./logs ./screenshots ./temp
 EXPOSE 8020
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8020/health || exit 1
 
 # Use dumb-init to properly handle signals
 ENTRYPOINT ["/usr/sbin/dumb-init", "--"]
 
-# Start service
-CMD ["node", "src/index.js"]
+# Start service (now runs compiled JavaScript from dist/)
+CMD ["node", "dist/index.js"]

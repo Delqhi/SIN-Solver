@@ -115,11 +115,30 @@ export class ConsensusEngine {
     }
 
     // CHECK 2: MAJORITY - 2 of 3 agents agree (and both confident)
+    // SAFETY CHECK: If all 3 agents agree on SAME answer, require ALL to be confident
+    // This prevents accepting a 2/3 majority when the third agent agreed but is below threshold
+    const allThreeAgreeButCIsBelow = (
+      A.answer === B.answer &&
+      B.answer === C.answer &&
+      C.confidence < this.CONFIDENCE_THRESHOLD
+    );
+    const allThreeAgreeButBIsBelow = (
+      A.answer === B.answer &&
+      B.answer === C.answer &&
+      B.confidence < this.CONFIDENCE_THRESHOLD
+    );
+    const allThreeAgreeButAIsBelow = (
+      A.answer === B.answer &&
+      B.answer === C.answer &&
+      A.confidence < this.CONFIDENCE_THRESHOLD
+    );
+
     // Try A-B
     if (
       A.answer === B.answer &&
       A.confidence >= this.CONFIDENCE_THRESHOLD &&
-      B.confidence >= this.CONFIDENCE_THRESHOLD
+      B.confidence >= this.CONFIDENCE_THRESHOLD &&
+      !allThreeAgreeButCIsBelow // Guard: Don't accept if all 3 agreed but C is below
     ) {
       const minConfidence = Math.min(A.confidence, B.confidence);
       const decision: ConsensusDecision = {
@@ -152,7 +171,8 @@ export class ConsensusEngine {
     if (
       A.answer === C.answer &&
       A.confidence >= this.CONFIDENCE_THRESHOLD &&
-      C.confidence >= this.CONFIDENCE_THRESHOLD
+      C.confidence >= this.CONFIDENCE_THRESHOLD &&
+      !allThreeAgreeButBIsBelow // Guard: Don't accept if all 3 agreed but B is below
     ) {
       const minConfidence = Math.min(A.confidence, C.confidence);
       const decision: ConsensusDecision = {
@@ -185,7 +205,8 @@ export class ConsensusEngine {
     if (
       B.answer === C.answer &&
       B.confidence >= this.CONFIDENCE_THRESHOLD &&
-      C.confidence >= this.CONFIDENCE_THRESHOLD
+      C.confidence >= this.CONFIDENCE_THRESHOLD &&
+      !allThreeAgreeButAIsBelow // Guard: Don't accept if all 3 agreed but A is below
     ) {
       const minConfidence = Math.min(B.confidence, C.confidence);
       const decision: ConsensusDecision = {
