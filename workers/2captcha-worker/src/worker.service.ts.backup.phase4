@@ -483,8 +483,7 @@ export class WorkerService extends EventEmitter {
 
       // Alert on consecutive failures
       if (consecutiveFailures >= 5) {
-        const failureThreshold = 5;
-        this.alertSystem.consecutiveFailures(consecutiveFailures, failureThreshold);
+        this.alertSystem.consecutiveFailures(consecutiveFailures);
       }
 
       // Check if error is anti-ban related

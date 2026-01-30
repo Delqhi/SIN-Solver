@@ -261,40 +261,55 @@ class MistralVision {
     
     const base64Image = imageBuffer.toString('base64');
     
-    const response = await fetch(this.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: this.visionModel,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a CAPTCHA solving expert. Analyze the image and provide the solution. Be concise.'
-          },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              { 
-                type: 'image_url', 
-                image_url: { 
-                  url: `data:image/png;base64,${base64Image}` 
-                } 
-              }
-            ]
-          }
-        ],
-        max_tokens: 100,
-        temperature: 0.3,
-      }),
-    });
+    // Retry logic for rate limiting (429)
+    let retries = 3;
+    let response: Response;
+    
+    while (retries > 0) {
+      response = await fetch(this.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.visionModel,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a CAPTCHA solving expert. Analyze the image and provide the solution. Be concise.'
+            },
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                { 
+                  type: 'image_url', 
+                  image_url: { 
+                    url: `data:image/png;base64,${base64Image}` 
+                  } 
+                }
+              ]
+            }
+          ],
+          max_tokens: 100,
+          temperature: 0.3,
+        }),
+      });
+      
+      if (response.status === 429) {
+        console.log(`   ⚠️  Rate limited (429), retrying in ${(4-retries)*2}s... (${retries} attempts left)`);
+        await new Promise(resolve => setTimeout(resolve, (4-retries) * 2000));
+        retries--;
+        continue;
+      }
+      
+      break;
+    }
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Mistral API error: ${response.status} - ${error}`);
+    if (!response!.ok) {
+      const error = await response!.text();
+      throw new Error(`Mistral API error: ${response!.status} - ${error}`);
     }
 
     const data = await response.json();

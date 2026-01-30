@@ -1,0 +1,1 @@
+src//auto-solver.ts:128:    this.submitter = new CaptchaSubmitter(page, {

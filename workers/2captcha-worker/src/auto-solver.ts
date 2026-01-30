@@ -125,7 +125,7 @@ export class AutoSolver {
       minConfidence: this.config.minSolverConfidence,
       parallel: this.config.useSolverParallel,
     });
-    this.submitter = new CaptchaSubmitter(page, {
+    this.submitter = new CaptchaSubmitter(page, this.alertSystem, {
       screenshotDir: this.config.screenshotDir,
       timeout: this.config.submissionTimeoutMs,
     });
