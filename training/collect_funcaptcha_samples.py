@@ -127,7 +127,7 @@ class FunCaptchaCollector:
             """
 
             response = self.session.post(
-                f"{STEEL_BROWSER_URL}/sessions/{session_id}/execute",
+                f"{STEEL_BROWSER_URL}/v1/sessions/{session_id}/execute",
                 json={"script": js_code},
                 timeout=30,
             )
@@ -229,7 +229,7 @@ class FunCaptchaCollector:
         finally:
             # Cleanup session
             try:
-                self.session.delete(f"{STEEL_BROWSER_URL}/sessions/{session_id}")
+                self.session.delete(f"{STEEL_BROWSER_URL}/v1/sessions/{session_id}")
                 print(f"\n✓ Closed session for {site_name}")
             except:
                 pass
