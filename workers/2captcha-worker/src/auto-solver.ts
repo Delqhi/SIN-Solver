@@ -19,6 +19,7 @@ import { Page } from 'playwright';
 import { TwoCaptchaDetector, CaptchaDetectionResult, CaptchaType } from './detector';
 import { MultiAgentSolver, MultiAgentResult, createDefaultMultiAgentSolver } from './solvers';
 import { CaptchaSubmitter } from './submitter';
+import { AlertSystem } from './alerts';
 
 /**
  * Result from end-to-end CAPTCHA solving
@@ -387,9 +388,10 @@ export class AutoSolver {
  */
 export function createAutoSolver(
   page: Page,
+  alertSystem: AlertSystem,
   config?: AutoSolverConfig
 ): AutoSolver {
-  return new AutoSolver(page, undefined, config);
+  return new AutoSolver(page, alertSystem, undefined, config);
 }
 
 /**
@@ -397,8 +399,9 @@ export function createAutoSolver(
  */
 export function createAutoSolverWithSolver(
   page: Page,
+  alertSystem: AlertSystem,
   solver: MultiAgentSolver,
   config?: AutoSolverConfig
 ): AutoSolver {
-  return new AutoSolver(page, solver, config);
+  return new AutoSolver(page, alertSystem, solver, config);
 }

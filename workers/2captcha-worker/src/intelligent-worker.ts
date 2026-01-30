@@ -158,7 +158,7 @@ Antworte NUR im JSON-Format:
         console.error(`[WORKFLOW] Fehler in Schritt ${i + 1}:`, error);
         
         // 🧠 SELBSTHEILUNG: Versuche Fehler zu beheben
-        const healed = await selfHeal.bind(this)(step, error, i);
+        const healed = await this.selfHeal(step, error, i);
         
         if (!healed) {
           // Benachrichtige User

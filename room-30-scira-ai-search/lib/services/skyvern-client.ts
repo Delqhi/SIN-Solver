@@ -1,17 +1,5 @@
-/**
- * 🦅 Skyvern Client - Visual AI Integration for Scira
- * 
- * Provides visual analysis, CAPTCHA solving, and login form detection
- * by connecting to the Skyvern Solver service (agent-06-skyvern-solver)
- * 
- * @author SIN-Solver Team
- * @version 1.0.0
- * @since 2026-01-30
- */
-
 import { z } from 'zod';
 
-// Configuration schema
 const SkyvernConfigSchema = z.object({
   baseUrl: z.string().url().default('http://agent-06-skyvern-solver:8030'),
   timeout: z.number().default(60000),
@@ -20,7 +8,6 @@ const SkyvernConfigSchema = z.object({
 
 type SkyvernConfig = z.infer<typeof SkyvernConfigSchema>;
 
-// Response schemas
 const LoginFormAnalysisSchema = z.object({
   hasLoginForm: z.boolean(),
   usernameSelector: z.string().optional(),
@@ -56,9 +43,6 @@ export type TwoFactorAnalysis = z.infer<typeof TwoFactorAnalysisSchema>;
 export type CaptchaSolution = z.infer<typeof CaptchaSolutionSchema>;
 export type CoordinatesResult = z.infer<typeof CoordinatesResultSchema>;
 
-/**
- * SkyvernClient - Visual AI automation client
- */
 export class SkyvernClient {
   private config: SkyvernConfig;
 
@@ -70,12 +54,6 @@ export class SkyvernClient {
     });
   }
 
-  /**
-   * Analyze a screenshot to detect login forms
-   * 
-   * @param screenshotBase64 - Base64 encoded screenshot
-   * @returns Login form analysis with selectors and confidence
-   */
   async analyzeLoginForm(screenshotBase64: string): Promise<LoginFormAnalysis> {
     const response = await fetch(`${this.config.baseUrl}/api/v1/analyze`, {
       method: 'POST',
@@ -97,12 +75,6 @@ export class SkyvernClient {
     return LoginFormAnalysisSchema.parse(data);
   }
 
-  /**
-   * Detect if 2FA is required after login attempt
-   * 
-   * @param screenshotBase64 - Base64 encoded screenshot
-   * @returns 2FA detection result
-   */
   async detect2FA(screenshotBase64: string): Promise<TwoFactorAnalysis> {
     const response = await fetch(`${this.config.baseUrl}/api/v1/analyze`, {
       method: 'POST',
@@ -124,12 +96,6 @@ export class SkyvernClient {
     return TwoFactorAnalysisSchema.parse(data);
   }
 
-  /**
-   * Analyze 2FA form to get input selectors
-   * 
-   * @param screenshotBase64 - Base64 encoded screenshot
-   * @returns Detailed 2FA form analysis
-   */
   async analyze2FAForm(screenshotBase64: string): Promise<TwoFactorAnalysis> {
     const response = await fetch(`${this.config.baseUrl}/api/v1/analyze`, {
       method: 'POST',
@@ -151,12 +117,6 @@ export class SkyvernClient {
     return TwoFactorAnalysisSchema.parse(data);
   }
 
-  /**
-   * Generate TOTP code from secret
-   * 
-   * @param secret - TOTP secret key
-   * @returns Generated TOTP code
-   */
   async generateTOTP(secret: string): Promise<string> {
     const response = await fetch(`${this.config.baseUrl}/api/v1/totp/generate`, {
       method: 'POST',
@@ -175,13 +135,6 @@ export class SkyvernClient {
     return z.object({ code: z.string() }).parse(data).code;
   }
 
-  /**
-   * Solve CAPTCHA from image
-   * 
-   * @param imageBase64 - Base64 encoded CAPTCHA image
-   * @param type - CAPTCHA type (recaptcha, hcaptcha, image, audio)
-   * @returns CAPTCHA solution
-   */
   async solveCaptcha(imageBase64: string, type: string): Promise<CaptchaSolution> {
     const response = await fetch(`${this.config.baseUrl}/api/v1/solve-captcha`, {
       method: 'POST',
@@ -203,13 +156,6 @@ export class SkyvernClient {
     return CaptchaSolutionSchema.parse(data);
   }
 
-  /**
-   * Get click coordinates for an element based on visual description
-   * 
-   * @param screenshotBase64 - Base64 encoded screenshot
-   * @param targetDescription - Description of element to find (e.g., "Login button")
-   * @returns Coordinates for clicking
-   */
   async getClickCoordinates(
     screenshotBase64: string,
     targetDescription: string
@@ -239,14 +185,6 @@ export class SkyvernClient {
     return CoordinatesResultSchema.parse(data.coordinates);
   }
 
-  /**
-   * Navigate and solve a task autonomously
-   * 
-   * @param url - Target URL
-   * @param task - Task description (e.g., "Login with username X and password Y")
-   * @param sessionContext - Optional session context for continuity
-   * @returns Navigation result
-   */
   async navigateAndSolve(
     url: string,
     task: string,
@@ -275,11 +213,6 @@ export class SkyvernClient {
     return response.json();
   }
 
-  /**
-   * Health check for Skyvern service
-   * 
-   * @returns true if service is healthy
-   */
   async healthCheck(): Promise<boolean> {
     try {
       const response = await fetch(`${this.config.baseUrl}/health`, {
@@ -293,10 +226,8 @@ export class SkyvernClient {
   }
 }
 
-// Export singleton instance
 export const skyvernClient = new SkyvernClient();
 
-// Export factory function for custom instances
 export function createSkyvernClient(config?: Partial<SkyvernConfig>): SkyvernClient {
   return new SkyvernClient(config);
 }

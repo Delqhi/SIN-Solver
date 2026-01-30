@@ -561,9 +561,9 @@ export class WorkerService extends EventEmitter {
           // Check accuracy thresholds and send alerts
           const accuracyPercentage = this.metrics.successRate * 100;
           if (accuracyPercentage < 80) {
-            this.alertSystem.emergencyStop();
+            this.alertSystem.emergencyStop(accuracyPercentage, 'Accuracy below emergency threshold (80%)');
           } else if (accuracyPercentage < 95) {
-            this.alertSystem.accuracyWarning();
+            this.alertSystem.accuracyWarning(accuracyPercentage, 95);
           }
         }
       }

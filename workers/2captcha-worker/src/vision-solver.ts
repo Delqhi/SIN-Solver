@@ -366,14 +366,14 @@ export class VisionSolver {
 
       const data = await response.json();
 
-      const result: AgentResult = {
-        agentId: 'mistral-v1',
-        answer: data.answer?.trim() || '',
-        confidence: data.confidence || 0.8,
-        solveTime: Date.now() - startTime,
-        method: 'mistral-vision',
-        timestamp: new Date(),
-      };
+       const result: AgentResult = {
+         agentId: 'mistral-v1',
+         answer: data.text?.trim() || '',
+         confidence: data.confidence || 0.8,
+         solveTime: Date.now() - startTime,
+         method: 'mistral-vision',
+         timestamp: new Date(),
+       };
 
       this.logger.debug('[MISTRAL] Solve successful', {
         ...logContext,
