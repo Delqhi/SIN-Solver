@@ -61,12 +61,12 @@ class IntegratedCaptchaWorker:
 
         # Initialize components
         self.session_manager = SessionManager(
-            account_id=config.account_id, router_config=config.router_config
+            account_id=config.account_id, router_config=config.router_config or {}
         )
 
         self.monitor = WorkerMonitor(
             worker_name=f"captcha-{config.account_id}",
-            stats_dir=config.stats_dir or Path.home() / ".sin-solver" / "workers",
+            stats_dir=str(config.stats_dir or Path.home() / ".sin-solver" / "workers"),
         )
 
         self.behavior = HumanBehavior()
@@ -217,7 +217,7 @@ class IntegratedCaptchaWorker:
 
     async def _check_worker_health(self):
         """Check worker health and trigger reconnection if degraded"""
-        health = self.session_manager.session_state.health_metrics
+        health = self.session_manager.health
         success_rate = self.monitor.get_success_rate()
 
         # Check if degraded
@@ -298,7 +298,7 @@ class IntegratedCaptchaWorker:
             "success_rate": f"{success_rate:.2f}%",
             "is_running": self.is_running,
             "emergency_stop": self.emergency_stop,
-            "session_health": self.session_manager.session_state.health_metrics.to_dict(),
+            "session_health": self.session_manager.health.to_dict(),
             "monitor_stats": self.monitor.get_dashboard_data(),
         }
 
