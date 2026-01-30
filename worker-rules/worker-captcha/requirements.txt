@@ -1,4 +1,52 @@
+<<<<<<< HEAD
+# CAPTCHA Worker Dependencies
+# ============================
+# Core dependencies for consensus CAPTCHA solving worker
+
+# Image Processing
+pillow>=9.0.0              # Image manipulation & loading
+numpy>=1.21.0              # Numerical computing
+
+# Data Validation & Serialization
+pydantic>=1.10.0           # Data validation using Python type annotations
+python-dateutil>=2.8.0     # Date utilities
+
+# Testing & Quality Assurance
+pytest>=7.0.0              # Testing framework
+pytest-asyncio>=0.20.0     # Async test support
+pytest-cov>=3.0.0          # Coverage reporting
+pytest-timeout>=2.1.0      # Test timeout support
+
+# Code Quality
+black>=22.0.0              # Code formatting
+flake8>=4.0.0              # Linting
+mypy>=0.950                # Static type checking
+isort>=5.10.0              # Import sorting
+
+# Development
+ipython>=8.0.0             # Interactive shell
+jupyter>=1.0.0             # Notebook environment (optional)
+
+# Logging & Monitoring (Optional - for production use)
+# python-json-logger>=2.0.0  # JSON structured logging
+# prometheus-client>=0.14.0  # Prometheus metrics
+
+# Real OCR Integration (Phase 3A - Currently commented out due to issues)
+# easyocr>=1.7.0             # EasyOCR (PENDING - too large, timeout issues)
+# pytesseract>=0.3.10        # Tesseract wrapper (PENDING - timeouts)
+# paddleocr>=2.7.0           # PaddleOCR (PENDING - not tested yet)
+# ddddocr>=1.4.0             # Fast CAPTCHA OCR (PENDING - not tested yet)
+
+# Web & API (Optional - for API wrapper in future)
+# fastapi>=0.95.0            # Fast web framework
+# uvicorn>=0.21.0            # ASGI server
+# aiohttp>=3.8.0             # Async HTTP client
+
+# Async Support
+aiofiles>=0.8.0            # Async file I/O
+=======
 aiohttp>=3.9.0
 geopy>=2.3.0
 requests>=2.31.0
 fritzconnection>=1.13.0
+>>>>>>> origin/main

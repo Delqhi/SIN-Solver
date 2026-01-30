@@ -177,10 +177,10 @@ class CaptchaYOLOTrainer:
             self.start_time = time.time()
 
             # Train the model
-            # YOLO will automatically create train/val split (80/20)
-            # The 'data' parameter should point to the training directory (YOLO auto-detects structure)
+            # Using explicit data.yaml configuration to fix YOLO v8.4.7 auto-detection bug
+            # data.yaml contains explicit nc=12 and class names to prevent incorrect detection
             self.results = self.model.train(
-                data=str(self.training_dir),  # Directory with class folders (YOLO auto-detects)
+                data=str(self.training_dir / "data.yaml"),  # Explicit config file (fixes nc=14 bug)
                 epochs=self.config["epochs"],
                 imgsz=self.config["imgsz"],
                 batch=self.config["batch"],

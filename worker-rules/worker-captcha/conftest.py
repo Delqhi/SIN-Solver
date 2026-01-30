@@ -1,122 +1,73 @@
+#!/usr/bin/env python3
 """
-Pytest Configuration and Fixtures
-==================================
-
-Provides:
-- Mocked HumanBehavior for fast tests (eliminates time.sleep calls)
-- Async test event loop
-- Temporary stats directory
+pytest Configuration for worker-captcha tests
+Provides fixtures for SessionManager tmpdir, time mocking, and async support
 """
 
 import asyncio
 import pytest
-import time
+import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-from human_behavior import HumanBehavior
+from unittest.mock import patch
+import time as real_time
 
 
-@pytest.fixture
-def mock_human_behavior():
-    """
-    Mock HumanBehavior that removes all sleep() calls for fast testing.
-
-    Instead of:
-        time.sleep(4.2)  # Blocks for 4.2 seconds
-
-    We get:
-        time.sleep(0.001)  # Blocks for 1 millisecond
-
-    This reduces test runtime from 120+ seconds to <5 seconds.
-    """
-    behavior = HumanBehavior()
-
-    # Override all sleep-based methods to use minimal delays
-    original_sleep = time.sleep
-
-    def fast_sleep(duration):
-        """Sleep for 1ms instead of actual duration (for testing)"""
-        original_sleep(0.001)
-
-    behavior.wait_before_action = lambda solution_length=0: fast_sleep(1)
-    behavior.wait_natural_delay = lambda: fast_sleep(1)
-    behavior.take_micro_break = lambda: fast_sleep(1)
-    behavior.take_major_break = lambda: fast_sleep(1)
-
-    # Mouse/typing remain instant (no sleep)
-    behavior.move_mouse_to = MagicMock()
-    behavior.click_with_variation = MagicMock()
-    behavior.type_text = MagicMock()
-
-    return behavior
-
-
-@pytest.fixture
-def mock_behavior_patch(monkeypatch):
-    """
-    Monkeypatch approach: Replace time.sleep with fast_sleep globally.
-
-    This affects all code that calls time.sleep, not just HumanBehavior.
-    """
-    original_sleep = time.sleep
-
-    def fast_sleep(duration):
-        """Sleep for 1ms instead of actual duration"""
-        original_sleep(0.001)
-
-    monkeypatch.setattr(time, "sleep", fast_sleep)
+@pytest.fixture(scope="function")
+def temp_storage_dir():
+    """Create a temporary directory for session storage"""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 
 @pytest.fixture(autouse=True)
-def apply_fast_sleep(monkeypatch):
+def mock_time_sleep():
     """
-    AUTO-APPLY: Make all time.sleep() calls instant for faster tests.
-
-    This fixture is automatically applied to all tests (autouse=True).
-    It reduces any test that calls time.sleep(X) to time.sleep(0.001).
-
-    Example impact on test_batch_solve_with_monitoring():
-    - Before: 20 captchas × 4-8 seconds each = 80-160 seconds (TIMEOUT)
-    - After:  20 captchas × 0.001 seconds each = 0.02 seconds (FAST ✅)
+    Monkeypatch time.sleep() to use fast_sleep
+    Speeds up tests that use time.sleep() for delays
+    Runs automatically on all tests
     """
-    original_sleep = time.sleep
-    call_count = [0]  # Mutable counter for testing
 
-    def fast_sleep(duration):
-        """Replace time.sleep with minimal delay"""
-        call_count[0] += 1
-        original_sleep(0.001)  # Sleep for 1ms instead
+    def fast_sleep(seconds):
+        """Speed up sleep for testing (0.01x scale)"""
+        if seconds > 0:
+            # For testing, reduce sleep to 1% of original
+            # This keeps test timing realistic but much faster
+            real_time.sleep(seconds * 0.01)
 
-    # Replace time.sleep globally
-    monkeypatch.setattr(time, "sleep", fast_sleep)
-
-    # Store call count for assertions if needed
-    fast_sleep.call_count = lambda: call_count[0]
+    with patch("time.sleep", side_effect=fast_sleep):
+        yield
 
 
 @pytest.fixture
-def temp_stats_dir(tmp_path):
-    """Provide temporary directory for monitor stats"""
-    stats_dir = tmp_path / "monitor_stats"
-    stats_dir.mkdir()
-    return str(stats_dir)
+def mock_session_manager_storage(temp_storage_dir):
+    """
+    Patch SessionManager to use temp directory instead of /data/sessions
+    """
+    with patch("session_manager.SessionManager.__init__") as mock_init:
+        original_init = __import__(
+            "session_manager", fromlist=["SessionManager"]
+        ).SessionManager.__init__
+
+        def patched_init(self, account_id, storage_dir=None, **kwargs):
+            """Initialize with temp storage directory"""
+            if storage_dir is None:
+                storage_dir = temp_storage_dir / "sessions"
+            original_init(self, account_id, storage_dir=storage_dir, **kwargs)
+
+        mock_init.side_effect = patched_init
+        yield temp_storage_dir
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def event_loop():
-    """
-    Create asyncio event loop for async tests.
-
-    This fixture ensures each test gets a fresh event loop.
-    Required for @pytest.mark.asyncio tests.
-    """
+    """Create event loop for async tests"""
     loop = asyncio.get_event_loop_policy().new_event_loop()
+    asyncio.set_event_loop(loop)
     yield loop
     loop.close()
 
 
-# Pytest-asyncio configuration
-pytest_plugins = ("pytest_asyncio",)
-
-# Configure asyncio mode (for pytest-asyncio 0.13+)
-asyncio_mode = "auto"
+@pytest.fixture
+def async_test_context():
+    """Provide async context for tests"""
+    return asyncio.get_event_loop()

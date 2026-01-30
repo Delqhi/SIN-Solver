@@ -127,7 +127,8 @@ export default function Dashboard() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white flex">
+        <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-slate-900 border-b border-slate-700 p-6">
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-start">
@@ -140,6 +141,28 @@ export default function Dashboard() {
               </div>
               <div className="text-right text-sm text-slate-400">
                 <p>Last updated: {timestamp.toLocaleTimeString()}</p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsCaptchaWorkflowOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-medium transition-all duration-200 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40"
+                >
+                  <span>✨</span>
+                  <span>Create Workflow</span>
+                </button>
+                
+                <button
+                  onClick={() => setIsChatOpen(!isChatOpen)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    isChatOpen 
+                      ? 'bg-slate-700 text-white' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  }`}
+                >
+                  <span>💬</span>
+                  <span className="hidden sm:inline">Chat</span>
+                </button>
               </div>
             </div>
           </div>
@@ -397,10 +420,12 @@ export default function Dashboard() {
             <p>SIN-Solver Cockpit Dashboard v1.0.0 | All systems operational</p>
           </div>
         </footer>
+        </div>
 
         <ChatSidebar 
           isOpen={isChatOpen} 
           onToggle={setIsChatOpen} 
+          className="h-screen"
         />
       </div>
     </>

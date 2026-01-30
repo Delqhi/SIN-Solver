@@ -1,7 +1,53 @@
 import { errorHandler } from '../../utils/errorHandler';
 import { validateInput } from '../../utils/validators';
 import { logger } from '../../utils/logger';
+import { AutoCorrectorAdapter } from '../../lib/auto-corrector-adapter.js';
 
+// Global AutoCorrector instance (stateful)
+let autoCorrector = null;
+
+/**
+ * Initialize AutoCorrector instance with chat WebSocket URL
+ * Called once on first request
+ */
+function initializeAutoCorrector() {
+  if (!autoCorrector) {
+    const chatWebSocketUrl = process.env.CHAT_WEBSOCKET_URL || 
+      'ws://localhost:3009/api/chat/notify';
+    autoCorrector = new AutoCorrectorAdapter(chatWebSocketUrl);
+    logger.info('WORKFLOW_CORRECT', 'AutoCorrector initialized');
+  }
+  return autoCorrector;
+}
+
+/**
+ * POST /api/workflows/[id]/correct
+ * 
+ * Autonomously corrects errors in workflows without manual intervention.
+ * 
+ * Request Body:
+ * {
+ *   "error": {
+ *     "message": "string",
+ *     "code": "string",
+ *     "name": "string",
+ *     "stack": "string" (optional)
+ *   },
+ *   "jobId": "string" (optional),
+ *   "context": { ... } (optional)
+ * }
+ * 
+ * Response:
+ * {
+ *   "status": "FIXED" | "PARTIAL_FIX" | "MANUAL_REQUIRED" | "UNFIXABLE",
+ *   "fixStrategy": "string",
+ *   "attemptCount": number,
+ *   "successMetrics": { ... },
+ *   "chatNotification": { ... },
+ *   "auditLog": [ ... ],
+ *   "nextAction": "string"
+ * }
+ */
 export default async function handler(req, res) {
   // 1. CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,7 +62,8 @@ export default async function handler(req, res) {
 
   try {
     // 3. Log incoming request
-    logger.info('WORKFLOW_CORRECT', `[${req.method}] ${req.url}`);
+    const { id: workflowId } = req.query;
+    logger.info('WORKFLOW_CORRECT', `[${req.method}] Workflow ${workflowId}`);
 
     // 4. Validate HTTP method
     if (req.method !== 'POST') {
@@ -25,37 +72,119 @@ export default async function handler(req, res) {
       );
     }
 
-    // 5. Validate input
-    const validation = validateInput(req.body, ['feedback', 'rating']);
-    if (!validation.valid) {
+    // 5. Validate required fields
+    const { error: errorObj, jobId, context } = req.body;
+    
+    if (!errorObj) {
       return res.status(400).json(
-        errorHandler.badRequest(`Validation failed: ${validation.errors.join(', ')}`)
+        errorHandler.badRequest('Missing required field: error')
       );
     }
 
-    // 6. Business logic - MOCK DATA ONLY
-    const { id } = req.query;
-    const result = {
-      success: true,
-      data: {
-        workflow_id: id,
-        feedback_received: true,
-        rating: req.body.rating,
-        status: 'completed_with_feedback',
-        processed_at: new Date().toISOString()
+    if (!workflowId) {
+      return res.status(400).json(
+        errorHandler.badRequest('Missing workflow ID in URL')
+      );
+    }
+
+    // 6. Initialize AutoCorrector
+    const corrector = initializeAutoCorrector();
+
+    // 7. Create Error object from request body
+    let errorInstance;
+    
+    if (errorObj instanceof Error) {
+      errorInstance = errorObj;
+    } else if (errorObj.code && errorObj.message) {
+      // Convert to TwoCaptchaError if it has code/message
+      errorInstance = new TwoCaptchaError(
+        errorObj.message,
+        errorObj.code,
+        {
+          httpStatus: errorObj.httpStatus || 500,
+          recoverable: errorObj.recoverable !== false,
+          retryable: errorObj.retryable !== false,
+          context: context || {}
+        }
+      );
+    } else {
+      // Generic error
+      errorInstance = new Error(errorObj.message || JSON.stringify(errorObj));
+    }
+
+    logger.info('WORKFLOW_CORRECT', `Processing error: ${errorInstance.message}`);
+
+    // 8. Detect and automatically correct the error
+    let correctionResult;
+    
+    try {
+      correctionResult = await corrector.detectAndFix(
+        workflowId,
+        errorInstance,
+        jobId
+      );
+    } catch (correctionError) {
+      logger.error('WORKFLOW_CORRECT', `Auto-correction failed: ${correctionError.message}`);
+      return res.status(500).json(
+        errorHandler.internal('Error correction process failed', {
+          error: correctionError.message
+        })
+      );
+    }
+
+    // 9. Format response
+    const responseData = {
+      status: correctionResult.status,
+      fixStrategy: correctionResult.fixStrategy,
+      workflowId: correctionResult.workflowId,
+      jobId: correctionResult.jobId,
+      attemptCount: correctionResult.attemptCount,
+      successMetrics: correctionResult.successMetrics,
+      chatNotification: {
+        sent: correctionResult.chatNotification.sent,
+        message: correctionResult.chatNotification.message,
+        timestamp: correctionResult.chatNotification.timestamp
       },
-      timestamp: new Date().toISOString()
+      auditLog: correctionResult.auditLog,
+      nextAction: correctionResult.nextAction,
+      processedAt: new Date().toISOString()
     };
 
-    // 7. Success response
-    logger.info('WORKFLOW_CORRECT', '[SUCCESS] 200 OK');
-    return res.status(200).json(result);
+    // 10. Determine HTTP status based on correction result
+    let httpStatus = 200; // Default: FIXED
+    
+    switch (correctionResult.status) {
+      case 'FIXED':
+        httpStatus = 200;
+        logger.info('WORKFLOW_CORRECT', 'Error fixed autonomously');
+        break;
+      case 'PARTIAL_FIX':
+        httpStatus = 206; // Partial Content
+        logger.info('WORKFLOW_CORRECT', 'Partial fix applied');
+        break;
+      case 'MANUAL_REQUIRED':
+        httpStatus = 202; // Accepted but not completed
+        logger.warn('WORKFLOW_CORRECT', 'Manual intervention required');
+        break;
+      case 'UNFIXABLE':
+        httpStatus = 422; // Unprocessable Entity
+        logger.error('WORKFLOW_CORRECT', 'Error cannot be fixed');
+        break;
+    }
+
+    // 11. Success response
+    return res.status(httpStatus).json({
+      success: correctionResult.status === 'FIXED',
+      data: responseData
+    });
 
   } catch (error) {
-    // 8. Error handling
-    logger.error('WORKFLOW_CORRECT', error.message);
+    // 12. Unhandled error
+    logger.error('WORKFLOW_CORRECT', `Unhandled error: ${error.message}`);
     return res.status(500).json(
-      errorHandler.internal('Internal server error')
+      errorHandler.internal('Internal server error', {
+        error: error.message
+      })
     );
   }
 }

@@ -382,6 +382,66 @@ curl -X POST http://localhost:8093/webhook \
 
 ---
 
+## 🤖 MCP Wrappers (OpenCode Integration)
+
+SIN-Solver provides MCP (Model Context Protocol) wrappers that bridge Docker container HTTP APIs to OpenCode's stdio-based MCP protocol.
+
+### Available MCP Wrappers
+
+| Wrapper | File | Container | Tools | Status |
+|---------|------|-----------|-------|--------|
+| **Skyvern** | `mcp-wrappers/skyvern-mcp-wrapper.js` | agent-06:8030 | 8 tools | ✅ Active |
+| **Scira** | `mcp-wrappers/scira-mcp-wrapper.js` | room-30:7890 | 11 tools | ✅ Active |
+| **Captcha** | `mcp-wrappers/captcha-mcp-wrapper.js` | solver-1.1:8019 | 10 tools | ✅ Active |
+| **Plane** | `mcp-wrappers/plane-mcp-wrapper.js` | plane.delqhi.com | 30 tools | ✅ Active |
+
+### Skyvern MCP Tools
+
+Visual AI-powered web automation:
+
+- `analyze_screenshot` - Analyze screenshots for UI elements
+- `navigate_and_solve` - Autonomous navigation with AI
+- `solve_captcha` - Visual CAPTCHA solving
+- `generate_totp` - TOTP code generation for 2FA
+- `extract_coordinates` - Get click coordinates
+- `detect_login_form` - Login form detection
+- `detect_2fa` - 2FA/MFA detection
+- `health_check` - Service health check
+
+### OpenCode Configuration
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "skyvern": {
+      "type": "local",
+      "command": ["node", "/path/to/SIN-Solver/mcp-wrappers/skyvern-mcp-wrapper.js"],
+      "enabled": true,
+      "environment": {
+        "SKYVERN_API_URL": "http://localhost:8030",
+        "SKYVERN_API_KEY": "dev-key"
+      }
+    }
+  }
+}
+```
+
+### Testing MCP Wrappers
+
+```bash
+# List available tools
+opencode mcp list-tools skyvern
+
+# Use a tool
+opencode mcp call skyvern health_check
+```
+
+For detailed wrapper documentation, see [mcp-wrappers/README.md](mcp-wrappers/README.md).
+
+---
+
 ## 🔌 API Documentation
 
 ### Base URL
@@ -910,3 +970,5 @@ SIN-Solver is built on the shoulders of amazing open-source projects:
 [GitHub](https://github.com/YOUR_ORG/SIN-Solver) · [Documentation](./docs/) · [Report Issue](https://github.com/YOUR_ORG/SIN-Solver/issues) · [GitHub Discussions](https://github.com/YOUR_ORG/SIN-Solver/discussions)
 
 </div>
+
+<!-- CI/CD Pipeline Test Verification - 2026-01-30 10:37:50 UTC -->

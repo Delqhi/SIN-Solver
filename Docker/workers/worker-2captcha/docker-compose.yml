@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  solver-1.1-2captcha-worker:
+    container_name: solver-1.1-2captcha-worker
+    build:
+      context: ../../..
+      dockerfile: Docker/workers/worker-2captcha/Dockerfile
+    
+    ports:
+      - "8020:8020"
+    
+    environment:
+      # 2Captcha Account
+      - TWOCAPTCHA_EMAIL=${TWOCAPTCHA_EMAIL}
+      - TWOCAPTCHA_PASSWORD=${TWOCAPTCHA_PASSWORD}
+      
+      # Browser Configuration
+      - HEADLESS=${HEADLESS:-false}
+      - STEALTH_MODE=${STEALTH_MODE:-true}
+      - SCREENSHOT_DIR=/app/screenshots
+      - LOGS_DIR=/app/logs
+      
+      # Timeouts (milliseconds)
+      - NAVIGATION_TIMEOUT=${NAVIGATION_TIMEOUT:-30000}
+      - CAPTCHA_WAIT_TIMEOUT=${CAPTCHA_WAIT_TIMEOUT:-60000}
+      - BROWSER_LAUNCH_TIMEOUT=${BROWSER_LAUNCH_TIMEOUT:-30000}
+      
+      # Steel Browser Integration
+      - STEEL_API_URL=${STEEL_API_URL:-http://agent-05-steel-browser:3000}
+      - STEEL_API_KEY=${STEEL_API_KEY}
+      
+      # API Server
+      - API_PORT=8020
+      - API_HOST=0.0.0.0
+      - API_BRAIN_URL=${API_BRAIN_URL:-http://room-13-api-brain:8000}
+      
+      # Redis Cache/Sessions
+      - REDIS_HOST=${REDIS_HOST:-room-04-redis-cache}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_DB=${REDIS_DB:-0}
+      
+      # Rate Limiting
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-20}
+      - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-60}
+      
+      # Debug/Logging
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
+    
+    volumes:
+      # Persistent logs and screenshots
+      - ./logs:/app/logs
+      - ./screenshots:/app/screenshots
+      - ./temp:/app/temp
+      
+      # Shared configuration (read-only)
+      - ${CONFIG_DIR:-.}/config:/app/config:ro
+    
+    networks:
+      - sin-solver-network
+    
+    # Communication with other containers
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Health check (uses curl)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+networks:
+  sin-solver-network:
+    external: true

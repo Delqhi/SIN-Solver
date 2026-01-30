@@ -789,6 +789,29 @@ export class BrowserCaptchaWorker {
   }
 
   /**
+   * ⏱️ Get uptime in seconds
+   */
+  public getUptime(): number {
+    return Math.floor((Date.now() - this.stats.startTime) / 1000);
+  }
+
+  /**
+   * 🎯 Check if worker is running
+   */
+  public getIsRunning(): boolean {
+    return this.isRunning;
+  }
+
+  /**
+   * 📈 Calculate success rate percentage (0-100)
+   */
+  public getSuccessRate(): number {
+    const total = this.stats.totalSolved + this.stats.totalFailed;
+    if (total === 0) return 0;
+    return Math.round((this.stats.totalSolved / total) * 1000) / 10;
+  }
+
+  /**
    * 🛑 Stop worker
    */
   async stop(): Promise<void> {
