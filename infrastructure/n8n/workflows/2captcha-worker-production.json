@@ -1,0 +1,752 @@
+{
+  "name": "2captcha Worker - Production",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "00_start",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 50]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://agent-05-steel-browser:3005/session/init",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+            }
+          ]
+        }
+      },
+      "id": "01_init_browser",
+      "name": "Initialize Steel Browser",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 50],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/navigate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "url": "https://2captcha.com/play-and-earn/play",
+          "waitFor": "networkidle",
+          "timeout": 30000
+        }
+      },
+      "id": "02_navigate_training",
+      "name": "Navigate to Training Mode",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 50],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/screenshot",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "fullPage": false,
+          "quality": 85
+        }
+      },
+      "id": "03_screenshot_training",
+      "name": "Screenshot Training Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 50]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/evaluate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "script": "({ state: { earned: document.querySelector('[class*=\"earned\"]')?.textContent?.match(/\\$[\\d.]+/)?.[0] || 'N/A', solved: document.querySelector('[class*=\"solved\"]')?.textContent?.match(/\\d+/)?.[0] || '0', isTraining: window.location.pathname.includes('/play-and-earn/training'), isRealWork: window.location.pathname.includes('/play-and-earn/play'), sessionActive: !!document.querySelector('[class*=\"logout\"]') } })"
+        }
+      },
+      "id": "04_check_page_state",
+      "name": "Check Page State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 50]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/navigate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "url": "https://2captcha.com/play-and-earn/play",
+          "waitFor": "networkidle",
+          "timeout": 30000
+        }
+      },
+      "id": "05_navigate_real_work",
+      "name": "Navigate to Real Work Mode",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 250]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/screenshot",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "fullPage": false,
+          "selector": "[class*=\"captcha\"]",
+          "quality": 85
+        }
+      },
+      "id": "06_screenshot_captcha",
+      "name": "Screenshot Captcha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 250],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8090/api/consensus-solve",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "image": "={{ $node['06_screenshot_captcha'].json.data.imageBase64 }}",
+          "timeout": 15000,
+          "agents": ["agent-03", "agent-06", "agent-07"],
+          "thresholdConfidence": 0.95
+        }
+      },
+      "id": "07_consensus_solver",
+      "name": "3-Agent Consensus Solver",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 250],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "value1": "={{ $node['07_consensus_solver'].json.confidence }}",
+              "condition": ">=",
+              "value2": 0.95
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "08_check_confidence",
+      "name": "Check Confidence >= 95%",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 250]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/interact",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "action": "humanClick",
+          "selector": "input[placeholder*='Enter captcha answer']",
+          "randomDelay": [300, 800],
+          "jitter": true
+        }
+      },
+      "id": "09_click_input_field",
+      "name": "Click Input Field (Human Delay)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 150],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/type",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "selector": "input[placeholder*='Enter captcha answer']",
+          "text": "={{ $node['07_consensus_solver'].json.solution }}",
+          "humanTyping": true,
+          "typingSpeed": [40, 120],
+          "randomPause": true
+        }
+      },
+      "id": "10_type_solution",
+      "name": "Type Solution (Human Speed)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 150],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/interact",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "action": "humanClick",
+          "selector": "button:has-text('Send')",
+          "randomDelay": [500, 1500],
+          "jitter": true,
+          "movePath": "curved"
+        }
+      },
+      "id": "11_click_send_button",
+      "name": "Click Send Button (Human Movement)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 150],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/wait",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "delay": 2000,
+          "reason": "Wait for submission processing"
+        }
+      },
+      "id": "12_wait_submission",
+      "name": "Wait for Submission",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1650, 150]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/evaluate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "script": "({ success: !document.querySelector('[class*=\"error\"]'), nextCaptchaReady: !!document.querySelector('[class*=\"captcha\"][class*=\"new\"]'), earned: document.querySelector('[class*=\"earned\"]')?.textContent?.match(/\\$[\\d.]+/)?.[0] || 'N/A', solved: parseInt(document.querySelector('[class*=\"solved\"]')?.textContent?.match(/\\d+/)?.[0] || '0') })"
+        }
+      },
+      "id": "13_check_success",
+      "name": "Check Submission Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1850, 150]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/interact",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "action": "humanClick",
+          "selector": "button:has-text('Cannot solve')",
+          "randomDelay": [400, 1200],
+          "jitter": true
+        }
+      },
+      "id": "14_click_cannot_solve",
+      "name": "Click Cannot Solve Button",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 350],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/wait",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "delay": "={{ Math.random() * 2000 + 1000 }}",
+          "reason": "Random micro-break for human behavior"
+        }
+      },
+      "id": "15_micro_break",
+      "name": "Random Micro-Break (1-3s)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 450]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "value1": "={{ $node['13_check_success'].json.solved % 20 }}",
+              "condition": "==",
+              "value2": 0
+            },
+            {
+              "value1": "={{ $node['13_check_success'].json.solved }}",
+              "condition": ">",
+              "value2": 0
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "16_check_break_schedule",
+      "name": "Time for Break (20-40 captchas)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [450, 450]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/wait",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "delay": "={{ Math.random() * 10000 + 5000 }}",
+          "reason": "Scheduled break after 20-40 captchas"
+        }
+      },
+      "id": "17_scheduled_break",
+      "name": "Scheduled Break (5-15s)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 450]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://agent-05-steel-browser:3005/ip-health",
+        "authentication": "none"
+      },
+      "id": "18_check_ip_health",
+      "name": "Monitor IP Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 450],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "value1": "={{ $node['18_check_ip_health'].json.healthScore }}",
+              "condition": "<",
+              "value2": 0.7
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "19_check_ip_degradation",
+      "name": "IP Health < 70%?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1050, 450]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/reconnect",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "switchProxy": true,
+          "reason": "IP health degradation detected"
+        }
+      },
+      "id": "20_auto_reconnect",
+      "name": "Auto-Reconnect with New IP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 450],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/navigate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "url": "https://2captcha.com/play-and-earn/play",
+          "waitFor": "networkidle",
+          "timeout": 30000
+        }
+      },
+      "id": "21_refresh_session",
+      "name": "Refresh Page After Reconnect",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 450]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/evaluate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "script": "({ sessionActive: !!document.querySelector('[class*=\"logout\"]'), isBanned: window.location.pathname.includes('/banned') || document.body.textContent.includes('banned'), requiresLogin: !!document.querySelector('[placeholder*=\"email\"]') })"
+        }
+      },
+      "id": "22_check_session_status",
+      "name": "Check Session Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1650, 450]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "value1": "={{ $node['22_check_session_status'].json.requiresLogin }}",
+              "condition": "==",
+              "value2": true
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "23_check_login_required",
+      "name": "Login Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1850, 450]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/interact",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "action": "loadCookies",
+          "cookieFile": "/Users/jeremy/dev/SIN-Solver/.cookies/2captcha-session.json"
+        }
+      },
+      "id": "24_load_saved_cookies",
+      "name": "Load Saved Cookies",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2050, 450],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/navigate",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "url": "https://2captcha.com/play-and-earn/play",
+          "waitFor": "networkidle",
+          "timeout": 30000
+        }
+      },
+      "id": "25_retry_after_login",
+      "name": "Retry After Login",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 450]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8090/api/stats/update",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "timestamp": "={{ new Date().toISOString() }}",
+          "captchasSolved": "={{ $node['13_check_success'].json.solved }}",
+          "earned": "={{ $node['13_check_success'].json.earned }}",
+          "successRate": "={{ (($node['13_check_success'].json.solved || 0) / (parseInt(process.env.TOTAL_ATTEMPTS) || 1) * 100).toFixed(2) }}%",
+          "ipHealth": "={{ $node['18_check_ip_health'].json.healthScore }}",
+          "sessionActive": "={{ $node['22_check_session_status'].json.sessionActive }}"
+        }
+      },
+      "id": "26_update_stats",
+      "name": "Update Success Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 650],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "value1": "={{ (($node['13_check_success'].json.solved || 0) / (parseInt(process.env.TOTAL_ATTEMPTS) || 1)) < 0.95 }}",
+              "condition": "==",
+              "value2": true
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "27_check_success_rate",
+      "name": "Success Rate < 95%? (STOP)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [450, 650]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8090/api/alert",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "severity": "HIGH",
+          "message": "2captcha worker stopped: Success rate below 95%",
+          "successRate": "={{ (($node['13_check_success'].json.solved || 0) / (parseInt(process.env.TOTAL_ATTEMPTS) || 1) * 100).toFixed(2) }}%",
+          "captchasSolved": "={{ $node['13_check_success'].json.solved }}"
+        }
+      },
+      "id": "28_alert_low_success",
+      "name": "Alert: Low Success Rate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 650],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/quit",
+        "authentication": "none"
+      },
+      "id": "29_stop_worker",
+      "name": "Stop Worker",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 650]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3005/cookies/save",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "file": "/Users/jeremy/dev/SIN-Solver/.cookies/2captcha-session.json"
+        }
+      },
+      "id": "30_save_cookies",
+      "name": "Save Session Cookies",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 650],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8090/api/alert",
+        "authentication": "none",
+        "sendBody": true,
+        "contentType": "application/json",
+        "body": {
+          "severity": "INFO",
+          "message": "2captcha worker completed successfully",
+          "totalEarned": "={{ $node['13_check_success'].json.earned }}",
+          "captchasSolved": "={{ $node['13_check_success'].json.solved }}",
+          "runtime": "{{ $workflow.executionTime }}ms"
+        }
+      },
+      "id": "31_completion_notification",
+      "name": "Send Completion Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 650],
+      "onError": "continueErrorHandling"
+    },
+    {
+      "parameters": {},
+      "id": "32_end",
+      "name": "End",
+      "type": "n8n-nodes-base.end",
+      "typeVersion": 1,
+      "position": [1450, 650]
+    }
+  ],
+  "connections": {
+    "00_start": {
+      "main": [[{ "node": "01_init_browser", "branch": 0 }]]
+    },
+    "01_init_browser": {
+      "main": [[{ "node": "02_navigate_training", "branch": 0 }]]
+    },
+    "02_navigate_training": {
+      "main": [[{ "node": "03_screenshot_training", "branch": 0 }]]
+    },
+    "03_screenshot_training": {
+      "main": [[{ "node": "04_check_page_state", "branch": 0 }]]
+    },
+    "04_check_page_state": {
+      "main": [[{ "node": "05_navigate_real_work", "branch": 0 }]]
+    },
+    "05_navigate_real_work": {
+      "main": [[{ "node": "06_screenshot_captcha", "branch": 0 }]]
+    },
+    "06_screenshot_captcha": {
+      "main": [[{ "node": "07_consensus_solver", "branch": 0 }]]
+    },
+    "07_consensus_solver": {
+      "main": [[{ "node": "08_check_confidence", "branch": 0 }]]
+    },
+    "08_check_confidence": {
+      "main": [
+        [{ "node": "09_click_input_field", "branch": 0 }],
+        [{ "node": "14_click_cannot_solve", "branch": 0 }]
+      ]
+    },
+    "09_click_input_field": {
+      "main": [[{ "node": "10_type_solution", "branch": 0 }]]
+    },
+    "10_type_solution": {
+      "main": [[{ "node": "11_click_send_button", "branch": 0 }]]
+    },
+    "11_click_send_button": {
+      "main": [[{ "node": "12_wait_submission", "branch": 0 }]]
+    },
+    "12_wait_submission": {
+      "main": [[{ "node": "13_check_success", "branch": 0 }]]
+    },
+    "13_check_success": {
+      "main": [[{ "node": "15_micro_break", "branch": 0 }]]
+    },
+    "14_click_cannot_solve": {
+      "main": [[{ "node": "15_micro_break", "branch": 0 }]]
+    },
+    "15_micro_break": {
+      "main": [[{ "node": "16_check_break_schedule", "branch": 0 }]]
+    },
+    "16_check_break_schedule": {
+      "main": [
+        [{ "node": "17_scheduled_break", "branch": 0 }],
+        [{ "node": "18_check_ip_health", "branch": 0 }]
+      ]
+    },
+    "17_scheduled_break": {
+      "main": [[{ "node": "18_check_ip_health", "branch": 0 }]]
+    },
+    "18_check_ip_health": {
+      "main": [[{ "node": "19_check_ip_degradation", "branch": 0 }]]
+    },
+    "19_check_ip_degradation": {
+      "main": [
+        [{ "node": "20_auto_reconnect", "branch": 0 }],
+        [{ "node": "26_update_stats", "branch": 0 }]
+      ]
+    },
+    "20_auto_reconnect": {
+      "main": [[{ "node": "21_refresh_session", "branch": 0 }]]
+    },
+    "21_refresh_session": {
+      "main": [[{ "node": "22_check_session_status", "branch": 0 }]]
+    },
+    "22_check_session_status": {
+      "main": [[{ "node": "23_check_login_required", "branch": 0 }]]
+    },
+    "23_check_login_required": {
+      "main": [
+        [{ "node": "24_load_saved_cookies", "branch": 0 }],
+        [{ "node": "26_update_stats", "branch": 0 }]
+      ]
+    },
+    "24_load_saved_cookies": {
+      "main": [[{ "node": "25_retry_after_login", "branch": 0 }]]
+    },
+    "25_retry_after_login": {
+      "main": [[{ "node": "06_screenshot_captcha", "branch": 0 }]]
+    },
+    "26_update_stats": {
+      "main": [[{ "node": "27_check_success_rate", "branch": 0 }]]
+    },
+    "27_check_success_rate": {
+      "main": [
+        [{ "node": "28_alert_low_success", "branch": 0 }],
+        [{ "node": "06_screenshot_captcha", "branch": 0 }]
+      ]
+    },
+    "28_alert_low_success": {
+      "main": [[{ "node": "29_stop_worker", "branch": 0 }]]
+    },
+    "29_stop_worker": {
+      "main": [[{ "node": "30_save_cookies", "branch": 0 }]]
+    },
+    "30_save_cookies": {
+      "main": [[{ "node": "31_completion_notification", "branch": 0 }]]
+    },
+    "31_completion_notification": {
+      "main": [[{ "node": "32_end", "branch": 0 }]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "errorHandler": "errorHandlerNode",
+    "timezone": "UTC",
+    "executionTimeout": 14400000,
+    "maxAttempts": 3,
+    "retryStrategy": "exponential"
+  },
+  "staticData": {
+    "baseUrl": "https://2captcha.com/play-and-earn/play",
+    "trainingUrl": "https://2captcha.com/play-and-earn/training",
+    "minConfidence": 0.95,
+    "minSuccessRate": 0.95,
+    "microBreakMs": [1000, 3000],
+    "scheduledBreakMs": [5000, 15000],
+    "breakSchedule": 20,
+    "cookiesPath": "/Users/jeremy/dev/SIN-Solver/.cookies/2captcha-session.json"
+  },
+  "description": "Production 2captcha.com worker with anti-ban measures, 3-agent consensus, human behavior simulation, and success rate monitoring. Handles session management, IP health, and automatic reconnection.",
+  "tags": ["2captcha", "captcha-solver", "worker", "production", "anti-ban"],
+  "createdAt": "2026-01-30T00:00:00Z",
+  "updatedAt": "2026-01-30T00:00:00Z"
+}

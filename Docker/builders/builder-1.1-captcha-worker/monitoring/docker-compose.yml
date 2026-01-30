@@ -7,10 +7,10 @@ services:
   # Rocket.Chat Webhook Adapter
   # Converts Prometheus Alertmanager format to Rocket.Chat JSON webhooks
   rocketchat-webhook:
-    image: python:3.11-slim
+    build:
+      context: ./monitoring
+      dockerfile: Dockerfile
     container_name: rocketchat-webhook-adapter
-    working_dir: /app
-    command: python -m pip install -r requirements.txt && python rocketchat-webhook.py
     ports:
       - "8093:8093"
     environment:
@@ -21,10 +21,6 @@ services:
       # Webhook adapter settings
       PORT: 8093
       DEBUG: "false"
-    volumes:
-      # Mount the webhook adapter script and dependencies
-      - ./monitoring/rocketchat-webhook.py:/app/rocketchat-webhook.py:ro
-      - ./monitoring/requirements.txt:/app/requirements.txt:ro
     restart: always
     networks:
       - default
