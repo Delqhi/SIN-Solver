@@ -199,7 +199,33 @@ export class VisionSolver {
         })),
       });
 
-      const decision = this.consensusEngine.compareAnswers(consensusInputs);
+      let decision: ConsensusDecision;
+      try {
+        decision = this.consensusEngine.compareAnswers(consensusInputs);
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        if (errorMsg.includes('Expected') && errorMsg.includes('solver results')) {
+          // Insufficient agents for consensus - return directly with NO_CONSENSUS format
+          this.logger.warn('[VISION-SOLVER] Insufficient agents for consensus', {
+            validAgentCount: validResults.length,
+            requiredCount: '2-3',
+          });
+          
+          return {
+            success: false,
+            captchaType: 'image',
+            solution: undefined,
+            confidence: 0,
+            solvedByService: 'vision-consensus',
+            elapsedTimeMs: Date.now() - startTime,
+            consensusReason: 'NO_CONSENSUS: Insufficient valid agents for consensus',
+            agentDetails: solverResults,
+          };
+        } else {
+          // Unexpected error - re-throw to outer catch block
+          throw error;
+        }
+      }
 
       // DEBUG: Log consensus decision
       this.logger.info('[DEBUG] consensus decision returned', {
