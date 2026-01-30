@@ -12,6 +12,7 @@ on:
       - main
       - develop
       - 'feature/**'
+      - 'test/**'
   pull_request:
     branches:
       - main
