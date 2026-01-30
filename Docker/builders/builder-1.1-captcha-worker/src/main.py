@@ -9,6 +9,7 @@ import base64
 import io
 import logging
 import os
+import sys
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -18,11 +19,23 @@ import cv2
 import numpy as np
 from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel, Field, validator
 from prometheus_client import Counter, Histogram, Gauge, Info, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 from starlette.middleware.base import BaseHTTPMiddleware
+
+# Add app/tools to path for unified solver
+sys.path.insert(0, "/app")
+
+# Import unified captcha solver
+try:
+    from app.tools.captcha_solver import UnifiedCaptchaSolver, CaptchaResult
+
+    UNIFIED_SOLVER_AVAILABLE = True
+except ImportError as e:
+    UNIFIED_SOLVER_AVAILABLE = False
+    logging.warning(f"Unified solver not available: {e}")
 
 # Import modular components
 from src.solvers.veto_engine import VetoEngine
@@ -210,11 +223,19 @@ app = FastAPI(
 )
 
 
-async def verify_api_key(credentials: HTTPAuthCredentials = Depends(security)) -> str:
+async def verify_api_key(authorization: str = Header(None)) -> str:
     """Verify API key from Authorization header"""
-    token = credentials.credentials
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+
+    # Extract token from "Bearer <token>" format
+    if authorization.startswith("Bearer "):
+        token = authorization[7:]
+    else:
+        token = authorization
+
     if token != API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+        raise HTTPException(status_code=401, detail="Invalid API key")
     return token
 
 
@@ -299,42 +320,52 @@ async def solve_captcha(request: CaptchaSolveRequest, api_key: str = Depends(ver
                 client_id=request.client_id,
             )
 
+    result = None
+    captcha_type_detected = request.captcha_type or "unknown"
+
     try:
-        with CAPTCHA_SOLVE_DURATION.time():
-            # Handle different input types
-            if request.image_data:
-                # Decode image
-                image_data = base64.b64decode(request.image_data)
-                nparr = np.frombuffer(image_data, np.uint8)
-                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-                if image is None:
-                    return CaptchaSolveResponse(
-                        success=False,
-                        error="Invalid image data",
-                        solve_time_ms=int((time.time() - start_time) * 1000),
-                    )
-
-                # OCR Detection for elements
-                if ocr_detector:
-                    elements = ocr_detector.detect_elements(image)
-                    logger.debug(f"Detected {len(elements)} elements via OCR")
-
-                # Solve using Veto Engine
-                result = await veto_engine.solve_text_captcha(request.image_data)
-
-            elif request.url:
-                # Browser-based solving
-                result = await veto_engine.solve_with_browser(
-                    request.url, captcha_type="auto", timeout=request.timeout
+        if request.image_data:
+            if unified_solver:
+                solve_result = await unified_solver.solve(
+                    image_base64=request.image_data,
+                    captcha_type=request.captcha_type,
+                    timeout=request.timeout,
                 )
 
+                result = {
+                    "success": solve_result.success,
+                    "solution": solve_result.solution,
+                    "solution_type": solve_result.captcha_type,
+                    "captcha_type": solve_result.captcha_type,
+                    "confidence": solve_result.confidence,
+                    "solver_used": solve_result.solver_used,
+                }
+                captcha_type_detected = (
+                    solve_result.captcha_type or request.captcha_type or "unknown"
+                )
             else:
-                return CaptchaSolveResponse(
-                    success=False,
-                    error="Must provide either image_data or url",
-                    solve_time_ms=int((time.time() - start_time) * 1000),
+                result = await veto_engine.solve_text_captcha(request.image_data)
+                captcha_type_detected = (
+                    result.get("captcha_type", request.captcha_type) or "unknown"
                 )
+
+        elif request.url:
+            result = await veto_engine.solve_with_browser(
+                request.url, captcha_type="auto", timeout=request.timeout
+            )
+            captcha_type_detected = result.get("captcha_type", "browser") or "browser"
+
+        else:
+            return CaptchaSolveResponse(
+                success=False,
+                error="Must provide either image_data or url",
+                solve_time_ms=int((time.time() - start_time) * 1000),
+            )
+
+        solve_time_ms = int((time.time() - start_time) * 1000)
+        CAPTCHA_SOLVE_DURATION.labels(captcha_type=captcha_type_detected).observe(
+            solve_time_ms / 1000.0
+        )
 
         solve_time_ms = int((time.time() - start_time) * 1000)
 
