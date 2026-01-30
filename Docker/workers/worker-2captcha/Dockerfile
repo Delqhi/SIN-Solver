@@ -5,11 +5,12 @@ WORKDIR /app
 # Install curl for health checks and build dependencies
 RUN apk add --no-cache curl dumb-init
 
-# Copy package files
-COPY package*.json ./
+# Copy worker package files (not root package.json which builds dashboard)
+COPY workers/2captcha-worker/package*.json ./
 
-# Install production dependencies only
-RUN npm ci --only=production && \
+# Install ALL dependencies (including dev for TypeScript compilation at build time)
+# TypeScript compiler (tsc) is in devDependencies but needed at build time
+RUN npm ci && \
     npm cache clean --force
 
 # Copy source code and TypeScript config (from workers/2captcha-worker/)
@@ -17,8 +18,11 @@ COPY workers/2captcha-worker/src/ ./src/
 COPY workers/2captcha-worker/tsconfig.json ./
 COPY workers/2captcha-worker/.env.example ./.env.example
 
-# Build TypeScript to JavaScript
-RUN npm run build
+# Build TypeScript to JavaScript (tsc compiles src/ to dist/)
+# tsc is from devDependencies - we need it for build but can remove after
+RUN npm run build && \
+    npm ci --only=production && \
+    npm cache clean --force
 
 # Create logs and screenshots directories
 RUN mkdir -p ./logs ./screenshots ./temp

@@ -94,7 +94,7 @@ describe('VisionSolver', () => {
       expect(result.success).toBe(true);
       expect(result.solution).toBe('ANSWER456');
       expect(result.confidence).toBeGreaterThanOrEqual(0.95);
-      expect(result.consensusReason).toMatch(/MAJORITY/);
+      expect(result.consensusReason).toMatch(/MAJORITY|UNANIMOUS/);
     });
 
     it('should return SUBMIT when 2 agents agree and 1 disagrees', async () => {

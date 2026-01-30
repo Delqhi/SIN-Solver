@@ -181,6 +181,14 @@ export class WorkerService extends EventEmitter {
   async stop(): Promise<void> {
     this.isRunning = false;
 
+    // Clear scheduled alert intervals
+    if ((this as any).hourlyInterval) {
+      clearInterval((this as any).hourlyInterval);
+    }
+    if ((this as any).dailyInterval) {
+      clearTimeout((this as any).dailyInterval);
+    }
+
     // Cancel all active jobs
     for (const jobId of this.activeJobs) {
       await this.cancelJob(jobId);
@@ -635,6 +643,101 @@ export class WorkerService extends EventEmitter {
       nextRetryAt: job.nextRetryAt?.toISOString(),
     };
   }
-}
 
-export default WorkerService;
+  /**
+   * Track consecutive failures for alert triggering
+   */
+  private getConsecutiveFailureCount(): number {
+    const completedJobs = Array.from(this.completedJobs.values()).reverse();
+    let count = 0;
+
+    for (const job of completedJobs) {
+      if (job.status === 'failed') {
+        count++;
+      } else {
+        break;
+      }
+    }
+
+    return count;
+  }
+
+  /**
+   * Increment and return consecutive failure count
+   */
+  private incrementConsecutiveFailureCount(): number {
+    return this.getConsecutiveFailureCount() + 1;
+  }
+
+  /**
+   * Reset consecutive failures on successful completion
+   */
+  private resetConsecutiveFailureCount(): void {
+    // No explicit reset needed - counted from recent failed jobs
+    // New success breaks the chain automatically
+  }
+
+  /**
+   * Setup scheduled alerts (hourly status & daily reports)
+   */
+  private setupScheduledAlerts(): void {
+    // Hourly status alert (every 60 minutes)
+    const hourlyInterval = setInterval(() => {
+      if (this.isRunning) {
+        const metrics = this.getMetrics();
+        this.alertSystem.hourlyStatus({
+          totalJobs: metrics.totalJobs,
+          completedJobs: metrics.completedJobs,
+          failedJobs: metrics.failedJobs,
+          activeJobs: metrics.activeJobs,
+          queuedJobs: metrics.queuedJobs,
+          successRate: metrics.successRate,
+          averageProcessingTimeMs: metrics.averageProcessingTimeMs,
+        });
+      }
+    }, 60 * 60 * 1000); // 60 minutes
+
+    // Daily report alert (at midnight)
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timeUntilMidnight = tomorrow.getTime() - now.getTime();
+
+    const dailyInterval = setTimeout(() => {
+      if (this.isRunning) {
+        const metrics = this.getMetrics();
+        this.alertSystem.dailyReport({
+          date: new Date().toISOString().split('T')[0],
+          totalJobs: metrics.totalJobs,
+          completedJobs: metrics.completedJobs,
+          failedJobs: metrics.failedJobs,
+          successRate: metrics.successRate,
+          totalProcessingTimeMs: metrics.totalProcessingTimeMs,
+          estimatedEarnings: metrics.completedJobs * 0.05, // Example: $0.05 per job
+        });
+
+        // Re-schedule for next day
+        const nextDailyInterval = setInterval(() => {
+          if (this.isRunning) {
+            const updatedMetrics = this.getMetrics();
+            this.alertSystem.dailyReport({
+              date: new Date().toISOString().split('T')[0],
+              totalJobs: updatedMetrics.totalJobs,
+              completedJobs: updatedMetrics.completedJobs,
+              failedJobs: updatedMetrics.failedJobs,
+              successRate: updatedMetrics.successRate,
+              totalProcessingTimeMs: updatedMetrics.totalProcessingTimeMs,
+              estimatedEarnings: updatedMetrics.completedJobs * 0.05,
+            });
+          }
+        }, 24 * 60 * 60 * 1000); // 24 hours
+
+        // Store interval for cleanup on stop()
+        (this as any).dailyInterval = nextDailyInterval;
+      }
+    }, timeUntilMidnight);
+
+    // Store intervals for cleanup on stop()
+    (this as any).hourlyInterval = hourlyInterval;
+    (this as any).dailyInterval = dailyInterval;
+  }
+}

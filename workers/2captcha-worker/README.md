@@ -9,6 +9,10 @@ Steel Browser automation for 2Captcha.com login and automated CAPTCHA work assig
 - ✅ **Start Work Navigation**: Automatic navigation to work assignment section
 - ✅ **CAPTCHA Capture**: Screenshot capture of assigned CAPTCHAs
 - ✅ **Headless Support**: Optional headless mode for server deployment
+- ✅ **Anti-Ban Protection**: Intelligent delays, break enforcement, and work hour limits
+- ✅ **Event System**: Real-time monitoring of solver activity and anti-ban actions
+- ✅ **Slack Alerts**: Critical notifications via Slack webhook integration
+- ✅ **Behavior Patterns**: 4 pre-configured safety patterns (normal, aggressive, cautious, night-owl)
 
 ## Architecture
 
