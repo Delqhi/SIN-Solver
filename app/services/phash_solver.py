@@ -14,6 +14,7 @@ import os
 
 logger = logging.getLogger("PHashSolver")
 
+
 class PHashSolver:
     @staticmethod
     def get_phash(image_input: str) -> str:
@@ -27,12 +28,13 @@ class PHashSolver:
                     image_input = image_input.split(",")[1]
                 img_data = base64.b64decode(image_input)
                 img = Image.open(io.BytesIO(img_data))
-            
+
             phash = imagehash.phash(img)
             return str(phash)
         except Exception as e:
             logger.error(f"pHash generation failed for '{image_input[:50]}...': {e}")
             import hashlib
+
             return hashlib.md5(image_input.encode()).hexdigest()
 
     @staticmethod

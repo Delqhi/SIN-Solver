@@ -22,15 +22,21 @@ from app.core.config import settings
 
 logger = logging.getLogger("TrainingLoop")
 
+
 class TrainingLoop:
     """
     Continuous Training & Feedback Loop
     """
-    
+
     def __init__(self):
-        self.db_url = settings.database_url or "postgresql+asyncpg://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production"
+        self.db_url = (
+            settings.database_url
+            or "postgresql+asyncpg://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production"
+        )
         self.engine = create_async_engine(self.db_url, echo=False)
-        self.AsyncSessionLocal = sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
+        self.AsyncSessionLocal = sessionmaker(
+            self.engine, class_=AsyncSession, expire_on_commit=False
+        )
         self.queue = asyncio.Queue()
         self.is_running = False
 
@@ -47,13 +53,13 @@ class TrainingLoop:
                 logger.error(f"❌ Error in training loop: {e}")
 
     async def record_attempt(
-        self, 
-        image_b64: str, 
-        captcha_type: str, 
-        solution: str, 
+        self,
+        image_b64: str,
+        captcha_type: str,
+        solution: str,
         solver_used: str,
         confidence: float,
-        solve_duration_ms: int = 0
+        solve_duration_ms: int = 0,
     ) -> str:
         """
         Record a solve attempt (before verification)
@@ -65,14 +71,14 @@ class TrainingLoop:
                 res = await session.execute(select(CaptchaType).filter_by(name=captcha_type))
                 ctype = res.scalars().first()
                 type_id = ctype.id if ctype else None
-                
+
                 attempt = CaptchaSolveAttempt(
                     captcha_type_id=type_id,
                     solver_used=solver_used,
                     solve_duration_ms=solve_duration_ms,
-                    success=False, # Unknown yet
+                    success=False,  # Unknown yet
                     confidence_score=confidence,
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.utcnow(),
                 )
                 session.add(attempt)
                 await session.commit()
@@ -83,12 +89,12 @@ class TrainingLoop:
                 return ""
 
     async def report_success(
-        self, 
-        attempt_id: str, 
-        image_b64: str, 
+        self,
+        attempt_id: str,
+        image_b64: str,
         captcha_type: str,
         solution: str,
-        verification_method: str = "submit_success"
+        verification_method: str = "submit_success",
     ):
         """
         Report a confirmed successful solve.
@@ -98,14 +104,16 @@ class TrainingLoop:
             return
 
         # Queue for background processing to not block the solver
-        await self.queue.put({
-            "type": "success",
-            "attempt_id": attempt_id,
-            "image_b64": image_b64,
-            "captcha_type": captcha_type,
-            "solution": solution,
-            "verification_method": verification_method
-        })
+        await self.queue.put(
+            {
+                "type": "success",
+                "attempt_id": attempt_id,
+                "image_b64": image_b64,
+                "captcha_type": captcha_type,
+                "solution": solution,
+                "verification_method": verification_method,
+            }
+        )
 
     async def _process_feedback(self, item: Dict[str, Any]):
         """Process verified data"""
@@ -114,21 +122,25 @@ class TrainingLoop:
                 # 1. Update Attempt Status
                 attempt_id = item["attempt_id"]
                 # (Assuming UUID or int ID)
-                # await session.execute(update(CaptchaSolveAttempt)...) 
+                # await session.execute(update(CaptchaSolveAttempt)...)
                 # For now just log it as we need proper ID handling
-                
+
                 # 2. Save to Training Data (The Gold Mine)
                 image_data = base64.b64decode(item["image_b64"])
                 image_hash = hashlib.sha256(image_data).hexdigest()
-                
+
                 # Check if already exists
-                res = await session.execute(select(CaptchaTrainingData).filter_by(screenshot_hash=image_hash))
+                res = await session.execute(
+                    select(CaptchaTrainingData).filter_by(screenshot_hash=image_hash)
+                )
                 if res.scalars().first():
                     logger.debug("Duplicate training data, skipping")
                     return
 
                 # Get Type ID
-                res = await session.execute(select(CaptchaType).filter_by(name=item["captcha_type"]))
+                res = await session.execute(
+                    select(CaptchaType).filter_by(name=item["captcha_type"])
+                )
                 ctype = res.scalars().first()
                 if not ctype:
                     return
@@ -138,22 +150,26 @@ class TrainingLoop:
                     screenshot=image_data,
                     screenshot_hash=image_hash,
                     label=item["solution"],
-                    is_verified=True, # Confirmed by success
+                    is_verified=True,  # Confirmed by success
                     verification_method=item["verification_method"],
                     solve_method="auto_verified",
-                    collected_at=datetime.utcnow()
+                    collected_at=datetime.utcnow(),
                 )
-                
+
                 session.add(training_entry)
                 await session.commit()
-                logger.info(f"💎 [TrainingLoop] Learned new {item['captcha_type']} sample: {item['solution']}")
+                logger.info(
+                    f"💎 [TrainingLoop] Learned new {item['captcha_type']} sample: {item['solution']}"
+                )
 
             except Exception as e:
                 logger.error(f"Failed to process training feedback: {e}")
                 await session.rollback()
 
+
 # Singleton
 _training_loop = None
+
 
 def get_training_loop() -> TrainingLoop:
     global _training_loop

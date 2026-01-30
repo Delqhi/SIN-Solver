@@ -10,8 +10,11 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger("StagehandClient")
 
+
 class StagehandClient:
-    def __init__(self, base_url: str = "http://172.20.0.52:8000"): # Adjusted IP based on room layout
+    def __init__(
+        self, base_url: str = "http://172.20.0.52:8000"
+    ):  # Adjusted IP based on room layout
         self.base_url = base_url
         self._client = None
 
@@ -37,11 +40,8 @@ class StagehandClient:
         Ask Stagehand to find an element in the HTML using advanced heuristics.
         """
         url = f"{self.base_url}/inspect"
-        payload = {
-            "html": html_content,
-            "query": query
-        }
-        
+        payload = {"html": html_content, "query": query}
+
         try:
             client = await self._get_client()
             response = await client.post(url, json=payload)
@@ -56,11 +56,8 @@ class StagehandClient:
         Ask Stagehand to fix a broken CSS selector.
         """
         url = f"{self.base_url}/heal_selector"
-        payload = {
-            "broken_selector": broken_selector,
-            "html": html_content
-        }
-        
+        payload = {"broken_selector": broken_selector, "html": html_content}
+
         try:
             client = await self._get_client()
             response = await client.post(url, json=payload)
@@ -77,7 +74,7 @@ class StagehandClient:
         """
         logger.info(f"📡 [Stagehand] Performing semantic action: {instruction}")
         try:
-            # Stagehand normally uses its own internal automation, 
+            # Stagehand normally uses its own internal automation,
             # but we can also use it to generate Playwright code or selectors.
             html = await page.content()
             res = await self.inspect_dom(html, instruction)

@@ -16,6 +16,7 @@ from app.services.stagehand_client import StagehandClient
 
 logger = logging.getLogger("GlobalDispatcher")
 
+
 class ExecutionDispatcher:
     def __init__(self):
         self.stagehand = StagehandClient()
@@ -26,15 +27,19 @@ class ExecutionDispatcher:
         """
         target_type = detection_results.get("primary_type", "none")
         source = detection_results.get("primary_source", "unknown")
-        
+
         logger.info(f"📤 [Dispatcher] Routing mission for {target_type} (Detected via {source})...")
 
         if target_type == "cloudflare" or target_type == "checkbox":
-            logger.info("🛡️ [Dispatcher] Type: Gate/Checkbox. Assigning to SteelPrecision High-Speed Engine.")
+            logger.info(
+                "🛡️ [Dispatcher] Type: Gate/Checkbox. Assigning to SteelPrecision High-Speed Engine."
+            )
             return True
 
         if target_type in ["login_form", "modal_overlay", "cookie_banner"]:
-            logger.info(f"🚑 [Dispatcher] Type: UI Structure ({target_type}). Assigning to Stagehand Healing Engine.")
+            logger.info(
+                f"🚑 [Dispatcher] Type: UI Structure ({target_type}). Assigning to Stagehand Healing Engine."
+            )
             try:
                 success = await self.stagehand.solve_ui_blockade(page, target_type)
                 return success
@@ -46,10 +51,14 @@ class ExecutionDispatcher:
             logger.info("🧠 [Dispatcher] Type: CAPTCHA. Assigning to SolverRouter Consensus Swarm.")
             return True
 
-        logger.warning(f"⚠️ [Dispatcher] No specialized route for {target_type}. Falling back to default.")
+        logger.warning(
+            f"⚠️ [Dispatcher] No specialized route for {target_type}. Falling back to default."
+        )
         return False
 
+
 _dispatcher = None
+
 
 def get_dispatcher() -> ExecutionDispatcher:
     global _dispatcher

@@ -3,6 +3,7 @@
 =====================================
 "The Truth, The Whole Truth, and Nothing But The Truth."
 """
+
 import logging
 import json
 import traceback
@@ -13,16 +14,19 @@ from typing import Dict, Any, Optional
 
 logger = logging.getLogger("Forensics")
 
+
 class ForensicLedger:
     def __init__(self, ledger_path: str = "forensic_ledger.jsonl"):
         self.ledger_path = Path(ledger_path)
 
-    def record_error(self, 
-                     error_code: str, 
-                     message: str, 
-                     context: Dict[str, Any], 
-                     exception: Optional[Exception] = None,
-                     severity: str = "ERROR"):
+    def record_error(
+        self,
+        error_code: str,
+        message: str,
+        context: Dict[str, Any],
+        exception: Optional[Exception] = None,
+        severity: str = "ERROR",
+    ):
         """
         Immutably records an error to the forensic ledger.
         """
@@ -32,13 +36,15 @@ class ForensicLedger:
             "error_code": error_code,
             "message": message,
             "context": context,
-            "stack_trace": "".join(traceback.format_tb(exception.__traceback__)) if exception else None,
-            "executor": sys.argv[0]
+            "stack_trace": "".join(traceback.format_tb(exception.__traceback__))
+            if exception
+            else None,
+            "executor": sys.argv[0],
         }
-        
+
         # 1. Log to Console (Immediate Visibility)
         logger.error(f"[{error_code}] {message}")
-        
+
         # 2. Append to Immutable Ledger (JSONL)
         try:
             with open(self.ledger_path, "a", encoding="utf-8") as f:
@@ -51,10 +57,11 @@ class ForensicLedger:
         """Retrieves the last N errors for RCA."""
         if not self.ledger_path.exists():
             return []
-            
+
         with open(self.ledger_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
             return [json.loads(line) for line in lines[-limit:]]
+
 
 # Singleton
 forensics = ForensicLedger()

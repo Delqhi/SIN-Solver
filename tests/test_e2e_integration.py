@@ -87,11 +87,11 @@ async def test_redis_connection_real(redis_client):
     """Test REAL Redis connection"""
     # Write test data
     await redis_client.set("test:e2e:connection", "success", ex=10)
-    
+
     # Read back
     value = await redis_client.get("test:e2e:connection")
     assert value == "success"
-    
+
     # Cleanup
     await redis_client.delete("test:e2e:connection")
     print("✅ Redis E2E test passed")
@@ -103,7 +103,7 @@ async def test_rate_limiter_real(redis_client):
     # Test rate limiting directly via API endpoint
     async with aiohttp.ClientSession() as session:
         test_key = f"e2e_test_{time.time()}"
-        
+
         # Make multiple rapid requests to trigger rate limiting
         responses = []
         for i in range(10):
@@ -111,11 +111,11 @@ async def test_rate_limiter_real(redis_client):
                 f"{BASE_URL}/api/solve",
                 json={
                     "image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
-                    "client_id": f"{test_key}_{i}"
-                }
+                    "client_id": f"{test_key}_{i}",
+                },
             ) as resp:
                 responses.append(resp.status)
-        
+
         # Should have received responses (rate limiter working if no crashes)
         assert len(responses) == 10
         print(f"✅ Rate limiter test passed: {len(responses)} requests handled")
@@ -132,8 +132,10 @@ async def test_circuit_breaker_real():
             # Verify circuits are tracked
             assert "mistral_circuit" in data["services"]
             assert "qwen_circuit" in data["services"]
-            print(f"✅ Circuit breaker states: Mistral={data['services']['mistral_circuit']}, Qwen={data['services']['qwen_circuit']}")
-    
+            print(
+                f"✅ Circuit breaker states: Mistral={data['services']['mistral_circuit']}, Qwen={data['services']['qwen_circuit']}"
+            )
+
     print("✅ Circuit breaker E2E test passed")
 
 
@@ -147,14 +149,14 @@ async def test_batch_processing_real():
             "captcha_type": "text",
             "priority": "normal",
             "images": [
-                {"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==", "format": "png"}
-            ]
+                {
+                    "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
+                    "format": "png",
+                }
+            ],
         }
-        
-        async with session.post(
-            f"{BASE_URL}/api/solve/batch",
-            json=batch_data
-        ) as resp:
+
+        async with session.post(f"{BASE_URL}/api/solve/batch", json=batch_data) as resp:
             assert resp.status in [200, 202, 422]  # 422 if no image data
             print(f"✅ Batch processing endpoint responded: {resp.status}")
 
@@ -166,24 +168,24 @@ async def test_queue_priority_real(redis_client):
     await redis_client.delete("captcha:queue:high")
     await redis_client.delete("captcha:queue:normal")
     await redis_client.delete("captcha:queue:low")
-    
+
     # Add jobs with different priorities directly to Redis
     test_id = f"e2e_{time.time()}"
-    
+
     # Use sorted sets for priority queue simulation
     await redis_client.zadd("captcha:queue:high", {f"{test_id}_high": 1})
     await redis_client.zadd("captcha:queue:normal", {f"{test_id}_normal": 1})
     await redis_client.zadd("captcha:queue:low", {f"{test_id}_low": 1})
-    
+
     # Verify queue lengths
     high_len = await redis_client.zcard("captcha:queue:high")
     normal_len = await redis_client.zcard("captcha:queue:normal")
     low_len = await redis_client.zcard("captcha:queue:low")
-    
+
     assert high_len >= 1, "High priority queue should have job"
     assert normal_len >= 1, "Normal priority queue should have job"
     assert low_len >= 1, "Low priority queue should have job"
-    
+
     print("✅ Queue priority system verified")
 
 
@@ -192,21 +194,21 @@ async def test_concurrent_solves():
     """Test concurrent captcha solving"""
     async with aiohttp.ClientSession() as session:
         tasks = []
-        
+
         # Create 10 concurrent solve requests
         for i in range(10):
             task = session.post(
                 f"{BASE_URL}/api/solve",
                 json={
                     "image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
-                    "client_id": f"concurrent_test_{i}_{time.time()}"
-                }
+                    "client_id": f"concurrent_test_{i}_{time.time()}",
+                },
             )
             tasks.append(task)
-        
+
         # Execute all concurrently
         responses = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Check all responded (even if with errors)
         success_count = sum(1 for r in responses if not isinstance(r, Exception))
         print(f"✅ Concurrent test: {success_count}/10 requests completed")
@@ -218,10 +220,7 @@ async def test_error_handling_real():
     async with aiohttp.ClientSession() as session:
         # Test with completely invalid input (missing required fields)
         async with session.post(
-            f"{BASE_URL}/api/solve",
-            json={
-                "invalid_field": "no_image_provided"
-            }
+            f"{BASE_URL}/api/solve", json={"invalid_field": "no_image_provided"}
         ) as resp:
             # API accepts the request (200) but may return error in response body
             # or processes it as a valid request with default handling
@@ -275,7 +274,10 @@ async def test_full_workflow_integration():
         # 4. Test solve endpoint with minimal payload
         async with session.post(
             f"{BASE_URL}/api/solve",
-            json={"image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==", "client_id": "test_workflow"}
+            json={
+                "image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==",
+                "client_id": "test_workflow",
+            },
         ) as resp:
             # Accept any response that doesn't crash (202 = queued, 422 = validation error, etc.)
             if resp.status in [200, 202, 422]:

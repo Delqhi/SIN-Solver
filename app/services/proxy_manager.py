@@ -16,23 +16,25 @@ from typing import Dict, Optional, List
 
 logger = logging.getLogger("ProxyManager")
 
+
 class ProxyManager:
     """
     Manages High-Quality Residential Proxies with Reputation Tracking (V2 2026).
     Filters out "Burned" IPs and ensures session stickiness.
     """
-    
+
     def __init__(self):
         raw_proxies = os.getenv("RESIDENTIAL_PROXIES", "").split(",")
         self.proxies = [p.strip() for p in raw_proxies if p.strip()]
         self.good_proxies = []
         self.bad_proxies = set()
-        self.proxy_metadata: Dict[str, Dict] = {} # Map proxy_url -> metadata
+        self.proxy_metadata: Dict[str, Dict] = {}  # Map proxy_url -> metadata
         self._redis = None
 
     async def _get_redis(self):
         if not self._redis:
             from app.core.redis_cache import RedisCache
+
             self._redis = await RedisCache.get_instance()
         return self._redis
 
@@ -48,27 +50,39 @@ class ProxyManager:
         """Check IP Fraud Score and Geolocation."""
         try:
             from app.core.config import settings
+
             api_key = settings.scamalytics_key or os.getenv("SCAMALYTICS_KEY")
             redis = await self._get_redis()
-            
+
             async with aiohttp.ClientSession() as session:
                 start = asyncio.get_event_loop().time()
-                async with session.get("https://api.ipify.org?format=json", proxy=proxy_url, timeout=10) as resp:
+                async with session.get(
+                    "https://api.ipify.org?format=json", proxy=proxy_url, timeout=10
+                ) as resp:
                     if resp.status == 200:
                         data = await resp.json()
                         ip = data.get("ip")
-                        
+
                         # Check Burn Status & Reputation
                         is_burned = await redis.get(f"proxy:burned:{ip}")
-                        if is_burned: return None
+                        if is_burned:
+                            return None
 
-                        stats = await redis.get_json(f"proxy:stats:{ip}") or {"success": 0, "fail": 0}
+                        stats = await redis.get_json(f"proxy:stats:{ip}") or {
+                            "success": 0,
+                            "fail": 0,
+                        }
                         if stats["fail"] > 5 and (stats["success"] / max(1, stats["fail"])) < 0.2:
-                            logger.warning(f"  🔴 Low Reputation IP: {ip} ({stats['success']}/{stats['fail']})")
+                            logger.warning(
+                                f"  🔴 Low Reputation IP: {ip} ({stats['success']}/{stats['fail']})"
+                            )
                             return None
 
                         # Geolocation Sync
-                        async with session.get(f"http://ip-api.com/json/{ip}?fields=status,country,countryCode,timezone,city,lat,lon", timeout=5) as geo_resp:
+                        async with session.get(
+                            f"http://ip-api.com/json/{ip}?fields=status,country,countryCode,timezone,city,lat,lon",
+                            timeout=5,
+                        ) as geo_resp:
                             if geo_resp.status == 200:
                                 geo_data = await geo_resp.json()
                                 if geo_data.get("status") == "success":
@@ -76,14 +90,20 @@ class ProxyManager:
 
                         # Scamalytics
                         if api_key:
-                            async with session.get(f"https://api11.scamalytics.com/ceo-enterprise/{ip}/?key={api_key}", timeout=5) as s_resp:
+                            async with session.get(
+                                f"https://api11.scamalytics.com/ceo-enterprise/{ip}/?key={api_key}",
+                                timeout=5,
+                            ) as s_resp:
                                 if s_resp.status == 200:
                                     s_data = await s_resp.json()
                                     if int(s_data.get("score", 100)) > 40:
-                                        await redis.set(f"proxy:burned:{ip}", "high_fraud", expire=3600)
+                                        await redis.set(
+                                            f"proxy:burned:{ip}", "high_fraud", expire=3600
+                                        )
                                         return None
                         return proxy_url
-        except: return None
+        except:
+            return None
 
     async def record_result(self, proxy_url: str, success: bool):
         """🚀 CEO 2026: Record proxy performance for reputation-based routing"""
@@ -91,31 +111,39 @@ class ProxyManager:
             ip = proxy_url.split("@")[-1].split(":")[0]
             redis = await self._get_redis()
             stats_key = f"proxy:stats:{ip}"
-            stats = await redis.get_json(stats_key) or {"success": 0, "fail": 0, "consecutive_fails": 0}
-            
+            stats = await redis.get_json(stats_key) or {
+                "success": 0,
+                "fail": 0,
+                "consecutive_fails": 0,
+            }
+
             if success:
                 stats["success"] += 1
                 stats["consecutive_fails"] = 0
             else:
                 stats["fail"] += 1
                 stats["consecutive_fails"] = stats.get("consecutive_fails", 0) + 1
-            
-            await redis.set_json(stats_key, stats, expire=86400) # Keep stats for 24h
-            
+
+            await redis.set_json(stats_key, stats, expire=86400)  # Keep stats for 24h
+
             # 🔥 AUTOMATED BURN LOGIC
             if stats["consecutive_fails"] >= 3:
-                await self.mark_burned(proxy_url, reason=f"consecutive_fails_{stats['consecutive_fails']}")
+                await self.mark_burned(
+                    proxy_url, reason=f"consecutive_fails_{stats['consecutive_fails']}"
+                )
             elif stats["fail"] > 5 and (stats["success"] / max(1, stats["fail"])) < 0.2:
                 await self.mark_burned(proxy_url, reason="low_reputation_auto")
-                
-        except: pass
+
+        except:
+            pass
 
     async def get_sticky_proxy(self, session_id: Optional[str] = None) -> Optional[str]:
-        if not session_id: return await self._pick_random_good_proxy()
+        if not session_id:
+            return await self._pick_random_good_proxy()
         redis = await self._get_redis()
         session_key = f"session:proxy:{session_id}"
         existing_proxy = await redis.get(session_key)
-        
+
         if existing_proxy:
             # Check if burned
             ip = existing_proxy.split("@")[-1].split(":")[0]
@@ -125,9 +153,10 @@ class ProxyManager:
             else:
                 logger.info(f"🔄 [ProxyManager] Sticky proxy {ip} is burned. Rotating...")
                 await redis.delete(session_key)
-        
+
         proxy = await self._pick_random_good_proxy()
-        if proxy: await redis.set(session_key, proxy, expire=3600)
+        if proxy:
+            await redis.set(session_key, proxy, expire=3600)
         return proxy
 
     async def rotate_proxy(self, session_id: str) -> Optional[str]:
@@ -157,8 +186,10 @@ class ProxyManager:
             ip = proxy_url.split("@")[-1].split(":")[0]
             await redis.set(f"proxy:burned:{ip}", reason, expire=3600)
             logger.warning(f"🔥 Burned proxy: {ip} ({reason})")
-            if proxy_url in self.good_proxies: self.good_proxies.remove(proxy_url)
-        except: pass
+            if proxy_url in self.good_proxies:
+                self.good_proxies.remove(proxy_url)
+        except:
+            pass
 
     def get_proxy_metadata(self, proxy_url: str) -> Dict:
         return self.proxy_metadata.get(proxy_url, {})
@@ -166,6 +197,7 @@ class ProxyManager:
 
 # Singleton
 _proxy_manager = None
+
 
 async def get_proxy_manager() -> ProxyManager:
     global _proxy_manager

@@ -244,13 +244,14 @@ REQUESTS_BY_TIER = Counter(
 # Metrics Collection Helpers
 # =============================================================================
 
+
 class MetricsCollector:
     """Centralized metrics collection for Delqhi-Platform operations."""
-    
+
     def __init__(self):
         self._solve_start_times: Dict[str, float] = {}
         self._accuracy_counters: Dict[str, Dict[str, int]] = {}
-    
+
     def record_solve_attempt(
         self,
         captcha_type: str,
@@ -259,7 +260,7 @@ class MetricsCollector:
         status: str = "attempted",
     ) -> None:
         """Record a CAPTCHA solve attempt.
-        
+
         Args:
             captcha_type: Type of CAPTCHA (recaptcha_v2, hcaptcha, etc.)
             solver: Solver name (gemini, mistral, yolo, etc.)
@@ -273,15 +274,15 @@ class MetricsCollector:
             provider=provider,
         ).inc()
         logger.debug(f"Recorded solve attempt: {captcha_type} via {solver}")
-    
+
     def start_solve_timing(self, solve_id: str) -> None:
         """Start timing a solve operation.
-        
+
         Args:
             solve_id: Unique identifier for this solve operation
         """
         self._solve_start_times[solve_id] = time.time()
-    
+
     def record_solve_duration(
         self,
         solve_id: str,
@@ -290,13 +291,13 @@ class MetricsCollector:
         provider: str,
     ) -> float:
         """Record the duration of a solve operation.
-        
+
         Args:
             solve_id: Unique identifier from start_solve_timing
             captcha_type: Type of CAPTCHA
             solver: Solver name
             provider: AI provider
-            
+
         Returns:
             Duration in seconds
         """
@@ -304,7 +305,7 @@ class MetricsCollector:
         if start_time is None:
             logger.warning(f"No start time found for solve_id: {solve_id}")
             return 0.0
-        
+
         duration = time.time() - start_time
         CAPTCHA_SOLVE_DURATION_SECONDS.labels(
             captcha_type=captcha_type,
@@ -312,7 +313,7 @@ class MetricsCollector:
             provider=provider,
         ).observe(duration)
         return duration
-    
+
     def update_accuracy(
         self,
         captcha_type: str,
@@ -321,7 +322,7 @@ class MetricsCollector:
         successful_attempts: int,
     ) -> None:
         """Update solve accuracy gauge.
-        
+
         Args:
             captcha_type: Type of CAPTCHA
             solver: Solver name
@@ -334,7 +335,7 @@ class MetricsCollector:
                 captcha_type=captcha_type,
                 solver=solver,
             ).set(accuracy)
-    
+
     def record_solve_cost(
         self,
         captcha_type: str,
@@ -342,7 +343,7 @@ class MetricsCollector:
         cost_usd: float,
     ) -> None:
         """Record the cost of a CAPTCHA solve.
-        
+
         Args:
             captcha_type: Type of CAPTCHA
             provider: AI provider used
@@ -352,7 +353,7 @@ class MetricsCollector:
             captcha_type=captcha_type,
             provider=provider,
         ).observe(cost_usd)
-    
+
     def update_active_workers(
         self,
         worker_type: str,
@@ -360,7 +361,7 @@ class MetricsCollector:
         count: int,
     ) -> None:
         """Update active workers gauge.
-        
+
         Args:
             worker_type: Type of worker (browser, solver, orchestrator)
             status: Worker status (idle, busy, offline)
@@ -370,7 +371,7 @@ class MetricsCollector:
             worker_type=worker_type,
             status=status,
         ).set(count)
-    
+
     def record_model_inference(
         self,
         model: str,
@@ -381,7 +382,7 @@ class MetricsCollector:
         tokens_output: int = 0,
     ) -> None:
         """Record AI model inference metrics.
-        
+
         Args:
             model: Model name (gemini-pro, mistral-large, etc.)
             provider: Provider name
@@ -395,21 +396,21 @@ class MetricsCollector:
             provider=provider,
             task_type=task_type,
         ).observe(duration)
-        
+
         if tokens_input > 0:
             MODEL_TOKENS_USED.labels(
                 model=model,
                 provider=provider,
                 token_type="input",
             ).inc(tokens_input)
-        
+
         if tokens_output > 0:
             MODEL_TOKENS_USED.labels(
                 model=model,
                 provider=provider,
                 token_type="output",
             ).inc(tokens_output)
-    
+
     def set_model_availability(
         self,
         model: str,
@@ -417,7 +418,7 @@ class MetricsCollector:
         available: bool,
     ) -> None:
         """Set model availability status.
-        
+
         Args:
             model: Model name
             provider: Provider name
@@ -435,16 +436,17 @@ metrics_collector = MetricsCollector()
 
 def timed(metric: Histogram, labels: Optional[Dict[str, str]] = None):
     """Decorator to time function execution and record to histogram.
-    
+
     Args:
         metric: Prometheus Histogram to record to
         labels: Optional labels to apply
-        
+
     Example:
         @timed(CAPTCHA_SOLVE_DURATION_SECONDS, {"captcha_type": "recaptcha"})
         async def solve_captcha(image: bytes) -> str:
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -455,7 +457,7 @@ def timed(metric: Histogram, labels: Optional[Dict[str, str]] = None):
                 duration = time.time() - start
                 label_values = labels or {}
                 metric.labels(**label_values).observe(duration)
-        
+
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
             start = time.time()
@@ -465,14 +467,15 @@ def timed(metric: Histogram, labels: Optional[Dict[str, str]] = None):
                 duration = time.time() - start
                 label_values = labels or {}
                 metric.labels(**label_values).observe(duration)
-        
+
         return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+
     return decorator
 
 
 def get_metrics_response() -> tuple:
     """Generate Prometheus metrics HTTP response.
-    
+
     Returns:
         Tuple of (content_type, body)
     """

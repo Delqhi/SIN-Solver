@@ -16,11 +16,11 @@ MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 
 class MistralSolver:
     """Mistral Pixtral 12B Vision API client"""
-    
+
     def __init__(self):
         self.api_key = MISTRAL_API_KEY
         self.client = httpx.AsyncClient(timeout=30.0)
-    
+
     async def solve(self, image_base64: str, captcha_type: str = "text") -> Optional[str]:
         """
         Solve CAPTCHA using Mistral Vision
@@ -28,15 +28,15 @@ class MistralSolver:
         if not self.api_key:
             logger.error("MISTRAL_API_KEY not set")
             return None
-        
+
         try:
             prompt = self._get_prompt(captcha_type)
-            
+
             response = await self.client.post(
                 MISTRAL_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 json={
                     "model": "pixtral-12b-latest",
@@ -44,24 +44,19 @@ class MistralSolver:
                         {
                             "role": "user",
                             "content": [
-                                {
-                                    "type": "text",
-                                    "text": prompt
-                                },
+                                {"type": "text", "text": prompt},
                                 {
                                     "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/jpeg;base64,{image_base64}"
-                                    }
-                                }
-                            ]
+                                    "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                                },
+                            ],
                         }
                     ],
                     "max_tokens": 100,
-                    "temperature": 0.1
-                }
+                    "temperature": 0.1,
+                },
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 result = data["choices"][0]["message"]["content"].strip()
@@ -70,18 +65,18 @@ class MistralSolver:
             else:
                 logger.error(f"Mistral API error: {response.status_code} - {response.text}")
                 return None
-        
+
         except Exception as e:
             logger.error(f"Mistral solve error: {e}")
             return None
-    
+
     async def solve_image_grid(self, image_base64: str, instructions: str) -> Optional[str]:
         """
         Solve image grid CAPTCHA (hCaptcha/reCAPTCHA style)
         """
         if not self.api_key:
             return None
-        
+
         try:
             prompt = f"""Analyze this CAPTCHA image grid.
 Instructions: {instructions}
@@ -94,7 +89,7 @@ Be precise and only select cells you're confident about."""
                 MISTRAL_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 json={
                     "model": "pixtral-12b-latest",
@@ -102,24 +97,19 @@ Be precise and only select cells you're confident about."""
                         {
                             "role": "user",
                             "content": [
-                                {
-                                    "type": "text",
-                                    "text": prompt
-                                },
+                                {"type": "text", "text": prompt},
                                 {
                                     "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/jpeg;base64,{image_base64}"
-                                    }
-                                }
-                            ]
+                                    "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                                },
+                            ],
                         }
                     ],
                     "max_tokens": 50,
-                    "temperature": 0.1
-                }
+                    "temperature": 0.1,
+                },
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 result = data["choices"][0]["message"]["content"].strip()
@@ -128,11 +118,11 @@ Be precise and only select cells you're confident about."""
             else:
                 logger.error(f"Mistral API error: {response.status_code}")
                 return None
-        
+
         except Exception as e:
             logger.error(f"Mistral grid solve error: {e}")
             return None
-    
+
     def _get_prompt(self, captcha_type: str) -> str:
         """Get appropriate prompt for CAPTCHA type"""
         if captcha_type == "text":

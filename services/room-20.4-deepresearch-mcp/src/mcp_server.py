@@ -33,11 +33,19 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "Search query"},
-                "max_results": {"type": "integer", "default": 10, "description": "Max results to return"},
-                "region": {"type": "string", "default": "wt-wt", "description": "Region code (wt-wt=worldwide)"}
+                "max_results": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Max results to return",
+                },
+                "region": {
+                    "type": "string",
+                    "default": "wt-wt",
+                    "description": "Region code (wt-wt=worldwide)",
+                },
             },
-            "required": ["query"]
-        }
+            "required": ["query"],
+        },
     ),
     Tool(
         name="news_search",
@@ -47,10 +55,14 @@ TOOLS = [
             "properties": {
                 "query": {"type": "string", "description": "News search query"},
                 "max_results": {"type": "integer", "default": 10},
-                "timelimit": {"type": "string", "default": "w", "description": "d=day, w=week, m=month"}
+                "timelimit": {
+                    "type": "string",
+                    "default": "w",
+                    "description": "d=day, w=week, m=month",
+                },
             },
-            "required": ["query"]
-        }
+            "required": ["query"],
+        },
     ),
     Tool(
         name="extract_content",
@@ -60,10 +72,10 @@ TOOLS = [
             "properties": {
                 "url": {"type": "string", "description": "URL to extract content from"},
                 "include_links": {"type": "boolean", "default": False},
-                "include_images": {"type": "boolean", "default": False}
+                "include_images": {"type": "boolean", "default": False},
             },
-            "required": ["url"]
-        }
+            "required": ["url"],
+        },
     ),
     Tool(
         name="deep_research",
@@ -72,11 +84,19 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "Research topic"},
-                "max_sources": {"type": "integer", "default": 5, "description": "Number of sources to analyze"},
-                "summarize": {"type": "boolean", "default": True, "description": "Summarize with AI"}
+                "max_sources": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Number of sources to analyze",
+                },
+                "summarize": {
+                    "type": "boolean",
+                    "default": True,
+                    "description": "Summarize with AI",
+                },
             },
-            "required": ["query"]
-        }
+            "required": ["query"],
+        },
     ),
     Tool(
         name="steel_browse",
@@ -86,11 +106,11 @@ TOOLS = [
             "properties": {
                 "url": {"type": "string", "description": "URL to browse"},
                 "wait_for": {"type": "string", "description": "CSS selector to wait for"},
-                "screenshot": {"type": "boolean", "default": False}
+                "screenshot": {"type": "boolean", "default": False},
             },
-            "required": ["url"]
-        }
-    )
+            "required": ["url"],
+        },
+    ),
 ]
 
 
@@ -98,12 +118,7 @@ async def web_search(query: str, max_results: int = 10, region: str = "wt-wt") -
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(query, region=region, max_results=max_results))
-        return {
-            "success": True,
-            "query": query,
-            "count": len(results),
-            "results": results
-        }
+        return {"success": True, "query": query, "count": len(results), "results": results}
     except Exception as e:
         logger.error(f"Web search error: {e}")
         return {"success": False, "error": str(e)}
@@ -113,44 +128,41 @@ async def news_search(query: str, max_results: int = 10, timelimit: str = "w") -
     try:
         with DDGS() as ddgs:
             results = list(ddgs.news(query, timelimit=timelimit, max_results=max_results))
-        return {
-            "success": True,
-            "query": query,
-            "count": len(results),
-            "results": results
-        }
+        return {"success": True, "query": query, "count": len(results), "results": results}
     except Exception as e:
         logger.error(f"News search error: {e}")
         return {"success": False, "error": str(e)}
 
 
-async def extract_content(url: str, include_links: bool = False, include_images: bool = False) -> dict:
+async def extract_content(
+    url: str, include_links: bool = False, include_images: bool = False
+) -> dict:
     try:
         downloaded = trafilatura.fetch_url(url)
         if not downloaded:
             async with httpx.AsyncClient() as client:
                 response = await client.get(url, timeout=30.0, follow_redirects=True)
                 downloaded = response.text
-        
+
         content = trafilatura.extract(
             downloaded,
             include_links=include_links,
             include_images=include_images,
             include_tables=True,
-            no_fallback=False
+            no_fallback=False,
         )
-        
+
         if not content:
             h = html2text.HTML2Text()
             h.ignore_links = not include_links
             h.ignore_images = not include_images
             content = h.handle(downloaded)
-        
+
         return {
             "success": True,
             "url": url,
             "content": content[:50000] if content else "",
-            "length": len(content) if content else 0
+            "length": len(content) if content else 0,
         }
     except Exception as e:
         logger.error(f"Content extraction error: {e}")
@@ -159,49 +171,55 @@ async def extract_content(url: str, include_links: bool = False, include_images:
 
 async def deep_research(query: str, max_sources: int = 5, summarize: bool = True) -> dict:
     search_result = await web_search(query, max_results=max_sources)
-    
+
     if not search_result.get("success"):
         return search_result
-    
+
     sources = []
     for result in search_result.get("results", [])[:max_sources]:
         url = result.get("href") or result.get("link")
         if url:
             content = await extract_content(url)
-            sources.append({
-                "title": result.get("title", ""),
-                "url": url,
-                "snippet": result.get("body", ""),
-                "content": content.get("content", "")[:10000] if content.get("success") else "",
-                "extraction_success": content.get("success", False)
-            })
-    
+            sources.append(
+                {
+                    "title": result.get("title", ""),
+                    "url": url,
+                    "snippet": result.get("body", ""),
+                    "content": content.get("content", "")[:10000] if content.get("success") else "",
+                    "extraction_success": content.get("success", False),
+                }
+            )
+
     research_data = {
         "success": True,
         "query": query,
         "sources_analyzed": len(sources),
         "sources": sources,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
-    
+
     if summarize and GEMINI_API_KEY:
         try:
             import google.generativeai as genai
+
             genai.configure(api_key=GEMINI_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            
-            combined_content = "\n\n".join([
-                f"Source: {s['title']}\n{s['content'][:3000]}"
-                for s in sources if s.get('content')
-            ])
-            
+            model = genai.GenerativeModel("gemini-1.5-flash")
+
+            combined_content = "\n\n".join(
+                [
+                    f"Source: {s['title']}\n{s['content'][:3000]}"
+                    for s in sources
+                    if s.get("content")
+                ]
+            )
+
             prompt = f"Summarize this research on '{query}':\n\n{combined_content[:15000]}"
             response = model.generate_content(prompt)
             research_data["summary"] = response.text
         except Exception as e:
             logger.error(f"Summarization error: {e}")
             research_data["summary_error"] = str(e)
-    
+
     return research_data
 
 
@@ -209,54 +227,51 @@ async def steel_browse(url: str, wait_for: str = None, screenshot: bool = False)
     try:
         async with httpx.AsyncClient() as client:
             session_response = await client.post(
-                f"{STEEL_URL}/v1/sessions",
-                json={"stealth": True},
-                timeout=30.0
+                f"{STEEL_URL}/v1/sessions", json={"stealth": True}, timeout=30.0
             )
             session = session_response.json()
             session_id = session.get("sessionId")
-            
+
             if not session_id:
                 return {"success": False, "error": "Failed to create Steel session"}
-            
+
             nav_response = await client.post(
                 f"{STEEL_URL}/v1/sessions/{session_id}/navigate",
                 json={"url": url, "waitUntil": "networkidle"},
-                timeout=60.0
+                timeout=60.0,
             )
-            
+
             if wait_for:
                 await client.post(
                     f"{STEEL_URL}/v1/sessions/{session_id}/wait",
                     json={"selector": wait_for, "timeout": 10000},
-                    timeout=15.0
+                    timeout=15.0,
                 )
-            
+
             content_response = await client.get(
-                f"{STEEL_URL}/v1/sessions/{session_id}/content",
-                timeout=30.0
+                f"{STEEL_URL}/v1/sessions/{session_id}/content", timeout=30.0
             )
             html_content = content_response.json().get("content", "")
-            
+
             screenshot_data = None
             if screenshot:
                 screenshot_response = await client.post(
                     f"{STEEL_URL}/v1/sessions/{session_id}/screenshot",
                     json={"fullPage": False},
-                    timeout=30.0
+                    timeout=30.0,
                 )
                 screenshot_data = screenshot_response.json().get("data")
-            
+
             await client.delete(f"{STEEL_URL}/v1/sessions/{session_id}", timeout=10.0)
-            
+
             text_content = trafilatura.extract(html_content) or ""
-            
+
             return {
                 "success": True,
                 "url": url,
                 "content": text_content[:30000],
                 "html_length": len(html_content),
-                "screenshot": screenshot_data[:100] + "..." if screenshot_data else None
+                "screenshot": screenshot_data[:100] + "..." if screenshot_data else None,
             }
     except Exception as e:
         logger.error(f"Steel browse error: {e}")
@@ -272,37 +287,28 @@ async def list_tools():
 async def call_tool(name: str, arguments: dict) -> list:
     handlers = {
         "web_search": lambda args: web_search(
-            args["query"],
-            args.get("max_results", 10),
-            args.get("region", "wt-wt")
+            args["query"], args.get("max_results", 10), args.get("region", "wt-wt")
         ),
         "news_search": lambda args: news_search(
-            args["query"],
-            args.get("max_results", 10),
-            args.get("timelimit", "w")
+            args["query"], args.get("max_results", 10), args.get("timelimit", "w")
         ),
         "extract_content": lambda args: extract_content(
-            args["url"],
-            args.get("include_links", False),
-            args.get("include_images", False)
+            args["url"], args.get("include_links", False), args.get("include_images", False)
         ),
         "deep_research": lambda args: deep_research(
-            args["query"],
-            args.get("max_sources", 5),
-            args.get("summarize", True)
+            args["query"], args.get("max_sources", 5), args.get("summarize", True)
         ),
         "steel_browse": lambda args: steel_browse(
-            args["url"],
-            args.get("wait_for"),
-            args.get("screenshot", False)
-        )
+            args["url"], args.get("wait_for"), args.get("screenshot", False)
+        ),
     }
-    
+
     if name not in handlers:
         return [TextContent(type="text", text=f"Unknown tool: {name}")]
-    
+
     result = await handlers[name](arguments)
     import json
+
     return [TextContent(type="text", text=json.dumps(result, indent=2, default=str))]
 
 
@@ -317,7 +323,7 @@ async def health():
         "status": "healthy",
         "service": "sin-deep-research-mcp",
         "version": "1.0.0",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -331,6 +337,7 @@ async def execute_tool(tool_name: str, request: ToolRequest = None):
     arguments = request.arguments if request else {}
     result = await call_tool(tool_name, arguments)
     import json
+
     return json.loads(result[0].text) if result else {"error": "No result"}
 
 

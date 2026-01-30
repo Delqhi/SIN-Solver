@@ -1,4 +1,3 @@
-
 import logging
 import asyncio
 from typing import Dict, Any, List, Optional
@@ -15,16 +14,22 @@ from app.models.captcha_intelligence import CaptchaTrainingData, CaptchaSolveAtt
 
 logger = logging.getLogger(__name__)
 
+
 class IntelligenceOrchestrator:
     """
     🧠 CEO EMPIRE STATE MANDATE 2026: GREY ZONE INTELLIGENCE
     Manages the learning loop between solve attempts and model guidance.
     """
-    
+
     def __init__(self):
-        self.db_url = settings.database_url or "postgresql+asyncpg://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production"
+        self.db_url = (
+            settings.database_url
+            or "postgresql+asyncpg://ceo_admin:secure_ceo_password_2026@172.20.0.11:5432/sin_solver_production"
+        )
         self.engine = create_async_engine(self.db_url, echo=False)
-        self.AsyncSessionLocal = sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
+        self.AsyncSessionLocal = sessionmaker(
+            self.engine, class_=AsyncSession, expire_on_commit=False
+        )
 
     async def record_attempt(self, attempt_data: Dict[str, Any]):
         """Record a solve attempt for future learning"""
@@ -40,7 +45,7 @@ class IntelligenceOrchestrator:
                     solve_time_ms=attempt_data.get("solve_time_ms"),
                     was_successful=attempt_data.get("was_successful"),
                     target_url=attempt_data.get("target_url"),
-                    attempted_at=datetime.utcnow()
+                    attempted_at=datetime.utcnow(),
                 )
                 session.add(attempt)
                 await session.commit()
@@ -52,9 +57,12 @@ class IntelligenceOrchestrator:
         """Retrieve successful past solves for few-shot prompting"""
         async with self.AsyncSessionLocal() as session:
             try:
-                type_result = await session.execute(select(CaptchaType).filter_by(name=captcha_type))
+                type_result = await session.execute(
+                    select(CaptchaType).filter_by(name=captcha_type)
+                )
                 c_type = type_result.scalars().first()
-                if not c_type: return []
+                if not c_type:
+                    return []
 
                 samples_result = await session.execute(
                     select(CaptchaTrainingData)
@@ -62,19 +70,19 @@ class IntelligenceOrchestrator:
                     .limit(count)
                 )
                 samples = samples_result.scalars().all()
-                
+
                 return [
-                    {
-                        "image_b64": base64.b64encode(s.screenshot).decode(),
-                        "solution": s.solution
-                    }
+                    {"image_b64": base64.b64encode(s.screenshot).decode(), "solution": s.solution}
                     for s in samples
                 ]
             except Exception as e:
                 logger.error(f"Failed to retrieve few-shot context: {e}")
                 return []
 
+
 _orchestrator = None
+
+
 def get_intelligence_orchestrator() -> IntelligenceOrchestrator:
     global _orchestrator
     if _orchestrator is None:

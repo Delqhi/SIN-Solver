@@ -32,6 +32,7 @@ except Exception as e:
     logger.error(f"Failed to connect to Redis: {e}")
     raise
 
+
 # Helper functions for Redis operations
 def _get_all_workers():
     """Get all workers from Redis"""
@@ -43,14 +44,17 @@ def _get_all_workers():
             workers.append(json.loads(data))
     return workers
 
+
 def _get_worker(worker_id: str):
     """Get a specific worker from Redis"""
     data = redis_client.get(f"worker:{worker_id}")
     return json.loads(data) if data else None
 
+
 def _save_worker(worker_id: str, worker_data: Dict[str, Any]):
     """Save worker to Redis"""
     redis_client.set(f"worker:{worker_id}", json.dumps(worker_data, default=str))
+
 
 def _delete_worker(worker_id: str):
     """Delete worker from Redis"""
@@ -74,6 +78,7 @@ class WorkerStatus(str, Enum):
 
 class WorkerRegister(BaseModel):
     """Worker registration request"""
+
     name: str = Field(..., min_length=1, max_length=255)
     type: WorkerType = WorkerType.GENERAL
     capabilities: List[str] = Field(default_factory=list)
@@ -82,6 +87,7 @@ class WorkerRegister(BaseModel):
 
 class WorkerResponse(BaseModel):
     """Worker response"""
+
     id: str
     name: str
     type: WorkerType
@@ -96,6 +102,7 @@ class WorkerResponse(BaseModel):
 
 class WorkerUpdate(BaseModel):
     """Worker status update"""
+
     status: Optional[WorkerStatus] = None
     metadata: Optional[Dict[str, Any]] = None
     current_task: Optional[str] = None
@@ -103,6 +110,7 @@ class WorkerUpdate(BaseModel):
 
 class HeartbeatResponse(BaseModel):
     """Heartbeat response"""
+
     status: str = "ok"
     worker_id: str
     timestamp: datetime
@@ -113,7 +121,7 @@ async def register_worker(worker: WorkerRegister):
     """Register a new worker"""
     worker_id = str(uuid.uuid4())
     now = datetime.utcnow()
-    
+
     worker_data = {
         "id": worker_id,
         "name": worker.name,
@@ -126,10 +134,10 @@ async def register_worker(worker: WorkerRegister):
         "tasks_completed": 0,
         "tasks_failed": 0,
     }
-    
+
     _save_worker(worker_id, worker_data)
     logger.info(f"Registered worker: {worker_id} ({worker.name})")
-    
+
     return WorkerResponse(**worker_data)
 
 
@@ -146,7 +154,7 @@ async def get_worker(worker_id: str):
     worker = _get_worker(worker_id)
     if not worker:
         raise HTTPException(status_code=404, detail=f"Worker not found: {worker_id}")
-    
+
     return WorkerResponse(**worker)
 
 
@@ -156,20 +164,20 @@ async def update_worker(worker_id: str, update: WorkerUpdate):
     worker = _get_worker(worker_id)
     if not worker:
         raise HTTPException(status_code=404, detail=f"Worker not found: {worker_id}")
-    
+
     if update.status is not None:
         worker["status"] = update.status
-    
+
     if update.metadata is not None:
         worker["metadata"].update(update.metadata)
-    
+
     if update.current_task is not None:
         worker["metadata"]["current_task"] = update.current_task
-    
+
     worker["last_heartbeat"] = datetime.utcnow()
-    
+
     _save_worker(worker_id, worker)
-    
+
     return WorkerResponse(**worker)
 
 
@@ -179,17 +187,13 @@ async def worker_heartbeat(worker_id: str):
     worker = _get_worker(worker_id)
     if not worker:
         raise HTTPException(status_code=404, detail=f"Worker not found: {worker_id}")
-    
+
     worker["last_heartbeat"] = datetime.utcnow()
     worker["status"] = WorkerStatus.ONLINE
-    
+
     _save_worker(worker_id, worker)
-    
-    return HeartbeatResponse(
-        status="ok",
-        worker_id=worker_id,
-        timestamp=datetime.utcnow()
-    )
+
+    return HeartbeatResponse(status="ok", worker_id=worker_id, timestamp=datetime.utcnow())
 
 
 @router.delete("/{worker_id}")
@@ -198,10 +202,10 @@ async def unregister_worker(worker_id: str):
     worker = _get_worker(worker_id)
     if not worker:
         raise HTTPException(status_code=404, detail=f"Worker not found: {worker_id}")
-    
+
     _delete_worker(worker_id)
     logger.info(f"Unregistered worker: {worker_id}")
-    
+
     return {"status": "ok", "message": f"Worker {worker_id} unregistered"}
 
 
@@ -211,21 +215,21 @@ async def task_completed(worker_id: str, success: bool = True):
     worker = _get_worker(worker_id)
     if not worker:
         raise HTTPException(status_code=404, detail=f"Worker not found: {worker_id}")
-    
+
     if success:
         worker["tasks_completed"] += 1
     else:
         worker["tasks_failed"] += 1
-    
+
     worker["status"] = WorkerStatus.ONLINE
     worker["last_heartbeat"] = datetime.utcnow()
-    
+
     _save_worker(worker_id, worker)
-    
+
     return {
         "status": "ok",
         "tasks_completed": worker["tasks_completed"],
-        "tasks_failed": worker["tasks_failed"]
+        "tasks_failed": worker["tasks_failed"],
     }
 
 
@@ -237,10 +241,10 @@ async def worker_stats():
     online = sum(1 for w in workers_list if w["status"] == WorkerStatus.ONLINE)
     busy = sum(1 for w in workers_list if w["status"] == WorkerStatus.BUSY)
     offline = sum(1 for w in workers_list if w["status"] == WorkerStatus.OFFLINE)
-    
+
     total_completed = sum(w["tasks_completed"] for w in workers_list)
     total_failed = sum(w["tasks_failed"] for w in workers_list)
-    
+
     return {
         "total_workers": total,
         "online": online,
@@ -248,5 +252,5 @@ async def worker_stats():
         "offline": offline,
         "total_tasks_completed": total_completed,
         "total_tasks_failed": total_failed,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }

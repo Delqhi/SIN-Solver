@@ -1,4 +1,12 @@
-from daytona import Daytona, DaytonaConfig, Image, CreateSnapshotParams, Resources, CreateSandboxFromSnapshotParams, CodeLanguage
+from daytona import (
+    Daytona,
+    DaytonaConfig,
+    Image,
+    CreateSnapshotParams,
+    Resources,
+    CreateSandboxFromSnapshotParams,
+    CodeLanguage,
+)
 import time
 import os
 
@@ -10,13 +18,28 @@ snapshot_name = f"scira-analysis:{int(time.time())}"
 # Create a Python image
 image = (
     Image.debian_slim("3.12")
-    .pip_install(["numpy", "pandas", "matplotlib", "scipy", "scikit-learn", "yfinance", "requests", "keras", "uv", "torch", "torchvision", "torchaudio"])
-    .run_commands(
-            "apt-get update && apt-get install -y git",
-            "groupadd -r daytona && useradd -r -g daytona -m daytona",
-            "mkdir -p /home/daytona/workspace",
-        )
+    .pip_install(
+        [
+            "numpy",
+            "pandas",
+            "matplotlib",
+            "scipy",
+            "scikit-learn",
+            "yfinance",
+            "requests",
+            "keras",
+            "uv",
+            "torch",
+            "torchvision",
+            "torchaudio",
+        ]
     )
+    .run_commands(
+        "apt-get update && apt-get install -y git",
+        "groupadd -r daytona && useradd -r -g daytona -m daytona",
+        "mkdir -p /home/daytona/workspace",
+    )
+)
 
 # Create the image and stream the build logs
 print(f"=== Creating Image: {snapshot_name} ===")
@@ -42,7 +65,7 @@ sandbox = daytona.create(
     )
 )
 
-res = sandbox.process.code_run('''
+res = sandbox.process.code_run("""
 import yfinance as yf
 import matplotlib.pyplot as plt
 
@@ -52,6 +75,6 @@ print(data)
 
 plt.plot(data['Close'].values)
 plt.show()
-''')
+""")
 
 print(res.result)

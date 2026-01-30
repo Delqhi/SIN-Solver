@@ -8,7 +8,7 @@ from src.solvers.proof_of_work_solver import (
     AltchaDetector,
     PoWChallenge,
     solve_altcha_challenge,
-    solve_altcha_sync
+    solve_altcha_sync,
 )
 from src.solvers.browser_automation_solver import (
     BrowserAutomationSolver,
@@ -19,7 +19,7 @@ from src.solvers.browser_automation_solver import (
     Action,
     BrowserState,
     ActionType,
-    solve_captcha_with_browser
+    solve_captcha_with_browser,
 )
 
 __all__ = [
@@ -41,5 +41,5 @@ __all__ = [
     "Action",
     "BrowserState",
     "ActionType",
-    "solve_captcha_with_browser"
+    "solve_captcha_with_browser",
 ]

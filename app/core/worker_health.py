@@ -15,10 +15,7 @@ from datetime import datetime
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 # Setup logging
-logging.basicConfig(
-    level=LOG_LEVEL,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=LOG_LEVEL, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Delqhi-Platform Worker Health", version="2.0.0")
@@ -37,7 +34,7 @@ async def health_check():
         "groq_configured": bool(os.getenv("GROQ_API_KEY")),
         "mode": "self_hosted_free",
         "paid_services": False,
-        "environment": os.getenv("ENVIRONMENT", "production")
+        "environment": os.getenv("ENVIRONMENT", "production"),
     }
 
 
@@ -48,13 +45,19 @@ async def metrics():
         "service": "sin_solver_worker",
         "up_since": datetime.utcnow().isoformat(),
         "providers": {
-            "gemini": {"limit": "60 req/min, 1500/day", "configured": bool(os.getenv("GEMINI_API_KEY"))},
-            "mistral": {"limit": "1M tokens/month", "configured": bool(os.getenv("MISTRAL_API_KEY"))},
+            "gemini": {
+                "limit": "60 req/min, 1500/day",
+                "configured": bool(os.getenv("GEMINI_API_KEY")),
+            },
+            "mistral": {
+                "limit": "1M tokens/month",
+                "configured": bool(os.getenv("MISTRAL_API_KEY")),
+            },
             "groq": {"limit": "14,400 req/day", "configured": bool(os.getenv("GROQ_API_KEY"))},
         },
         "max_parallel_browsers": int(os.getenv("MAX_PARALLEL_BROWSERS", 20)),
         "max_concurrent_tasks": int(os.getenv("MAX_CONCURRENT_TASKS", 40)),
-        "cost": "$0.00 (100% FREE)"
+        "cost": "$0.00 (100% FREE)",
     }
 
 
@@ -68,11 +71,12 @@ async def root():
         "paid_services": False,
         "docs": "/docs",
         "health": "/health",
-        "metrics": "/metrics"
+        "metrics": "/metrics",
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     logger.info("🚀 Starting Delqhi-Platform Worker Health API (FREE providers only)...")
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")

@@ -7,10 +7,12 @@ from app.core.redis_cache import RedisCache
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
 class SystemState(BaseModel):
     auto_work_enabled: bool
     target_url: str = "https://sin-solver.local"
     mode: str = "stealth"
+
 
 @router.get("/state", response_model=SystemState)
 async def get_system_state():
@@ -20,11 +22,13 @@ async def get_system_state():
         return SystemState(auto_work_enabled=False)
     return SystemState(**state)
 
+
 @router.post("/state")
 async def update_system_state(state: SystemState):
     redis = await RedisCache.get_instance()
     await redis.set_json("system:state", state.dict())
     return {"status": "updated", "state": state}
+
 
 @router.post("/workflow")
 async def save_workflow(workflow: Dict[str, Any]):
@@ -32,6 +36,7 @@ async def save_workflow(workflow: Dict[str, Any]):
     await redis.set_json("system:workflow", workflow)
     logger.info("Workflow saved to Redis")
     return {"status": "saved"}
+
 
 @router.post("/workflow/test")
 async def test_workflow(workflow: Dict[str, Any]):

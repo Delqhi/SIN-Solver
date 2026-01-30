@@ -14,7 +14,9 @@ REDIS_HOST = os.getenv("REDIS_HOST", "room-04-redis-cache")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 REDIS_DB_TASKS = 4
 
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB_TASKS, decode_responses=True)
+redis_client = redis.Redis(
+    host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB_TASKS, decode_responses=True
+)
 
 
 def _get_all_tasks():
@@ -79,7 +81,7 @@ class TaskResponse(BaseModel):
 async def create_task(task: TaskCreate):
     task_id = str(uuid.uuid4())
     now = datetime.utcnow()
-    
+
     task_data = {
         "id": task_id,
         "name": task.name,
@@ -95,7 +97,7 @@ async def create_task(task: TaskCreate):
         "result": None,
         "error": None,
     }
-    
+
     _save_task(task_id, task_data)
     return TaskResponse(**task_data)
 
@@ -104,7 +106,7 @@ async def create_task(task: TaskCreate):
 async def list_tasks(
     status: Optional[TaskStatus] = Query(None),
     limit: int = Query(10, ge=1, le=100),
-    worker_id: Optional[str] = Query(None)
+    worker_id: Optional[str] = Query(None),
 ):
     result = []
     for t in _get_all_tasks():
@@ -131,15 +133,15 @@ async def assign_task(task_id: str, worker_id: str):
     task = _get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail=f"Task not found: {task_id}")
-    
+
     if task["status"] != TaskStatus.PENDING:
         raise HTTPException(status_code=400, detail="Task not available for assignment")
-    
+
     task["assigned_worker"] = worker_id
     task["status"] = TaskStatus.ASSIGNED
-    
+
     _save_task(task_id, task)
-    
+
     return {"status": "ok", "task_id": task_id, "worker_id": worker_id}
 
 
@@ -148,12 +150,12 @@ async def start_task(task_id: str):
     task = _get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail=f"Task not found: {task_id}")
-    
+
     task["status"] = TaskStatus.RUNNING
     task["started_at"] = datetime.utcnow()
-    
+
     _save_task(task_id, task)
-    
+
     return {"status": "ok", "task_id": task_id}
 
 
@@ -162,18 +164,18 @@ async def complete_task(task_id: str, result: Dict[str, Any] = None, error: str 
     task = _get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail=f"Task not found: {task_id}")
-    
+
     task["completed_at"] = datetime.utcnow()
-    
+
     if error:
         task["status"] = TaskStatus.FAILED
         task["error"] = error
     else:
         task["status"] = TaskStatus.COMPLETED
         task["result"] = result or {}
-    
+
     _save_task(task_id, task)
-    
+
     return {"status": "ok", "task_id": task_id, "final_status": task["status"]}
 
 
@@ -182,13 +184,13 @@ async def cancel_task(task_id: str):
     task = _get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail=f"Task not found: {task_id}")
-    
+
     if task["status"] in [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED]:
         raise HTTPException(status_code=400, detail="Task already finished")
-    
+
     task["status"] = TaskStatus.CANCELLED
     task["completed_at"] = datetime.utcnow()
-    
+
     _save_task(task_id, task)
-    
+
     return {"status": "ok", "task_id": task_id}

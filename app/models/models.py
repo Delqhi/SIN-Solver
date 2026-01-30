@@ -1,9 +1,19 @@
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum as SQLEnum
+from sqlalchemy import (
+    Column,
+    String,
+    Integer,
+    Float,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Enum as SQLEnum,
+)
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 import enum
 
 Base = declarative_base()
+
 
 class UserTier(str, enum.Enum):
     FREE = "free"
@@ -11,9 +21,10 @@ class UserTier(str, enum.Enum):
     BUSINESS = "business"
     ENTERPRISE = "enterprise"
 
+
 class User(Base):
     __tablename__ = "users"
-    
+
     id = Column(String, primary_key=True)
     email = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
@@ -34,9 +45,10 @@ class User(Base):
     solutions = relationship("CaptchaSolution", back_populates="user")
     api_logs = relationship("APILog", back_populates="user")
 
+
 class CaptchaSolution(Base):
     __tablename__ = "captcha_solutions"
-    
+
     id = Column(String, primary_key=True)
     user_id = Column(String, ForeignKey("users.id"))
     captcha_type = Column(String)
@@ -49,9 +61,10 @@ class CaptchaSolution(Base):
 
     user = relationship("User", back_populates="solutions")
 
+
 class APILog(Base):
     __tablename__ = "api_logs"
-    
+
     id = Column(String, primary_key=True)
     user_id = Column(String, ForeignKey("users.id"))
     endpoint = Column(String)

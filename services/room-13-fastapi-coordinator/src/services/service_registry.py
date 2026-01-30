@@ -14,6 +14,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
+
 class ServiceRegistry:
     """Manages service registration, discovery, and health monitoring"""
 
@@ -21,15 +22,19 @@ class ServiceRegistry:
         self.db = db
         self.heartbeat_interval = 30
         self.heartbeat_timeout = 90
-        
+
         REDIS_HOST = os.getenv("REDIS_HOST", "room-04-redis-cache")
         REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
         REDIS_DB = 6
-        
+
         try:
-            self.redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
+            self.redis_client = redis.Redis(
+                host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True
+            )
             self.redis_client.ping()
-            logger.info(f"ServiceRegistry connected to Redis at {REDIS_HOST}:{REDIS_PORT} (db={REDIS_DB})")
+            logger.info(
+                f"ServiceRegistry connected to Redis at {REDIS_HOST}:{REDIS_PORT} (db={REDIS_DB})"
+            )
         except Exception as e:
             logger.error(f"Failed to connect to Redis: {e}")
             raise
@@ -57,36 +62,38 @@ class ServiceRegistry:
         """Delete service from Redis"""
         self.redis_client.delete(f"service:{service_name}")
 
-    async def register_service(self,
-                              name: str,
-                              version: str,
-                              address: str,
-                              port: int,
-                              health_endpoint: str,
-                              dependencies: List[str] = None,
-                              credentials_needed: List[str] = None,
-                              metadata: Dict[str, Any] = None) -> Dict[str, Any]:
+    async def register_service(
+        self,
+        name: str,
+        version: str,
+        address: str,
+        port: int,
+        health_endpoint: str,
+        dependencies: List[str] = None,
+        credentials_needed: List[str] = None,
+        metadata: Dict[str, Any] = None,
+    ) -> Dict[str, Any]:
         """Register a new service in the registry"""
-        
+
         service_entry = {
-            'id': name,
-            'name': name,
-            'version': version,
-            'address': address,
-            'port': port,
-            'health_endpoint': health_endpoint,
-            'dependencies': dependencies or [],
-            'credentials_needed': credentials_needed or [],
-            'metadata': metadata or {},
-            'status': 'healthy',
-            'registered_at': datetime.utcnow(),
-            'last_heartbeat': datetime.utcnow(),
-            'heartbeat_count': 0,
-            'request_count': 0,
-            'error_count': 0,
-            'avg_response_time_ms': 0.0
+            "id": name,
+            "name": name,
+            "version": version,
+            "address": address,
+            "port": port,
+            "health_endpoint": health_endpoint,
+            "dependencies": dependencies or [],
+            "credentials_needed": credentials_needed or [],
+            "metadata": metadata or {},
+            "status": "healthy",
+            "registered_at": datetime.utcnow(),
+            "last_heartbeat": datetime.utcnow(),
+            "heartbeat_count": 0,
+            "request_count": 0,
+            "error_count": 0,
+            "avg_response_time_ms": 0.0,
         }
-        
+
         self._save_service(name, service_entry)
         logger.info(f"Registered service: {name} v{version} at {address}:{port}")
         return service_entry
@@ -106,15 +113,14 @@ class ServiceRegistry:
         if not service:
             logger.warning(f"Heartbeat from unknown service: {service_name}")
             return False
-        
-        service['last_heartbeat'] = datetime.utcnow()
-        service['heartbeat_count'] += 1
-        service['avg_response_time_ms'] = (
-            (service['avg_response_time_ms'] * (service['heartbeat_count'] - 1) + response_time_ms) 
-            / service['heartbeat_count']
-        )
-        service['status'] = 'healthy'
-        
+
+        service["last_heartbeat"] = datetime.utcnow()
+        service["heartbeat_count"] += 1
+        service["avg_response_time_ms"] = (
+            service["avg_response_time_ms"] * (service["heartbeat_count"] - 1) + response_time_ms
+        ) / service["heartbeat_count"]
+        service["status"] = "healthy"
+
         self._save_service(service_name, service)
         logger.debug(f"Heartbeat from {service_name}")
         return True
@@ -125,17 +131,17 @@ class ServiceRegistry:
         if not service:
             logger.warning(f"Service discovery failed: {service_name} not found")
             return None
-        
-        load_percentage = min(service.get('request_count', 0) / 100, 100)
-        
+
+        load_percentage = min(service.get("request_count", 0) / 100, 100)
+
         return {
-            'name': service['name'],
-            'address': service['address'],
-            'port': service['port'],
-            'status': service['status'],
-            'version': service['version'],
-            'load_percentage': load_percentage,
-            'estimated_response_time_ms': service.get('avg_response_time_ms', 0.0)
+            "name": service["name"],
+            "address": service["address"],
+            "port": service["port"],
+            "status": service["status"],
+            "version": service["version"],
+            "load_percentage": load_percentage,
+            "estimated_response_time_ms": service.get("avg_response_time_ms", 0.0),
         }
 
     async def discover_all_healthy(self) -> List[Dict[str, Any]]:
@@ -143,13 +149,15 @@ class ServiceRegistry:
         healthy = []
         services_list = self._get_all_services()
         for service in services_list:
-            if service['status'] == 'healthy':
-                healthy.append({
-                    'name': service['name'],
-                    'address': service['address'],
-                    'port': service['port'],
-                    'version': service['version']
-                })
+            if service["status"] == "healthy":
+                healthy.append(
+                    {
+                        "name": service["name"],
+                        "address": service["address"],
+                        "port": service["port"],
+                        "version": service["version"],
+                    }
+                )
         return healthy
 
     async def get_service_status(self, service_name: str) -> Optional[Dict[str, Any]]:
@@ -157,19 +165,19 @@ class ServiceRegistry:
         service = self._get_service(service_name)
         if not service:
             return None
-        
-        time_since_heartbeat = datetime.utcnow() - service['last_heartbeat']
-        
+
+        time_since_heartbeat = datetime.utcnow() - service["last_heartbeat"]
+
         return {
-            'name': service['name'],
-            'status': service['status'],
-            'last_heartbeat': service['last_heartbeat'].isoformat(),
-            'time_since_heartbeat_seconds': time_since_heartbeat.total_seconds(),
-            'heartbeat_count': service['heartbeat_count'],
-            'request_count': service['request_count'],
-            'error_count': service['error_count'],
-            'error_rate': service['error_count'] / max(service['request_count'], 1),
-            'avg_response_time_ms': service['avg_response_time_ms']
+            "name": service["name"],
+            "status": service["status"],
+            "last_heartbeat": service["last_heartbeat"].isoformat(),
+            "time_since_heartbeat_seconds": time_since_heartbeat.total_seconds(),
+            "heartbeat_count": service["heartbeat_count"],
+            "request_count": service["request_count"],
+            "error_count": service["error_count"],
+            "error_rate": service["error_count"] / max(service["request_count"], 1),
+            "avg_response_time_ms": service["avg_response_time_ms"],
         }
 
     async def list_all_services(self) -> List[Dict[str, Any]]:
@@ -177,14 +185,16 @@ class ServiceRegistry:
         services_list = []
         services = self._get_all_services()
         for service in services:
-            services_list.append({
-                'name': service['name'],
-                'version': service['version'],
-                'status': service['status'],
-                'address': service['address'],
-                'port': service['port'],
-                'registered_at': service['registered_at'].isoformat()
-            })
+            services_list.append(
+                {
+                    "name": service["name"],
+                    "version": service["version"],
+                    "status": service["status"],
+                    "address": service["address"],
+                    "port": service["port"],
+                    "registered_at": service["registered_at"].isoformat(),
+                }
+            )
         return services_list
 
     async def check_service_health(self, service_name: str) -> bool:
@@ -192,21 +202,21 @@ class ServiceRegistry:
         service = self._get_service(service_name)
         if not service:
             return False
-        
-        time_since_heartbeat = datetime.utcnow() - service['last_heartbeat']
-        
+
+        time_since_heartbeat = datetime.utcnow() - service["last_heartbeat"]
+
         if time_since_heartbeat.total_seconds() > self.heartbeat_timeout:
-            service['status'] = 'offline'
+            service["status"] = "offline"
             self._save_service(service_name, service)
             logger.warning(f"Service marked offline: {service_name}")
             return False
         elif time_since_heartbeat.total_seconds() > self.heartbeat_interval * 2:
-            service['status'] = 'degraded'
+            service["status"] = "degraded"
             self._save_service(service_name, service)
             logger.warning(f"Service marked degraded: {service_name}")
             return False
-        
-        return service['status'] == 'healthy'
+
+        return service["status"] == "healthy"
 
     async def periodic_health_check(self):
         """Background task: periodically check all services"""
@@ -214,7 +224,7 @@ class ServiceRegistry:
             try:
                 services = self._get_all_services()
                 for service in services:
-                    await self.check_service_health(service['name'])
+                    await self.check_service_health(service["name"])
                 await asyncio.sleep(self.heartbeat_interval)
             except Exception as e:
                 logger.error(f"Health check error: {e}")
@@ -227,16 +237,14 @@ class ServiceRegistry:
             return None
         return f"http://{service['address']}:{service['port']}"
 
-    async def update_service_stats(self, service_name: str, 
-                                   success: bool, 
-                                   response_time_ms: float):
+    async def update_service_stats(self, service_name: str, success: bool, response_time_ms: float):
         """Update service stats after request"""
         service = self._get_service(service_name)
         if not service:
             return
-        
-        service['request_count'] += 1
+
+        service["request_count"] += 1
         if not success:
-            service['error_count'] += 1
-        
+            service["error_count"] += 1
+
         self._save_service(service_name, service)

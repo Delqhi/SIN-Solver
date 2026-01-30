@@ -13,6 +13,7 @@ from playwright.async_api import Page
 
 logger = logging.getLogger("TokenInjector")
 
+
 class TokenInjector:
     """
     Expert at injecting CAPTCHA tokens and triggering callbacks.
@@ -23,7 +24,7 @@ class TokenInjector:
         Main entry point for token injection.
         """
         logger.info(f"💉 [TokenInjector] Injecting {captcha_type} token...")
-        
+
         if captcha_type in ["recaptcha", "recaptcha_v2", "recaptcha_v3", "recaptcha_enterprise"]:
             return await self._inject_recaptcha(page, token)
         elif captcha_type in ["hcaptcha"]:
@@ -36,15 +37,18 @@ class TokenInjector:
 
     async def _inject_recaptcha(self, page: Page, token: str) -> bool:
         try:
-            await page.evaluate(f"""(token) => {{
+            await page.evaluate(
+                f"""(token) => {{
                 document.getElementById('g-recaptcha-response').innerHTML = token;
                 const elements = document.getElementsByName('g-recaptcha-response');
                 for (let i=0; i<elements.length; i++) {{
                     elements[i].innerHTML = token;
                     elements[i].value = token;
                 }}
-            }}""", token)
-            
+            }}""",
+                token,
+            )
+
             await self._trigger_callback(page, "___grecaptcha_cfg")
             return True
         except Exception as e:
@@ -53,7 +57,8 @@ class TokenInjector:
 
     async def _inject_hcaptcha(self, page: Page, token: str) -> bool:
         try:
-            await page.evaluate(f"""(token) => {{
+            await page.evaluate(
+                f"""(token) => {{
                 const elements = document.getElementsByName('h-captcha-response');
                 for (let i=0; i<elements.length; i++) {{
                     elements[i].innerHTML = token;
@@ -64,7 +69,9 @@ class TokenInjector:
                     g_elements[i].innerHTML = token;
                     g_elements[i].value = token;
                 }}
-            }}""", token)
+            }}""",
+                token,
+            )
             return True
         except Exception as e:
             logger.error(f"hCaptcha injection failed: {e}")
@@ -72,13 +79,16 @@ class TokenInjector:
 
     async def _inject_turnstile(self, page: Page, token: str) -> bool:
         try:
-            await page.evaluate(f"""(token) => {{
+            await page.evaluate(
+                f"""(token) => {{
                 const elements = document.getElementsByName('cf-turnstile-response');
                 for (let i=0; i<elements.length; i++) {{
                     elements[i].innerHTML = token;
                     elements[i].value = token;
                 }}
-            }}""", token)
+            }}""",
+                token,
+            )
             return True
         except Exception as e:
             logger.error(f"Turnstile injection failed: {e}")
@@ -108,7 +118,9 @@ class TokenInjector:
         except Exception as e:
             logger.debug(f"Callback trigger failed (common if no callback defined): {e}")
 
+
 _injector = None
+
 
 def get_token_injector() -> TokenInjector:
     global _injector

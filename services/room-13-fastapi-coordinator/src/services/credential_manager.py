@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 VAULT_API_URL = os.getenv("VAULT_API_URL", "http://room-02-vault-api:8002")
 VAULT_TIMEOUT = 30.0
 
+
 class CredentialManager:
     """Manages encrypted credential storage and lifecycle with Vault API integration"""
 
@@ -27,11 +28,13 @@ class CredentialManager:
         self.db = db
         self.vault_url = VAULT_API_URL
         self.client = httpx.Client(base_url=self.vault_url, timeout=VAULT_TIMEOUT)
-        
-        key = encryption_key or os.getenv('ENCRYPTION_KEY', None)
+
+        key = encryption_key or os.getenv("ENCRYPTION_KEY", None)
         if not key:
             key = Fernet.generate_key().decode()
-            logger.warning("ENCRYPTION_KEY not set, generated new key. Set env var for persistence!")
+            logger.warning(
+                "ENCRYPTION_KEY not set, generated new key. Set env var for persistence!"
+            )
         self.cipher = Fernet(key.encode() if isinstance(key, str) else key)
 
     def encrypt_value(self, value: str) -> str:
@@ -53,35 +56,37 @@ class CredentialManager:
             logger.error(f"Decryption failed: {e}")
             raise
 
-    def create_credential(self, 
-                         name: str,
-                         credential_type: str,
-                         service_name: str,
-                         value: str,
-                         description: Optional[str] = None,
-                         metadata: Optional[Dict[str, Any]] = None,
-                         expires_at: Optional[datetime] = None) -> Dict[str, Any]:
+    def create_credential(
+        self,
+        name: str,
+        credential_type: str,
+        service_name: str,
+        value: str,
+        description: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        expires_at: Optional[datetime] = None,
+    ) -> Dict[str, Any]:
         """Create new credential with encryption"""
-        
+
         encrypted_value = self.encrypt_value(value)
-        
+
         credential = {
-            'id': name,  # Use name as ID for simplicity
-            'name': name,
-            'credential_type': credential_type,
-            'service_name': service_name,
-            'encrypted_value': encrypted_value,
-            'value': None,  # Don't return plaintext
-            'description': description,
-            'metadata': metadata or {},
-            'expires_at': expires_at,
-            'created_at': datetime.utcnow(),
-            'updated_at': datetime.utcnow(),
-            'last_used': None,
-            'rotation_required': False,
-            'rotation_count': 0
+            "id": name,  # Use name as ID for simplicity
+            "name": name,
+            "credential_type": credential_type,
+            "service_name": service_name,
+            "encrypted_value": encrypted_value,
+            "value": None,  # Don't return plaintext
+            "description": description,
+            "metadata": metadata or {},
+            "expires_at": expires_at,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+            "last_used": None,
+            "rotation_required": False,
+            "rotation_count": 0,
         }
-        
+
         logger.info(f"Created credential: {name} for service: {service_name}")
         return credential
 
@@ -130,7 +135,7 @@ class CredentialManager:
                 payload["metadata"] = kwargs["metadata"]
             if "expires_at" in kwargs:
                 payload["expires_at"] = kwargs["expires_at"]
-            
+
             response = self.client.put(f"/api/secrets/{credential_id}", json=payload)
             if response.status_code == 200:
                 logger.info(f"Updated credential: {credential_id}")
@@ -160,11 +165,7 @@ class CredentialManager:
         """Rotate credential to new value in Vault API"""
         try:
             encrypted_value = self.encrypt_value(new_value)
-            payload = {
-                "value": new_value,
-                "rotation_count": 1,
-                "rotation_required": False
-            }
+            payload = {"value": new_value, "rotation_count": 1, "rotation_required": False}
             response = self.client.put(f"/api/secrets/{credential_id}", json=payload)
             if response.status_code == 200:
                 logger.info(f"Rotated credential: {credential_id}")
@@ -184,13 +185,15 @@ class CredentialManager:
                 credentials = response.json()
                 expired = []
                 now = datetime.utcnow()
-                
+
                 for cred in credentials:
                     if cred.get("expires_at"):
-                        expires_at = datetime.fromisoformat(cred["expires_at"].replace('Z', '+00:00'))
+                        expires_at = datetime.fromisoformat(
+                            cred["expires_at"].replace("Z", "+00:00")
+                        )
                         if expires_at < now:
                             expired.append(cred.get("id", cred.get("name")))
-                
+
                 logger.info(f"Checked expiration: {len(expired)} expired credentials found")
                 return expired
             else:
@@ -204,10 +207,10 @@ class CredentialManager:
         """Log credential access for audit trail in Vault API"""
         try:
             log_entry = {
-                'credential_id': credential_id,
-                'service_name': service_name,
-                'action': action,
-                'timestamp': datetime.utcnow().isoformat()
+                "credential_id": credential_id,
+                "service_name": service_name,
+                "action": action,
+                "timestamp": datetime.utcnow().isoformat(),
             }
             response = self.client.post("/api/audit", json=log_entry)
             if response.status_code == 201:

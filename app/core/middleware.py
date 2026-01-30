@@ -43,17 +43,18 @@ correlation_id_ctx: ContextVar[Optional[str]] = ContextVar("correlation_id", def
 # Correlation ID Middleware
 # =============================================================================
 
+
 class CorrelationIdMiddleware(BaseHTTPMiddleware):
     """
     Middleware for correlation ID propagation across requests.
-    
+
     Features:
     - Extract correlation ID from incoming requests (header or query param)
     - Generate new correlation ID if not present
     - Propagate to response headers
     - Store in context variable for logging
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -63,7 +64,7 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.header_name = header_name
         self.query_param = query_param
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -72,27 +73,27 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         """Process request and attach correlation ID."""
         # Try to extract correlation ID from header
         correlation_id = request.headers.get(self.header_name)
-        
+
         # Try query parameter if not in header
         if not correlation_id and self.query_param:
             correlation_id = request.query_params.get(self.query_param)
-        
+
         # Generate new if not present
         if not correlation_id:
             correlation_id = str(uuid.uuid4())
-        
+
         # Set in context variable for structured logging
         correlation_id_ctx.set(correlation_id)
-        
+
         # Store in request state
         request.state.correlation_id = correlation_id
-        
+
         # Process request
         response = await call_next(request)
-        
+
         # Add correlation ID to response headers
         response.headers[self.header_name] = correlation_id
-        
+
         return response
 
 
@@ -100,10 +101,11 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
 # Structured Logging Middleware
 # =============================================================================
 
+
 class StructuredLoggingMiddleware(BaseHTTPMiddleware):
     """
     Middleware for structured request/response logging.
-    
+
     Features:
     - Request timing (duration measurement)
     - Structured log output with structlog
@@ -111,7 +113,7 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
     - Error tracking
     - Performance metrics
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -125,7 +127,7 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         self.log_response_body = log_response_body
         self.max_body_size = max_body_size
         self.exclude_paths = set(exclude_paths or ["/health", "/metrics", "/docs", "/openapi.json"])
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -135,14 +137,14 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         # Skip excluded paths
         if request.url.path in self.exclude_paths:
             return await call_next(request)
-        
+
         # Start timing
         start_time = time.perf_counter()
-        
+
         # Extract client info
         client_ip = self._get_client_ip(request)
         correlation_id = getattr(request.state, "correlation_id", None)
-        
+
         # Build request log context
         log_context = {
             "request_id": str(uuid.uuid4()),
@@ -154,31 +156,33 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
             "user_agent": request.headers.get("user-agent"),
             "content_type": request.headers.get("content-type"),
         }
-        
+
         # Log request
         request_logger = logger.bind(**log_context)
         request_logger.info("Request started")
-        
+
         # Capture request body if configured
         if self.log_request_body:
             body = await self._capture_request_body(request)
             if body:
-                log_context["request_body"] = body[:self.max_body_size]
-        
+                log_context["request_body"] = body[: self.max_body_size]
+
         try:
             # Process request
             response = await call_next(request)
-            
+
             # Calculate duration
             duration_ms = (time.perf_counter() - start_time) * 1000
-            
+
             # Update log context
-            log_context.update({
-                "status_code": response.status_code,
-                "duration_ms": round(duration_ms, 2),
-                "response_headers": dict(response.headers),
-            })
-            
+            log_context.update(
+                {
+                    "status_code": response.status_code,
+                    "duration_ms": round(duration_ms, 2),
+                    "response_headers": dict(response.headers),
+                }
+            )
+
             # Determine log level based on status code
             if response.status_code >= 500:
                 log_level = "error"
@@ -186,60 +190,65 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
                 log_level = "warning"
             else:
                 log_level = "info"
-            
+
             # Log completion
             request_logger.bind(**log_context).log(
                 log_level,
                 "Request completed",
             )
-            
+
             # Add timing header
             response.headers["X-Response-Time"] = f"{duration_ms:.2f}ms"
-            
+
             return response
-            
+
         except Exception as e:
             # Calculate duration even on error
             duration_ms = (time.perf_counter() - start_time) * 1000
-            
-            log_context.update({
-                "error": str(e),
-                "error_type": type(e).__name__,
-                "duration_ms": round(duration_ms, 2),
-            })
-            
+
+            log_context.update(
+                {
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                    "duration_ms": round(duration_ms, 2),
+                }
+            )
+
             request_logger.bind(**log_context).error("Request failed")
             raise
-    
+
     def _get_client_ip(self, request: Request) -> str:
         """Extract client IP from request."""
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
             return forwarded.split(",")[0].strip()
-        
+
         real_ip = request.headers.get("x-real-ip")
         if real_ip:
             return real_ip
-        
+
         if request.client:
             return request.client.host
-        
+
         return "unknown"
-    
+
     async def _capture_request_body(self, request: Request) -> Optional[str]:
         """Capture request body for logging."""
         try:
             body = await request.body()
             if body:
                 content_type = request.headers.get("content-type", "")
-                
+
                 if "application/json" in content_type:
                     # Truncate if too large
                     if len(body) > self.max_body_size:
-                        return body[:self.max_body_size].decode("utf-8", errors="replace") + "...[truncated]"
+                        return (
+                            body[: self.max_body_size].decode("utf-8", errors="replace")
+                            + "...[truncated]"
+                        )
                     return body.decode("utf-8", errors="replace")
                 elif "text/" in content_type:
-                    return body.decode("utf-8", errors="replace")[:self.max_body_size]
+                    return body.decode("utf-8", errors="replace")[: self.max_body_size]
                 else:
                     return f"<binary data: {len(body)} bytes>"
         except Exception:
@@ -251,13 +260,14 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
 # Security Headers Middleware
 # =============================================================================
 
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
     Middleware for adding security headers to all responses.
-    
+
     Implements OWASP recommended security headers.
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -266,7 +276,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.security_headers = SecurityHeaders()
         self.custom_headers = custom_headers or {}
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -274,18 +284,18 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         """Add security headers to response."""
         response = await call_next(request)
-        
+
         # Add default security headers
         headers = self.security_headers.get_headers()
-        
+
         # Apply custom headers (override defaults)
         headers.update(self.custom_headers)
-        
+
         # Add to response
         for header_name, header_value in headers.items():
             if header_name not in response.headers:
                 response.headers[header_name] = header_value
-        
+
         return response
 
 
@@ -293,17 +303,18 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 # Error Handling Middleware
 # =============================================================================
 
+
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):
     """
     Middleware for centralized error handling.
-    
+
     Features:
     - Sanitized error messages (no internal details to client)
     - Structured error logging
     - Custom error responses
     - Exception tracking
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -313,7 +324,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.debug = debug
         self.include_traceback_in_debug = include_traceback_in_debug
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -322,17 +333,17 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
         """Handle errors with sanitization."""
         try:
             return await call_next(request)
-            
+
         except Exception as exc:
             return await self._handle_exception(request, exc)
-    
+
     async def _handle_exception(self, request: Request, exc: Exception) -> JSONResponse:
         """Handle and format exception response."""
         correlation_id = getattr(request.state, "correlation_id", None)
-        
+
         # Map exception to HTTP status code and message
         status_code, error_code, message = self._map_exception(exc)
-        
+
         # Log the error with full details
         error_data = {
             "correlation_id": correlation_id,
@@ -342,18 +353,19 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             "request_method": request.method,
             "client_ip": self._get_client_ip(request),
         }
-        
+
         # Include traceback in debug mode
         if self.debug and self.include_traceback_in_debug:
             import traceback
+
             error_data["traceback"] = traceback.format_exc()
-        
+
         # Log based on severity
         if status_code >= 500:
             logger.error("Unhandled exception", **error_data)
         else:
             logger.warning("Request error", **error_data)
-        
+
         # Build sanitized response
         response_body: dict[str, Any] = {
             "error": {
@@ -362,24 +374,24 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 "correlation_id": correlation_id,
             }
         }
-        
+
         # Include debug info only in debug mode
         if self.debug:
             response_body["error"]["debug"] = {
                 "type": type(exc).__name__,
                 "details": str(exc),
             }
-        
+
         return JSONResponse(
             status_code=status_code,
             content=response_body,
             headers={"X-Correlation-ID": correlation_id} if correlation_id else {},
         )
-    
+
     def _map_exception(self, exc: Exception) -> tuple[int, str, str]:
         """Map exception to HTTP response details."""
         from fastapi import HTTPException
-        
+
         if isinstance(exc, HTTPException):
             # Use FastAPI HTTPException details
             status_code = exc.status_code
@@ -402,18 +414,18 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             status_code = 500
             error_code = "INTERNAL_ERROR"
             message = "An internal error occurred"
-        
+
         return status_code, error_code, message
-    
+
     def _get_client_ip(self, request: Request) -> str:
         """Extract client IP from request."""
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
             return forwarded.split(",")[0].strip()
-        
+
         if request.client:
             return request.client.host
-        
+
         return "unknown"
 
 
@@ -421,13 +433,14 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
 # Rate Limit Headers Middleware
 # =============================================================================
 
+
 class RateLimitHeadersMiddleware(BaseHTTPMiddleware):
     """
     Middleware for adding rate limit headers to responses.
-    
+
     Implements IETF RateLimit headers standard.
     """
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -435,21 +448,21 @@ class RateLimitHeadersMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         """Add rate limit headers if available in request state."""
         response = await call_next(request)
-        
+
         # Check if rate limit info is in request state
         rate_limit_info = getattr(request.state, "rate_limit", None)
-        
+
         if rate_limit_info:
             # Add IETF RateLimit headers
             response.headers["RateLimit-Limit"] = str(rate_limit_info.get("limit", 60))
             response.headers["RateLimit-Remaining"] = str(rate_limit_info.get("remaining", 0))
             response.headers["RateLimit-Reset"] = str(rate_limit_info.get("reset", 0))
-            
+
             # Also add legacy X-RateLimit headers
             response.headers["X-RateLimit-Limit"] = str(rate_limit_info.get("limit", 60))
             response.headers["X-RateLimit-Remaining"] = str(rate_limit_info.get("remaining", 0))
             response.headers["X-RateLimit-Reset"] = str(rate_limit_info.get("reset", 0))
-        
+
         return response
 
 
@@ -457,13 +470,14 @@ class RateLimitHeadersMiddleware(BaseHTTPMiddleware):
 # Request Size Limit Middleware
 # =============================================================================
 
+
 class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
     """
     Middleware to limit request body size.
-    
+
     Prevents memory exhaustion from large requests.
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -471,7 +485,7 @@ class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
     ):
         super().__init__(app)
         self.max_size_bytes = max_size_bytes
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -493,7 +507,7 @@ class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
                         }
                     },
                 )
-        
+
         return await call_next(request)
 
 
@@ -501,14 +515,15 @@ class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
 # Timing Attack Prevention Middleware
 # =============================================================================
 
+
 class TimingAttackPreventionMiddleware(BaseHTTPMiddleware):
     """
     Middleware to help prevent timing attacks on authentication.
-    
+
     Adds random delays to authentication endpoints to mask
     timing differences between valid and invalid credentials.
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -519,8 +534,10 @@ class TimingAttackPreventionMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.min_delay_ms = min_delay_ms
         self.max_delay_ms = max_delay_ms
-        self.protected_paths = set(protected_paths or ["/auth/login", "/auth/token", "/auth/verify"])
-    
+        self.protected_paths = set(
+            protected_paths or ["/auth/login", "/auth/token", "/auth/verify"]
+        )
+
     async def dispatch(
         self,
         request: Request,
@@ -528,12 +545,13 @@ class TimingAttackPreventionMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         """Add random delay for protected paths."""
         response = await call_next(request)
-        
+
         if request.url.path in self.protected_paths:
             import random
+
             delay = random.uniform(self.min_delay_ms, self.max_delay_ms) / 1000
             await asyncio.sleep(delay)
-        
+
         return response
 
 
@@ -541,13 +559,14 @@ class TimingAttackPreventionMiddleware(BaseHTTPMiddleware):
 # Cache Control Middleware
 # =============================================================================
 
+
 class CacheControlMiddleware(BaseHTTPMiddleware):
     """
     Middleware for managing cache control headers.
-    
+
     Adds appropriate cache headers based on endpoint type.
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -559,7 +578,7 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
         self.no_cache_paths = set(no_cache_paths or ["/api/", "/auth/", "/solve/"])
         self.static_paths = set(static_paths or ["/static/", "/assets/"])
         self.static_max_age = static_max_age
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -567,9 +586,9 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         """Add cache control headers."""
         response = await call_next(request)
-        
+
         path = request.url.path
-        
+
         # Check if path should not be cached
         for no_cache_path in self.no_cache_paths:
             if path.startswith(no_cache_path):
@@ -577,17 +596,17 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
                 response.headers["Pragma"] = "no-cache"
                 response.headers["Expires"] = "0"
                 return response
-        
+
         # Check if static path
         for static_path in self.static_paths:
             if path.startswith(static_path):
                 response.headers["Cache-Control"] = f"public, max-age={self.static_max_age}"
                 return response
-        
+
         # Default: no cache for API endpoints
         if path.startswith("/"):
             response.headers["Cache-Control"] = "no-store"
-        
+
         return response
 
 
@@ -595,13 +614,14 @@ class CacheControlMiddleware(BaseHTTPMiddleware):
 # Request ID Injection Middleware
 # =============================================================================
 
+
 class RequestIdInjectionMiddleware(BaseHTTPMiddleware):
     """
     Middleware to inject request ID into response and logs.
-    
+
     Similar to correlation ID but for single-request tracking.
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -609,7 +629,7 @@ class RequestIdInjectionMiddleware(BaseHTTPMiddleware):
     ):
         super().__init__(app)
         self.header_name = header_name
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -618,10 +638,10 @@ class RequestIdInjectionMiddleware(BaseHTTPMiddleware):
         """Generate and inject request ID."""
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
-        
+
         response = await call_next(request)
         response.headers[self.header_name] = request_id
-        
+
         return response
 
 
@@ -629,13 +649,14 @@ class RequestIdInjectionMiddleware(BaseHTTPMiddleware):
 # Health Check Middleware
 # =============================================================================
 
+
 class HealthCheckMiddleware(BaseHTTPMiddleware):
     """
     Middleware to handle health check requests efficiently.
-    
+
     Short-circuits health checks before they hit the main application.
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -643,7 +664,7 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
     ):
         super().__init__(app)
         self.health_paths = set(health_paths or ["/health", "/healthz", "/ready", "/live"])
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -655,7 +676,7 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
                 status_code=200,
                 content={"status": "healthy", "timestamp": time.time()},
             )
-        
+
         return await call_next(request)
 
 
@@ -663,17 +684,18 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
 # Metrics Collection Middleware
 # =============================================================================
 
+
 class MetricsCollectionMiddleware(BaseHTTPMiddleware):
     """
     Middleware to collect request metrics.
-    
+
     Tracks:
     - Request count by endpoint
     - Response times
     - Status code distribution
     - Error rates
     """
-    
+
     def __init__(
         self,
         app: ASGIApp,
@@ -685,7 +707,7 @@ class MetricsCollectionMiddleware(BaseHTTPMiddleware):
         self._error_count: dict[str, int] = {}
         self._response_times: list[float] = []
         self._lock = asyncio.Lock()
-    
+
     async def dispatch(
         self,
         request: Request,
@@ -694,44 +716,43 @@ class MetricsCollectionMiddleware(BaseHTTPMiddleware):
         """Collect metrics for request."""
         if request.url.path in self.exclude_paths:
             return await call_next(request)
-        
+
         start_time = time.perf_counter()
-        
+
         try:
             response = await call_next(request)
-            
+
             # Update metrics
             async with self._lock:
                 endpoint = f"{request.method}:{request.url.path}"
                 self._request_count[endpoint] = self._request_count.get(endpoint, 0) + 1
-                
+
                 if response.status_code >= 400:
                     self._error_count[endpoint] = self._error_count.get(endpoint, 0) + 1
-                
+
                 duration = (time.perf_counter() - start_time) * 1000
                 self._response_times.append(duration)
-                
+
                 # Keep only last 10000 response times
                 if len(self._response_times) > 10000:
                     self._response_times = self._response_times[-10000:]
-            
+
             return response
-            
+
         except Exception:
             # Still track errors
             async with self._lock:
                 endpoint = f"{request.method}:{request.url.path}"
                 self._error_count[endpoint] = self._error_count.get(endpoint, 0) + 1
             raise
-    
+
     async def get_metrics(self) -> dict[str, Any]:
         """Get collected metrics."""
         async with self._lock:
             avg_response_time = (
-                sum(self._response_times) / len(self._response_times)
-                if self._response_times else 0
+                sum(self._response_times) / len(self._response_times) if self._response_times else 0
             )
-            
+
             return {
                 "request_count": self._request_count.copy(),
                 "error_count": self._error_count.copy(),
@@ -745,6 +766,7 @@ class MetricsCollectionMiddleware(BaseHTTPMiddleware):
 # Middleware Factory Functions
 # =============================================================================
 
+
 def setup_cors_middleware(
     app: FastAPI,
     allow_origins: Optional[list[str]] = None,
@@ -755,7 +777,7 @@ def setup_cors_middleware(
 ) -> None:
     """
     Configure CORS middleware with secure defaults.
-    
+
     Args:
         app: FastAPI application
         allow_origins: List of allowed origins (None = ['*'] for dev)
@@ -767,10 +789,10 @@ def setup_cors_middleware(
     # Default to allow all in development, but should be restricted in production
     if allow_origins is None:
         allow_origins = ["*"]
-    
+
     if allow_methods is None:
         allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
-    
+
     if allow_headers is None:
         allow_headers = [
             "*",
@@ -780,7 +802,7 @@ def setup_cors_middleware(
             "X-Correlation-ID",
             "X-Request-ID",
         ]
-    
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allow_origins,
@@ -798,7 +820,7 @@ def setup_compression_middleware(
 ) -> None:
     """
     Configure GZip compression middleware.
-    
+
     Args:
         app: FastAPI application
         minimum_size: Minimum response size to compress (bytes)
@@ -824,9 +846,9 @@ def setup_security_middleware_stack(
 ) -> None:
     """
     Setup complete security middleware stack.
-    
+
     This function adds all security-related middleware in the correct order.
-    
+
     Args:
         app: FastAPI application
         debug: Enable debug mode
@@ -840,32 +862,32 @@ def setup_security_middleware_stack(
     """
     # Order matters! Middleware is executed in reverse order of addition
     # (last added = first to process request, last to process response)
-    
+
     # 1. Error handling (catches all errors)
     if enable_error_handling:
         app.add_middleware(
             ErrorHandlingMiddleware,
             debug=debug,
         )
-    
+
     # 2. Request size limit (early rejection)
     if enable_request_size_limit:
         app.add_middleware(
             RequestSizeLimitMiddleware,
             max_size_bytes=max_request_size,
         )
-    
+
     # 3. Cache control
     app.add_middleware(CacheControlMiddleware)
-    
+
     # 4. Rate limit headers
     if enable_rate_limit_headers:
         app.add_middleware(RateLimitHeadersMiddleware)
-    
+
     # 5. Security headers
     if enable_security_headers:
         app.add_middleware(SecurityHeadersMiddleware)
-    
+
     # 6. Structured logging
     if enable_logging:
         app.add_middleware(
@@ -873,19 +895,19 @@ def setup_security_middleware_stack(
             log_request_body=debug,
             log_response_body=debug,
         )
-    
+
     # 7. Correlation ID
     app.add_middleware(CorrelationIdMiddleware)
-    
+
     # 8. Request ID
     app.add_middleware(RequestIdInjectionMiddleware)
-    
+
     # 9. CORS (must be early to handle preflight)
     if cors_config:
         setup_cors_middleware(app, **cors_config)
     else:
         setup_cors_middleware(app)
-    
+
     # 10. Compression (last to process response = first to receive it)
     setup_compression_middleware(app)
 
@@ -893,6 +915,7 @@ def setup_security_middleware_stack(
 # =============================================================================
 # Utility Functions
 # =============================================================================
+
 
 def get_correlation_id() -> Optional[str]:
     """Get current correlation ID from context."""
