@@ -14,7 +14,7 @@ aiohttp==3.9.1
 # Image Processing
 pillow==10.2.0
 opencv-python==4.9.0.80
-numpy==1.26.0
+numpy==2.4.1
 
 # OCR Engine - REAL IMPLEMENTATION (NO PLACEHOLDER)
 ddddocr==1.5.5
