@@ -1,0 +1,75 @@
+# Docker Compose Configuration for Rocket.Chat Alertmanager Integration
+# Add this service to your main docker-compose.yml or include it separately
+
+version: '3.8'
+
+services:
+  # Rocket.Chat Webhook Adapter
+  # Converts Prometheus Alertmanager format to Rocket.Chat JSON webhooks
+  rocketchat-webhook:
+    image: python:3.11-slim
+    container_name: rocketchat-webhook-adapter
+    working_dir: /app
+    command: python -m pip install -r requirements.txt && python rocketchat-webhook.py
+    ports:
+      - "8093:8093"
+    environment:
+      # Rocket.Chat webhook URLs (create these in Rocket.Chat admin panel)
+      ROCKETCHAT_WEBHOOK_CRITICAL: ${ROCKETCHAT_WEBHOOK_CRITICAL}
+      ROCKETCHAT_WEBHOOK_WARNING: ${ROCKETCHAT_WEBHOOK_WARNING}
+      ROCKETCHAT_WEBHOOK_INFO: ${ROCKETCHAT_WEBHOOK_INFO}
+      # Webhook adapter settings
+      PORT: 8093
+      DEBUG: "false"
+    volumes:
+      # Mount the webhook adapter script and dependencies
+      - ./monitoring/rocketchat-webhook.py:/app/rocketchat-webhook.py:ro
+      - ./monitoring/requirements.txt:/app/requirements.txt:ro
+    restart: always
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8093/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Alertmanager
+  # Processes alerts from Prometheus and routes to webhooks
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      # Mount the Alertmanager configuration
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    environment:
+      # Environment variables for Rocket.Chat webhooks
+      ROCKETCHAT_WEBHOOK_CRITICAL: ${ROCKETCHAT_WEBHOOK_CRITICAL}
+      ROCKETCHAT_WEBHOOK_WARNING: ${ROCKETCHAT_WEBHOOK_WARNING}
+      ROCKETCHAT_WEBHOOK_INFO: ${ROCKETCHAT_WEBHOOK_INFO}
+    depends_on:
+      - rocketchat-webhook
+    restart: always
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  alertmanager-data:
+    driver: local
+
+networks:
+  default:
+    name: delqhi-network

@@ -16,11 +16,13 @@ from typing import List, Optional, Dict, Any
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthCredentials
 from pydantic import BaseModel, Field, validator
 from prometheus_client import Counter, Histogram, Gauge, Info, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # Import modular components
 from src.solvers.veto_engine import VetoEngine
@@ -124,6 +126,16 @@ class CaptchaSolveResponse(BaseModel):
 
 
 # ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+
+# API KEY VALIDATION
+API_KEY = os.getenv("CAPTCHA_API_KEY", "sk-test-captcha-worker-2026")
+ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+]
+
+# ============================================================================
 # GLOBAL INSTANCES
 # ============================================================================
 
@@ -133,6 +145,7 @@ redis_client: Optional[RedisClient] = None
 ocr_detector: Optional[OcrElementDetector] = None
 mistral_circuit: Optional[CircuitBreaker] = None
 qwen_circuit: Optional[CircuitBreaker] = None
+security = HTTPBearer()
 
 
 @asynccontextmanager
@@ -196,12 +209,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+async def verify_api_key(credentials: HTTPAuthCredentials = Depends(security)) -> str:
+    """Verify API key from Authorization header"""
+    token = credentials.credentials
+    if token != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+    return token
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["POST", "GET", "OPTIONS"],
+    allow_headers=["authorization", "content-type"],
 )
 
 
@@ -256,7 +278,7 @@ async def readiness_check():
 
 
 @app.post("/api/solve", response_model=CaptchaSolveResponse)
-async def solve_captcha(request: CaptchaSolveRequest):
+async def solve_captcha(request: CaptchaSolveRequest, api_key: str = Depends(verify_api_key)):
     """Solve a single CAPTCHA with full feature support"""
     if not veto_engine:
         raise HTTPException(status_code=503, detail="Solver not initialized")
@@ -348,7 +370,12 @@ async def solve_captcha(request: CaptchaSolveRequest):
 
 
 @app.post("/api/solve/text", response_model=CaptchaSolveResponse)
-async def solve_text_captcha(image_base64: str, client_id: str = "default", timeout: int = 30):
+async def solve_text_captcha(
+    image_base64: str,
+    client_id: str = "default",
+    timeout: int = 30,
+    api_key: str = Depends(verify_api_key),
+):
     """Solve text-based CAPTCHA"""
     request = CaptchaSolveRequest(
         image_data=image_base64, captcha_type="text", client_id=client_id, timeout=timeout
@@ -358,7 +385,11 @@ async def solve_text_captcha(image_base64: str, client_id: str = "default", time
 
 @app.post("/api/solve/image-grid", response_model=CaptchaSolveResponse)
 async def solve_image_grid_captcha(
-    image_base64: str, instructions: str, client_id: str = "default", timeout: int = 45
+    image_base64: str,
+    instructions: str,
+    client_id: str = "default",
+    timeout: int = 45,
+    api_key: str = Depends(verify_api_key),
 ):
     """Solve image grid CAPTCHA (hCaptcha/reCAPTCHA style)"""
     return await solve_browser_captcha(
@@ -367,7 +398,9 @@ async def solve_image_grid_captcha(
 
 
 @app.post("/api/solve/browser", response_model=CaptchaSolveResponse)
-async def solve_browser_captcha(url: str, client_id: str = "default", timeout: int = 60):
+async def solve_browser_captcha(
+    url: str, client_id: str = "default", timeout: int = 60, api_key: str = Depends(verify_api_key)
+):
     """Solve CAPTCHA on live webpage using Steel Browser"""
     request = CaptchaSolveRequest(
         url=url, captcha_type="browser", client_id=client_id, timeout=timeout
@@ -376,7 +409,7 @@ async def solve_browser_captcha(url: str, client_id: str = "default", timeout: i
 
 
 @app.post("/api/solve/batch")
-async def solve_batch(batch_request: BatchCaptchaRequest):
+async def solve_batch(batch_request: BatchCaptchaRequest, api_key: str = Depends(verify_api_key)):
     """Solve batch of CAPTCHAs (max 100)"""
     if not veto_engine:
         raise HTTPException(status_code=503, detail="Solver not initialized")

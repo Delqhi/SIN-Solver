@@ -1,0 +1,51 @@
+{
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighCPUUsage",
+        "severity": "critical",
+        "instance": "captcha-worker-1",
+        "service": "captcha-solver",
+        "pod": "solver-1.1-captcha-worker-abc123"
+      },
+      "annotations": {
+        "summary": "High CPU usage detected on captcha worker",
+        "description": "CPU usage on captcha-worker-1 is above 85%",
+        "runbook_url": "https://wiki.delqhi.com/runbook/high-cpu"
+      },
+      "startsAt": "2024-01-30T10:30:00Z",
+      "endsAt": "0001-01-01T00:00:00Z"
+    },
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "HighMemoryUsage",
+        "severity": "warning",
+        "instance": "captcha-worker-1",
+        "service": "captcha-solver",
+        "pod": "solver-1.1-captcha-worker-abc123"
+      },
+      "annotations": {
+        "summary": "Memory usage is elevated",
+        "description": "Memory usage on captcha-worker-1 is above 75%",
+        "runbook_url": "https://wiki.delqhi.com/runbook/high-memory"
+      },
+      "startsAt": "2024-01-30T10:25:00Z",
+      "endsAt": "0001-01-01T00:00:00Z"
+    }
+  ],
+  "groupLabels": {
+    "alertname": "HighSystemLoad"
+  },
+  "commonLabels": {
+    "severity": "critical",
+    "service": "captcha-solver"
+  },
+  "commonAnnotations": {
+    "summary": "System resource alerts from captcha worker"
+  },
+  "externalURL": "http://prometheus:9090",
+  "version": "4",
+  "groupKey": "{}:{}"
+}
