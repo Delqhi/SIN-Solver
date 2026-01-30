@@ -121,13 +121,13 @@ interface ImprovedSolveResult {
 
 /**
  * Steel Browser CDP Connector
- * Real-time browser control via Chrome DevTools Protocol
+ * Real-time browser control via Chrome DevTools Protocol using Playwright
  */
 class SteelBrowserCDP {
   private cdpUrl: string;
   private apiUrl: string;
-  private ws: WebSocket | null = null;
-  private sessionId: string | null = null;
+  private browser: Browser | null = null;
+  private page: Page | null = null;
 
   constructor(cdpUrl: string, apiUrl: string) {
     this.cdpUrl = cdpUrl;
@@ -140,11 +140,26 @@ class SteelBrowserCDP {
       console.log(`   CDP URL: ${this.cdpUrl}`);
       console.log(`   API URL: ${this.apiUrl}`);
 
-      // Check if Steel Browser is healthy
-      const healthCheck = await fetch(`${this.apiUrl}/health`);
+      // Check if Steel Browser is healthy (use root endpoint as /health doesn't exist)
+      const healthCheck = await fetch(`${this.apiUrl}/`);
       if (!healthCheck.ok) {
         throw new Error(`Steel Browser health check failed: ${healthCheck.status}`);
       }
+
+      // Get the WebSocket debugger URL from Steel Browser
+      const versionResponse = await fetch(`${this.cdpUrl}/json/version`);
+      const version = await versionResponse.json();
+      const wsUrl = version.webSocketDebuggerUrl;
+      
+      // Fix the WebSocket URL to include the correct port
+      // Steel Browser returns ws://localhost/... but we need ws://localhost:9223/...
+      const fixedWsUrl = wsUrl.replace('ws://localhost/', 'ws://localhost:9223/');
+      console.log(`   WebSocket URL: ${fixedWsUrl}`);
+
+      // Connect Playwright to Steel Browser CDP
+      this.browser = await chromium.connectOverCDP(fixedWsUrl);
+      const context = this.browser.contexts()[0] || await this.browser.newContext();
+      this.page = context.pages()[0] || await context.newPage();
 
       console.log('✅ Steel Browser CDP connected');
       return true;
@@ -156,81 +171,67 @@ class SteelBrowserCDP {
 
   async navigate(url: string): Promise<void> {
     console.log(`🌐 Navigating to: ${url}`);
-    // Implementation via CDP
-    const response = await fetch(`${this.apiUrl}/v1/page/navigate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url }),
-    });
     
-    if (!response.ok) {
-      throw new Error(`Navigation failed: ${response.status}`);
+    if (!this.page) {
+      throw new Error('Browser not connected');
     }
     
+    await this.page.goto(url, { waitUntil: 'networkidle' });
     console.log('✅ Navigation complete');
   }
 
   async screenshot(selector?: string): Promise<Buffer> {
     console.log('📸 Taking screenshot...');
     
-    const endpoint = selector 
-      ? `${this.apiUrl}/v1/page/screenshot?selector=${encodeURIComponent(selector)}`
-      : `${this.apiUrl}/v1/page/screenshot`;
-    
-    const response = await fetch(endpoint);
-    if (!response.ok) {
-      throw new Error(`Screenshot failed: ${response.status}`);
+    if (!this.page) {
+      throw new Error('Browser not connected');
     }
     
-    const arrayBuffer = await response.arrayBuffer();
+    let screenshot: Buffer;
+    if (selector) {
+      const element = await this.page.locator(selector).first();
+      screenshot = await element.screenshot();
+    } else {
+      screenshot = await this.page.screenshot({ fullPage: true });
+    }
+    
     console.log('✅ Screenshot captured');
-    return Buffer.from(arrayBuffer);
+    return screenshot;
   }
 
   async click(selector: string): Promise<void> {
     console.log(`🖱️  Clicking: ${selector}`);
     
-    const response = await fetch(`${this.apiUrl}/v1/page/click`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ selector }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Click failed: ${response.status}`);
+    if (!this.page) {
+      throw new Error('Browser not connected');
     }
     
+    await this.page.locator(selector).first().click();
     console.log('✅ Click executed');
   }
 
   async fill(selector: string, value: string): Promise<void> {
     console.log(`⌨️  Filling ${selector} with: ${value}`);
     
-    const response = await fetch(`${this.apiUrl}/v1/page/fill`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ selector, value }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Fill failed: ${response.status}`);
+    if (!this.page) {
+      throw new Error('Browser not connected');
     }
     
+    await this.page.locator(selector).first().fill(value);
     console.log('✅ Fill executed');
   }
 
   async getPageSource(): Promise<string> {
-    const response = await fetch(`${this.apiUrl}/v1/page/content`);
-    if (!response.ok) {
-      throw new Error(`Get content failed: ${response.status}`);
+    if (!this.page) {
+      throw new Error('Browser not connected');
     }
-    return response.text();
+    return await this.page.content();
   }
 
   async onDOMUpdate(callback: (data: any) => void): Promise<void> {
     // CDP allows real-time DOM monitoring
     console.log('👂 Listening for DOM updates...');
-    // Implementation would use WebSocket for real-time updates
+    // Implementation would use page.on('domcontentloaded') etc.
   }
 }
 
@@ -651,6 +652,16 @@ export class HolyTrinityWorker {
     }
 
     return true;
+  }
+
+  private startResourceGuardian(): void {
+    console.log('🛡️  Resource Guardian started');
+    setInterval(() => {
+      const usage = process.memoryUsage();
+      if (usage.heapUsed > 500 * 1024 * 1024) {
+        console.warn('⚠️  High memory usage detected');
+      }
+    }, 60000);
   }
 
   async solveCaptcha(url: string = 'https://2captcha.com/demo'): Promise<SolutionResult> {
