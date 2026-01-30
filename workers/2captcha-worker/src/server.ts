@@ -152,19 +152,19 @@ function formatSolveResponse(
     format,
   };
 
-  if (format === 'detailed') {
-    return {
-      ...base,
-      agent: result.bestResult.agent,
-      agentResults: result.results.map(r => ({
-        agent: r.agent,
-        answer: r.answer,
-        confidence: r.confidence,
-        solveTime: r.solveTime,
-      })),
-      totalTime: result.totalTime,
-    };
-  }
+   if (format === 'detailed') {
+     return {
+       ...base,
+       model: result.bestResult.model,
+       agentResults: result.results.map(r => ({
+         model: r.model,
+         answer: r.answer,
+         confidence: r.confidence,
+         time: r.time,
+       })),
+       totalTime: result.totalTime,
+     };
+   }
 
   if (format === 'consensus' && result.consensus) {
     return {

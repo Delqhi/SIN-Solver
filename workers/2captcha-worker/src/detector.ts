@@ -712,29 +712,34 @@ export class TwoCaptchaDetector {
 }
 
 /**
- * Quick detection helper
+ * Quick detection helper - NOW WITH ALERT SYSTEM
  */
-export async function detectCaptchaQuick(page: Page): Promise<CaptchaDetectionResult> {
-  const detector = new TwoCaptchaDetector(page);
+export async function detectCaptchaQuick(
+  page: Page,
+  alertSystem: AlertSystem
+): Promise<CaptchaDetectionResult> {
+  const detector = new TwoCaptchaDetector(page, alertSystem);
   return detector.detect();
 }
 
 /**
- * Detection with custom timeout
+ * Detection with custom timeout - NOW WITH ALERT SYSTEM
  */
 export async function detectCaptchaWithTimeout(
   page: Page,
+  alertSystem: AlertSystem,
   timeoutMs: number
 ): Promise<CaptchaDetectionResult> {
-  const detector = new TwoCaptchaDetector(page, timeoutMs);
+  const detector = new TwoCaptchaDetector(page, alertSystem, timeoutMs);
   return detector.detect();
 }
 
 /**
- * Poll for CAPTCHA presence with callback
+ * Poll for CAPTCHA presence with callback - NOW WITH ALERT SYSTEM
  */
 export async function pollForCaptcha(
   page: Page,
+  alertSystem: AlertSystem,
   maxWaitMs: number = 60000,
   onDetected?: (result: CaptchaDetectionResult) => Promise<void>
 ): Promise<CaptchaDetectionResult | null> {
@@ -742,7 +747,7 @@ export async function pollForCaptcha(
   let lastResult: CaptchaDetectionResult | null = null;
 
   while (Date.now() - startTime < maxWaitMs) {
-    const result = await detectCaptchaQuick(page);
+    const result = await detectCaptchaQuick(page, alertSystem);
 
     if (result.detected) {
       if (onDetected) {

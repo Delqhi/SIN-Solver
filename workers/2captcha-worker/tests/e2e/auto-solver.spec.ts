@@ -225,7 +225,7 @@ test.describe('AutoSolver', () => {
    });
 
   test('should track comprehensive timing data', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver);
 
     const startTime = Date.now();
@@ -255,7 +255,7 @@ test.describe('AutoSolver', () => {
       verbose: true,
     };
 
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     autoSolver = createAutoSolverWithSolver(page, mockSolver, customConfig);
 
     const result = await autoSolver.solveCaptcha();
@@ -275,10 +275,10 @@ test.describe('AutoSolver', () => {
   // ==========================================================================
 
   test('should handle detection failure gracefully', async () => {
-    const mockSolver = new MockSolverSuccess(page);
+    const mockSolver = new MockSolverSuccess();
     
     // Create a custom AutoSolver with no-CAPTCHA detector
-    const detector = new MockDetectorNoCapcha(page);
+    const detector = new MockDetectorNoCapcha();
     autoSolver = new AutoSolver(page, mockSolver);
     
     // Manually override detector with mock (simulate no detection)
@@ -295,8 +295,8 @@ test.describe('AutoSolver', () => {
   });
 
   test('should return early when no CAPTCHA found', async () => {
-    const mockSolver = new MockSolverSuccess(page);
-    const detector = new MockDetectorNoCapcha(page);
+    const mockSolver = new MockSolverSuccess();
+    const detector = new MockDetectorNoCapcha();
     
     autoSolver = new AutoSolver(page, mockSolver);
     (autoSolver as any).detector = detector;

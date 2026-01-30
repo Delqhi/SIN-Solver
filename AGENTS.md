@@ -208,6 +208,114 @@ Dieses Dokument ersetzt alle vorherigen Anweisungen zu `userprompts.md` und `las
 
 ---
 
+## 🚨🚨🚨 MANDATE -8: SUB-AGENT CONTEXT ACQUISITION (ABSOLUTE PRIORITY) 🚨🚨🚨
+
+**ALLE Sub-Agenten MÜSSEN vor dem Coden den vollständigen Kontext laden!**
+
+### Pflicht-Protokoll für Sub-Agenten (KEINE AUSNAHMEN!)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  📚 SUB-AGENT START-PROTOCOL - MANDATORY EXECUTION ORDER                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  🚨 VOR JEDER ZEILE CODE:                                                   │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│                                                                              │
+│  SCHRITT 1: Lese ~/.config/opencode/AGENTS.md VOLLSTÄNDIG                  │
+│     └─► ALLE Mandate kennen                                                 │
+│     └─► ALLE Regeln verstehen                                               │
+│     └─► ALLE Best Practices 2026 internalisieren                            │
+│                                                                              │
+│  SCHRITT 2: Lese .session-{nr}-{id}.md VOLLSTÄNDIG                          │
+│     └─► Aktueller Session-Kontext                                           │
+│     └─► Bereits getroffene Entscheidungen                                   │
+│     └─► Aktueller Projekt-Status                                            │
+│     └─► Was wurde bereits implementiert                                     │
+│                                                                              │
+│  SCHRITT 3: Lese lokale AGENTS.md (Projekt-Root)                            │
+│     └─► Projekt-spezifische Regeln                                          │
+│     └─► Architektur-Entscheidungen                                          │
+│     └─► Technology Stack                                                    │
+│                                                                              │
+│  SCHRITT 4: ERST DANN: Beginne zu coden                                     │
+│                                                                              │
+│  ⚠️  VERBOTEN:                                                              │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  ❌ Direkt mit Coden starten ohne Kontext                                   │
+│  ❌ Nur die Task-Beschreibung lesen                                         │
+│  ❌ AGENTS.md überspringen                                                  │
+│  ❌ .session-*.md ignorieren                                                │
+│  ❌ "Ich nehme an..." - Immer FAKTEN aus Docs verwenden                     │
+│                                                                              │
+│  ✅  PFLICHT:                                                                │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  ✅ "Ich habe AGENTS.md gelesen..."                                         │
+│  ✅ "Ich habe .session-19-*.md gelesen..."                                  │
+│  ✅ "Basierend auf den Docs werde ich..."                                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Warum das kritisch ist:
+
+**Problem:** Sub-Agenten ohne Kontext:
+- ❌ Wissen nicht welche Architektur entschieden wurde
+- ❌ Wissen nicht welche Technologien verwendet werden sollen
+- ❌ Wissen nicht welche Mandate gelten
+- ❌ Wissen nicht was bereits implementiert ist
+- ❌ Machen falsche Annahmen
+- ❌ Produzieren inkonsistenten Code
+- ❌ Verletzen MANDATE ohne es zu wissen
+
+**Beispiel-Fehler (was passiert ohne Kontext):**
+```typescript
+// ❌ FALSCH: Sub-Agent ohne Kontext
+import { chromium } from 'playwright'; // FALSCH! Sollte Steel Browser sein
+const openai = new OpenAI(); // FALSCH! Sollte Mistral sein
+
+// ✅ RICHTIG: Sub-Agent MIT Kontext aus AGENTS.md + .session-*.md
+import { SteelBrowserCDP } from './steel-browser'; // RICHTIG!
+import { MistralVision } from './mistral-vision'; // RICHTIG!
+```
+
+### Verifizierung durch Parent-Agent:
+
+**Der delegierende Agent MUSS überprüfen:**
+```typescript
+delegate_task(
+  prompt: `
+    TASK: Implement feature X
+    
+    MANDATORY - Confirm before starting:
+    1. Have you read ~/.config/opencode/AGENTS.md? (Reply: YES/NO)
+    2. Have you read .session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md? (Reply: YES/NO)
+    3. What is our chosen architecture? (Reply: Steel+Skyvern+Mistral)
+    4. What is forbidden? (Reply: Playwright, OpenAI, hardcoded scripts)
+    
+    ONLY proceed after confirming all 4 questions!
+  `
+)
+```
+
+### Konsequenzen bei Verletzung:
+
+**Wenn ein Sub-Agent ohne Kontext codet:**
+1. **SOFORT STOPPEN** aller Arbeiten
+2. **LÖSCHEN** des produzierten Codes
+3. **NEU DELEGIEREN** mit explizitem Kontext-Check
+4. **DOKUMENTIEREN** des Fehlers in Troubleshooting
+
+**Dies ist ein TERMINATION-LEVEL Fehler!**
+
+---
+
+**Effective:** 2026-01-30  
+**Mandate:** MANDATE -8 (Sub-Agent Context)  
+**Status:** ACTIVE - ZERO TOLERANCE
+
+---
+
 ### 📋 PRIMARY DOCUMENTATION STANDARD: `.session-{nr}-{id}.md`
 
 **Format:** `.session-{session-number}-{session-id}.md`  
@@ -519,8 +627,61 @@ Before ending ANY session:
 - [ ] `.session-{nr}-{id}.md` created and complete?
 - [ ] `userprompts.md` updated with brief summary?
 - [ ] `lastchanges.md` updated with change log?
+- [ ] **README.md updated with latest changes?**
 - [ ] NO duplicates between files?
 - [ ] Git commit references session file?
+
+---
+
+## 📝 README.md UPDATE MANDATE
+
+**CRITICAL RULE:** Every code change MUST update the README.md!
+
+### Why?
+- README is the FIRST thing developers see
+- Outdated README = Confused developers
+- README must reflect CURRENT state
+
+### When to Update README:
+
+**MUST Update:**
+- ✅ New features added
+- ✅ Architecture changes
+- ✅ New dependencies
+- ✅ API changes
+- ✅ Configuration changes
+- ✅ Breaking changes
+- ✅ New files/modules
+
+**Update Sections:**
+1. **Features** - Add new capabilities
+2. **Installation** - Update if steps changed
+3. **Usage** - Update examples
+4. **Configuration** - Update env vars
+5. **Architecture** - Update diagrams
+6. **API Reference** - Update endpoints
+
+### README Update Template:
+
+```markdown
+## Recent Changes (Session XX - YYYY-MM-DD)
+
+### ✨ New Features
+- Feature 1: Description
+- Feature 2: Description
+
+### 🔧 Improvements
+- Improvement 1: Description
+
+### 📚 Documentation
+- Updated: Section X
+- Added: Section Y
+
+[Link to .session-XX-*.md for full details]
+```
+
+### Golden Rule:
+> **"If you change code, change README. No exceptions."**
 
 ---
 

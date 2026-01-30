@@ -15,6 +15,19 @@ import { chromium, Browser, Page } from 'playwright';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as zlib from 'zlib';
+import * as crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import QueueManager from './improvements/queue-manager';
+import ParallelSolver from './improvements/parallel-solver';
+import RetryManager from './improvements/retry-manager';
+import ConfidenceScorer from './improvements/confidence-scorer';
+import MultiProvider, { CaptchaProvider, ProviderSolveRequest, ProviderSolveResult } from './improvements/multi-provider';
+import BatchProcessor from './improvements/batch-processor';
+import StatsMonitor, { ResponseCache } from './improvements/stats-monitor';
+import EarningsOptimizer from './improvements/earnings-optimizer';
+import CircuitBreaker from './improvements/circuit-breaker';
+import HealthChecker from './improvements/health-checker';
 
 dotenv.config();
 
@@ -41,6 +54,23 @@ const CONFIG = {
   stagehand: {
     enabled: process.env.STAGEHAND_ENABLED !== 'false',
     apiKey: process.env.STAGEHAND_API_KEY,
+  },
+  // Improvements & Performance
+  improvements: {
+    enabled: process.env.HOLY_TRINITY_IMPROVEMENTS !== 'false',
+    maxConcurrency: parseInt(process.env.HOLY_TRINITY_MAX_CONCURRENCY || '4'),
+    queueMaxSize: parseInt(process.env.HOLY_TRINITY_QUEUE_MAX || '500'),
+    retryMaxAttempts: parseInt(process.env.HOLY_TRINITY_RETRY_MAX || '3'),
+    retryBaseDelayMs: parseInt(process.env.HOLY_TRINITY_RETRY_BASE_MS || '500'),
+    retryMaxDelayMs: parseInt(process.env.HOLY_TRINITY_RETRY_MAX_MS || '10000'),
+    batchSize: parseInt(process.env.HOLY_TRINITY_BATCH_SIZE || '4'),
+    batchIntervalMs: parseInt(process.env.HOLY_TRINITY_BATCH_INTERVAL_MS || '250'),
+    screenshotCompression: process.env.HOLY_TRINITY_SCREENSHOT_COMPRESSION !== 'false',
+    cacheTtlMs: parseInt(process.env.HOLY_TRINITY_CACHE_TTL_MS || '30000'),
+    circuitFailureThreshold: parseInt(process.env.HOLY_TRINITY_CIRCUIT_FAILURES || '3'),
+    circuitCooldownMs: parseInt(process.env.HOLY_TRINITY_CIRCUIT_COOLDOWN_MS || '30000'),
+    circuitSuccessThreshold: parseInt(process.env.HOLY_TRINITY_CIRCUIT_SUCCESS || '2'),
+    webhookUrl: process.env.HOLY_TRINITY_WEBHOOK_URL,
   },
   // General
   headless: process.env.HEADLESS === 'true',
@@ -71,6 +101,22 @@ interface SolutionResult {
   error?: string;
   confidence: number;
   method: 'mistral' | 'skyvern' | 'stagehand' | 'manual';
+}
+
+interface ImprovedSolveRequest {
+  id: string;
+  url: string;
+  priority: number;
+}
+
+interface ImprovedSolveResult {
+  requestId: string;
+  solution?: string;
+  confidence: number;
+  provider: string;
+  elapsedMs: number;
+  success: boolean;
+  error?: string;
 }
 
 /**
@@ -339,6 +385,40 @@ Respond in JSON format:
 }
 
 /**
+ * Mistral Provider Adapter (MultiProvider)
+ */
+class MistralProvider implements CaptchaProvider {
+  name = 'mistral';
+  costPerSolve = 0.01;
+  supportsTypes = ['text', 'image', 'recaptcha', 'hcaptcha', 'geetest', 'unknown'];
+  private readonly mistral: MistralVision;
+
+  constructor(mistral: MistralVision) {
+    this.mistral = mistral;
+  }
+
+  async solve(request: ProviderSolveRequest): Promise<ProviderSolveResult> {
+    if (!request.image) {
+      throw new Error('MistralProvider requires image input');
+    }
+    const answer = await this.mistral.analyzeImage(
+      request.image,
+      request.prompt || 'Solve the CAPTCHA. Provide only the answer.'
+    );
+    const cleanAnswer = answer.replace(/[^a-zA-Z0-9]/g, '').substring(0, 12);
+    return {
+      solution: cleanAnswer,
+      confidence: 0.82,
+      raw: answer,
+    };
+  }
+
+  async healthCheck(): Promise<boolean> {
+    return Boolean(CONFIG.mistral.apiKey);
+  }
+}
+
+/**
  * Skyvern Orchestrator
  * AI-driven workflow management
  */
@@ -420,6 +500,18 @@ export class HolyTrinityWorker {
   private stagehand: StagehandFallback;
   private screenshotDir: string;
   private stepCount: number = 0;
+  private queueManager: QueueManager<ImprovedSolveRequest>;
+  private parallelSolver: ParallelSolver;
+  private retryManager: RetryManager;
+  private confidenceScorer: ConfidenceScorer;
+  private multiProvider: MultiProvider;
+  private batchProcessor: BatchProcessor<ProviderSolveRequest, ProviderSolveResult>;
+  private statsMonitor: StatsMonitor;
+  private earningsOptimizer: EarningsOptimizer;
+  private circuitBreaker: CircuitBreaker;
+  private healthChecker: HealthChecker;
+  private responseCache: ResponseCache<unknown>;
+  private cleanupInterval?: NodeJS.Timeout;
 
   constructor() {
     // Initialize components
@@ -438,6 +530,78 @@ export class HolyTrinityWorker {
       `holy-trinity-${Date.now()}`
     );
     fs.mkdirSync(this.screenshotDir, { recursive: true });
+
+    // Improvements initialization
+    this.queueManager = new QueueManager<ImprovedSolveRequest>({
+      maxRetries: CONFIG.improvements.retryMaxAttempts,
+      visibilityTimeoutMs: CONFIG.improvements.retryMaxDelayMs,
+      deadLetterEnabled: true,
+      maxQueueSize: CONFIG.improvements.queueMaxSize,
+    });
+    this.parallelSolver = new ParallelSolver({
+      concurrency: CONFIG.improvements.maxConcurrency,
+    });
+    this.statsMonitor = new StatsMonitor();
+    this.retryManager = new RetryManager({
+      maxAttempts: CONFIG.improvements.retryMaxAttempts,
+      baseDelayMs: CONFIG.improvements.retryBaseDelayMs,
+      maxDelayMs: CONFIG.improvements.retryMaxDelayMs,
+      jitter: 0.2,
+      onRetry: () => this.statsMonitor.recordRetry(),
+    });
+    this.confidenceScorer = new ConfidenceScorer();
+    this.statsMonitor = this.statsMonitor || new StatsMonitor();
+    this.earningsOptimizer = new EarningsOptimizer();
+    this.circuitBreaker = new CircuitBreaker({
+      failureThreshold: CONFIG.improvements.circuitFailureThreshold,
+      cooldownMs: CONFIG.improvements.circuitCooldownMs,
+      successThreshold: CONFIG.improvements.circuitSuccessThreshold,
+    });
+    this.responseCache = new ResponseCache(CONFIG.improvements.cacheTtlMs);
+    this.multiProvider = new MultiProvider(
+      [new MistralProvider(this.mistral)],
+      {
+        retryManager: this.retryManager,
+        circuitBreaker: this.circuitBreaker,
+      }
+    );
+    this.batchProcessor = new BatchProcessor<ProviderSolveRequest, ProviderSolveResult>({
+      maxBatchSize: CONFIG.improvements.batchSize,
+      flushIntervalMs: CONFIG.improvements.batchIntervalMs,
+      parallelism: CONFIG.improvements.maxConcurrency,
+    });
+    this.healthChecker = new HealthChecker();
+    this.healthChecker.register({
+      name: 'steel-browser',
+      check: async () => {
+        const start = Date.now();
+        try {
+          const cached = this.responseCache.get('steel-health');
+          if (cached) {
+            return { name: 'steel-browser', status: 'healthy', latencyMs: Date.now() - start };
+          }
+          const response = await fetch(`${CONFIG.steelBrowser.apiUrl}/health`);
+          const status = response.ok ? 'healthy' : 'degraded';
+          this.responseCache.set('steel-health', true);
+          return { name: 'steel-browser', status, latencyMs: Date.now() - start };
+        } catch (error) {
+          return {
+            name: 'steel-browser',
+            status: 'unhealthy',
+            message: error instanceof Error ? error.message : String(error),
+            latencyMs: Date.now() - start,
+          };
+        }
+      },
+    });
+    this.healthChecker.register({
+      name: 'mistral',
+      check: async () => ({
+        name: 'mistral',
+        status: CONFIG.mistral.apiKey ? 'healthy' : 'degraded',
+        message: CONFIG.mistral.apiKey ? undefined : 'Missing Mistral API key',
+      }),
+    });
   }
 
   async initialize(): Promise<boolean> {
@@ -479,6 +643,12 @@ export class HolyTrinityWorker {
     console.log('✅ Holy Trinity Worker initialized');
     console.log(`📁 Screenshots: ${this.screenshotDir}`);
     console.log('');
+
+    if (CONFIG.improvements.enabled) {
+      this.startResourceGuardian();
+      const health = await this.healthChecker.run();
+      console.log('🩺 Health Check:', health);
+    }
 
     return true;
   }
