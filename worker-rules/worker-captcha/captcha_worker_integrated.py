@@ -122,7 +122,8 @@ class IntegratedCaptchaWorker:
         solution = None
 
         try:
-            await self.behavior.wait_natural_delay()
+            # Wait before action (human-like delay) - SYNCHRONOUS call
+            self.behavior.wait_before_action()
 
             if not await self.session_manager.check_ip_health():
                 self.logger.warning("IP health degraded, triggering reconnection...")

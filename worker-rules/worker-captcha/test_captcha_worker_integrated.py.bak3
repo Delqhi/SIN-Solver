@@ -153,6 +153,7 @@ class TestIntegratedCaptchaWorkerAsync:
             # Mock components
             worker.session_manager.check_ip_health = AsyncMock(return_value=True)
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.simulate_user_delay = AsyncMock()
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
             worker._solve_captcha_internal = AsyncMock(return_value=4.2)
@@ -179,6 +180,7 @@ class TestIntegratedCaptchaWorkerAsync:
             # Mock IP check to succeed
             worker.session_manager.check_ip_health = AsyncMock(return_value=True)
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.simulate_user_delay = AsyncMock()
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
             worker._solve_captcha_internal = AsyncMock(return_value=4.2)
@@ -230,6 +232,7 @@ class TestIntegratedCaptchaWorkerAsync:
             # Mock components
             worker.session_manager.check_ip_health = AsyncMock(return_value=True)
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.simulate_user_delay = AsyncMock()
             worker.session_manager.record_solve_attempt = Mock()
             worker.monitor.record_attempt = Mock()
             worker._solve_captcha_internal = AsyncMock(return_value=4.2)
@@ -351,6 +354,7 @@ class TestIntegratedCaptchaWorkerIntegration:
             worker.session_manager.check_ip_health = AsyncMock(return_value=True)
             worker.session_manager.record_solve_attempt = Mock()
             worker.behavior.wait_before_action = Mock()  # Synchronous call
+            worker.behavior.simulate_user_delay = AsyncMock()
             worker.monitor.record_attempt = Mock()
             worker.monitor.check_health = Mock(return_value=True)
 
@@ -362,6 +366,7 @@ class TestIntegratedCaptchaWorkerIntegration:
             # Verify all components called
             assert worker.behavior.wait_before_action.called
             assert worker.session_manager.check_ip_health.called
+            assert worker.behavior.simulate_user_delay.called
 
 
 if __name__ == "__main__":

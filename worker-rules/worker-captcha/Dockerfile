@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements
 COPY requirements.txt .
 
-# Create wheels for faster installation in final stage
-RUN pip install --user --no-cache-dir --wheel --no-deps -r requirements.txt
+# Install dependencies for builder stage
+RUN pip install --user --no-cache-dir -r requirements.txt
 
 # Stage 2: Runtime
 FROM python:3.11-slim
