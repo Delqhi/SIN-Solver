@@ -1,0 +1,16 @@
+{
+  "model_type": "whisper_base",
+  "training_date": "2026-01-30T09:10:35.775700",
+  "whisper_version": "20250625",
+  "model_size": "base",
+  "parameters": "74M",
+  "total_images": 44,
+  "note": "Using pre-trained Whisper model. Fine-tuning requires audio files.",
+  "model_path": "/Users/jeremy/dev/SIN-Solver/models/audio_whisper_model",
+  "capabilities": [
+    "Audio transcription",
+    "Multi-language support",
+    "Robust to noise"
+  ],
+  "languages_supported": 99
+}

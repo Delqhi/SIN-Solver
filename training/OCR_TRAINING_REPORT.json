@@ -1,33 +1,21 @@
 {
   "report_title": "OCR Model Training Report for CAPTCHA Solver",
-  "generated_at": "2026-01-29T23:44:58.340471",
+  "generated_at": "2026-01-30T09:06:10.339694",
   "training_location": "/Users/jeremy/dev/SIN-Solver/training",
   "models_output": "/Users/jeremy/dev/SIN-Solver/models",
   "summary": {
     "total_models_trained": 3,
     "text_ocr": {
-      "status": "completed",
-      "model_type": "ddddocr_text",
-      "training_time": 2.4035308361053467,
-      "total_images": 44,
-      "accuracy_estimate": 1.0,
-      "model_path": "/Users/jeremy/dev/SIN-Solver/models/text_ocr_model"
+      "status": "failed",
+      "error": "cannot import name 'DdddOcr' from 'ddddocr.core' (/Users/jeremy/.cache/uv/archive-v0/Uq77-kNHC8_gOeUa3tVnP/lib/python3.12/site-packages/ddddocr/core/__init__.py)"
     },
     "math_ocr": {
-      "status": "completed",
-      "model_type": "ddddocr_math",
-      "training_time": 0.7371170520782471,
-      "total_images": 44,
-      "accuracy_estimate": 1.0,
-      "model_path": "/Users/jeremy/dev/SIN-Solver/models/math_ocr_model"
+      "status": "failed",
+      "error": "Dependencies not installed"
     },
     "audio_whisper": {
-      "status": "completed",
-      "model_type": "whisper_base",
-      "training_time": 9.84060287475586,
-      "total_images": 44,
-      "note": "Pre-trained model loaded. Fine-tuning requires audio dataset.",
-      "model_path": "/Users/jeremy/dev/SIN-Solver/models/audio_whisper_model"
+      "status": "failed",
+      "error": "Dependencies not installed"
     }
   },
   "model_details": {
@@ -35,19 +23,19 @@
       "type": "ddddocr",
       "purpose": "Text CAPTCHA recognition",
       "path": "/Users/jeremy/dev/SIN-Solver/models/text_ocr_model",
-      "status": "completed"
+      "status": "failed"
     },
     "math_ocr": {
       "type": "ddddocr",
       "purpose": "Math equation recognition",
       "path": "/Users/jeremy/dev/SIN-Solver/models/math_ocr_model",
-      "status": "completed"
+      "status": "failed"
     },
     "audio_whisper": {
       "type": "whisper",
       "purpose": "Audio CAPTCHA transcription",
       "path": "/Users/jeremy/dev/SIN-Solver/models/audio_whisper_model",
-      "status": "completed"
+      "status": "failed"
     }
   },
   "notes": [

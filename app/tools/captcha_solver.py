@@ -29,6 +29,15 @@ import httpx
 import numpy as np
 from PIL import Image
 
+# Import OpenCV with fallback
+try:
+    import cv2
+
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
+    cv2 = None
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -317,6 +326,126 @@ class OCRSolver:
         )
 
 
+class AudioSolver:
+    """Audio CAPTCHA solver using Whisper for transcription"""
+
+    def __init__(self, model_size: str = "base"):
+        self.model = None
+        self.model_size = model_size
+        self._load_model()
+
+    def _load_model(self):
+        """Load Whisper model with error handling"""
+        try:
+            import whisper
+
+            # Use environment variable for model path or default
+            model_path = os.getenv("WHISPER_MODEL_PATH", None)
+
+            if model_path and Path(model_path).exists():
+                self.model = whisper.load_model(model_path)
+                logger.info(f"✅ Whisper model loaded from {model_path}")
+            else:
+                self.model = whisper.load_model(self.model_size)
+                logger.info(f"✅ Whisper {self.model_size} model loaded")
+
+        except ImportError:
+            logger.error("❌ whisper not installed. Run: pip install openai-whisper")
+            logger.warning("   Will use API fallback for audio CAPTCHAs")
+        except Exception as e:
+            logger.error(f"❌ Failed to load Whisper model: {e}")
+            logger.warning("   Will use API fallback for audio CAPTCHAs")
+
+    def solve(
+        self, audio_path: str = None, audio_bytes: bytes = None, confidence_threshold: float = 0.7
+    ) -> CaptchaResult:
+        """
+        Solve audio CAPTCHA by transcribing to text
+
+        Args:
+            audio_path: Path to audio file
+            audio_bytes: Audio data as bytes
+            confidence_threshold: minimum confidence to accept
+
+        Returns:
+            CaptchaResult with transcribed text
+        """
+        if self.model is None:
+            return CaptchaResult(
+                success=False,
+                solution="",
+                captcha_type="Audio_Captcha",
+                confidence=0.0,
+                solver_used="audio",
+                error="Whisper model not available",
+            )
+
+        try:
+            import tempfile
+            import os
+
+            # If bytes provided, save to temp file
+            if audio_bytes and not audio_path:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                    tmp.write(audio_bytes)
+                    audio_path = tmp.name
+                    temp_file = True
+            else:
+                temp_file = False
+
+            if not audio_path or not Path(audio_path).exists():
+                return CaptchaResult(
+                    success=False,
+                    solution="",
+                    captcha_type="Audio_Captcha",
+                    confidence=0.0,
+                    solver_used="audio",
+                    error="Audio file not found",
+                )
+
+            # Transcribe with Whisper
+            result = self.model.transcribe(audio_path, language="en")
+            text = result.get("text", "").strip()
+
+            # Clean result - remove punctuation and normalize
+            cleaned_text = "".join(c for c in text if c.isalnum()).upper()
+
+            # Estimate confidence based on Whisper's avg_logprob
+            avg_logprob = result.get("avg_logprob", -1.0)
+            # Convert logprob to confidence (higher is better, -1 is poor, 0 is perfect)
+            confidence = min(1.0, max(0.0, 1.0 + avg_logprob))
+
+            success = confidence >= confidence_threshold and len(cleaned_text) > 0
+
+            logger.info(f"🎵 Audio transcribed: '{cleaned_text}' (conf: {confidence:.2%})")
+
+            # Cleanup temp file
+            if temp_file and os.path.exists(audio_path):
+                os.unlink(audio_path)
+
+            return CaptchaResult(
+                success=success,
+                solution=cleaned_text,
+                captcha_type="Audio_Captcha",
+                confidence=confidence,
+                solver_used="whisper",
+            )
+
+        except Exception as e:
+            logger.error(f"Audio solving error: {e}")
+            # Cleanup temp file on error
+            if temp_file and os.path.exists(audio_path):
+                os.unlink(audio_path)
+            return CaptchaResult(
+                success=False,
+                solution="",
+                captcha_type="Audio_Captcha",
+                confidence=0.0,
+                solver_used="audio",
+                error=str(e),
+            )
+
+
 class SliderSolver:
     """Slider CAPTCHA solver using ddddocr detection"""
 
@@ -474,13 +603,14 @@ class UnifiedCaptchaSolver:
     1. YOLO classification for type detection
     2. Local OCR solvers (ddddocr) for text/math
     3. Local slider solver
-    4. API fallback for complex CAPTCHAs
+    4. Local audio solver (Whisper) for audio CAPTCHAs
+    5. API fallback for complex CAPTCHAs
     """
 
     def __init__(
         self,
         yolo_model_path: Optional[str] = None,
-        confidence_threshold: float = 0.6,
+        confidence_threshold: float = 0.7,
         enable_local_solvers: bool = True,
         enable_api_fallback: bool = True,
     ):
@@ -492,11 +622,13 @@ class UnifiedCaptchaSolver:
         self.yolo = YOLOClassifier(yolo_model_path)
         self.ocr = OCRSolver()
         self.slider = SliderSolver()
+        self.audio = AudioSolver()
         self.api = CaptchaSolverAPI()
 
         logger.info("🚀 UnifiedCaptchaSolver initialized")
         logger.info(f"   - YOLO Model: {'✅ Loaded' if self.yolo.model else '❌ Not available'}")
         logger.info(f"   - OCR Engine: {'✅ Ready' if self.ocr.ocr_engine else '❌ Not available'}")
+        logger.info(f"   - Audio Engine: {'✅ Ready' if self.audio.model else '❌ Not available'}")
         logger.info(f"   - Confidence Threshold: {confidence_threshold:.0%}")
 
     async def solve(
@@ -504,6 +636,8 @@ class UnifiedCaptchaSolver:
         image_path: Optional[str] = None,
         image: Optional[np.ndarray] = None,
         image_base64: Optional[str] = None,
+        audio_path: Optional[str] = None,
+        audio_bytes: Optional[bytes] = None,
         question: Optional[str] = None,
         captcha_type: Optional[str] = None,
         timeout: float = 30.0,
@@ -512,7 +646,7 @@ class UnifiedCaptchaSolver:
         🎯 UNIFIED SOLVE METHOD
 
         Attempts to solve CAPTCHA using fallback chain:
-        1. Classify type with YOLO (if type not provided)
+        1. Classify type with YOLO (if type not provided and image provided)
         2. Try local solver based on type
         3. Fall back to API if local fails or confidence low
 
@@ -520,6 +654,8 @@ class UnifiedCaptchaSolver:
             image_path: Path to image file
             image: numpy array (BGR format)
             image_base64: Base64 encoded image
+            audio_path: Path to audio file (for Audio CAPTCHA)
+            audio_bytes: Audio data as bytes
             question: Text question for some CAPTCHA types
             captcha_type: Override auto-detection (e.g., "Text_Captcha")
             timeout: Maximum solve time
@@ -531,10 +667,44 @@ class UnifiedCaptchaSolver:
 
         start_time = time.time()
 
+        # Handle Audio CAPTCHA
+        if captcha_type == "Audio_Captcha" or audio_path or audio_bytes:
+            logger.info("🎵 Audio CAPTCHA detected, using Whisper...")
+            result = self.audio.solve(
+                audio_path=audio_path,
+                audio_bytes=audio_bytes,
+                confidence_threshold=self.confidence_threshold,
+            )
+            solve_time = int((time.time() - start_time) * 1000)
+            result.solve_time_ms = solve_time
+
+            if result.success and result.confidence >= self.confidence_threshold:
+                logger.info(f"✅ Audio solved locally in {solve_time}ms using {result.solver_used}")
+                return result
+            elif self.enable_api_fallback:
+                logger.info("🌐 Falling back to API for audio...")
+                # Convert audio to base64 for API
+                if audio_bytes is None and audio_path:
+                    with open(audio_path, "rb") as f:
+                        audio_bytes = f.read()
+                if audio_bytes:
+                    audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
+                    result = await self.api.solve(
+                        image_base64=audio_b64, question=question, timeout=timeout
+                    )
+                    result.solve_time_ms = int((time.time() - start_time) * 1000)
+                    return result
+            return result
+
         # Load image if path provided
         if image_path:
             try:
-                image = cv2.imread(image_path)
+                if CV2_AVAILABLE and cv2 is not None:
+                    image = cv2.imread(image_path)
+                else:
+                    # Fallback to PIL
+                    pil_img = Image.open(image_path)
+                    image = np.array(pil_img)
                 if image is None:
                     return CaptchaResult(
                         success=False,
@@ -559,7 +729,12 @@ class UnifiedCaptchaSolver:
             try:
                 img_bytes = base64.b64decode(image_base64)
                 nparr = np.frombuffer(img_bytes, np.uint8)
-                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                if CV2_AVAILABLE and cv2 is not None:
+                    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                else:
+                    # Fallback to PIL
+                    pil_img = Image.open(io.BytesIO(img_bytes))
+                    image = np.array(pil_img)
             except Exception as e:
                 return CaptchaResult(
                     success=False,
@@ -577,7 +752,7 @@ class UnifiedCaptchaSolver:
                 captcha_type="unknown",
                 confidence=0.0,
                 solver_used="none",
-                error="No image provided",
+                error="No image or audio provided",
             )
 
         # Step 1: Classify CAPTCHA type (if not provided)
@@ -627,7 +802,16 @@ class UnifiedCaptchaSolver:
         if self.enable_api_fallback:
             logger.info("🌐 Falling back to API solver...")
 
-            _, buffer = cv2.imencode(".png", image)
+            if CV2_AVAILABLE and cv2 is not None:
+                _, buffer = cv2.imencode(".png", image)
+            else:
+                # Fallback to PIL
+                pil_img = (
+                    Image.fromarray(image) if len(image.shape) == 3 else Image.fromarray(image, "L")
+                )
+                buffer = io.BytesIO()
+                pil_img.save(buffer, format="PNG")
+                buffer = buffer.getvalue()
             img_b64 = base64.b64encode(buffer).decode("utf-8")
 
             result = await self.api.solve(image_base64=img_b64, question=question, timeout=timeout)
@@ -657,10 +841,13 @@ class UnifiedCaptchaSolver:
     def health_check(self) -> Dict[str, Any]:
         """Check solver health status"""
         return {
-            "status": "healthy" if (self.yolo.model or self.ocr.ocr_engine) else "degraded",
+            "status": "healthy"
+            if (self.yolo.model or self.ocr.ocr_engine or self.audio.model)
+            else "degraded",
             "yolo_loaded": self.yolo.model is not None,
             "ocr_available": self.ocr.ocr_engine is not None,
             "slider_available": self.slider.det is not None,
+            "audio_available": self.audio.model is not None,
             "api_fallback": self.enable_api_fallback,
             "confidence_threshold": self.confidence_threshold,
         }
@@ -739,9 +926,9 @@ if __name__ == "__main__":
         """Test the unified solver"""
         print("🧪 Testing Unified Captcha Solver\n")
 
-        # Initialize solver
+        # Initialize solver with higher confidence threshold
         solver = UnifiedCaptchaSolver(
-            confidence_threshold=0.6, enable_local_solvers=True, enable_api_fallback=True
+            confidence_threshold=0.7, enable_local_solvers=True, enable_api_fallback=True
         )
 
         # Health check
@@ -754,24 +941,72 @@ if __name__ == "__main__":
         # Test with sample if available
         training_dir = Path("/Users/jeremy/dev/SIN-Solver/training")
 
+        # Define test cases for all 12 CAPTCHA types
         test_cases = [
             ("Text_Captcha", "Text_Captcha/bild1.png"),
             ("Math_Captcha", "Math_Captcha/bild1.png"),
+            ("Slide_Captcha", "Slide_Captcha/bild1.png"),
+            ("Audio_Captcha", "Audio_Captcha/bild1.png"),  # Image representation
+            ("Cloudflare_Turnstile", "Cloudflare_Turnstile/bild1.png"),
+            ("FunCaptcha", "FunCaptcha/bild1.png"),
+            ("GeeTest", "GeeTest/bild1.png"),
+            ("Image_Click_Captcha", "Image_Click_Captcha/bild1.png"),
+            ("Puzzle_Captcha", "Puzzle_Captcha/bild1.png"),
+            ("hCaptcha", "hCaptcha/bild1.png"),
+            ("reCaptcha_v2", "reCaptcha_v2/bild1.png"),
+            ("reCaptcha_v3", "reCaptcha_v3/bild1.png"),
         ]
+
+        results_summary = []
 
         for expected_type, rel_path in test_cases:
             test_path = training_dir / rel_path
             if test_path.exists():
                 print(f"\n📝 Testing {expected_type}...")
-                result = await solver.solve(image_path=str(test_path))
-                print(f"  Success: {result.success}")
-                print(f"  Solution: {result.solution}")
-                print(f"  Type: {result.captcha_type}")
-                print(f"  Confidence: {result.confidence:.2%}")
-                print(f"  Solver: {result.solver_used}")
-                print(f"  Time: {result.solve_time_ms}ms")
+                try:
+                    result = await solver.solve(image_path=str(test_path))
+                    print(f"  ✅ Success: {result.success}")
+                    print(f"  📝 Solution: {result.solution}")
+                    print(f"  🏷️  Type: {result.captcha_type}")
+                    print(f"  📊 Confidence: {result.confidence:.2%}")
+                    print(f"  🔧 Solver: {result.solver_used}")
+                    print(f"  ⏱️  Time: {result.solve_time_ms}ms")
+
+                    results_summary.append(
+                        {
+                            "type": expected_type,
+                            "success": result.success,
+                            "solution": result.solution,
+                            "detected_type": result.captcha_type,
+                            "confidence": result.confidence,
+                            "solver": result.solver_used,
+                            "time_ms": result.solve_time_ms,
+                        }
+                    )
+                except Exception as e:
+                    print(f"  ❌ Error: {e}")
+                    results_summary.append(
+                        {"type": expected_type, "success": False, "error": str(e)}
+                    )
             else:
                 print(f"\n⚠️  Test image not found: {test_path}")
+                results_summary.append(
+                    {"type": expected_type, "success": False, "error": "Test image not found"}
+                )
+
+        # Print summary
+        print("\n" + "=" * 60)
+        print("📊 TEST SUMMARY")
+        print("=" * 60)
+        success_count = sum(1 for r in results_summary if r.get("success"))
+        print(f"✅ Passed: {success_count}/{len(test_cases)}")
+        print(f"❌ Failed: {len(test_cases) - success_count}/{len(test_cases)}")
+        print("\nResults by Type:")
+        for r in results_summary:
+            status = "✅" if r.get("success") else "❌"
+            print(
+                f"  {status} {r['type']}: {r.get('detected_type', 'N/A')} ({r.get('solver', 'N/A')})"
+            )
 
         print("\n✅ Test completed")
 

@@ -1,14 +1,18 @@
-# Delqhi-Platform API Reference
+# SIN-Solver API Reference
 
-> **Base URL:** `http://localhost:8000`  
+> **Complete API Documentation for all 18 Services**  
+> **Base URL:** `http://localhost:8000` | `https://api.delqhi.com`  
 > **Version:** 2.0.0  
-> **Format:** JSON
+> **Format:** JSON  
+> **Last Updated:** 2026-01-30
 
 ---
 
 ## Table of Contents
 
+- [Overview](#overview)
 - [Authentication](#authentication)
+- [Services Overview](#services-overview)
 - [CAPTCHA Solving](#captcha-solving)
 - [Health & Status](#health--status)
 - [Workers](#workers)
@@ -17,6 +21,9 @@
 - [Chat](#chat)
 - [Secrets Management](#secrets-management)
 - [Error Handling](#error-handling)
+- [Postman/Hoppscotch Collections](#postmanhoppscotch-collections)
+- [OpenAPI Specifications](#openapi-specifications)
+- [Service-Specific APIs](#service-specific-apis)
 
 ---
 

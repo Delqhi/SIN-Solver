@@ -1,9 +1,10 @@
 {
   "model_type": "ddddocr_text",
-  "training_date": "2026-01-29T23:44:47.637539",
+  "training_date": "2026-01-30T09:10:33.153795",
   "total_images": 44,
   "sample_tested": 10,
   "success_rate": 1.0,
+  "successful_predictions": 10,
   "sample_results": [
     {
       "file": "bild1.png",

@@ -49,4 +49,45 @@ DU = CEO eines 100+ Agenten-Swarms. Deine Elite-Coder-Teams arbeiten PARALLEL, D
 ### Zusammenfassung
 Komplette MCP-Konfigurationsüberholung mit neuen Wrappern und Domain-Fixes.
 
+---
+
+## 📋 Troubleshooting Tickets
+
+**MANDATE 0.6 Compliance:** Alle Fehler werden in dedizierten Tickets dokumentiert.
+
+| Ticket | Problem | Status | Referenz |
+|--------|---------|--------|----------|
+| **ts-ticket-01.md** | Dashboard Build Fehler (React Hooks) | ✅ RESOLVED | @/troubleshooting/ts-ticket-01.md |
+| **ts-ticket-02.md** | MCP Config Fehler (falsche Container-Namen) | ✅ RESOLVED | @/troubleshooting/ts-ticket-02.md |
+| **ts-ticket-03.md** | Scira Container fast gelöscht (Blindes Löschen) | ✅ VERHINDERT | @/troubleshooting/ts-ticket-03.md |
+| **ts-ticket-04.md** | ESLint Config fehlte (Code Quality) | ✅ RESOLVED | @/troubleshooting/ts-ticket-04.md |
+| **ts-ticket-05.md** | localhost statt delqhi.com (Domain Migration) | ✅ RESOLVED | @/troubleshooting/ts-ticket-05.md |
+
+### Ticket-Details
+
+**ts-ticket-01.md - Dashboard Build Fehler**
+- Problem: React Hooks Fehler im Dashboard Build
+- Lösung: ESLint Konfiguration + Hook-Patterns korrigiert
+- Siehe: troubleshooting/ts-ticket-01.md
+
+**ts-ticket-02.md - MCP Config Fehler**
+- Problem: Falsche Container-Namen (sin-zimmer-* statt agent-*)
+- Lösung: Naming Convention Standard implementiert, alle Namen korrigiert
+- Siehe: troubleshooting/ts-ticket-02.md
+
+**ts-ticket-03.md - Scira fast gelöscht**
+- Problem: Kritischer Container aus blinder Annahme fast gelöscht
+- Lösung: MANDATE -5 (ABSOLUTE VERBOT VON BLINDEM LÖSCHEN) implementiert
+- Siehe: troubleshooting/ts-ticket-03.md
+
+**ts-ticket-04.md - ESLint Config fehlte**
+- Problem: Keine ESLint Konfiguration, React Hooks nicht validiert
+- Lösung: Vollständige ESLint + Prettier + TypeScript Config
+- Siehe: troubleshooting/ts-ticket-04.md
+
+**ts-ticket-05.md - localhost statt delqhi.com**
+- Problem: Alle Services verwendeten localhost statt offizieller Domains
+- Lösung: Systematische Migration zu delqhi.com Domains
+- Siehe: troubleshooting/ts-ticket-05.md
+
 [Rest des Dokuments bleibt unverändert...]
