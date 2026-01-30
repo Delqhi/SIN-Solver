@@ -6,32 +6,26 @@ Best Practices 2026 - Modular Architecture
 
 import asyncio
 import base64
-import io
 import logging
-import os
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import List, Optional, Dict, Any
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, Info, generate_latest
 from pydantic import BaseModel, Field, validator
-from prometheus_client import Counter, Histogram, Gauge, Info, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 
 # Import modular components
 from src.solvers.veto_engine import VetoEngine
-from src.solvers.vision_mistral import MistralSolver
-from src.solvers.vision_qwen import QwenSolver
-from src.solvers.vision_kimi import KimiSolver
-from src.solvers.steel_controller import SteelController
-from src.utils.redis_client import RedisClient
-from src.utils.rate_limiter import RateLimiter
-from src.utils.ocr_detector import OcrElementDetector
 from src.utils.circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
+from src.utils.ocr_detector import OcrElementDetector
+from src.utils.rate_limiter import RateLimiter
+from src.utils.redis_client import RedisClient
+
 
 # Configure logging
 logging.basicConfig(
@@ -79,10 +73,10 @@ APP_INFO.info({"version": "2.1.0", "status": "production", "date": "2026-01-29"}
 class CaptchaSolveRequest(BaseModel):
     """Validated CAPTCHA solve request"""
 
-    image_data: Optional[str] = Field(None, description="Base64 encoded CAPTCHA image")
-    captcha_type: Optional[str] = Field(None, description="Known CAPTCHA type")
-    url: Optional[str] = Field(None, description="URL for browser-based solving")
-    instructions: Optional[str] = Field(None, description="Instructions for image grids")
+    image_data: str | None = Field(None, description="Base64 encoded CAPTCHA image")
+    captcha_type: str | None = Field(None, description="Known CAPTCHA type")
+    url: str | None = Field(None, description="URL for browser-based solving")
+    instructions: str | None = Field(None, description="Instructions for image grids")
     timeout: int = Field(30, ge=1, le=300, description="Timeout in seconds")
     priority: str = Field("normal", pattern="^(high|normal|low)$")
     client_id: str = Field("default", min_length=1, max_length=100)
@@ -98,13 +92,13 @@ class CaptchaSolveRequest(BaseModel):
                 raise ValueError("Image too large (max 10MB)")
             return v
         except Exception as e:
-            raise ValueError(f"Invalid image data: {e}")
+            raise ValueError(f"Invalid image data: {e}") from e
 
 
 class BatchCaptchaRequest(BaseModel):
     """Batch CAPTCHA processing request"""
 
-    requests: List[CaptchaSolveRequest] = Field(..., max_items=100)
+    requests: list[CaptchaSolveRequest] = Field(..., max_items=100)
     batch_id: str = Field(..., min_length=1)
 
 
@@ -112,14 +106,14 @@ class CaptchaSolveResponse(BaseModel):
     """CAPTCHA solve response"""
 
     success: bool
-    solution: Optional[str] = None
-    solution_type: Optional[str] = None
-    captcha_type: Optional[str] = None
+    solution: str | None = None
+    solution_type: str | None = None
+    captcha_type: str | None = None
     confidence: float = 0.0
     solve_time_ms: int = 0
     solver_model: str = ""
-    error: Optional[str] = None
-    batch_id: Optional[str] = None
+    error: str | None = None
+    batch_id: str | None = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -127,16 +121,16 @@ class CaptchaSolveResponse(BaseModel):
 # GLOBAL INSTANCES
 # ============================================================================
 
-veto_engine: Optional[VetoEngine] = None
-rate_limiter: Optional[RateLimiter] = None
-redis_client: Optional[RedisClient] = None
-ocr_detector: Optional[OcrElementDetector] = None
-mistral_circuit: Optional[CircuitBreaker] = None
-qwen_circuit: Optional[CircuitBreaker] = None
+veto_engine: VetoEngine | None = None
+rate_limiter: RateLimiter | None = None
+redis_client: RedisClient | None = None
+ocr_detector: OcrElementDetector | None = None
+mistral_circuit: CircuitBreaker | None = None
+qwen_circuit: CircuitBreaker | None = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """Startup and shutdown events"""
     global veto_engine, rate_limiter, redis_client, ocr_detector
     global mistral_circuit, qwen_circuit
@@ -337,7 +331,7 @@ async def solve_captcha(request: CaptchaSolveRequest):
         logger.warning(f"Circuit breaker open: {e}")
         return CaptchaSolveResponse(
             success=False,
-            error=f"Service temporarily unavailable: {str(e)}",
+            error=f"Service temporarily unavailable: {e!s}",
             solve_time_ms=int((time.time() - start_time) * 1000),
         )
     except Exception as e:
@@ -351,14 +345,18 @@ async def solve_captcha(request: CaptchaSolveRequest):
 async def solve_text_captcha(image_base64: str, client_id: str = "default", timeout: int = 30):
     """Solve text-based CAPTCHA"""
     request = CaptchaSolveRequest(
-        image_data=image_base64, captcha_type="text", client_id=client_id, timeout=timeout
+        image_data=image_base64,
+        captcha_type="text",
+        client_id=client_id,
+        timeout=timeout,
+        priority="normal",
     )
     return await solve_captcha(request)
 
 
 @app.post("/api/solve/image-grid", response_model=CaptchaSolveResponse)
 async def solve_image_grid_captcha(
-    image_base64: str, instructions: str, client_id: str = "default", timeout: int = 45
+    image_base64: str, _instructions: str, client_id: str = "default", timeout: int = 45
 ):
     """Solve image grid CAPTCHA (hCaptcha/reCAPTCHA style)"""
     return await solve_browser_captcha(
@@ -398,7 +396,7 @@ async def solve_batch(batch_request: BatchCaptchaRequest):
 
     # Handle exceptions
     processed_results = []
-    for i, result in enumerate(results):
+    for _, result in enumerate(results):
         if isinstance(result, Exception):
             processed_results.append(
                 CaptchaSolveResponse(

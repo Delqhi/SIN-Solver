@@ -11,12 +11,17 @@
  * @module workflows
  */
 
+// Import for internal use in factory function
+import { TwoCaptchaWorker } from './2captcha-worker';
+import { KolotibabloWorker } from './kolotibablo-worker';
+
 // 2captcha.com - Most popular CAPTCHA work platform
-// export { TwoCaptchaWorker } from './2captcha-worker';
-// TODO: Fix TypeScript module resolution issue with TwoCaptchaWorker
+export { TwoCaptchaWorker } from './2captcha-worker';
+
+// Kolotibablo.com - High-earning CAPTCHA work platform
+export { KolotibabloWorker } from './kolotibablo-worker';
 
 // Future workflows (to be implemented):
-// export { KolotibabloWorker } from './kolotibablo-worker';
 // export { AntiCaptchaWorker } from './anti-captcha-worker';
 // export { CaptchaGuruWorker } from './captcha-guru-worker';
 // export { RuCaptchaWorker } from './rucaptcha-worker';
@@ -26,7 +31,7 @@
  */
 export const AVAILABLE_PROVIDERS = [
   '2captcha',
-  // 'kolotibablo',  // Coming soon
+  'kolotibablo',
   // 'anti-captcha', // Coming soon
   // 'captcha-guru', // Coming soon
   // 'rucaptcha',    // Coming soon
@@ -41,6 +46,14 @@ export type ProviderName = typeof AVAILABLE_PROVIDERS[number];
  * @returns Worker class for the specified provider
  */
 export function getWorkerClass(provider: ProviderName) {
-  // TODO: Re-enable factory pattern once TypeScript resolution is fixed
-  throw new Error(`Provider ${provider} not yet implemented. Currently using BrowserCaptchaWorker directly in index.ts`);
+  switch (provider) {
+    case '2captcha':
+      return TwoCaptchaWorker;
+    case 'kolotibablo':
+      return KolotibabloWorker;
+    // case 'anti-captcha':
+    //   return AntiCaptchaWorker;
+    default:
+      throw new Error(`Unknown provider: ${provider}. Available: ${AVAILABLE_PROVIDERS.join(', ')}`);
+  }
 }
