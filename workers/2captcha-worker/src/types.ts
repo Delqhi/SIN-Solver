@@ -547,3 +547,55 @@ export interface PaginatedResponse<T> {
 export type AsyncResult<T, E = Error> = 
   | { ok: true; value: T }
   | { ok: false; error: E };
+
+// ============================================================================
+// PHASE 3B GROUP 1B - MISSING INTERFACES (Added 2026-01-30)
+// ============================================================================
+
+/**
+ * Alert System Configuration
+ * Configuration properties for alert system integration
+ */
+export interface AlertSystemConfig {
+  telegramBotToken?: string;
+  telegramChatId?: string;
+  slackWebhookUrl?: string;
+  rateLimitSeconds?: number;
+  accuracyWarningThreshold?: number;
+  emergencyStopThreshold?: number;
+  headless?: boolean;
+  screenshotDir?: string;
+  timeout?: number;
+}
+
+/**
+ * Solver Result
+ * Response from solver operations (detect/solve/submit)
+ */
+export interface SolverResult {
+  agent?: string;
+  success: boolean;
+  solution?: string | Record<string, string>;
+  confidence?: number;
+  elapsedTimeMs?: number;
+  error?: string;
+}
+
+/**
+ * Correction Result
+ * Result from auto-correction workflow
+ */
+export interface CorrectionResult {
+  jobId: string;
+  workflowId: string;
+  errorId: string;
+  status: 'FIXED' | 'PARTIAL_FIX' | 'MANUAL_REQUIRED' | 'UNFIXABLE';
+  analysis: Partial<Record<string, unknown>>;
+  chatNotification: {
+    sent: boolean;
+    provider?: 'telegram' | 'slack';
+    messageId?: string;
+    timestamp: Date;
+  };
+  timestamp: Date;
+}

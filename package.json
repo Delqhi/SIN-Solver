@@ -9,9 +9,10 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.5.0",
-    "axios": "^1.6.2",
+    "axios": "^1.13.4",
     "clsx": "^2.1.1",
     "dockerode": "^4.0.9",
+    "express": "^5.2.1",
     "framer-motion": "^12.29.2",
     "lucide-react": "^0.474.0",
     "next": "14.2.0",

@@ -402,45 +402,146 @@ class AutoCorrectorAdapter {
     return strategies;
   }
 
-  /**
-   * Execute a specific fix strategy
-   * (Currently returns mock results; will be enhanced in Phase 2)
-   */
   async executeFixStrategy(strategy, error, context = {}) {
-    // Simulate strategy execution delay
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+    const startTime = Date.now();
+    
+    try {
+      let result;
+      
+      switch(strategy.type) {
+        case 'SELECTOR_UPDATE':
+          result = await this.apiBrainClient.suggestSelectorFix({
+            failedSelector: context.selector,
+            pageContent: context.pageContent,
+            elementDescription: context.elementDescription,
+            currentXPath: context.xpath
+          });
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.suggestion || 'Selector fix attempted',
+            details: result
+          };
 
-    // For now, return mock success/failure based on strategy type
-    // In Phase 2, this will call actual worker implementations
-    const successRate = {
-      SELECTOR_UPDATE: 0.7,
-      PAGE_RELOAD: 0.6,
-      FALLBACK_XPATH: 0.65,
-      TIMEOUT_INCREASE: 0.8,
-      FALLBACK_SOLVER: 0.75,
-      QUEUE_PRIORITIZATION: 0.5,
-      WAIT_AND_RETRY: 0.7,
-      CONSENSUS_SOLVE: 0.85,
-      RETRY_WITH_DELAY: 0.72,
-      VERIFY_SOLUTION: 0.8,
-      ALTERNATIVE_SUBMISSION: 0.6,
-    };
+        case 'FALLBACK_XPATH':
+          result = await this.apiBrainClient.findAlternativeElements(
+            context.selector,
+            context
+          );
+          return {
+            success: result.success && result.alternatives.length > 0,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.recommendedSelector ? 'Found alternative selector' : 'No alternatives found',
+            details: result
+          };
 
-    const success = Math.random() < (successRate[strategy.type] || 0.5);
+        case 'PAGE_RELOAD':
+          result = await this.apiBrainClient.triggerPageReload(context.jobId, context);
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.success ? 'Page reloaded successfully' : 'Page reload failed',
+            details: result
+          };
 
-    return {
-      success,
-      strategy: strategy.type,
-      duration: Math.random() * 500,
-      message: success
-        ? `Strategy ${strategy.type} succeeded`
-        : `Strategy ${strategy.type} did not resolve the error`,
-      details: {
-        attempt: strategy.type,
-        error: error.code,
-        resolved: success,
-      },
-    };
+        case 'FALLBACK_SOLVER':
+          const captchaDetection = await this.captchaClient.detectCaptcha(
+            context.screenshot,
+            context
+          );
+          
+          if (captchaDetection.detected) {
+            const solution = await this.captchaClient.solveCaptcha(
+              captchaDetection.captchaType,
+              context
+            );
+            return {
+              success: solution.success,
+              strategy: strategy.type,
+              duration: Date.now() - startTime,
+              message: solution.success ? 'CAPTCHA solved' : 'CAPTCHA solving failed',
+              details: solution
+            };
+          } else {
+            return {
+              success: false,
+              strategy: strategy.type,
+              duration: Date.now() - startTime,
+              message: 'No CAPTCHA detected',
+              details: { detected: false }
+            };
+          }
+
+        case 'TIMEOUT_INCREASE':
+        case 'WAIT_AND_RETRY':
+          result = await this.redisClient.queueForRetry(
+            context.jobId,
+            { strategy: strategy.type, error, context },
+            2000
+          );
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: 'Queued for retry',
+            details: result
+          };
+
+        case 'CONSENSUS_SOLVE':
+        case 'RETRY_WITH_DELAY':
+        case 'VERIFY_SOLUTION':
+          result = await this.apiBrainClient.orchestrateComplexFix(
+            context.jobId,
+            error.type || error.code,
+            context
+          );
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.success ? 'Complex fix succeeded' : 'Complex fix failed',
+            details: result
+          };
+
+        case 'QUEUE_PRIORITIZATION':
+        case 'ALTERNATIVE_SUBMISSION':
+        default:
+          const formResult = await this.apiBrainClient.suggestFormFix(
+            context,
+            error.message
+          );
+          return {
+            success: formResult.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: formResult.strategy || 'Fix attempted',
+            details: formResult
+          };
+      }
+    } catch (strategyError) {
+      console.error(`[AutoCorrectorAdapter] Strategy ${strategy.type} error:`, strategyError.message);
+      
+      try {
+        await this.monitoringService.recordAttempt(
+          strategy.type,
+          false,
+          Date.now() - startTime
+        );
+      } catch (monitorError) {
+        console.error('[AutoCorrectorAdapter] Failed to record monitoring:', monitorError.message);
+      }
+
+      return {
+        success: false,
+        strategy: strategy.type,
+        duration: Date.now() - startTime,
+        message: `Strategy ${strategy.type} encountered error: ${strategyError.message}`,
+        details: { error: strategyError.message }
+      };
+    }
   }
 
   /**

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Captcha Test Suite - Worker Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .captcha-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .captcha-item.correct {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .captcha-item.incorrect {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        /* TEXT CAPTCHA STYLES */
+        .text-captcha-display {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 2.5em;
+            letter-spacing: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            transform: skewY(-5deg);
+            filter: brightness(0.95) contrast(1.1);
+            user-select: none;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .input-group button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .input-group button:hover {
+            background: #5568d3;
+        }
+
+        /* IMAGE SELECTION STYLES */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .image-option {
+            position: relative;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .image-option:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .image-option.selected {
+            border-color: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        }
+
+        .image-placeholder {
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8em;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .image-option.cat .image-placeholder { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .image-option.dog .image-placeholder { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .image-option.car .image-placeholder { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .image-option.bike .image-placeholder { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .image-option.tree .image-placeholder { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .image-option.house .image-placeholder { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+
+        /* TIMER STYLES */
+        .timer-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .timer {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer.critical {
+            color: #dc3545;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* MESSAGES */
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .math-problem {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        button.reset-all {
+            background: #6c757d;
+            margin-top: 20px;
+        }
+
+        button.reset-all:hover {
+            background: #5a6268;
+        }
+
+        .difficulty-label {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #ffc107;
+            color: #333;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .consensus-box {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .consensus-label {
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 8px;
+        }
+
+        .consensus-agents {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .agent-badge {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid #0066cc;
+            font-size: 0.9em;
+            color: #0066cc;
+        }
+
+        .agent-badge.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .agent-badge.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Worker Captcha Test Suite</h1>
+            <p>Safe local testing environment for captcha solving strategies</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">Total Solved</div>
+                <div class="stat-value" id="totalSolved">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-value" id="successRate">0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Attempts</div>
+                <div class="stat-value" id="totalAttempts">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Consensus Rate</div>
+                <div class="stat-value" id="consensusRate">0%</div>
+            </div>
+        </div>
+
+        <!-- TEXT CAPTCHA SECTION -->
+        <div class="section">
+            <h2>📝 Text Captcha - Classic Challenge</h2>
+            <p style="color: #666; margin-bottom: 15px;">Distorted text recognition - the most common captcha type</p>
+
+            <div id="textCaptchaContainer"></div>
+
+            <button class="reset-all" onclick="resetTextCaptchas()">Reset Text Captchas</button>
+        </div>
+
+        <!-- MATH CAPTCHA SECTION -->
+        <div class="section">
+            <h2>🔢 Math Captcha - Logic Challenge</h2>
+            <p style="color: #666; margin-bottom: 15px;">Simple arithmetic problems to prove human intelligence</p>
+
+            <div id="mathCaptchaContainer"></div>
+
+            <button class="reset-all" onclick="resetMathCaptchas()">Reset Math Captchas</button>
+        </div>
+
+        <!-- IMAGE SELECTION SECTION -->
+        <div class="section">
+            <h2>🖼️ Image Selection - Visual Challenge</h2>
+            <p style="color: #666; margin-bottom: 15px;">Click all images matching the target category</p>
+
+            <div id="imageCaptchaContainer"></div>
+
+            <button class="reset-all" onclick="resetImageCaptchas()">Reset Image Captchas</button>
+        </div>
+
+        <!-- TIMER CHALLENGE SECTION -->
+        <div class="section">
+            <h2>⏱️ Time Pressure Challenge</h2>
+            <p style="color: #666; margin-bottom: 15px;">20-second countdown - tests decision making under pressure</p>
+
+            <div id="timerChallengeContainer"></div>
+
+            <button class="reset-all" onclick="resetTimerChallenge()">Reset Timer Challenge</button>
+        </div>
+
+        <!-- CONSENSUS TESTING SECTION -->
+        <div class="section">
+            <h2>🧠 3-Agent Consensus Testing</h2>
+            <p style="color: #666; margin-bottom: 15px;">Test if 3 different solving strategies reach consensus</p>
+            <p style="color: #666; margin-bottom: 20px; font-size: 0.9em;">Each captcha will be "solved" by 3 simulated agents with different strategies. Check if they agree on the correct answer.</p>
+
+            <div id="consensusContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Stats tracking
+        let stats = {
+            totalSolved: 0,
+            totalCorrect: 0,
+            totalAttempts: 0,
+            consensusMatches: 0
+        };
+
+        // Text Captcha Data
+        const textCaptchas = [
+            { answer: 'ABC123', difficulty: 'easy', hint: 'Letters then numbers' },
+            { answer: 'XYZ789', difficulty: 'medium', hint: 'Capital letters + digits' },
+            { answer: 'P7K2WQ', difficulty: 'hard', hint: '6 mixed characters' },
+            { answer: '5G9M1L', difficulty: 'hard', hint: '6 mixed characters' },
+            { answer: 'D8R4H2', difficulty: 'medium', hint: 'Alternating pattern' }
+        ];
+
+        // Math Captcha Data
+        const mathCaptchas = [
+            { problem: '12 + 7', answer: '19', difficulty: 'easy' },
+            { problem: '45 - 13', answer: '32', difficulty: 'easy' },
+            { problem: '8 × 6', answer: '48', difficulty: 'medium' }
+        ];
+
+        // Image Selection Data (2 correct, 4 wrong per challenge)
+        const imageChallenges = [
+            {
+                target: 'cat',
+                images: ['cat', 'dog', 'cat', 'car', 'bike'],
+                correct: [0, 2]
+            },
+            {
+                target: 'vehicle',
+                images: ['car', 'tree', 'bike', 'house', 'dog'],
+                correct: [0, 2]
+            },
+            {
+                target: 'tree',
+                images: ['tree', 'house', 'dog', 'tree', 'car'],
+                correct: [0, 3]
+            }
+        ];
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeTextCaptchas();
+            initializeMathCaptchas();
+            initializeImageCaptchas();
+            initializeTimerChallenge();
+            initializeConsensusTest();
+        });
+
+        // ===== TEXT CAPTCHA FUNCTIONS =====
+        function initializeTextCaptchas() {
+            const container = document.getElementById('textCaptchaContainer');
+            textCaptchas.forEach((captcha, index) => {
+                const div = document.createElement('div');
+                div.className = 'captcha-item';
+                div.id = `text-captcha-${index}`;
+                
+                const display = document.createElement('div');
+                display.className = 'text-captcha-display';
+                display.textContent = captcha.answer;
+                
+                const hint = document.createElement('p');
+                hint.style.color = '#666';
+                hint.style.fontSize = '0.9em';
+                hint.style.marginBottom = '10px';
+                hint.innerHTML = `<strong>Hint:</strong> ${captcha.hint} <span class="difficulty-label">${captcha.difficulty}</span>`;
+                
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'Type the text above...';
+                input.id = `text-input-${index}`;
+                
+                const button = document.createElement('button');
+                button.textContent = 'Submit';
+                button.onclick = () => checkTextCaptcha(index);
+                
+                const message = document.createElement('div');
+                message.className = 'message';
+                message.id = `text-message-${index}`;
+                
+                inputGroup.appendChild(input);
+                inputGroup.appendChild(button);
+                
+                div.appendChild(hint);
+                div.appendChild(display);
+                div.appendChild(inputGroup);
+                div.appendChild(message);
+                
+                container.appendChild(div);
+            });
+        }
+
+        function checkTextCaptcha(index) {
+            const input = document.getElementById(`text-input-${index}`);
+            const message = document.getElementById(`text-message-${index}`);
+            const item = document.getElementById(`text-captcha-${index}`);
+            const answer = textCaptchas[index].answer;
+            const userAnswer = input.value.toUpperCase().trim();
+
+            stats.totalAttempts++;
+
+            if (userAnswer === answer) {
+                stats.totalCorrect++;
+                stats.totalSolved++;
+                item.classList.add('correct');
+                item.classList.remove('incorrect');
+                message.classList.add('success');
+                message.classList.remove('error');
+                message.textContent = '✓ Correct! Great job solving this text captcha.';
+                input.disabled = true;
+                input.style.background = '#d4edda';
+            } else {
+                item.classList.add('incorrect');
+                item.classList.remove('correct');
+                message.classList.add('error');
+                message.classList.remove('success');
+                message.textContent = `✗ Incorrect. You entered "${userAnswer}" but the answer was "${answer}". Try again!`;
+            }
+
+            updateStats();
+        }
+
+        function resetTextCaptchas() {
+            textCaptchas.forEach((_, index) => {
+                const input = document.getElementById(`text-input-${index}`);
+                const message = document.getElementById(`text-message-${index}`);
+                const item = document.getElementById(`text-captcha-${index}`);
+                
+                input.value = '';
+                input.disabled = false;
+                input.style.background = 'white';
+                message.textContent = '';
+                message.className = 'message';
+                item.className = 'captcha-item';
+            });
+        }
+
+        // ===== MATH CAPTCHA FUNCTIONS =====
+        function initializeMathCaptchas() {
+            const container = document.getElementById('mathCaptchaContainer');
+            mathCaptchas.forEach((captcha, index) => {
+                const div = document.createElement('div');
+                div.className = 'captcha-item';
+                div.id = `math-captcha-${index}`;
+                
+                const problem = document.createElement('div');
+                problem.className = 'math-problem';
+                problem.textContent = captcha.problem + ' = ?';
+                
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.placeholder = 'Enter the answer...';
+                input.id = `math-input-${index}`;
+                
+                const button = document.createElement('button');
+                button.textContent = 'Submit';
+                button.onclick = () => checkMathCaptcha(index);
+                
+                const message = document.createElement('div');
+                message.className = 'message';
+                message.id = `math-message-${index}`;
+                
+                inputGroup.appendChild(input);
+                inputGroup.appendChild(button);
+                
+                div.appendChild(problem);
+                div.appendChild(inputGroup);
+                div.appendChild(message);
+                
+                container.appendChild(div);
+            });
+        }
+
+        function checkMathCaptcha(index) {
+            const input = document.getElementById(`math-input-${index}`);
+            const message = document.getElementById(`math-message-${index}`);
+            const item = document.getElementById(`math-captcha-${index}`);
+            const answer = mathCaptchas[index].answer;
+            const userAnswer = input.value.trim();
+
+            stats.totalAttempts++;
+
+            if (userAnswer === answer) {
+                stats.totalCorrect++;
+                stats.totalSolved++;
+                item.classList.add('correct');
+                item.classList.remove('incorrect');
+                message.classList.add('success');
+                message.classList.remove('error');
+                message.textContent = '✓ Correct! Your math is solid.';
+                input.disabled = true;
+                input.style.background = '#d4edda';
+            } else {
+                item.classList.add('incorrect');
+                item.classList.remove('correct');
+                message.classList.add('error');
+                message.classList.remove('success');
+                message.textContent = `✗ Incorrect. You entered "${userAnswer}" but the answer was "${answer}".`;
+            }
+
+            updateStats();
+        }
+
+        function resetMathCaptchas() {
+            mathCaptchas.forEach((_, index) => {
+                const input = document.getElementById(`math-input-${index}`);
+                const message = document.getElementById(`math-message-${index}`);
+                const item = document.getElementById(`math-captcha-${index}`);
+                
+                input.value = '';
+                input.disabled = false;
+                input.style.background = 'white';
+                message.textContent = '';
+                message.className = 'message';
+                item.className = 'captcha-item';
+            });
+        }
+
+        // ===== IMAGE CAPTCHA FUNCTIONS =====
+        function initializeImageCaptchas() {
+            const container = document.getElementById('imageCaptchaContainer');
+            imageChallenges.forEach((challenge, index) => {
+                const div = document.createElement('div');
+                div.className = 'captcha-item';
+                div.id = `image-captcha-${index}`;
+                
+                const prompt = document.createElement('p');
+                prompt.style.marginBottom = '15px';
+                prompt.style.fontWeight = 'bold';
+                prompt.style.fontSize = '1.1em';
+                prompt.textContent = `Click all images with "${challenge.target.toUpperCase()}"`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'image-grid';
+                
+                challenge.images.forEach((image, imgIndex) => {
+                    const option = document.createElement('div');
+                    option.className = `image-option ${image}`;
+                    option.dataset.challengeIndex = index;
+                    option.dataset.imageIndex = imgIndex;
+                    
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'image-placeholder';
+                    placeholder.textContent = image.toUpperCase();
+                    
+                    option.appendChild(placeholder);
+                    option.onclick = () => toggleImageSelection(index, imgIndex, option);
+                    
+                    grid.appendChild(option);
+                });
+                
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+                inputGroup.style.marginTop = '15px';
+                
+                const button = document.createElement('button');
+                button.textContent = 'Submit Selection';
+                button.onclick = () => checkImageCaptcha(index);
+                
+                const message = document.createElement('div');
+                message.className = 'message';
+                message.id = `image-message-${index}`;
+                
+                inputGroup.appendChild(button);
+                
+                div.appendChild(prompt);
+                div.appendChild(grid);
+                div.appendChild(inputGroup);
+                div.appendChild(message);
+                
+                container.appendChild(div);
+            });
+        }
+
+        function toggleImageSelection(challengeIndex, imageIndex, element) {
+            element.classList.toggle('selected');
+        }
+
+        function checkImageCaptcha(index) {
+            const challenge = imageChallenges[index];
+            const selected = Array.from(document.querySelectorAll(`[data-challengeIndex="${index}"].selected`))
+                .map(el => parseInt(el.dataset.imageIndex));
+            
+            const message = document.getElementById(`image-message-${index}`);
+            const item = document.getElementById(`image-captcha-${index}`);
+            
+            stats.totalAttempts++;
+            
+            // Check if selected matches correct
+            const isCorrect = JSON.stringify(selected.sort((a,b) => a-b)) === 
+                             JSON.stringify(challenge.correct.sort((a,b) => a-b));
+            
+            if (isCorrect) {
+                stats.totalCorrect++;
+                stats.totalSolved++;
+                item.classList.add('correct');
+                item.classList.remove('incorrect');
+                message.classList.add('success');
+                message.classList.remove('error');
+                message.textContent = `✓ Correct! You selected all ${challenge.correct.length} ${challenge.target} images.`;
+                
+                document.querySelectorAll(`[data-challengeIndex="${index}"]`).forEach(el => {
+                    el.style.pointerEvents = 'none';
+                    el.style.opacity = '0.7';
+                });
+            } else {
+                item.classList.add('incorrect');
+                item.classList.remove('correct');
+                message.classList.add('error');
+                message.classList.remove('success');
+                message.textContent = `✗ Incorrect. You selected ${selected.length} images but should have selected ${challenge.correct.length}.`;
+            }
+
+            updateStats();
+        }
+
+        function resetImageCaptchas() {
+            imageChallenges.forEach((_, index) => {
+                document.querySelectorAll(`[data-challengeIndex="${index}"]`).forEach(el => {
+                    el.classList.remove('selected');
+                    el.style.pointerEvents = 'auto';
+                    el.style.opacity = '1';
+                });
+                
+                const message = document.getElementById(`image-message-${index}`);
+                const item = document.getElementById(`image-captcha-${index}`);
+                
+                message.textContent = '';
+                message.className = 'message';
+                item.className = 'captcha-item';
+            });
+        }
+
+        // ===== TIMER CHALLENGE FUNCTIONS =====
+        let timerInterval = null;
+        let timerRunning = false;
+
+        function initializeTimerChallenge() {
+            const container = document.getElementById('timerChallengeContainer');
+            
+            const challenge = document.createElement('div');
+            challenge.className = 'captcha-item';
+            
+            const instruction = document.createElement('p');
+            instruction.textContent = 'Solve this math problem before time runs out:';
+            instruction.style.marginBottom = '10px';
+            instruction.style.color = '#666';
+            
+            const problem = document.createElement('div');
+            problem.className = 'math-problem';
+            problem.id = 'timer-problem';
+            problem.textContent = '23 × 4 = ?';
+            
+            const timerDiv = document.createElement('div');
+            timerDiv.className = 'timer-container';
+            
+            const timerLabel = document.createElement('p');
+            timerLabel.textContent = 'Time remaining:';
+            timerLabel.style.marginBottom = '10px';
+            
+            const timer = document.createElement('div');
+            timer.className = 'timer';
+            timer.id = 'timer-display';
+            timer.textContent = '20';
+            
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group';
+            
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.placeholder = 'Enter answer...';
+            input.id = 'timer-input';
+            
+            const button = document.createElement('button');
+            button.textContent = 'Submit';
+            button.id = 'timer-button';
+            button.onclick = checkTimerChallenge;
+            
+            const message = document.createElement('div');
+            message.className = 'message';
+            message.id = 'timer-message';
+            
+            inputGroup.appendChild(input);
+            inputGroup.appendChild(button);
+            
+            timerDiv.appendChild(timerLabel);
+            timerDiv.appendChild(timer);
+            
+            challenge.appendChild(instruction);
+            challenge.appendChild(problem);
+            challenge.appendChild(timerDiv);
+            challenge.appendChild(inputGroup);
+            challenge.appendChild(message);
+            
+            const startButton = document.createElement('button');
+            startButton.textContent = 'Start Timer Challenge';
+            startButton.onclick = startTimerChallenge;
+            startButton.style.marginTop = '15px';
+            
+            challenge.appendChild(startButton);
+            
+            container.appendChild(challenge);
+        }
+
+        function startTimerChallenge() {
+            if (timerRunning) return;
+            
+            timerRunning = true;
+            let timeLeft = 20;
+            const timerDisplay = document.getElementById('timer-display');
+            const input = document.getElementById('timer-input');
+            const button = document.getElementById('timer-button');
+            const message = document.getElementById('timer-message');
+            
+            input.value = '';
+            input.disabled = false;
+            button.disabled = false;
+            message.textContent = '';
+            message.className = 'message';
+            
+            timerDisplay.classList.remove('critical');
+            timerDisplay.textContent = timeLeft;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 5) {
+                    timerDisplay.classList.add('critical');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    input.disabled = true;
+                    button.disabled = true;
+                    message.classList.add('error');
+                    message.classList.remove('success');
+                    message.textContent = '✗ Time\'s up! The correct answer was 92.';
+                }
+            }, 1000);
+        }
+
+        function checkTimerChallenge() {
+            if (!timerRunning) return;
+            
+            const input = document.getElementById('timer-input');
+            const message = document.getElementById('timer-message');
+            const answer = '92';
+            const userAnswer = input.value.trim();
+            
+            stats.totalAttempts++;
+            
+            clearInterval(timerInterval);
+            timerRunning = false;
+            
+            if (userAnswer === answer) {
+                stats.totalCorrect++;
+                stats.totalSolved++;
+                message.classList.add('success');
+                message.classList.remove('error');
+                message.textContent = '✓ Correct! You solved it under pressure!';
+                input.disabled = true;
+                input.style.background = '#d4edda';
+            } else {
+                message.classList.add('error');
+                message.classList.remove('success');
+                message.textContent = `✗ Incorrect. You entered "${userAnswer}" but the answer was "${answer}".`;
+            }
+            
+            updateStats();
+        }
+
+        function resetTimerChallenge() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerRunning = false;
+            
+            const timerDisplay = document.getElementById('timer-display');
+            const input = document.getElementById('timer-input');
+            const button = document.getElementById('timer-button');
+            const message = document.getElementById('timer-message');
+            
+            timerDisplay.classList.remove('critical');
+            timerDisplay.textContent = '20';
+            input.value = '';
+            input.disabled = false;
+            input.style.background = 'white';
+            button.disabled = false;
+            message.textContent = '';
+            message.className = 'message';
+        }
+
+        // ===== CONSENSUS TESTING =====
+        function initializeConsensusTest() {
+            const container = document.getElementById('consensusContainer');
+            
+            const consensusTests = [
+                {
+                    captcha: 'Text: DEMO7',
+                    correctAnswer: 'DEMO7',
+                    agent1: { name: 'OCR Agent', answer: 'DEMO7', correct: true },
+                    agent2: { name: 'Pattern Agent', answer: 'DEMO7', correct: true },
+                    agent3: { name: 'ML Agent', answer: 'DEMO7', correct: true }
+                },
+                {
+                    captcha: 'Math: 15 + 25 = ?',
+                    correctAnswer: '40',
+                    agent1: { name: 'Calculator Agent', answer: '40', correct: true },
+                    agent2: { name: 'Logic Agent', answer: '40', correct: true },
+                    agent3: { name: 'ML Agent', answer: '40', correct: true }
+                },
+                {
+                    captcha: 'Math: 100 - 37 = ?',
+                    correctAnswer: '63',
+                    agent1: { name: 'Calculator Agent', answer: '63', correct: true },
+                    agent2: { name: 'Logic Agent', answer: '65', correct: false },
+                    agent3: { name: 'ML Agent', answer: '63', correct: true }
+                }
+            ];
+            
+            consensusTests.forEach((test, index) => {
+                const div = document.createElement('div');
+                div.className = 'captcha-item';
+                div.id = `consensus-${index}`;
+                
+                const captchaLabel = document.createElement('p');
+                captchaLabel.style.fontWeight = 'bold';
+                captchaLabel.style.marginBottom = '15px';
+                captchaLabel.textContent = `Captcha ${index + 1}: ${test.captcha}`;
+                
+                const consensusBox = document.createElement('div');
+                consensusBox.className = 'consensus-box';
+                
+                const label = document.createElement('div');
+                label.className = 'consensus-label';
+                label.textContent = '3-Agent Analysis:';
+                
+                const agentBadges = document.createElement('div');
+                agentBadges.className = 'consensus-agents';
+                
+                const agents = [test.agent1, test.agent2, test.agent3];
+                const consensusCount = agents.filter(a => a.correct && a.answer === test.correctAnswer).length;
+                const hasConsensus = consensusCount >= 2;
+                
+                if (hasConsensus) {
+                    stats.consensusMatches++;
+                }
+                
+                agents.forEach(agent => {
+                    const badge = document.createElement('div');
+                    badge.className = `agent-badge ${agent.correct ? 'correct' : 'incorrect'}`;
+                    badge.textContent = `${agent.name}: ${agent.answer}`;
+                    agentBadges.appendChild(badge);
+                });
+                
+                const verdict = document.createElement('p');
+                verdict.style.marginTop = '15px';
+                verdict.style.fontWeight = 'bold';
+                verdict.style.color = hasConsensus ? '#155724' : '#721c24';
+                verdict.textContent = hasConsensus ? 
+                    `✓ CONSENSUS REACHED (${consensusCount}/3 agents agree on correct answer)` :
+                    `⚠️ NO CONSENSUS (${consensusCount}/3 agents agree on correct answer)`;
+                
+                consensusBox.appendChild(label);
+                consensusBox.appendChild(agentBadges);
+                consensusBox.appendChild(verdict);
+                
+                div.appendChild(captchaLabel);
+                div.appendChild(consensusBox);
+                
+                container.appendChild(div);
+            });
+        }
+
+        // ===== STATS FUNCTIONS =====
+        function updateStats() {
+            document.getElementById('totalSolved').textContent = stats.totalSolved;
+            document.getElementById('totalAttempts').textContent = stats.totalAttempts;
+            
+            const successRate = stats.totalAttempts > 0 ? 
+                Math.round((stats.totalCorrect / stats.totalAttempts) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            const consensusTotal = 3; // 3 consensus tests
+            const consensusRate = Math.round((stats.consensusMatches / consensusTotal) * 100);
+            document.getElementById('consensusRate').textContent = consensusRate + '%';
+        }
+
+        // Initial stats update
+        updateStats();
+    </script>
+</body>
+</html>

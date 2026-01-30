@@ -1,0 +1,131 @@
+groups:
+  - name: captcha_critical
+    interval: 30s
+    rules:
+      - alert: CaptchaServiceDown
+        expr: up{job="captcha-worker"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "CAPTCHA Solver service is down"
+          description: "The CAPTCHA Solver service has been down for more than 1 minute"
+          runbook_url: "https://wiki.internal/runbooks/captcha-service-down"
+          
+      - alert: CaptchaHighErrorRate
+        expr: sum(rate(captcha_solves_total{status="failed"}[5m])) / sum(rate(captcha_solves_total[5m])) > 0.3
+        for: 2m
+        labels:
+          severity: critical
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "High CAPTCHA solve error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes"
+          
+      - alert: CaptchaCircuitBreakerOpen
+        expr: circuit_breaker_state == 1
+        for: 30s
+        labels:
+          severity: critical
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Circuit breaker is open for {{ $labels.service_name }}"
+          description: "The circuit breaker has been open for more than 30 seconds"
+          
+      - alert: CaptchaRedisConnectionLost
+        expr: captcha_redis_connected == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Redis connection lost"
+          description: "CAPTCHA Solver cannot connect to Redis for rate limiting"
+
+  - name: captcha_warning
+    interval: 1m
+    rules:
+      - alert: CaptchaElevatedErrorRate
+        expr: sum(rate(captcha_solves_total{status="failed"}[5m])) / sum(rate(captcha_solves_total[5m])) > 0.15
+        for: 5m
+        labels:
+          severity: warning
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Elevated CAPTCHA solve error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes"
+          
+      - alert: CaptchaHighLatency
+        expr: histogram_quantile(0.95, sum(rate(captcha_solve_duration_seconds_bucket[5m])) by (le)) > 5
+        for: 3m
+        labels:
+          severity: warning
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "High CAPTCHA solve latency"
+          description: "P95 solve time is {{ $value }}s (threshold: 5s)"
+          
+      - alert: CaptchaRateLimitingTriggered
+        expr: sum(rate(rate_limit_hits_total[1m])) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Rate limiting is being triggered frequently"
+          description: "{{ $value }} rate limit hits per minute"
+          
+      - alert: CaptchaQueueBacklog
+        expr: captcha_queue_size > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "CAPTCHA processing queue backlog"
+          description: "Queue size is {{ $value }} (threshold: 50)"
+          
+      - alert: CaptchaLowSuccessRateByType
+        expr: sum(rate(captcha_solves_total{status="success"}[10m])) by (captcha_type) / sum(rate(captcha_solves_total[10m])) by (captcha_type) < 0.5
+        for: 5m
+        labels:
+          severity: warning
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Low success rate for {{ $labels.captcha_type }} CAPTCHAs"
+          description: "Success rate is {{ $value | humanizePercentage }} over the last 10 minutes"
+
+  - name: captcha_info
+    interval: 5m
+    rules:
+      - alert: CaptchaModelPerformanceVariance
+        expr: stddev_over_time(sum(rate(captcha_solves_total{status="success"}[1m])) by (solver_model)[10m:]) > 0.1
+        for: 10m
+        labels:
+          severity: info
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Model performance variance detected"
+          description: "High variance in solve rates for {{ $labels.solver_model }}"
+          
+      - alert: CaptchaUnusualTraffic
+        expr: abs(sum(rate(captcha_solves_total[5m])) - avg_over_time(sum(rate(captcha_solves_total[5m]))[1h:])) / stddev_over_time(sum(rate(captcha_solves_total[5m]))[1h:]) > 2
+        for: 5m
+        labels:
+          severity: info
+          service: captcha-worker
+          team: platform
+        annotations:
+          summary: "Unusual traffic pattern detected"
+          description: "Request rate is {{ $value }} standard deviations from mean"

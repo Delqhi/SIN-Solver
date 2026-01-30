@@ -17,11 +17,29 @@ from typing import List, Optional, Dict, Any
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+<<<<<<< HEAD
 from pydantic import BaseModel, Field, field_validator
+=======
+from fastapi.security import HTTPBearer
+from pydantic import BaseModel, Field, validator
+>>>>>>> origin/main
 from prometheus_client import Counter, Histogram, Gauge, Info, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
+from starlette.middleware.base import BaseHTTPMiddleware
+
+# Add app/tools to path for unified solver
+sys.path.insert(0, "/app")
+
+# Import unified captcha solver
+try:
+    from app.tools.captcha_solver import UnifiedCaptchaSolver, CaptchaResult
+
+    UNIFIED_SOLVER_AVAILABLE = True
+except ImportError as e:
+    UNIFIED_SOLVER_AVAILABLE = False
+    logging.warning(f"Unified solver not available: {e}")
 
 # Add app/tools to path for unified solver
 sys.path.insert(0, "/app")
@@ -133,6 +151,16 @@ class CaptchaSolveResponse(BaseModel):
 
 
 # ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+
+# API KEY VALIDATION
+API_KEY = os.getenv("CAPTCHA_API_KEY", "sk-test-captcha-worker-2026")
+ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+]
+
+# ============================================================================
 # GLOBAL INSTANCES
 # ============================================================================
 
@@ -143,6 +171,7 @@ redis_client: Optional[RedisClient] = None
 ocr_detector: Optional[OcrElementDetector] = None
 mistral_circuit: Optional[CircuitBreaker] = None
 qwen_circuit: Optional[CircuitBreaker] = None
+security = HTTPBearer()
 
 
 @asynccontextmanager
@@ -222,12 +251,29 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+async def verify_api_key(authorization: str = Header(None)) -> str:
+    """Verify API key from Authorization header"""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+
+    # Extract token from "Bearer <token>" format
+    if authorization.startswith("Bearer "):
+        token = authorization[7:]
+    else:
+        token = authorization
+
+    if token != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return token
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["POST", "GET", "OPTIONS"],
+    allow_headers=["authorization", "content-type"],
 )
 
 
@@ -286,9 +332,15 @@ async def readiness_check():
 
 
 @app.post("/api/solve", response_model=CaptchaSolveResponse)
+<<<<<<< HEAD
 async def solve_captcha(request: CaptchaSolveRequest):
     """Solve a single CAPTCHA with unified solver (YOLO + OCR)"""
     if not unified_solver and not veto_engine:
+=======
+async def solve_captcha(request: CaptchaSolveRequest, api_key: str = Depends(verify_api_key)):
+    """Solve a single CAPTCHA with full feature support"""
+    if not veto_engine:
+>>>>>>> origin/main
         raise HTTPException(status_code=503, detail="Solver not initialized")
 
     start_time = time.time()
@@ -306,7 +358,11 @@ async def solve_captcha(request: CaptchaSolveRequest):
                 solve_time_ms=int((time.time() - start_time) * 1000),
             )
 
+    result = None
+    captcha_type_detected = request.captcha_type or "unknown"
+
     try:
+<<<<<<< HEAD
         with CAPTCHA_SOLVE_DURATION.time():
             # Handle different input types
             if request.image_data:
@@ -343,13 +399,50 @@ async def solve_captcha(request: CaptchaSolveRequest):
                     result_dict = await veto_engine.solve_with_browser(
                         request.url, captcha_type="auto", timeout=request.timeout
                     )
-
-            else:
-                return CaptchaSolveResponse(
-                    success=False,
-                    error="Must provide either image_data or url",
-                    solve_time_ms=int((time.time() - start_time) * 1000),
+=======
+        if request.image_data:
+            if unified_solver:
+                solve_result = await unified_solver.solve(
+                    image_base64=request.image_data,
+                    captcha_type=request.captcha_type,
+                    timeout=request.timeout,
                 )
+>>>>>>> origin/main
+
+                result = {
+                    "success": solve_result.success,
+                    "solution": solve_result.solution,
+                    "solution_type": solve_result.captcha_type,
+                    "captcha_type": solve_result.captcha_type,
+                    "confidence": solve_result.confidence,
+                    "solver_used": solve_result.solver_used,
+                }
+                captcha_type_detected = (
+                    solve_result.captcha_type or request.captcha_type or "unknown"
+                )
+            else:
+                result = await veto_engine.solve_text_captcha(request.image_data)
+                captcha_type_detected = (
+                    result.get("captcha_type", request.captcha_type) or "unknown"
+                )
+
+        elif request.url:
+            result = await veto_engine.solve_with_browser(
+                request.url, captcha_type="auto", timeout=request.timeout
+            )
+            captcha_type_detected = result.get("captcha_type", "browser") or "browser"
+
+        else:
+            return CaptchaSolveResponse(
+                success=False,
+                error="Must provide either image_data or url",
+                solve_time_ms=int((time.time() - start_time) * 1000),
+            )
+
+        solve_time_ms = int((time.time() - start_time) * 1000)
+        CAPTCHA_SOLVE_DURATION.labels(captcha_type=captcha_type_detected).observe(
+            solve_time_ms / 1000.0
+        )
 
         solve_time_ms = int((time.time() - start_time) * 1000)
 
@@ -385,7 +478,16 @@ async def solve_captcha(request: CaptchaSolveRequest):
 
 
 @app.post("/api/solve/text", response_model=CaptchaSolveResponse)
+<<<<<<< HEAD
 async def solve_text_captcha_endpoint(request: CaptchaSolveRequest):
+=======
+async def solve_text_captcha(
+    image_base64: str,
+    client_id: str = "default",
+    timeout: int = 30,
+    api_key: str = Depends(verify_api_key),
+):
+>>>>>>> origin/main
     """Solve text-based CAPTCHA"""
     request.captcha_type = "text"
     return await solve_captcha(request)
@@ -429,21 +531,41 @@ async def classify_captcha(image_base64: str):
 
 
 @app.post("/api/solve/image-grid", response_model=CaptchaSolveResponse)
+<<<<<<< HEAD
 async def solve_image_grid_captcha_endpoint(request: CaptchaSolveRequest):
+=======
+async def solve_image_grid_captcha(
+    image_base64: str,
+    instructions: str,
+    client_id: str = "default",
+    timeout: int = 45,
+    api_key: str = Depends(verify_api_key),
+):
+>>>>>>> origin/main
     """Solve image grid CAPTCHA (hCaptcha/reCAPTCHA style)"""
     request.captcha_type = "browser"
     return await solve_captcha(request)
 
 
 @app.post("/api/solve/browser", response_model=CaptchaSolveResponse)
+<<<<<<< HEAD
 async def solve_browser_captcha_endpoint(request: CaptchaSolveRequest):
+=======
+async def solve_browser_captcha(
+    url: str, client_id: str = "default", timeout: int = 60, api_key: str = Depends(verify_api_key)
+):
+>>>>>>> origin/main
     """Solve CAPTCHA on live webpage using Steel Browser"""
     request.captcha_type = "browser"
     return await solve_captcha(request)
 
 
 @app.post("/api/solve/batch")
+<<<<<<< HEAD
 async def solve_batch_endpoint(batch_request: BatchCaptchaRequest):
+=======
+async def solve_batch(batch_request: BatchCaptchaRequest, api_key: str = Depends(verify_api_key)):
+>>>>>>> origin/main
     """Solve batch of CAPTCHAs (max 100)"""
     if not unified_solver and not veto_engine:
         raise HTTPException(status_code=503, detail="Solver not initialized")

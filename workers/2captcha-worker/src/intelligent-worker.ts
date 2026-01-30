@@ -589,66 +589,6 @@ Antworte NUR im JSON-Format:
   }
 }
 
-// Selbstheilungs-Funktion
-async function selfHeal(
-  this: IntelligentCaptchaWorker,
-  step: WorkflowStep,
-  error: Error,
-  stepIndex: number
-): Promise<boolean> {
-  console.log('[SELBSTHEILUNG] Versuche Fehler zu beheben...');
-  
-  // Strategie 1: Warte länger
-  if (error.message.includes('timeout')) {
-    console.log('[SELBSTHEILUNG] Warte länger...');
-    await this.page.waitForTimeout(5000);
-    try {
-      await this.executeStep(step);
-      return true;
-    } catch {
-      // Weiter zur nächsten Strategie
-    }
-  }
-  
-  // Strategie 2: Suche alternativen Selektor mit KI
-  if (error.message.includes('selector')) {
-    console.log('[SELBSTHEILUNG] Suche alternativen Selektor...');
-    const screenshot = await this.page.screenshot();
-    
-    const newSelector = await this.findAlternativeSelector(
-      step.selector!,
-      screenshot
-    );
-    
-    if (newSelector) {
-      step.selector = newSelector;
-      try {
-        await this.executeStep(step);
-        
-        // Workflow aktualisieren!
-        this.currentWorkflow[stepIndex] = step;
-        await this.notifyUser({
-          type: 'healed',
-          step: stepIndex + 1,
-          action: step.action,
-          error: '',
-          suggestion: `Selektor automatisch korrigiert: ${newSelector}`
-        });
-        
-        return true;
-      } catch {
-        // Weiter zur nächsten Strategie
-      }
-    }
-  }
-  
-  // Strategie 3: Überspringe Schritt wenn möglich
-  console.log('[SELBSTHEILUNG] Versuche Schritt zu überspringen...');
-  // ...
-  
-  return false;
-}
-
 // Types
 interface WorkflowStep {
   action: 'navigate' | 'fill' | 'click' | 'waitFor' | 'solveCaptcha' | 'screenshot';
