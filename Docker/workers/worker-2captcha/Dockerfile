@@ -15,8 +15,7 @@ RUN npm ci --only=production && \
 # Copy source code and TypeScript config (from workers/2captcha-worker/)
 COPY workers/2captcha-worker/src/ ./src/
 COPY workers/2captcha-worker/tsconfig.json ./
-COPY workers/2captcha-worker/config/ ./config/ 2>/dev/null || true
-COPY workers/2captcha-worker/.env.example ./.env.example 2>/dev/null || true
+COPY workers/2captcha-worker/.env.example ./.env.example
 
 # Build TypeScript to JavaScript
 RUN npm run build

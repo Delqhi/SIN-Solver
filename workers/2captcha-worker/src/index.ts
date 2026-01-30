@@ -13,6 +13,7 @@ import { chromium, Browser, Page } from 'playwright';
 import { TwoCaptchaDetector } from './detector';
 import { WorkerService } from './worker.service';
 import { createApiServer } from './api';
+import { startServer as startMultiAgentServer } from './server';
 import { ConfigurationError, BrowserInitializationError } from './errors';
 import { config as loadEnv } from 'dotenv';
 import path from 'path';
@@ -27,6 +28,7 @@ let browser: Browser | null = null;
 let detector: TwoCaptchaDetector | null = null;
 let workerService: WorkerService | null = null;
 let apiServer: any = null;
+let multiAgentServer: any = null;
 let isShuttingDown = false;
 
 /**
@@ -199,52 +201,68 @@ function initializeWorkerService(
  * Start the worker service
  */
 async function startWorker(): Promise<void> {
-  try {
-    console.log('\n[Startup] Starting 2captcha worker...\n');
+   try {
+     console.log('\n[Startup] Starting 2captcha worker with multi-agent solver...\n');
 
-    // Initialize browser
-    browser = await initializeBrowser();
+     // Initialize browser
+     browser = await initializeBrowser();
 
-    // Initialize detector
-    detector = await initializeDetector(browser);
+     // Initialize detector
+     detector = await initializeDetector(browser);
 
-    // Initialize worker service
-    workerService = initializeWorkerService(detector);
+     // Initialize worker service
+     workerService = initializeWorkerService(detector);
 
-     // Start processing
-     await workerService.start();
+      // Start processing
+      await workerService.start();
 
-     // Initialize and start REST API server
-     const port = parseInt(process.env.PORT || '8019', 10);
-     apiServer = createApiServer(workerService, detector, port);
-     await apiServer.start();
+      // Initialize and start browser automation API server (port 8019)
+      const browsAutomationPort = parseInt(process.env.PORT || '8019', 10);
+      apiServer = createApiServer(workerService, detector, browsAutomationPort);
+      await apiServer.start();
 
-      console.log('\n✅ 2captcha worker started successfully\n');
-      console.log('Environment:');
-      console.log(`  - Max workers: ${process.env.MAX_WORKERS || 5}`);
-      console.log(`  - Queue size: ${process.env.MAX_QUEUE_SIZE || 1000}`);
-      console.log(`  - Timeout: ${process.env.DEFAULT_TIMEOUT_MS || 60000}ms`);
-      console.log(`  - Max retries: ${process.env.MAX_RETRIES || 3}`);
-      console.log(`  - Headless: ${process.env.HEADLESS !== 'false'}`);
-      
-      // Anti-ban configuration
-      const antiBanEnabled = process.env.ANTI_BAN_ENABLED !== 'false';
-      if (antiBanEnabled) {
-        console.log(`  - Anti-Ban: enabled (pattern: ${process.env.ANTI_BAN_PATTERN || 'normal'}, hours: ${process.env.WORK_HOURS_START || 8}-${process.env.WORK_HOURS_END || 22})`);
-      } else {
-        console.log(`  - Anti-Ban: disabled`);
+      // Initialize and start multi-agent CAPTCHA solver API server (port 8000)
+      const multiAgentSolverPort = parseInt(process.env.SOLVER_API_PORT || '8000', 10);
+      try {
+        multiAgentServer = await startMultiAgentServer(multiAgentSolverPort);
+        console.log(`[MultiAgent] ✅ Multi-agent solver API started on port ${multiAgentSolverPort}`);
+      } catch (error) {
+        console.warn(`[MultiAgent] ⚠️  Multi-agent solver API failed to start: ${error instanceof Error ? error.message : String(error)}`);
+        console.warn('[MultiAgent] Browser automation API will continue working...');
       }
-      
-      console.log('\n✅ API Server:');
-      console.log(`  - Server: http://0.0.0.0:${port}`);
-      console.log(`  - Health Check: GET http://localhost:${port}/health`);
-      console.log(`  - Metrics: GET http://localhost:${port}/api/metrics`);
-      console.log(`  - Queue Status: GET http://localhost:${port}/api/queue`);
-      console.log(`  - Job Submission: POST http://localhost:${port}/api/jobs\n`);
-  } catch (error) {
-    console.error('\n❌ Failed to start worker:', error);
-    await gracefulShutdown(1);
-  }
+
+       console.log('\n✅ 2captcha worker started successfully\n');
+       console.log('Environment:');
+       console.log(`  - Max workers: ${process.env.MAX_WORKERS || 5}`);
+       console.log(`  - Queue size: ${process.env.MAX_QUEUE_SIZE || 1000}`);
+       console.log(`  - Timeout: ${process.env.DEFAULT_TIMEOUT_MS || 60000}ms`);
+       console.log(`  - Max retries: ${process.env.MAX_RETRIES || 3}`);
+       console.log(`  - Headless: ${process.env.HEADLESS !== 'false'}`);
+       
+       // Anti-ban configuration
+       const antiBanEnabled = process.env.ANTI_BAN_ENABLED !== 'false';
+       if (antiBanEnabled) {
+         console.log(`  - Anti-Ban: enabled (pattern: ${process.env.ANTI_BAN_PATTERN || 'normal'}, hours: ${process.env.WORK_HOURS_START || 8}-${process.env.WORK_HOURS_END || 22})`);
+       } else {
+         console.log(`  - Anti-Ban: disabled`);
+       }
+       
+       console.log('\n✅ Browser Automation API Server (Port 8019):');
+       console.log(`  - Server: http://0.0.0.0:${browsAutomationPort}`);
+       console.log(`  - Health Check: GET http://localhost:${browsAutomationPort}/health`);
+       console.log(`  - Metrics: GET http://localhost:${browsAutomationPort}/api/metrics`);
+       console.log(`  - Queue Status: GET http://localhost:${browsAutomationPort}/api/queue`);
+       console.log(`  - Job Submission: POST http://localhost:${browsAutomationPort}/api/jobs\n`);
+
+       console.log('✅ Multi-Agent CAPTCHA Solver API Server (Port 8000):');
+       console.log(`  - Server: http://0.0.0.0:${multiAgentSolverPort}`);
+       console.log(`  - Health Check: GET http://localhost:${multiAgentSolverPort}/health`);
+       console.log(`  - Solver Info: GET http://localhost:${multiAgentSolverPort}/api/solver-info`);
+       console.log(`  - Solve CAPTCHA: POST http://localhost:${multiAgentSolverPort}/api/solve-captcha\n`);
+   } catch (error) {
+     console.error('\n❌ Failed to start worker:', error);
+     await gracefulShutdown(1);
+   }
 }
 
 /**
