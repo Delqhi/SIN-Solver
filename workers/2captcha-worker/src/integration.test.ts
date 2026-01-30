@@ -62,10 +62,14 @@ describe('2Captcha Worker - Integration Tests', () => {
     });
 
     // Initialize detector
-    detector = new TwoCaptchaDetector(page, {
-      headless: true,
-      timeout: 30000,
-    });
+    const alertSystem: AlertSystem = {
+      onCaptchaDetected: async () => {},
+      onError: async () => {},
+      onSuccess: async () => {},
+      onWarning: async () => {},
+      onTimeout: async () => {},
+    };
+    detector = new TwoCaptchaDetector(page, alertSystem, 30000);
 
     // Initialize worker service
     workerService = new WorkerService(detector, {
