@@ -597,10 +597,9 @@ export class WorkerService extends EventEmitter {
 
     return {
       jobId: job.id,
-      type: 'detect',
-      status: 'completed',
-      data: result,
-      timestamp: new Date().toISOString(),
+      status: 'completed' as JobStatus,
+      result,
+      durationMs: Date.now() - (job.startedAt?.getTime() || Date.now()),
     };
   }
 
@@ -617,10 +616,9 @@ export class WorkerService extends EventEmitter {
     // For now, return placeholder
     return {
       jobId: job.id,
-      type: 'solve',
-      status: 'completed',
-      data: { solution: 'TBD', solverType: request.captchaType },
-      timestamp: new Date().toISOString(),
+      status: 'completed' as JobStatus,
+      result: { solution: 'TBD', solverType: request.captchaType },
+      durationMs: Date.now() - (job.startedAt?.getTime() || Date.now()),
     };
   }
 
