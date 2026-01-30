@@ -61,7 +61,9 @@ class IntegratedCaptchaWorker:
 
         # Initialize components
         self.session_manager = SessionManager(
-            account_id=config.account_id, router_config=config.router_config or {}
+            account_id=config.account_id,
+            router_config=config.router_config or {},
+            storage_dir=config.stats_dir,
         )
 
         self.monitor = WorkerMonitor(
@@ -122,7 +124,7 @@ class IntegratedCaptchaWorker:
         solution = None
 
         try:
-            await self.behavior.wait_natural_delay()
+            self.behavior.wait_before_action()
 
             if not await self.session_manager.check_ip_health():
                 self.logger.warning("IP health degraded, triggering reconnection...")
@@ -178,6 +180,7 @@ class IntegratedCaptchaWorker:
             "duration_seconds": 0,
             "avg_solve_time": 0,
             "success_rate": 0.0,
+            "batch_size": batch_size,
         }
 
         solve_times = []
@@ -300,6 +303,7 @@ class IntegratedCaptchaWorker:
             "emergency_stop": self.emergency_stop,
             "session_health": self.session_manager.health.to_dict(),
             "monitor_stats": self.monitor.get_dashboard_data(),
+            "current_ip": self.session_manager.get_current_ip(),
         }
 
 

@@ -137,28 +137,28 @@ class MTCaptchaTestRunner:
         try:
             # Import AI agents
             import google.generativeai as genai
-            from groq import Groq
+            from mistralai import Mistral
 
             print("✓ AI libraries available")
         except ImportError as e:
             print(f"⚠ Missing AI libraries: {e}")
-            print("  Install with: pip install google-generativeai groq ultralytics")
+            print("  Install with: pip install google-generativeai mistralai ultralytics")
             return
 
         # Get API keys from environment
         import os
 
         gemini_key = os.getenv("GEMINI_API_KEY")
-        groq_key = os.getenv("GROQ_API_KEY")
+        mistral_key = os.getenv("MISTRAL_API_KEY")
 
         if not gemini_key:
             print("⚠ GEMINI_API_KEY not set")
             print("  Set via: export GEMINI_API_KEY='your-key'")
             return
 
-        if not groq_key:
-            print("⚠ GROQ_API_KEY not set")
-            print("  Set via: export GROQ_API_KEY='your-key'")
+        if not mistral_key:
+            print("⚠ MISTRAL_API_KEY not set")
+            print("  Set via: export MISTRAL_API_KEY='your-key'")
             return
 
         print("✓ API keys configured")
@@ -166,7 +166,7 @@ class MTCaptchaTestRunner:
 
         # Initialize clients
         genai.configure(api_key=gemini_key)
-        groq_client = Groq(api_key=groq_key)
+        mistral_client = Mistral(api_key=mistral_key)
 
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -176,7 +176,8 @@ class MTCaptchaTestRunner:
             await page.goto(self.test_url, wait_until="networkidle")
 
             # Get all captcha containers
-            captcha_elements = await page.query_selector_all('[id*="mtCaptcha"]')
+            # Fixed selector: use class-based selector instead of id-based
+            captcha_elements = await page.query_selector_all('div[class*="mtcaptcha"]')
             print(f"Found {len(captcha_elements)} captchas to solve")
             print()
 
@@ -200,8 +201,19 @@ class MTCaptchaTestRunner:
                     print(f"  ⚠ Could not get bounding box")
                     continue
 
+                # Scroll element into view and wait for layout
+                try:
+                    await captcha_elem.scroll_into_view_if_needed()
+                    await page.wait_for_timeout(200)
+                except Exception as e:
+                    print(f"  ⚠ Scroll failed: {e}, continuing...")
+
                 # Clip screenshot to captcha area
-                screenshot_data = await page.screenshot(clip=captcha_box, type="png")
+                try:
+                    screenshot_data = await page.screenshot(clip=captcha_box, type="png")
+                except Exception as e:
+                    print(f"  ⚠ Screenshot clipping failed: {e}, skipping this CAPTCHA")
+                    continue
 
                 captcha_screenshot = self.screenshot_dir / f"02-captcha-{idx:02d}.png"
                 with open(captcha_screenshot, "wb") as f:
@@ -239,16 +251,15 @@ class MTCaptchaTestRunner:
                     gemini_response = None
                     gemini_confidence = 0
 
-                # Phase 2: Groq (Fallback)
+                # Phase 2: Mistral (Fallback)
                 try:
-                    groq_response = None
-                    groq_confidence = 0
+                    mistral_response = None
+                    mistral_confidence = 0
 
-                    # For Groq, use text extracted by Gemini if available
+                    # For Mistral, use text extracted by Gemini if available
                     if gemini_response:
-                        groq_message = groq_client.messages.create(
-                            model="mixtral-8x7b-32768",
-                            max_tokens=50,
+                        mistral_message = mistral_client.chat.complete(
+                            model="mistral-small-latest",
                             messages=[
                                 {
                                     "role": "user",
@@ -256,18 +267,41 @@ class MTCaptchaTestRunner:
                                 }
                             ],
                         )
-                        groq_response = groq_message.content[0].text.strip()[:20]
-                        groq_confidence = 70  # Slightly lower confidence for text analysis
-                        print(f"  Groq: '{groq_response}' (confidence: {groq_confidence}%)")
+                        mistral_response = mistral_message.choices[0].message.content.strip()[:20]
+                        mistral_confidence = 70  # Slightly lower confidence for text analysis
+                        print(
+                            f"  Mistral: '{mistral_response}' (confidence: {mistral_confidence}%)"
+                        )
                 except Exception as e:
-                    print(f"  Groq error: {e}")
-                    groq_response = None
-                    groq_confidence = 0
+                    print(f"  Mistral error: {e}")
+                    mistral_response = None
+                    mistral_confidence = 0
+
+                    # For Mistral, use text extracted by Gemini if available
+                    if gemini_response:
+                        mistral_message = mistral_client.chat(
+                            model="mistral-small",
+                            messages=[
+                                {
+                                    "role": "user",
+                                    "content": f"This text appears to be from a CAPTCHA: '{gemini_response}'. What is the correct answer?",
+                                }
+                            ],
+                        )
+                        mistral_response = mistral_message.choices[0].message.content.strip()[:20]
+                        mistral_confidence = 70  # Slightly lower confidence for text analysis
+                        print(
+                            f"  Mistral: '{mistral_response}' (confidence: {mistral_confidence}%)"
+                        )
+                except Exception as e:
+                    print(f"  Mistral error: {e}")
+                    mistral_response = None
+                    mistral_confidence = 0
 
                 # Phase 3: Calculate consensus
                 responses = [
                     (gemini_response, gemini_confidence, "Gemini"),
-                    (groq_response, groq_confidence, "Groq"),
+                    (mistral_response, mistral_confidence, "Mistral"),
                 ]
 
                 # Filter valid responses

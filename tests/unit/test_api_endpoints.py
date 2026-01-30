@@ -127,8 +127,12 @@ class TestBatchCaptchaRequest:
         batch = BatchCaptchaRequest(
             batch_id="batch_001",
             requests=[
-                CaptchaSolveRequest(image_data="data1"),
-                CaptchaSolveRequest(image_data="data2"),
+                CaptchaSolveRequest(
+                    image_data="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+                ),
+                CaptchaSolveRequest(
+                    image_data="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+                ),
             ],
         )
 
@@ -142,7 +146,12 @@ class TestBatchCaptchaRequest:
         with pytest.raises(ValueError):
             BatchCaptchaRequest(
                 batch_id="batch_001",
-                requests=[CaptchaSolveRequest(image_data="data") for _ in range(101)],
+                requests=[
+                    CaptchaSolveRequest(
+                        image_data="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+                    )
+                    for _ in range(101)
+                ],
             )
 
 

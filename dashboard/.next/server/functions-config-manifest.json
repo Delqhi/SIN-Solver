@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/api/utils/logger":{},"/api/utils/errorHandler":{},"/api/utils/validators":{}}}
+{"version":1,"functions":{"/api/utils/validators":{},"/api/utils/errorHandler":{},"/api/utils/logger":{}}}

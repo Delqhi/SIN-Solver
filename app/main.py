@@ -33,7 +33,7 @@ logger = logging.getLogger("Delqhi-Platform-Orchestrator")
 app = FastAPI(
     title="Delqhi-Platform Orchestrator",
     description="Central AI-driven CAPTCHA solving API",
-    version="2.0.0",
+    version="2.1.0",
 )
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])

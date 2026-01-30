@@ -1,0 +1,521 @@
+/**
+ * 🚀 2CAPTCHA DETECTOR - WORKER MODE
+ * =======================================
+ * Detects & captures CAPTCHA challenges from 2captcha.com worker platform
+ * 
+ * Features:
+ * - Automatic CAPTCHA type detection
+ * - Screenshot capture from CAPTCHA area
+ * - Timeout tracking (60-120s per CAPTCHA)
+ * - Element interaction detection
+ * - Error resilience & auto-retry
+ */
+
+import { Page, ElementHandle, Locator } from 'playwright';
+
+export interface CaptchaDetectionResult {
+  detected: boolean;
+  type: CaptchaType;
+  elements: CaptchaElements;
+  screenshot?: Buffer;
+  screenshotBase64?: string;
+  timeoutMs: number;
+  startTime: number;
+  metadata: Record<string, any>;
+}
+
+export interface CaptchaElements {
+  imageElement?: ElementHandle<HTMLImageElement | HTMLCanvasElement>;
+  imageLocator?: Locator;
+  inputElement?: ElementHandle<HTMLInputElement>;
+  inputLocator?: Locator;
+  submitButton?: ElementHandle<HTMLButtonElement>;
+  submitButtonLocator?: Locator;
+  cannotSolveButton?: ElementHandle<HTMLButtonElement>;
+  refreshButton?: ElementHandle<HTMLButtonElement>;
+  container?: ElementHandle<HTMLDivElement>;
+  containerLocator?: Locator;
+}
+
+export enum CaptchaType {
+  ImageCaptcha = 'image_captcha',
+  TextCaptcha = 'text_captcha',
+  RecaptchaV2 = 'recaptcha_v2',
+  RecaptchaV3 = 'recaptcha_v3',
+  HCaptcha = 'hcaptcha',
+  SliderCaptcha = 'slider_captcha',
+  ClickCaptcha = 'click_captcha',
+  RotateCaptcha = 'rotate_captcha',
+  Unknown = 'unknown',
+}
+
+/**
+ * 2Captcha Detector - Main Detection Engine
+ */
+export class TwoCaptchaDetector {
+  private page: Page;
+  private timeoutMs: number = 120000; // Default 120s
+  private detectionAttempts: number = 0;
+  private maxAttempts: number = 10;
+  private waitBetweenAttemptsMs: number = 500;
+
+  constructor(page: Page, timeoutMs?: number) {
+    this.page = page;
+    if (timeoutMs) {
+      this.timeoutMs = timeoutMs;
+    }
+  }
+
+  /**
+   * Main detection method - returns complete CAPTCHA info
+   */
+  async detect(): Promise<CaptchaDetectionResult> {
+    const startTime = Date.now();
+    const result: CaptchaDetectionResult = {
+      detected: false,
+      type: CaptchaType.Unknown,
+      elements: {},
+      timeoutMs: this.timeoutMs,
+      startTime,
+      metadata: {},
+    };
+
+    try {
+      // Step 1: Wait for CAPTCHA to appear (with retries)
+      await this.waitForCaptchaPresence();
+
+      // Step 2: Detect CAPTCHA type
+      result.type = await this.detectCaptchaType();
+      result.detected = result.type !== CaptchaType.Unknown;
+
+      if (!result.detected) {
+        return result;
+      }
+
+      // Step 3: Locate all interactive elements
+      result.elements = await this.locateElements(result.type);
+
+      // Step 4: Take screenshot of CAPTCHA area
+      const screenshotBuffer = await this.captureScreenshot(
+        result.elements.containerLocator || result.elements.imageLocator
+      );
+      if (screenshotBuffer) {
+        result.screenshot = screenshotBuffer;
+        result.screenshotBase64 = screenshotBuffer.toString('base64');
+      }
+
+      // Step 5: Gather metadata
+      result.metadata = await this.gatherMetadata(result.type, result.elements);
+
+      console.log(`[CAPTCHA DETECTED] Type: ${result.type}, Elements: ${Object.keys(result.elements).length}`);
+      return result;
+    } catch (error) {
+      console.error(`[CAPTCHA DETECTION ERROR] ${error instanceof Error ? error.message : String(error)}`);
+      result.detected = false;
+      return result;
+    }
+  }
+
+  /**
+   * Wait for CAPTCHA to appear on page with dynamic waits
+   */
+  private async waitForCaptchaPresence(maxWaitMs: number = 30000): Promise<void> {
+    const startTime = Date.now();
+    this.detectionAttempts = 0;
+
+    while (Date.now() - startTime < maxWaitMs) {
+      this.detectionAttempts++;
+
+      // Check for common CAPTCHA selectors
+      const captchaFound = await Promise.race([
+        this.checkImageCaptcha(),
+        this.checkRecaptchaV2(),
+        this.checkHCaptcha(),
+        this.checkSliderCaptcha(),
+        this.checkClickCaptcha(),
+      ]).catch(() => false);
+
+      if (captchaFound) {
+        console.log(`[CAPTCHA PRESENCE] Found after ${this.detectionAttempts} attempts`);
+        return;
+      }
+
+      // Adaptive wait - reduce delay on each iteration
+      const delay = Math.max(100, this.waitBetweenAttemptsMs - (this.detectionAttempts * 10));
+      await this.page.waitForTimeout(delay);
+    }
+
+    throw new Error(`CAPTCHA not detected within ${maxWaitMs}ms`);
+  }
+
+  /**
+   * Detect CAPTCHA type by checking various selectors
+   */
+  private async detectCaptchaType(): Promise<CaptchaType> {
+    const checks = [
+      { type: CaptchaType.ImageCaptcha, check: () => this.checkImageCaptcha() },
+      { type: CaptchaType.RecaptchaV2, check: () => this.checkRecaptchaV2() },
+      { type: CaptchaType.HCaptcha, check: () => this.checkHCaptcha() },
+      { type: CaptchaType.SliderCaptcha, check: () => this.checkSliderCaptcha() },
+      { type: CaptchaType.ClickCaptcha, check: () => this.checkClickCaptcha() },
+      { type: CaptchaType.RotateCaptcha, check: () => this.checkRotateCaptcha() },
+      { type: CaptchaType.TextCaptcha, check: () => this.checkTextCaptcha() },
+    ];
+
+    for (const { type, check } of checks) {
+      try {
+        const found = await check();
+        if (found) return type;
+      } catch {
+        // Continue to next check
+      }
+    }
+
+    return CaptchaType.Unknown;
+  }
+
+  /**
+   * Check for generic image CAPTCHA (2captcha format)
+   */
+  private async checkImageCaptcha(): Promise<boolean> {
+    const selectors = [
+      'img[src*="captcha"]',
+      '.captcha__image',
+      'img.captcha-image',
+      '[class*="captcha"] img',
+      'img[alt*="captcha" i]',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check for Google reCAPTCHA v2
+   */
+  private async checkRecaptchaV2(): Promise<boolean> {
+    const selectors = [
+      'iframe[src*="recaptcha"][src*="api2"]',
+      'div.g-recaptcha',
+      'div[data-sitekey]',
+      'iframe[title*="reCAPTCHA"]',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check for hCaptcha
+   */
+  private async checkHCaptcha(): Promise<boolean> {
+    const selectors = [
+      'iframe[src*="hcaptcha"]',
+      'div.h-captcha',
+      'div[data-sitekey*="h_"]',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check for slider CAPTCHA
+   */
+  private async checkSliderCaptcha(): Promise<boolean> {
+    const selectors = [
+      '.slider-captcha',
+      '[class*="slider"][class*="captcha"]',
+      '.puzzle-captcha',
+      'input[type="range"]',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check for click-based CAPTCHA
+   */
+  private async checkClickCaptcha(): Promise<boolean> {
+    const selectors = [
+      '.click-captcha',
+      '[class*="click"][class*="captcha"]',
+      '.image-select-captcha',
+      '.click-to-verify',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check for rotate CAPTCHA
+   */
+  private async checkRotateCaptcha(): Promise<boolean> {
+    const selectors = [
+      '.rotate-captcha',
+      '[class*="rotate"][class*="captcha"]',
+      '.image-rotate-captcha',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Check for text-based CAPTCHA
+   */
+  private async checkTextCaptcha(): Promise<boolean> {
+    const selectors = [
+      'img[alt*="code" i]',
+      '[class*="text"][class*="captcha"]',
+      '.text-captcha',
+    ];
+
+    for (const selector of selectors) {
+      const exists = await this.page.$(selector);
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Locate all interactive elements for the CAPTCHA
+   */
+  private async locateElements(type: CaptchaType): Promise<CaptchaElements> {
+    const elements: CaptchaElements = {};
+
+    // Image/canvas element
+    const imageSelectorMap: Record<CaptchaType, string[]> = {
+      [CaptchaType.ImageCaptcha]: ['img[src*="captcha"]', '.captcha__image', 'img.captcha-image'],
+      [CaptchaType.TextCaptcha]: ['img[alt*="code" i]', '.text-captcha img'],
+      [CaptchaType.RecaptchaV2]: ['iframe[src*="recaptcha"]', 'div.g-recaptcha'],
+      [CaptchaType.RecaptchaV3]: ['div[data-sitekey]'],
+      [CaptchaType.HCaptcha]: ['iframe[src*="hcaptcha"]', 'div.h-captcha'],
+      [CaptchaType.SliderCaptcha]: ['.slider-captcha', 'input[type="range"]'],
+      [CaptchaType.ClickCaptcha]: ['.click-captcha', '.image-select-captcha'],
+      [CaptchaType.RotateCaptcha]: ['.rotate-captcha', '.image-rotate-captcha'],
+      [CaptchaType.Unknown]: [],
+    };
+
+    const imageSelectors = imageSelectorMap[type] || [];
+    for (const selector of imageSelectors) {
+      const locator = this.page.locator(selector).first();
+      if (await locator.isVisible().catch(() => false)) {
+        elements.imageLocator = locator;
+        elements.imageElement = await locator.elementHandle().catch(() => undefined);
+        break;
+      }
+    }
+
+    // Answer input field
+    const inputSelectors = [
+      'input[name="answer"]',
+      'input[name="captcha"]',
+      'input[placeholder*="answer" i]',
+      'input[placeholder*="code" i]',
+      'input[type="text"][class*="captcha"]',
+    ];
+
+    for (const selector of inputSelectors) {
+      const locator = this.page.locator(selector).first();
+      if (await locator.isVisible().catch(() => false)) {
+        elements.inputLocator = locator;
+        elements.inputElement = await locator.elementHandle().catch(() => undefined);
+        break;
+      }
+    }
+
+    // Submit button
+    const submitSelectors = [
+      'button[type="submit"]',
+      '.submit-button',
+      'button:has-text("Submit")',
+      'button:has-text("Verify")',
+      'button[class*="submit"]',
+    ];
+
+    for (const selector of submitSelectors) {
+      const locator = this.page.locator(selector).first();
+      if (await locator.isVisible().catch(() => false)) {
+        elements.submitButtonLocator = locator;
+        elements.submitButton = await locator.elementHandle().catch(() => undefined);
+        break;
+      }
+    }
+
+    // Cannot Solve button
+    const cannotSolveLocator = this.page.locator('button:has-text("Cannot Solve")').first();
+    if (await cannotSolveLocator.isVisible().catch(() => false)) {
+      elements.cannotSolveButton = await cannotSolveLocator.elementHandle().catch(() => undefined);
+    }
+
+    // Container for screenshot
+    const containerSelectors = [
+      '.captcha-container',
+      '[class*="captcha"][class*="box"]',
+      'form[class*="captcha"]',
+    ];
+
+    for (const selector of containerSelectors) {
+      const locator = this.page.locator(selector).first();
+      if (await locator.isVisible().catch(() => false)) {
+        elements.containerLocator = locator;
+        elements.container = await locator.elementHandle().catch(() => undefined);
+        break;
+      }
+    }
+
+    return elements;
+  }
+
+  /**
+   * Capture screenshot of CAPTCHA area
+   */
+  private async captureScreenshot(locator?: Locator): Promise<Buffer | undefined> {
+    try {
+      if (locator && (await locator.isVisible().catch(() => false))) {
+        return await locator.screenshot({
+          type: 'png',
+          mask: [this.page.locator('iframe')], // Hide iframes if present
+        });
+      }
+      return undefined;
+    } catch (error) {
+      console.warn(`[SCREENSHOT FAILED] ${error instanceof Error ? error.message : String(error)}`);
+      return undefined;
+    }
+  }
+
+  /**
+   * Gather metadata about CAPTCHA
+   */
+  private async gatherMetadata(
+    type: CaptchaType,
+    elements: CaptchaElements
+  ): Promise<Record<string, any>> {
+    const metadata: Record<string, any> = {
+      type,
+      elementCount: Object.values(elements).filter((el) => el !== undefined).length,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Get image dimensions if available
+    if (elements.imageElement) {
+      try {
+        const boundingBox = await elements.imageElement.boundingBox();
+        if (boundingBox) {
+          metadata.imageDimensions = {
+            width: boundingBox.width,
+            height: boundingBox.height,
+            x: boundingBox.x,
+            y: boundingBox.y,
+          };
+        }
+      } catch {
+        // Continue without dimensions
+      }
+    }
+
+    // Get remaining timeout
+    const elapsed = Date.now() - this.startTime;
+    metadata.elapsedMs = elapsed;
+    metadata.remainingMs = Math.max(0, this.timeoutMs - elapsed);
+    metadata.detectionAttempts = this.detectionAttempts;
+
+    return metadata;
+  }
+
+  /**
+   * Check if timeout is approaching
+   */
+  isTimeoutApproaching(warningThresholdMs: number = 10000): boolean {
+    const elapsed = Date.now() - this.startTime;
+    const remaining = this.timeoutMs - elapsed;
+    return remaining <= warningThresholdMs;
+  }
+
+  /**
+   * Get remaining time in milliseconds
+   */
+  getRemainingTime(): number {
+    const elapsed = Date.now() - this.startTime;
+    return Math.max(0, this.timeoutMs - elapsed);
+  }
+
+  /**
+   * Get formatted remaining time
+   */
+  getFormattedRemainingTime(): string {
+    const remaining = this.getRemainingTime();
+    const seconds = Math.floor(remaining / 1000);
+    const milliseconds = remaining % 1000;
+    return `${seconds}s ${milliseconds}ms`;
+  }
+}
+
+/**
+ * Quick detection helper
+ */
+export async function detectCaptchaQuick(page: Page): Promise<CaptchaDetectionResult> {
+  const detector = new TwoCaptchaDetector(page);
+  return detector.detect();
+}
+
+/**
+ * Detection with custom timeout
+ */
+export async function detectCaptchaWithTimeout(
+  page: Page,
+  timeoutMs: number
+): Promise<CaptchaDetectionResult> {
+  const detector = new TwoCaptchaDetector(page, timeoutMs);
+  return detector.detect();
+}
+
+/**
+ * Poll for CAPTCHA presence with callback
+ */
+export async function pollForCaptcha(
+  page: Page,
+  maxWaitMs: number = 60000,
+  onDetected?: (result: CaptchaDetectionResult) => Promise<void>
+): Promise<CaptchaDetectionResult | null> {
+  const startTime = Date.now();
+  let lastResult: CaptchaDetectionResult | null = null;
+
+  while (Date.now() - startTime < maxWaitMs) {
+    const result = await detectCaptchaQuick(page);
+
+    if (result.detected) {
+      if (onDetected) {
+        await onDetected(result);
+      }
+      return result;
+    }
+
+    lastResult = result;
+    await page.waitForTimeout(500);
+  }
+
+  return lastResult;
+}

@@ -218,7 +218,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Builder-1.1 Captcha Worker",
     description="Unified CAPTCHA Solver with YOLO + OCR + Multi-AI Consensus (Best Practices 2026)",
-    version="3.0.0",
+    version="2.1.0",
     lifespan=lifespan,
 )
 
@@ -242,7 +242,7 @@ async def health_check():
     health_status = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "version": "3.0.0",
+        "version": "2.1.0",
         "services": {
             "unified_solver": unified_solver is not None,
             "veto_engine": veto_engine is not None,

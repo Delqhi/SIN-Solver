@@ -1,0 +1,31 @@
+{
+  "name": "2captcha-worker",
+  "version": "1.0.0",
+  "description": "Steel Browser automation for 2Captcha.com login and CAPTCHA solving",
+  "main": "src/browser.ts",
+  "scripts": {
+    "start": "ts-node src/browser.ts",
+    "dev": "nodemon --exec ts-node src/browser.ts",
+    "build": "tsc",
+    "lint": "eslint src --ext .ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "playwright": "^1.40.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.6",
+    "@types/winston": "^2.4.4",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "winston": "^3.19.0"
+  }
+}
