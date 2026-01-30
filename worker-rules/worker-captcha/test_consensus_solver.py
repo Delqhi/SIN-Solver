@@ -102,9 +102,11 @@ class TestAgent1_GeminiVision:
         """Test Agent1 solve with mocked API"""
         agent = Agent1_GeminiVision()
 
-        with patch.object(agent, "client", new_callable=MagicMock):
+        with patch("consensus_solver.genai.GenerativeModel") as mock_model:
             # Mock successful response
-            agent.client.generate_content = MagicMock(return_value=MagicMock(text="TEST123"))
+            mock_instance = MagicMock()
+            mock_instance.generate_content.return_value = MagicMock(text="TEST123")
+            mock_model.return_value = mock_instance
 
             response = await agent.solve(sample_captcha_image, timeout=10.0)
 
@@ -117,7 +119,7 @@ class TestAgent1_GeminiVision:
     @pytest.mark.asyncio
     async def test_agent_timeout_handling(self):
         """Test Agent1 timeout handling"""
-        agent = Agent1_GeminiVision(timeout=0.1)  # Very short timeout
+        agent = Agent1_GeminiVision()  # Very short timeout
 
         with patch.object(agent, "client") as mock_client:
             # Make API call hang
@@ -126,7 +128,7 @@ class TestAgent1_GeminiVision:
 
             mock_client.generate_content = MagicMock(side_effect=hang)
 
-            response = await agent.solve("dummy_image.png")
+            response = await agent.solve("dummy_image.png", timeout=0.1)
 
             assert response.solution is None
             assert response.confidence == 0.0
@@ -136,12 +138,12 @@ class TestAgent1_GeminiVision:
     @pytest.mark.asyncio
     async def test_agent_api_error_handling(self):
         """Test Agent1 API error handling"""
-        agent = Agent1_GeminiVision(timeout=5.0)
+        agent = Agent1_GeminiVision()
 
         with patch.object(agent, "client") as mock_client:
             mock_client.generate_content = MagicMock(side_effect=Exception("API Error"))
 
-            response = await agent.solve("dummy_image.png")
+            response = await agent.solve("dummy_image.png", timeout=0.1)
 
             assert response.solution is None
             assert response.confidence == 0.0
@@ -152,8 +154,8 @@ class TestAgent1_GeminiVision:
     async def test_agent_missing_api_key(self):
         """Test Agent1 graceful degradation without API key"""
         with patch.dict("os.environ", {"GEMINI_API_KEY": ""}):
-            agent = Agent1_GeminiVision(timeout=5.0)
-            response = await agent.solve("dummy_image.png")
+            agent = Agent1_GeminiVision()
+            response = await agent.solve("dummy_image.png", timeout=0.1)
 
             # Should fail gracefully
             assert response.solution is None
@@ -171,7 +173,7 @@ class TestAgent2_TesseractOCR:
     @pytest.mark.asyncio
     async def test_agent_initialization(self):
         """Test Agent2 can be initialized"""
-        agent = Agent2_TesseractOCR(timeout=5.0)
+        agent = Agent2_TesseractOCR()
         assert agent is not None
         assert agent.agent_type == AgentType.TESSERACT_OCR
         assert agent.timeout == 5.0
@@ -179,7 +181,7 @@ class TestAgent2_TesseractOCR:
     @pytest.mark.asyncio
     async def test_agent_solve_with_valid_image(self, sample_captcha_image):
         """Test Agent2 solve with valid image"""
-        agent = Agent2_TesseractOCR(timeout=10.0)
+        agent = Agent2_TesseractOCR()
 
         # Mock pytesseract
         with patch("consensus_solver.pytesseract") as mock_pytesseract:
@@ -195,7 +197,7 @@ class TestAgent2_TesseractOCR:
     @pytest.mark.asyncio
     async def test_agent_timeout_handling(self):
         """Test Agent2 timeout handling"""
-        agent = Agent2_TesseractOCR(timeout=0.01)  # Very short timeout
+        agent = Agent2_TesseractOCR()  # Very short timeout
 
         with patch("consensus_solver.pytesseract") as mock_pytesseract:
 
@@ -204,7 +206,7 @@ class TestAgent2_TesseractOCR:
 
             mock_pytesseract.image_to_string = MagicMock(side_effect=hang)
 
-            response = await agent.solve("dummy_image.png")
+            response = await agent.solve("dummy_image.png", timeout=0.1)
 
             assert response.solution is None
             assert response.error is not None
@@ -212,7 +214,7 @@ class TestAgent2_TesseractOCR:
     @pytest.mark.asyncio
     async def test_agent_invalid_image(self):
         """Test Agent2 with invalid image file"""
-        agent = Agent2_TesseractOCR(timeout=5.0)
+        agent = Agent2_TesseractOCR()
 
         response = await agent.solve("nonexistent_image.png")
 
@@ -223,7 +225,7 @@ class TestAgent2_TesseractOCR:
     @pytest.mark.asyncio
     async def test_agent_empty_image(self, sample_captcha_image):
         """Test Agent2 with empty OCR result"""
-        agent = Agent2_TesseractOCR(timeout=5.0)
+        agent = Agent2_TesseractOCR()
 
         with patch("consensus_solver.pytesseract") as mock_pytesseract:
             mock_pytesseract.image_to_string = MagicMock(return_value="")
@@ -245,7 +247,7 @@ class TestAgent3_PatternRecognition:
     @pytest.mark.asyncio
     async def test_agent_initialization(self):
         """Test Agent3 can be initialized"""
-        agent = Agent3_PatternRecognition(timeout=5.0)
+        agent = Agent3_PatternRecognition()
         assert agent is not None
         assert agent.agent_type == AgentType.PATTERN_RECOGNITION
         assert agent.timeout == 5.0
@@ -253,7 +255,7 @@ class TestAgent3_PatternRecognition:
     @pytest.mark.asyncio
     async def test_agent_solve_with_mock(self):
         """Test Agent3 solve with mocked AWS API"""
-        agent = Agent3_PatternRecognition(timeout=5.0)
+        agent = Agent3_PatternRecognition()
 
         with patch.object(agent, "client") as mock_client:
             # Mock AWS Rekognition response
@@ -265,7 +267,7 @@ class TestAgent3_PatternRecognition:
                 }
             )
 
-            response = await agent.solve("dummy_image.png")
+            response = await agent.solve("dummy_image.png", timeout=0.1)
 
             assert response.agent_type == AgentType.PATTERN_RECOGNITION
             assert response.solution is not None
@@ -274,12 +276,12 @@ class TestAgent3_PatternRecognition:
     @pytest.mark.asyncio
     async def test_agent_aws_credentials_error(self):
         """Test Agent3 graceful degradation without AWS credentials"""
-        agent = Agent3_PatternRecognition(timeout=5.0)
+        agent = Agent3_PatternRecognition()
 
         with patch.object(agent, "client") as mock_client:
             mock_client.detect_text = MagicMock(side_effect=Exception("AWS credentials not found"))
 
-            response = await agent.solve("dummy_image.png")
+            response = await agent.solve("dummy_image.png", timeout=0.1)
 
             assert response.solution is None
             assert response.error is not None

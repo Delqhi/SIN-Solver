@@ -1,0 +1,257 @@
+version: '3.9'
+
+services:
+  # ════════════════════════════════════════════════════════════════════════════
+  # CAPTCHA WORKER SERVICE
+  # ════════════════════════════════════════════════════════════════════════════
+  
+  captcha-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: captcha-worker-dev
+    restart: unless-stopped
+    
+    environment:
+      # Core Configuration
+      WORKER_TYPE: "captcha"
+      WORKER_NAME: "captcha-worker-001"
+      ACCOUNT_ID: "worker-001"
+      CAPTCHA_TYPE: "text"
+      
+      # Monitoring Configuration
+      MONITOR_PORT: "8080"
+      MONITOR_HOST: "0.0.0.0"  # Listen on all interfaces
+      STATS_DIR: "/app/stats"
+      LOG_LEVEL: "INFO"
+      
+      # Threshold Configuration
+      TARGET_SUCCESS_RATE: "96.0"
+      EMERGENCY_STOP_THRESHOLD: "95.0"
+      WARNING_THRESHOLD: "96.0"
+      
+      # Behavior Simulation
+      HUMAN_LIKE_BEHAVIOR: "true"
+      MICRO_BREAK_ENABLED: "true"
+      PROXY_ROTATION: "true"
+      
+      # Database (Optional - for future integration)
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/captcha_db"
+      REDIS_URL: "redis://redis:6379/0"
+      
+      # Webhook Configuration (Optional)
+      WEBHOOK_URL: ""  # Set via -e if needed
+      WEBHOOK_SECRET: ""
+      
+      # Python Configuration
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    
+    ports:
+      # Main monitoring dashboard
+      - "8080:8080"
+      # Additional ports for future services
+      - "8081:8081"
+      - "8082:8082"
+    
+    volumes:
+      # Mount local code for development (hot-reload)
+      - ./monitor.py:/app/monitor.py:ro
+      - ./session_manager.py:/app/session_manager.py:ro
+      - ./human_behavior.py:/app/human_behavior.py:ro
+      - ./captcha_worker_integrated.py:/app/captcha_worker_integrated.py:ro
+      - ./consensus_solver.py:/app/consensus_solver.py:ro
+      
+      # Statistics persistence (survives container restart)
+      - captcha-stats:/app/stats
+      
+      # Logs (for debugging)
+      - captcha-logs:/app/logs
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - sin-solver
+    
+    depends_on:
+      - postgres
+      - redis
+    
+    # Resource limits (prevent runaway consumption)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+        labels: "worker-type=captcha"
+  
+  # ════════════════════════════════════════════════════════════════════════════
+  # SUPPORTING SERVICES
+  # ════════════════════════════════════════════════════════════════════════════
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: captcha-postgres-dev
+    restart: unless-stopped
+    
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: captcha_db
+    
+    ports:
+      - "5432:5432"
+    
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    
+    networks:
+      - sin-solver
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  redis:
+    image: redis:7-alpine
+    container_name: captcha-redis-dev
+    restart: unless-stopped
+    
+    command: redis-server --appendonly yes
+    
+    ports:
+      - "6379:6379"
+    
+    volumes:
+      - redis-data:/data
+    
+    networks:
+      - sin-solver
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  # ════════════════════════════════════════════════════════════════════════════
+  # MONITORING SERVICES (OPTIONAL)
+  # ════════════════════════════════════════════════════════════════════════════
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: captcha-prometheus-dev
+    restart: unless-stopped
+    
+    ports:
+      - "9090:9090"
+    
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    
+    networks:
+      - sin-solver
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: captcha-grafana-dev
+    restart: unless-stopped
+    
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    
+    ports:
+      - "3001:3000"
+    
+    volumes:
+      - grafana-data:/var/lib/grafana
+    
+    depends_on:
+      - prometheus
+    
+    networks:
+      - sin-solver
+
+# ════════════════════════════════════════════════════════════════════════════
+# VOLUMES (Persistent Storage)
+# ════════════════════════════════════════════════════════════════════════════
+
+volumes:
+  captcha-stats:
+    driver: local
+  
+  captcha-logs:
+    driver: local
+  
+  postgres-data:
+    driver: local
+  
+  redis-data:
+    driver: local
+  
+  prometheus-data:
+    driver: local
+  
+  grafana-data:
+    driver: local
+
+# ════════════════════════════════════════════════════════════════════════════
+# NETWORKS (Service Communication)
+# ════════════════════════════════════════════════════════════════════════════
+
+networks:
+  sin-solver:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+# ════════════════════════════════════════════════════════════════════════════
+# DOCKER-COMPOSE USAGE
+# ════════════════════════════════════════════════════════════════════════════
+#
+# Start all services:
+#   docker-compose up -d
+#
+# View logs:
+#   docker-compose logs -f captcha-worker
+#
+# Access monitoring dashboard:
+#   http://localhost:8080       (Built-in Flask dashboard)
+#   http://localhost:3001       (Grafana - requires setup)
+#   http://localhost:9090       (Prometheus)
+#
+# Stop all services:
+#   docker-compose down
+#
+# Clean everything (including volumes):
+#   docker-compose down -v
+#
+# Rebuild image:
+#   docker-compose build --no-cache
+#
+# ════════════════════════════════════════════════════════════════════════════
