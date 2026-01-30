@@ -763,3 +763,7 @@ SIN-Solver is built on the shoulders of amazing open-source projects:
 [GitHub](https://github.com/YOUR_ORG/SIN-Solver) · [Documentation](./docs/) · [Report Issue](https://github.com/YOUR_ORG/SIN-Solver/issues) · [GitHub Discussions](https://github.com/YOUR_ORG/SIN-Solver/discussions)
 
 </div>
+# CI/CD Verification
+- Date: Fr 30 Jan 2026 00:38:41 CET
+- Branch: test/phase-15.1-ci-verification
+- Status: Ready for workflow testing
