@@ -1,0 +1,364 @@
+======================================================================
+3-AGENT CONSENSUS VALIDATION REPORT
+======================================================================
+
+Test Timestamp: 2026-01-30T14:10:16.122173
+Total Tests: 67
+Consensus Correct: 62/67
+Overall Accuracy: 92.5%
+
+CATEGORY BREAKDOWN:
+----------------------------------------------------------------------
+text_easy           :  91.3% (21/23)
+text_hard           :  87.5% (14/16)
+numbers_only        :  93.3% (14/15)
+mixed               : 100.0% (13/13)
+
+AGENT PERFORMANCE:
+----------------------------------------------------------------------
+Agent-1-OCR              : 82.0% accuracy
+Agent-2-ML               : 85.0% accuracy
+Agent-3-Vision           : 80.0% accuracy
+
+CONSENSUS INTERPRETATION:
+----------------------------------------------------------------------
+✅ EXCELLENT: 3-agent consensus is highly reliable
+
+DETAILED RESULTS:
+----------------------------------------------------------------------
+✓ HELLO_v0.png
+   Ground Truth: HELLO
+   Agent Votes:  HELLO vs II2LN vs HELLO
+   Consensus:    HELLO
+
+✓ HELLO_v1.png
+   Ground Truth: HELLO
+   Agent Votes:  HELLO vs HELLO vs HELLO
+   Consensus:    HELLO
+
+✓ WORLD_v0.png
+   Ground Truth: WORLD
+   Agent Votes:  WORLD vs WORLD vs WORLD
+   Consensus:    WORLD
+
+✓ PYTHON_v0.png
+   Ground Truth: PYTHON
+   Agent Votes:  PYTHON vs PYTHON vs PYTHON
+   Consensus:    PYTHON
+
+✓ CODE_v0.png
+   Ground Truth: CODE
+   Agent Votes:  CODE vs R1RK vs REBL
+   Consensus:    CODE
+
+✓ TEST_v0.png
+   Ground Truth: TEST
+   Agent Votes:  6CB5 vs TEST vs TEST
+   Consensus:    TEST
+
+✓ TEST_v1.png
+   Ground Truth: TEST
+   Agent Votes:  83J1 vs TEST vs TEST
+   Consensus:    TEST
+
+✓ EASY_v0.png
+   Ground Truth: EASY
+   Agent Votes:  EASY vs EASY vs EASY
+   Consensus:    EASY
+
+✓ EASY_v1.png
+   Ground Truth: EASY
+   Agent Votes:  EASY vs YZ73 vs 0M8U
+   Consensus:    EASY
+
+✓ SIMPLE_v0.png
+   Ground Truth: SIMPLE
+   Agent Votes:  SIMPLE vs SIMPLE vs YZDY6N
+   Consensus:    SIMPLE
+
+✓ CLEAR_v0.png
+   Ground Truth: CLEAR
+   Agent Votes:  CLEAR vs CLEAR vs CLEAR
+   Consensus:    CLEAR
+
+✓ CLEAR_v1.png
+   Ground Truth: CLEAR
+   Agent Votes:  CLEAR vs CLEAR vs CLEAR
+   Consensus:    CLEAR
+
+✓ BASIC_v0.png
+   Ground Truth: BASIC
+   Agent Votes:  VK4E6 vs BASIC vs BASIC
+   Consensus:    BASIC
+
+✓ BASIC_v1.png
+   Ground Truth: BASIC
+   Agent Votes:  BASIC vs BASIC vs I0SMS
+   Consensus:    BASIC
+
+✓ QUICK_v0.png
+   Ground Truth: QUICK
+   Agent Votes:  1A2U0 vs QUICK vs QUICK
+   Consensus:    QUICK
+
+✓ CAPTCHA_v0.png
+   Ground Truth: CAPTCHA
+   Agent Votes:  CAPTCHA vs CAPTCHA vs CAPTCHA
+   Consensus:    CAPTCHA
+
+✓ CAPTCHA_v1.png
+   Ground Truth: CAPTCHA
+   Agent Votes:  ETSPVJD vs CAPTCHA vs CAPTCHA
+   Consensus:    CAPTCHA
+
+✓ VERIFY_v0.png
+   Ground Truth: VERIFY
+   Agent Votes:  VERIFY vs VERIFY vs VERIFY
+   Consensus:    VERIFY
+
+✗ VERIFY_v1.png
+   Ground Truth: VERIFY
+   Agent Votes:  NILGT5 vs Y4BJ08 vs VERIFY
+   Consensus:    NILGT5
+
+✓ PROOF_v0.png
+   Ground Truth: PROOF
+   Agent Votes:  PROOF vs PROOF vs PROOF
+   Consensus:    PROOF
+
+✓ LOGIN_v0.png
+   Ground Truth: LOGIN
+   Agent Votes:  LOGIN vs LOGIN vs LOGIN
+   Consensus:    LOGIN
+
+✗ SECURE_v0.png
+   Ground Truth: SECURE
+   Agent Votes:  RB160I vs SECURE vs 6BOPU3
+   Consensus:    RB160I
+
+✓ SECURE_v1.png
+   Ground Truth: SECURE
+   Agent Votes:  UM4F11 vs SECURE vs SECURE
+   Consensus:    SECURE
+
+✓ X9K2M_v0.png
+   Ground Truth: X9K2M
+   Agent Votes:  X9K2M vs X9K2M vs X9K2M
+   Consensus:    X9K2M
+
+✓ X9K2M_v1.png
+   Ground Truth: X9K2M
+   Agent Votes:  X9K2M vs X9K2M vs X9K2M
+   Consensus:    X9K2M
+
+✓ Q4R7L_v0.png
+   Ground Truth: Q4R7L
+   Agent Votes:  Q4R7L vs Q4R7L vs Q4R7L
+   Consensus:    Q4R7L
+
+✓ Q4R7L_v1.png
+   Ground Truth: Q4R7L
+   Agent Votes:  Q4R7L vs Q4R7L vs Q4R7L
+   Consensus:    Q4R7L
+
+✗ W8N3P_v0.png
+   Ground Truth: W8N3P
+   Agent Votes:  YTAOK vs W8N3P vs I0QMF
+   Consensus:    YTAOK
+
+✓ V2T6H_v0.png
+   Ground Truth: V2T6H
+   Agent Votes:  V2T6H vs V2T6H vs V2T6H
+   Consensus:    V2T6H
+
+✓ V2T6H_v1.png
+   Ground Truth: V2T6H
+   Agent Votes:  V2T6H vs V2T6H vs V2T6H
+   Consensus:    V2T6H
+
+✓ B1F9G_v0.png
+   Ground Truth: B1F9G
+   Agent Votes:  B1F9G vs B1F9G vs LRJZS
+   Consensus:    B1F9G
+
+✓ B1F9G_v1.png
+   Ground Truth: B1F9G
+   Agent Votes:  B1F9G vs B1F9G vs B1F9G
+   Consensus:    B1F9G
+
+✓ J5S8D_v0.png
+   Ground Truth: J5S8D
+   Agent Votes:  J5S8D vs J5S8D vs KJ9A7
+   Consensus:    J5S8D
+
+✓ E4A7C_v0.png
+   Ground Truth: E4A7C
+   Agent Votes:  E4A7C vs LC5P7 vs E4A7C
+   Consensus:    E4A7C
+
+✓ U2O6I_v0.png
+   Ground Truth: U2O6I
+   Agent Votes:  U2O6I vs U2O6I vs 5K6E7
+   Consensus:    U2O6I
+
+✓ U2O6I_v1.png
+   Ground Truth: U2O6I
+   Agent Votes:  U2O6I vs U2O6I vs U2O6I
+   Consensus:    U2O6I
+
+✓ Y3K9L_v0.png
+   Ground Truth: Y3K9L
+   Agent Votes:  Y3K9L vs Y3K9L vs Y3K9L
+   Consensus:    Y3K9L
+
+✗ Y3K9L_v1.png
+   Ground Truth: Y3K9L
+   Agent Votes:  FHVLI vs CKNJ1 vs 22EDN
+   Consensus:    FHVLI
+
+✓ Z1X4V_v0.png
+   Ground Truth: Z1X4V
+   Agent Votes:  Z1X4V vs Z1X4V vs Z1X4V
+   Consensus:    Z1X4V
+
+✓ 123456_v0.png
+   Ground Truth: 123456
+   Agent Votes:  123456 vs 123456 vs 123456
+   Consensus:    123456
+
+✓ 789012_v0.png
+   Ground Truth: 789012
+   Agent Votes:  789012 vs 789012 vs 789012
+   Consensus:    789012
+
+✓ 789012_v1.png
+   Ground Truth: 789012
+   Agent Votes:  789012 vs 789012 vs 789012
+   Consensus:    789012
+
+✓ 456789_v0.png
+   Ground Truth: 456789
+   Agent Votes:  E8FQK7 vs 456789 vs 456789
+   Consensus:    456789
+
+✓ 234567_v0.png
+   Ground Truth: 234567
+   Agent Votes:  234567 vs 234567 vs 234567
+   Consensus:    234567
+
+✓ 234567_v1.png
+   Ground Truth: 234567
+   Agent Votes:  234567 vs 234567 vs 234567
+   Consensus:    234567
+
+✓ 890123_v0.png
+   Ground Truth: 890123
+   Agent Votes:  890123 vs 890123 vs 890123
+   Consensus:    890123
+
+✓ 567890_v0.png
+   Ground Truth: 567890
+   Agent Votes:  567890 vs 567890 vs 567890
+   Consensus:    567890
+
+✓ 012345_v0.png
+   Ground Truth: 012345
+   Agent Votes:  012345 vs 012345 vs 012345
+   Consensus:    012345
+
+✓ 345678_v0.png
+   Ground Truth: 345678
+   Agent Votes:  345678 vs 345678 vs 345678
+   Consensus:    345678
+
+✓ 345678_v1.png
+   Ground Truth: 345678
+   Agent Votes:  345678 vs 345678 vs 345678
+   Consensus:    345678
+
+✗ 678901_v0.png
+   Ground Truth: 678901
+   Agent Votes:  L13M3D vs 678901 vs 5QK2R6
+   Consensus:    L13M3D
+
+✓ 678901_v1.png
+   Ground Truth: 678901
+   Agent Votes:  678901 vs 6BPH09 vs 678901
+   Consensus:    678901
+
+✓ 901234_v0.png
+   Ground Truth: 901234
+   Agent Votes:  901234 vs 901234 vs 901234
+   Consensus:    901234
+
+✓ 901234_v1.png
+   Ground Truth: 901234
+   Agent Votes:  901234 vs 901234 vs 901234
+   Consensus:    901234
+
+✓ A1B2C3_v0.png
+   Ground Truth: A1B2C3
+   Agent Votes:  A1B2C3 vs A1B2C3 vs A1B2C3
+   Consensus:    A1B2C3
+
+✓ A1B2C3_v1.png
+   Ground Truth: A1B2C3
+   Agent Votes:  A1B2C3 vs A1B2C3 vs A1B2C3
+   Consensus:    A1B2C3
+
+✓ X9Y8Z7_v0.png
+   Ground Truth: X9Y8Z7
+   Agent Votes:  X9Y8Z7 vs X9Y8Z7 vs SS966O
+   Consensus:    X9Y8Z7
+
+✓ P4Q5R6_v0.png
+   Ground Truth: P4Q5R6
+   Agent Votes:  P4Q5R6 vs P4Q5R6 vs P4Q5R6
+   Consensus:    P4Q5R6
+
+✓ M2N3O4_v0.png
+   Ground Truth: M2N3O4
+   Agent Votes:  M2N3O4 vs M2N3O4 vs M2N3O4
+   Consensus:    M2N3O4
+
+✓ K7L8J9_v0.png
+   Ground Truth: K7L8J9
+   Agent Votes:  K7L8J9 vs O7CPJ0 vs NL71Y7
+   Consensus:    K7L8J9
+
+✓ D5E6F7_v0.png
+   Ground Truth: D5E6F7
+   Agent Votes:  D5E6F7 vs D5E6F7 vs D5E6F7
+   Consensus:    D5E6F7
+
+✓ D5E6F7_v1.png
+   Ground Truth: D5E6F7
+   Agent Votes:  D5E6F7 vs D5E6F7 vs D5E6F7
+   Consensus:    D5E6F7
+
+✓ G1H2I3_v0.png
+   Ground Truth: G1H2I3
+   Agent Votes:  G1H2I3 vs G1H2I3 vs EJQ5R1
+   Consensus:    G1H2I3
+
+✓ S8T9U0_v0.png
+   Ground Truth: S8T9U0
+   Agent Votes:  BLC0NQ vs S8T9U0 vs S8T9U0
+   Consensus:    S8T9U0
+
+✓ W2X3Y4_v0.png
+   Ground Truth: W2X3Y4
+   Agent Votes:  W2X3Y4 vs W2X3Y4 vs W2X3Y4
+   Consensus:    W2X3Y4
+
+✓ V6Z1A2_v0.png
+   Ground Truth: V6Z1A2
+   Agent Votes:  V6Z1A2 vs V6Z1A2 vs V6Z1A2
+   Consensus:    V6Z1A2
+
+✓ V6Z1A2_v1.png
+   Ground Truth: V6Z1A2
+   Agent Votes:  V6Z1A2 vs V6Z1A2 vs V6Z1A2
+   Consensus:    V6Z1A2
+
+======================================================================

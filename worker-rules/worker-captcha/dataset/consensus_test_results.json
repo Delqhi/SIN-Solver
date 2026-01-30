@@ -1,0 +1,1908 @@
+{
+  "summary": {
+    "total_tests": 67,
+    "correct": 62,
+    "accuracy": 92.53731343283582,
+    "category_stats": {
+      "text_easy": {
+        "total": 23,
+        "correct": 21,
+        "accuracy": 91.30434782608695
+      },
+      "text_hard": {
+        "total": 16,
+        "correct": 14,
+        "accuracy": 87.5
+      },
+      "numbers_only": {
+        "total": 15,
+        "correct": 14,
+        "accuracy": 93.33333333333333
+      },
+      "mixed": {
+        "total": 13,
+        "correct": 13,
+        "accuracy": 100.0
+      }
+    },
+    "timestamp": "2026-01-30T14:10:16.122173"
+  },
+  "detailed_results": [
+    {
+      "filename": "HELLO_v0.png",
+      "ground_truth": "HELLO",
+      "agent_votes": [
+        "HELLO",
+        "II2LN",
+        "HELLO"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "HELLO",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "II2LN",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "HELLO",
+          "correct": true
+        }
+      ],
+      "consensus": "HELLO",
+      "correct": true
+    },
+    {
+      "filename": "HELLO_v1.png",
+      "ground_truth": "HELLO",
+      "agent_votes": [
+        "HELLO",
+        "HELLO",
+        "HELLO"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "HELLO",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "HELLO",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "HELLO",
+          "correct": true
+        }
+      ],
+      "consensus": "HELLO",
+      "correct": true
+    },
+    {
+      "filename": "WORLD_v0.png",
+      "ground_truth": "WORLD",
+      "agent_votes": [
+        "WORLD",
+        "WORLD",
+        "WORLD"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "WORLD",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "WORLD",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "WORLD",
+          "correct": true
+        }
+      ],
+      "consensus": "WORLD",
+      "correct": true
+    },
+    {
+      "filename": "PYTHON_v0.png",
+      "ground_truth": "PYTHON",
+      "agent_votes": [
+        "PYTHON",
+        "PYTHON",
+        "PYTHON"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "PYTHON",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "PYTHON",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "PYTHON",
+          "correct": true
+        }
+      ],
+      "consensus": "PYTHON",
+      "correct": true
+    },
+    {
+      "filename": "CODE_v0.png",
+      "ground_truth": "CODE",
+      "agent_votes": [
+        "CODE",
+        "R1RK",
+        "REBL"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "CODE",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "R1RK",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "REBL",
+          "correct": false
+        }
+      ],
+      "consensus": "CODE",
+      "correct": true
+    },
+    {
+      "filename": "TEST_v0.png",
+      "ground_truth": "TEST",
+      "agent_votes": [
+        "6CB5",
+        "TEST",
+        "TEST"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "6CB5",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "TEST",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "TEST",
+          "correct": true
+        }
+      ],
+      "consensus": "TEST",
+      "correct": true
+    },
+    {
+      "filename": "TEST_v1.png",
+      "ground_truth": "TEST",
+      "agent_votes": [
+        "83J1",
+        "TEST",
+        "TEST"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "83J1",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "TEST",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "TEST",
+          "correct": true
+        }
+      ],
+      "consensus": "TEST",
+      "correct": true
+    },
+    {
+      "filename": "EASY_v0.png",
+      "ground_truth": "EASY",
+      "agent_votes": [
+        "EASY",
+        "EASY",
+        "EASY"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "EASY",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "EASY",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "EASY",
+          "correct": true
+        }
+      ],
+      "consensus": "EASY",
+      "correct": true
+    },
+    {
+      "filename": "EASY_v1.png",
+      "ground_truth": "EASY",
+      "agent_votes": [
+        "EASY",
+        "YZ73",
+        "0M8U"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "EASY",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "YZ73",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "0M8U",
+          "correct": false
+        }
+      ],
+      "consensus": "EASY",
+      "correct": true
+    },
+    {
+      "filename": "SIMPLE_v0.png",
+      "ground_truth": "SIMPLE",
+      "agent_votes": [
+        "SIMPLE",
+        "SIMPLE",
+        "YZDY6N"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "SIMPLE",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "SIMPLE",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "YZDY6N",
+          "correct": false
+        }
+      ],
+      "consensus": "SIMPLE",
+      "correct": true
+    },
+    {
+      "filename": "CLEAR_v0.png",
+      "ground_truth": "CLEAR",
+      "agent_votes": [
+        "CLEAR",
+        "CLEAR",
+        "CLEAR"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "CLEAR",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "CLEAR",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "CLEAR",
+          "correct": true
+        }
+      ],
+      "consensus": "CLEAR",
+      "correct": true
+    },
+    {
+      "filename": "CLEAR_v1.png",
+      "ground_truth": "CLEAR",
+      "agent_votes": [
+        "CLEAR",
+        "CLEAR",
+        "CLEAR"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "CLEAR",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "CLEAR",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "CLEAR",
+          "correct": true
+        }
+      ],
+      "consensus": "CLEAR",
+      "correct": true
+    },
+    {
+      "filename": "BASIC_v0.png",
+      "ground_truth": "BASIC",
+      "agent_votes": [
+        "VK4E6",
+        "BASIC",
+        "BASIC"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "VK4E6",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "BASIC",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "BASIC",
+          "correct": true
+        }
+      ],
+      "consensus": "BASIC",
+      "correct": true
+    },
+    {
+      "filename": "BASIC_v1.png",
+      "ground_truth": "BASIC",
+      "agent_votes": [
+        "BASIC",
+        "BASIC",
+        "I0SMS"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "BASIC",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "BASIC",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "I0SMS",
+          "correct": false
+        }
+      ],
+      "consensus": "BASIC",
+      "correct": true
+    },
+    {
+      "filename": "QUICK_v0.png",
+      "ground_truth": "QUICK",
+      "agent_votes": [
+        "1A2U0",
+        "QUICK",
+        "QUICK"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "1A2U0",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "QUICK",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "QUICK",
+          "correct": true
+        }
+      ],
+      "consensus": "QUICK",
+      "correct": true
+    },
+    {
+      "filename": "CAPTCHA_v0.png",
+      "ground_truth": "CAPTCHA",
+      "agent_votes": [
+        "CAPTCHA",
+        "CAPTCHA",
+        "CAPTCHA"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "CAPTCHA",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "CAPTCHA",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "CAPTCHA",
+          "correct": true
+        }
+      ],
+      "consensus": "CAPTCHA",
+      "correct": true
+    },
+    {
+      "filename": "CAPTCHA_v1.png",
+      "ground_truth": "CAPTCHA",
+      "agent_votes": [
+        "ETSPVJD",
+        "CAPTCHA",
+        "CAPTCHA"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "ETSPVJD",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "CAPTCHA",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "CAPTCHA",
+          "correct": true
+        }
+      ],
+      "consensus": "CAPTCHA",
+      "correct": true
+    },
+    {
+      "filename": "VERIFY_v0.png",
+      "ground_truth": "VERIFY",
+      "agent_votes": [
+        "VERIFY",
+        "VERIFY",
+        "VERIFY"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "VERIFY",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "VERIFY",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "VERIFY",
+          "correct": true
+        }
+      ],
+      "consensus": "VERIFY",
+      "correct": true
+    },
+    {
+      "filename": "VERIFY_v1.png",
+      "ground_truth": "VERIFY",
+      "agent_votes": [
+        "NILGT5",
+        "Y4BJ08",
+        "VERIFY"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "NILGT5",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "Y4BJ08",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "VERIFY",
+          "correct": true
+        }
+      ],
+      "consensus": "NILGT5",
+      "correct": false
+    },
+    {
+      "filename": "PROOF_v0.png",
+      "ground_truth": "PROOF",
+      "agent_votes": [
+        "PROOF",
+        "PROOF",
+        "PROOF"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "PROOF",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "PROOF",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "PROOF",
+          "correct": true
+        }
+      ],
+      "consensus": "PROOF",
+      "correct": true
+    },
+    {
+      "filename": "LOGIN_v0.png",
+      "ground_truth": "LOGIN",
+      "agent_votes": [
+        "LOGIN",
+        "LOGIN",
+        "LOGIN"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "LOGIN",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "LOGIN",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "LOGIN",
+          "correct": true
+        }
+      ],
+      "consensus": "LOGIN",
+      "correct": true
+    },
+    {
+      "filename": "SECURE_v0.png",
+      "ground_truth": "SECURE",
+      "agent_votes": [
+        "RB160I",
+        "SECURE",
+        "6BOPU3"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "RB160I",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "SECURE",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "6BOPU3",
+          "correct": false
+        }
+      ],
+      "consensus": "RB160I",
+      "correct": false
+    },
+    {
+      "filename": "SECURE_v1.png",
+      "ground_truth": "SECURE",
+      "agent_votes": [
+        "UM4F11",
+        "SECURE",
+        "SECURE"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "UM4F11",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "SECURE",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "SECURE",
+          "correct": true
+        }
+      ],
+      "consensus": "SECURE",
+      "correct": true
+    },
+    {
+      "filename": "X9K2M_v0.png",
+      "ground_truth": "X9K2M",
+      "agent_votes": [
+        "X9K2M",
+        "X9K2M",
+        "X9K2M"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "X9K2M",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "X9K2M",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "X9K2M",
+          "correct": true
+        }
+      ],
+      "consensus": "X9K2M",
+      "correct": true
+    },
+    {
+      "filename": "X9K2M_v1.png",
+      "ground_truth": "X9K2M",
+      "agent_votes": [
+        "X9K2M",
+        "X9K2M",
+        "X9K2M"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "X9K2M",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "X9K2M",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "X9K2M",
+          "correct": true
+        }
+      ],
+      "consensus": "X9K2M",
+      "correct": true
+    },
+    {
+      "filename": "Q4R7L_v0.png",
+      "ground_truth": "Q4R7L",
+      "agent_votes": [
+        "Q4R7L",
+        "Q4R7L",
+        "Q4R7L"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "Q4R7L",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "Q4R7L",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "Q4R7L",
+          "correct": true
+        }
+      ],
+      "consensus": "Q4R7L",
+      "correct": true
+    },
+    {
+      "filename": "Q4R7L_v1.png",
+      "ground_truth": "Q4R7L",
+      "agent_votes": [
+        "Q4R7L",
+        "Q4R7L",
+        "Q4R7L"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "Q4R7L",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "Q4R7L",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "Q4R7L",
+          "correct": true
+        }
+      ],
+      "consensus": "Q4R7L",
+      "correct": true
+    },
+    {
+      "filename": "W8N3P_v0.png",
+      "ground_truth": "W8N3P",
+      "agent_votes": [
+        "YTAOK",
+        "W8N3P",
+        "I0QMF"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "YTAOK",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "W8N3P",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "I0QMF",
+          "correct": false
+        }
+      ],
+      "consensus": "YTAOK",
+      "correct": false
+    },
+    {
+      "filename": "V2T6H_v0.png",
+      "ground_truth": "V2T6H",
+      "agent_votes": [
+        "V2T6H",
+        "V2T6H",
+        "V2T6H"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "V2T6H",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "V2T6H",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "V2T6H",
+          "correct": true
+        }
+      ],
+      "consensus": "V2T6H",
+      "correct": true
+    },
+    {
+      "filename": "V2T6H_v1.png",
+      "ground_truth": "V2T6H",
+      "agent_votes": [
+        "V2T6H",
+        "V2T6H",
+        "V2T6H"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "V2T6H",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "V2T6H",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "V2T6H",
+          "correct": true
+        }
+      ],
+      "consensus": "V2T6H",
+      "correct": true
+    },
+    {
+      "filename": "B1F9G_v0.png",
+      "ground_truth": "B1F9G",
+      "agent_votes": [
+        "B1F9G",
+        "B1F9G",
+        "LRJZS"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "B1F9G",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "B1F9G",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "LRJZS",
+          "correct": false
+        }
+      ],
+      "consensus": "B1F9G",
+      "correct": true
+    },
+    {
+      "filename": "B1F9G_v1.png",
+      "ground_truth": "B1F9G",
+      "agent_votes": [
+        "B1F9G",
+        "B1F9G",
+        "B1F9G"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "B1F9G",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "B1F9G",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "B1F9G",
+          "correct": true
+        }
+      ],
+      "consensus": "B1F9G",
+      "correct": true
+    },
+    {
+      "filename": "J5S8D_v0.png",
+      "ground_truth": "J5S8D",
+      "agent_votes": [
+        "J5S8D",
+        "J5S8D",
+        "KJ9A7"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "J5S8D",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "J5S8D",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "KJ9A7",
+          "correct": false
+        }
+      ],
+      "consensus": "J5S8D",
+      "correct": true
+    },
+    {
+      "filename": "E4A7C_v0.png",
+      "ground_truth": "E4A7C",
+      "agent_votes": [
+        "E4A7C",
+        "LC5P7",
+        "E4A7C"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "E4A7C",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "LC5P7",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "E4A7C",
+          "correct": true
+        }
+      ],
+      "consensus": "E4A7C",
+      "correct": true
+    },
+    {
+      "filename": "U2O6I_v0.png",
+      "ground_truth": "U2O6I",
+      "agent_votes": [
+        "U2O6I",
+        "U2O6I",
+        "5K6E7"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "U2O6I",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "U2O6I",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "5K6E7",
+          "correct": false
+        }
+      ],
+      "consensus": "U2O6I",
+      "correct": true
+    },
+    {
+      "filename": "U2O6I_v1.png",
+      "ground_truth": "U2O6I",
+      "agent_votes": [
+        "U2O6I",
+        "U2O6I",
+        "U2O6I"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "U2O6I",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "U2O6I",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "U2O6I",
+          "correct": true
+        }
+      ],
+      "consensus": "U2O6I",
+      "correct": true
+    },
+    {
+      "filename": "Y3K9L_v0.png",
+      "ground_truth": "Y3K9L",
+      "agent_votes": [
+        "Y3K9L",
+        "Y3K9L",
+        "Y3K9L"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "Y3K9L",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "Y3K9L",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "Y3K9L",
+          "correct": true
+        }
+      ],
+      "consensus": "Y3K9L",
+      "correct": true
+    },
+    {
+      "filename": "Y3K9L_v1.png",
+      "ground_truth": "Y3K9L",
+      "agent_votes": [
+        "FHVLI",
+        "CKNJ1",
+        "22EDN"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "FHVLI",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "CKNJ1",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "22EDN",
+          "correct": false
+        }
+      ],
+      "consensus": "FHVLI",
+      "correct": false
+    },
+    {
+      "filename": "Z1X4V_v0.png",
+      "ground_truth": "Z1X4V",
+      "agent_votes": [
+        "Z1X4V",
+        "Z1X4V",
+        "Z1X4V"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "Z1X4V",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "Z1X4V",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "Z1X4V",
+          "correct": true
+        }
+      ],
+      "consensus": "Z1X4V",
+      "correct": true
+    },
+    {
+      "filename": "123456_v0.png",
+      "ground_truth": "123456",
+      "agent_votes": [
+        "123456",
+        "123456",
+        "123456"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "123456",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "123456",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "123456",
+          "correct": true
+        }
+      ],
+      "consensus": "123456",
+      "correct": true
+    },
+    {
+      "filename": "789012_v0.png",
+      "ground_truth": "789012",
+      "agent_votes": [
+        "789012",
+        "789012",
+        "789012"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "789012",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "789012",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "789012",
+          "correct": true
+        }
+      ],
+      "consensus": "789012",
+      "correct": true
+    },
+    {
+      "filename": "789012_v1.png",
+      "ground_truth": "789012",
+      "agent_votes": [
+        "789012",
+        "789012",
+        "789012"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "789012",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "789012",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "789012",
+          "correct": true
+        }
+      ],
+      "consensus": "789012",
+      "correct": true
+    },
+    {
+      "filename": "456789_v0.png",
+      "ground_truth": "456789",
+      "agent_votes": [
+        "E8FQK7",
+        "456789",
+        "456789"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "E8FQK7",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "456789",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "456789",
+          "correct": true
+        }
+      ],
+      "consensus": "456789",
+      "correct": true
+    },
+    {
+      "filename": "234567_v0.png",
+      "ground_truth": "234567",
+      "agent_votes": [
+        "234567",
+        "234567",
+        "234567"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "234567",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "234567",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "234567",
+          "correct": true
+        }
+      ],
+      "consensus": "234567",
+      "correct": true
+    },
+    {
+      "filename": "234567_v1.png",
+      "ground_truth": "234567",
+      "agent_votes": [
+        "234567",
+        "234567",
+        "234567"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "234567",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "234567",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "234567",
+          "correct": true
+        }
+      ],
+      "consensus": "234567",
+      "correct": true
+    },
+    {
+      "filename": "890123_v0.png",
+      "ground_truth": "890123",
+      "agent_votes": [
+        "890123",
+        "890123",
+        "890123"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "890123",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "890123",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "890123",
+          "correct": true
+        }
+      ],
+      "consensus": "890123",
+      "correct": true
+    },
+    {
+      "filename": "567890_v0.png",
+      "ground_truth": "567890",
+      "agent_votes": [
+        "567890",
+        "567890",
+        "567890"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "567890",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "567890",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "567890",
+          "correct": true
+        }
+      ],
+      "consensus": "567890",
+      "correct": true
+    },
+    {
+      "filename": "012345_v0.png",
+      "ground_truth": "012345",
+      "agent_votes": [
+        "012345",
+        "012345",
+        "012345"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "012345",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "012345",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "012345",
+          "correct": true
+        }
+      ],
+      "consensus": "012345",
+      "correct": true
+    },
+    {
+      "filename": "345678_v0.png",
+      "ground_truth": "345678",
+      "agent_votes": [
+        "345678",
+        "345678",
+        "345678"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "345678",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "345678",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "345678",
+          "correct": true
+        }
+      ],
+      "consensus": "345678",
+      "correct": true
+    },
+    {
+      "filename": "345678_v1.png",
+      "ground_truth": "345678",
+      "agent_votes": [
+        "345678",
+        "345678",
+        "345678"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "345678",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "345678",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "345678",
+          "correct": true
+        }
+      ],
+      "consensus": "345678",
+      "correct": true
+    },
+    {
+      "filename": "678901_v0.png",
+      "ground_truth": "678901",
+      "agent_votes": [
+        "L13M3D",
+        "678901",
+        "5QK2R6"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "L13M3D",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "678901",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "5QK2R6",
+          "correct": false
+        }
+      ],
+      "consensus": "L13M3D",
+      "correct": false
+    },
+    {
+      "filename": "678901_v1.png",
+      "ground_truth": "678901",
+      "agent_votes": [
+        "678901",
+        "6BPH09",
+        "678901"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "678901",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "6BPH09",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "678901",
+          "correct": true
+        }
+      ],
+      "consensus": "678901",
+      "correct": true
+    },
+    {
+      "filename": "901234_v0.png",
+      "ground_truth": "901234",
+      "agent_votes": [
+        "901234",
+        "901234",
+        "901234"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "901234",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "901234",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "901234",
+          "correct": true
+        }
+      ],
+      "consensus": "901234",
+      "correct": true
+    },
+    {
+      "filename": "901234_v1.png",
+      "ground_truth": "901234",
+      "agent_votes": [
+        "901234",
+        "901234",
+        "901234"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "901234",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "901234",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "901234",
+          "correct": true
+        }
+      ],
+      "consensus": "901234",
+      "correct": true
+    },
+    {
+      "filename": "A1B2C3_v0.png",
+      "ground_truth": "A1B2C3",
+      "agent_votes": [
+        "A1B2C3",
+        "A1B2C3",
+        "A1B2C3"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "A1B2C3",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "A1B2C3",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "A1B2C3",
+          "correct": true
+        }
+      ],
+      "consensus": "A1B2C3",
+      "correct": true
+    },
+    {
+      "filename": "A1B2C3_v1.png",
+      "ground_truth": "A1B2C3",
+      "agent_votes": [
+        "A1B2C3",
+        "A1B2C3",
+        "A1B2C3"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "A1B2C3",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "A1B2C3",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "A1B2C3",
+          "correct": true
+        }
+      ],
+      "consensus": "A1B2C3",
+      "correct": true
+    },
+    {
+      "filename": "X9Y8Z7_v0.png",
+      "ground_truth": "X9Y8Z7",
+      "agent_votes": [
+        "X9Y8Z7",
+        "X9Y8Z7",
+        "SS966O"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "X9Y8Z7",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "X9Y8Z7",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "SS966O",
+          "correct": false
+        }
+      ],
+      "consensus": "X9Y8Z7",
+      "correct": true
+    },
+    {
+      "filename": "P4Q5R6_v0.png",
+      "ground_truth": "P4Q5R6",
+      "agent_votes": [
+        "P4Q5R6",
+        "P4Q5R6",
+        "P4Q5R6"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "P4Q5R6",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "P4Q5R6",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "P4Q5R6",
+          "correct": true
+        }
+      ],
+      "consensus": "P4Q5R6",
+      "correct": true
+    },
+    {
+      "filename": "M2N3O4_v0.png",
+      "ground_truth": "M2N3O4",
+      "agent_votes": [
+        "M2N3O4",
+        "M2N3O4",
+        "M2N3O4"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "M2N3O4",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "M2N3O4",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "M2N3O4",
+          "correct": true
+        }
+      ],
+      "consensus": "M2N3O4",
+      "correct": true
+    },
+    {
+      "filename": "K7L8J9_v0.png",
+      "ground_truth": "K7L8J9",
+      "agent_votes": [
+        "K7L8J9",
+        "O7CPJ0",
+        "NL71Y7"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "K7L8J9",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "O7CPJ0",
+          "correct": false
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "NL71Y7",
+          "correct": false
+        }
+      ],
+      "consensus": "K7L8J9",
+      "correct": true
+    },
+    {
+      "filename": "D5E6F7_v0.png",
+      "ground_truth": "D5E6F7",
+      "agent_votes": [
+        "D5E6F7",
+        "D5E6F7",
+        "D5E6F7"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "D5E6F7",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "D5E6F7",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "D5E6F7",
+          "correct": true
+        }
+      ],
+      "consensus": "D5E6F7",
+      "correct": true
+    },
+    {
+      "filename": "D5E6F7_v1.png",
+      "ground_truth": "D5E6F7",
+      "agent_votes": [
+        "D5E6F7",
+        "D5E6F7",
+        "D5E6F7"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "D5E6F7",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "D5E6F7",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "D5E6F7",
+          "correct": true
+        }
+      ],
+      "consensus": "D5E6F7",
+      "correct": true
+    },
+    {
+      "filename": "G1H2I3_v0.png",
+      "ground_truth": "G1H2I3",
+      "agent_votes": [
+        "G1H2I3",
+        "G1H2I3",
+        "EJQ5R1"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "G1H2I3",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "G1H2I3",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "EJQ5R1",
+          "correct": false
+        }
+      ],
+      "consensus": "G1H2I3",
+      "correct": true
+    },
+    {
+      "filename": "S8T9U0_v0.png",
+      "ground_truth": "S8T9U0",
+      "agent_votes": [
+        "BLC0NQ",
+        "S8T9U0",
+        "S8T9U0"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "BLC0NQ",
+          "correct": false
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "S8T9U0",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "S8T9U0",
+          "correct": true
+        }
+      ],
+      "consensus": "S8T9U0",
+      "correct": true
+    },
+    {
+      "filename": "W2X3Y4_v0.png",
+      "ground_truth": "W2X3Y4",
+      "agent_votes": [
+        "W2X3Y4",
+        "W2X3Y4",
+        "W2X3Y4"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "W2X3Y4",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "W2X3Y4",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "W2X3Y4",
+          "correct": true
+        }
+      ],
+      "consensus": "W2X3Y4",
+      "correct": true
+    },
+    {
+      "filename": "V6Z1A2_v0.png",
+      "ground_truth": "V6Z1A2",
+      "agent_votes": [
+        "V6Z1A2",
+        "V6Z1A2",
+        "V6Z1A2"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "V6Z1A2",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "V6Z1A2",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "V6Z1A2",
+          "correct": true
+        }
+      ],
+      "consensus": "V6Z1A2",
+      "correct": true
+    },
+    {
+      "filename": "V6Z1A2_v1.png",
+      "ground_truth": "V6Z1A2",
+      "agent_votes": [
+        "V6Z1A2",
+        "V6Z1A2",
+        "V6Z1A2"
+      ],
+      "agent_details": [
+        {
+          "name": "Agent-1-OCR",
+          "vote": "V6Z1A2",
+          "correct": true
+        },
+        {
+          "name": "Agent-2-ML",
+          "vote": "V6Z1A2",
+          "correct": true
+        },
+        {
+          "name": "Agent-3-Vision",
+          "vote": "V6Z1A2",
+          "correct": true
+        }
+      ],
+      "consensus": "V6Z1A2",
+      "correct": true
+    }
+  ]
+}

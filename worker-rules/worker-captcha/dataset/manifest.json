@@ -1,0 +1,412 @@
+{
+  "text_easy": [
+    {
+      "filename": "HELLO_v0.png",
+      "ground_truth": "HELLO",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/HELLO_v0.png"
+    },
+    {
+      "filename": "HELLO_v1.png",
+      "ground_truth": "HELLO",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/HELLO_v1.png"
+    },
+    {
+      "filename": "WORLD_v0.png",
+      "ground_truth": "WORLD",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/WORLD_v0.png"
+    },
+    {
+      "filename": "PYTHON_v0.png",
+      "ground_truth": "PYTHON",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/PYTHON_v0.png"
+    },
+    {
+      "filename": "CODE_v0.png",
+      "ground_truth": "CODE",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CODE_v0.png"
+    },
+    {
+      "filename": "TEST_v0.png",
+      "ground_truth": "TEST",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/TEST_v0.png"
+    },
+    {
+      "filename": "TEST_v1.png",
+      "ground_truth": "TEST",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/TEST_v1.png"
+    },
+    {
+      "filename": "EASY_v0.png",
+      "ground_truth": "EASY",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/EASY_v0.png"
+    },
+    {
+      "filename": "EASY_v1.png",
+      "ground_truth": "EASY",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/EASY_v1.png"
+    },
+    {
+      "filename": "SIMPLE_v0.png",
+      "ground_truth": "SIMPLE",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/SIMPLE_v0.png"
+    },
+    {
+      "filename": "CLEAR_v0.png",
+      "ground_truth": "CLEAR",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CLEAR_v0.png"
+    },
+    {
+      "filename": "CLEAR_v1.png",
+      "ground_truth": "CLEAR",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CLEAR_v1.png"
+    },
+    {
+      "filename": "BASIC_v0.png",
+      "ground_truth": "BASIC",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/BASIC_v0.png"
+    },
+    {
+      "filename": "BASIC_v1.png",
+      "ground_truth": "BASIC",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/BASIC_v1.png"
+    },
+    {
+      "filename": "QUICK_v0.png",
+      "ground_truth": "QUICK",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/QUICK_v0.png"
+    },
+    {
+      "filename": "CAPTCHA_v0.png",
+      "ground_truth": "CAPTCHA",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CAPTCHA_v0.png"
+    },
+    {
+      "filename": "CAPTCHA_v1.png",
+      "ground_truth": "CAPTCHA",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CAPTCHA_v1.png"
+    },
+    {
+      "filename": "VERIFY_v0.png",
+      "ground_truth": "VERIFY",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/VERIFY_v0.png"
+    },
+    {
+      "filename": "VERIFY_v1.png",
+      "ground_truth": "VERIFY",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/VERIFY_v1.png"
+    },
+    {
+      "filename": "PROOF_v0.png",
+      "ground_truth": "PROOF",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/PROOF_v0.png"
+    },
+    {
+      "filename": "LOGIN_v0.png",
+      "ground_truth": "LOGIN",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/LOGIN_v0.png"
+    },
+    {
+      "filename": "SECURE_v0.png",
+      "ground_truth": "SECURE",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/SECURE_v0.png"
+    },
+    {
+      "filename": "SECURE_v1.png",
+      "ground_truth": "SECURE",
+      "category": "text_easy",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/SECURE_v1.png"
+    }
+  ],
+  "text_hard": [
+    {
+      "filename": "X9K2M_v0.png",
+      "ground_truth": "X9K2M",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/X9K2M_v0.png"
+    },
+    {
+      "filename": "X9K2M_v1.png",
+      "ground_truth": "X9K2M",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/X9K2M_v1.png"
+    },
+    {
+      "filename": "Q4R7L_v0.png",
+      "ground_truth": "Q4R7L",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Q4R7L_v0.png"
+    },
+    {
+      "filename": "Q4R7L_v1.png",
+      "ground_truth": "Q4R7L",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Q4R7L_v1.png"
+    },
+    {
+      "filename": "W8N3P_v0.png",
+      "ground_truth": "W8N3P",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/W8N3P_v0.png"
+    },
+    {
+      "filename": "V2T6H_v0.png",
+      "ground_truth": "V2T6H",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/V2T6H_v0.png"
+    },
+    {
+      "filename": "V2T6H_v1.png",
+      "ground_truth": "V2T6H",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/V2T6H_v1.png"
+    },
+    {
+      "filename": "B1F9G_v0.png",
+      "ground_truth": "B1F9G",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/B1F9G_v0.png"
+    },
+    {
+      "filename": "B1F9G_v1.png",
+      "ground_truth": "B1F9G",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/B1F9G_v1.png"
+    },
+    {
+      "filename": "J5S8D_v0.png",
+      "ground_truth": "J5S8D",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/J5S8D_v0.png"
+    },
+    {
+      "filename": "E4A7C_v0.png",
+      "ground_truth": "E4A7C",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/E4A7C_v0.png"
+    },
+    {
+      "filename": "U2O6I_v0.png",
+      "ground_truth": "U2O6I",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/U2O6I_v0.png"
+    },
+    {
+      "filename": "U2O6I_v1.png",
+      "ground_truth": "U2O6I",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/U2O6I_v1.png"
+    },
+    {
+      "filename": "Y3K9L_v0.png",
+      "ground_truth": "Y3K9L",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Y3K9L_v0.png"
+    },
+    {
+      "filename": "Y3K9L_v1.png",
+      "ground_truth": "Y3K9L",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Y3K9L_v1.png"
+    },
+    {
+      "filename": "Z1X4V_v0.png",
+      "ground_truth": "Z1X4V",
+      "category": "text_hard",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Z1X4V_v0.png"
+    }
+  ],
+  "numbers_only": [
+    {
+      "filename": "123456_v0.png",
+      "ground_truth": "123456",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/123456_v0.png"
+    },
+    {
+      "filename": "789012_v0.png",
+      "ground_truth": "789012",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/789012_v0.png"
+    },
+    {
+      "filename": "789012_v1.png",
+      "ground_truth": "789012",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/789012_v1.png"
+    },
+    {
+      "filename": "456789_v0.png",
+      "ground_truth": "456789",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/456789_v0.png"
+    },
+    {
+      "filename": "234567_v0.png",
+      "ground_truth": "234567",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/234567_v0.png"
+    },
+    {
+      "filename": "234567_v1.png",
+      "ground_truth": "234567",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/234567_v1.png"
+    },
+    {
+      "filename": "890123_v0.png",
+      "ground_truth": "890123",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/890123_v0.png"
+    },
+    {
+      "filename": "567890_v0.png",
+      "ground_truth": "567890",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/567890_v0.png"
+    },
+    {
+      "filename": "012345_v0.png",
+      "ground_truth": "012345",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/012345_v0.png"
+    },
+    {
+      "filename": "345678_v0.png",
+      "ground_truth": "345678",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/345678_v0.png"
+    },
+    {
+      "filename": "345678_v1.png",
+      "ground_truth": "345678",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/345678_v1.png"
+    },
+    {
+      "filename": "678901_v0.png",
+      "ground_truth": "678901",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/678901_v0.png"
+    },
+    {
+      "filename": "678901_v1.png",
+      "ground_truth": "678901",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/678901_v1.png"
+    },
+    {
+      "filename": "901234_v0.png",
+      "ground_truth": "901234",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/901234_v0.png"
+    },
+    {
+      "filename": "901234_v1.png",
+      "ground_truth": "901234",
+      "category": "numbers_only",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/901234_v1.png"
+    }
+  ],
+  "mixed": [
+    {
+      "filename": "A1B2C3_v0.png",
+      "ground_truth": "A1B2C3",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/A1B2C3_v0.png"
+    },
+    {
+      "filename": "A1B2C3_v1.png",
+      "ground_truth": "A1B2C3",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/A1B2C3_v1.png"
+    },
+    {
+      "filename": "X9Y8Z7_v0.png",
+      "ground_truth": "X9Y8Z7",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/X9Y8Z7_v0.png"
+    },
+    {
+      "filename": "P4Q5R6_v0.png",
+      "ground_truth": "P4Q5R6",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/P4Q5R6_v0.png"
+    },
+    {
+      "filename": "M2N3O4_v0.png",
+      "ground_truth": "M2N3O4",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/M2N3O4_v0.png"
+    },
+    {
+      "filename": "K7L8J9_v0.png",
+      "ground_truth": "K7L8J9",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/K7L8J9_v0.png"
+    },
+    {
+      "filename": "D5E6F7_v0.png",
+      "ground_truth": "D5E6F7",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/D5E6F7_v0.png"
+    },
+    {
+      "filename": "D5E6F7_v1.png",
+      "ground_truth": "D5E6F7",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/D5E6F7_v1.png"
+    },
+    {
+      "filename": "G1H2I3_v0.png",
+      "ground_truth": "G1H2I3",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/G1H2I3_v0.png"
+    },
+    {
+      "filename": "S8T9U0_v0.png",
+      "ground_truth": "S8T9U0",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/S8T9U0_v0.png"
+    },
+    {
+      "filename": "W2X3Y4_v0.png",
+      "ground_truth": "W2X3Y4",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/W2X3Y4_v0.png"
+    },
+    {
+      "filename": "V6Z1A2_v0.png",
+      "ground_truth": "V6Z1A2",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/V6Z1A2_v0.png"
+    },
+    {
+      "filename": "V6Z1A2_v1.png",
+      "ground_truth": "V6Z1A2",
+      "category": "mixed",
+      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/V6Z1A2_v1.png"
+    }
+  ]
+}
