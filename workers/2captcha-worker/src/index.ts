@@ -269,41 +269,49 @@ async function startWorker(): Promise<void> {
  * Graceful shutdown handler
  */
 async function gracefulShutdown(exitCode: number = 0): Promise<void> {
-  if (isShuttingDown) {
-    console.log('[Shutdown] Shutdown already in progress...');
-    process.exit(exitCode);
-  }
+   if (isShuttingDown) {
+     console.log('[Shutdown] Shutdown already in progress...');
+     process.exit(exitCode);
+   }
 
-  isShuttingDown = true;
-  console.log('\n[Shutdown] Initiating graceful shutdown...');
+   isShuttingDown = true;
+   console.log('\n[Shutdown] Initiating graceful shutdown...');
 
-  try {
-    if (apiServer) {
-      console.log('[Shutdown] Stopping API server...');
-      await apiServer.stop();
-      console.log('[Shutdown] ✅ API server stopped');
-    }
+   try {
+     // Stop multi-agent solver server first
+     if (multiAgentServer) {
+       console.log('[Shutdown] Stopping multi-agent solver API server...');
+       await multiAgentServer.stop();
+       console.log('[Shutdown] ✅ Multi-agent solver API server stopped');
+     }
 
-    // Stop worker service
-    if (workerService) {
-      console.log('[Shutdown] Stopping worker service...');
-      await workerService.stop();
-      console.log('[Shutdown] ✅ Worker service stopped');
-    }
+     // Stop browser automation API server
+     if (apiServer) {
+       console.log('[Shutdown] Stopping browser automation API server...');
+       await apiServer.stop();
+       console.log('[Shutdown] ✅ Browser automation API server stopped');
+     }
 
-    // Close browser
-    if (browser) {
-      console.log('[Shutdown] Closing browser...');
-      await browser.close();
-      console.log('[Shutdown] ✅ Browser closed');
-    }
+     // Stop worker service
+     if (workerService) {
+       console.log('[Shutdown] Stopping worker service...');
+       await workerService.stop();
+       console.log('[Shutdown] ✅ Worker service stopped');
+     }
 
-    console.log('[Shutdown] ✅ Graceful shutdown completed\n');
-    process.exit(exitCode);
-  } catch (error) {
-    console.error('[Shutdown] Error during shutdown:', error);
-    process.exit(1);
-  }
+     // Close browser
+     if (browser) {
+       console.log('[Shutdown] Closing browser...');
+       await browser.close();
+       console.log('[Shutdown] ✅ Browser closed');
+     }
+
+     console.log('[Shutdown] ✅ Graceful shutdown completed\n');
+     process.exit(exitCode);
+   } catch (error) {
+     console.error('[Shutdown] Error during shutdown:', error);
+     process.exit(1);
+   }
 }
 
 /**
