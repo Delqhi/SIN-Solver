@@ -194,4 +194,336 @@ Komplette MCP-Konfigurationsüberholung mit neuen Wrappern und Domain-Fixes.
 - Lösung: Systematische Migration zu delqhi.com Domains
 - Siehe: troubleshooting/ts-ticket-05.md
 
-[Rest des Dokuments bleibt unverändert...]
+---
+
+## 📝 DOCUMENTATION BEST PRACTICES 2026 (MANDATORY)
+
+### Overview
+
+**Effective:** 2026-01-30  
+**Scope:** ALL AI coders, ALL sessions, ALL projects  
+**Status:** CRITICAL DOCUMENTATION MANDATE  
+
+Dieses Dokument ersetzt alle vorherigen Anweisungen zu `userprompts.md` und `lastchanges.md`. Die Verwendung von `.session-nr-id.md` ist jetzt der PRIMARY Standard.
+
+---
+
+### 📋 PRIMARY DOCUMENTATION STANDARD: `.session-{nr}-{id}.md`
+
+**Format:** `.session-{session-number}-{session-id}.md`  
+**Example:** `.session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md`  
+**Location:** Project root or relevant subdirectory  
+
+#### Why This Format?
+
+**Problems with Old System (userprompts.md/lastchanges.md):**
+- ❌ Duplikate zwischen userprompts.md und session files
+- ❌ Unklare Struktur - was gehört wohin?
+- ❌ Schwierig zu durchsuchen
+- ❌ Keine eindeutige Session-Zuordnung
+
+**Benefits of New System:**
+- ✅ Eindeutige Session-Identifikation
+- ✅ Keine Duplikate mehr
+- ✅ Einfache Suche: `find . -name ".session-*"`
+- ✅ Automatische Chronologie durch Dateinamen
+- ✅ Klare Trennung: userprompts.md = Summary, .session-*.md = Details
+
+#### Structure of `.session-{nr}-{id}.md`
+
+```markdown
+# Session {NR} - {Brief Title}
+
+**Session ID:** {ses_xxxxxx}  
+**Date:** YYYY-MM-DD  
+**Status:** {IN_PROGRESS|COMPLETED|BLOCKED}  
+**Branch:** {git-branch}  
+
+---
+
+## 🎯 OBJECTIVE
+
+What was the goal of this session?
+
+---
+
+## ✅ COMPLETED TASKS
+
+### 1. {Task Name}
+- **Problem:** What was the issue?
+- **Solution:** How was it solved?
+- **Files Modified:** List of files
+
+---
+
+## 📊 RESULTS
+
+### Test Results
+```
+Results here...
+```
+
+---
+
+## 📝 KEY DECISIONS
+
+Important architectural or design decisions made.
+
+---
+
+## 🔍 MANDATE COMPLIANCE
+
+| Mandate | Status |
+|---------|--------|
+| MANDATE 0.0 | ✅ |
+| MANDATE -5 | ✅ |
+| MANDATE -6 | ⏳ |
+| MANDATE -7 | ✅ |
+
+---
+
+## 🎯 SUMMARY
+
+Brief summary of what was accomplished.
+
+---
+
+*Session completed. Next steps: ...*
+```
+
+#### MANDATORY Sections
+
+Every `.session-*.md` MUST include:
+1. **Header** with Session ID, Date, Status, Branch
+2. **OBJECTIVE** - What was the goal?
+3. **COMPLETED TASKS** - What was done?
+4. **MANDATE COMPLIANCE** - Which mandates were followed?
+5. **SUMMARY** - Brief wrap-up
+
+---
+
+### 📋 SECONDARY DOCUMENTATION: `userprompts.md`
+
+**Purpose:** HIGH-LEVEL Summary across ALL sessions  
+**Audience:** Quick overview for new team members  
+**Update Frequency:** After each major milestone  
+
+#### What Goes Into userprompts.md?
+
+**MUST Include:**
+- UR-GENESIS (Initial project vision - NEVER CHANGE)
+- Current project status
+- Major milestones (compressed)
+- Current work area
+- Next steps
+
+**MUST NOT Include:**
+- ❌ Detailed technical implementation
+- ❌ Code snippets
+- ❌ Session-specific details (those go in `.session-*.md`)
+- ❌ Duplicates of `.session-*.md` content
+
+#### Structure
+
+```markdown
+# {Project} User Prompts Logbook
+
+**Project:** {Name}  
+**Created:** YYYY-MM-DD  
+**Last Updated:** YYYY-MM-DD  
+**Current Phase:** {Phase}  
+
+---
+
+## UR-GENESIS - THE INITIAL SPARK (IMMUTABLE)
+
+[Original project vision - NEVER CHANGE]
+
+---
+
+## AKTUELLER ARBEITSBEREICH
+
+**{Current Work};STATUS-IN_PROGRESS**
+
+---
+
+## SESSION [YYYY-MM-DD] [SESSION-XX-TITLE] - Brief Summary
+
+**Collective Analysis:** 1-2 sentences  
+**Resulting Mission:** 1-2 sentences  
+**Key Decisions:** Bullet points  
+**Next Steps:** Bullet points  
+
+[Link to .session-XX-*.md for details]
+
+---
+
+## SESSION [YYYY-MM-DD] [SESSION-YY-TITLE] - Brief Summary
+
+...
+```
+
+---
+
+### 📋 TERTIARY DOCUMENTATION: `lastchanges.md`
+
+**Purpose:** CHRONOLOGICAL log of ALL changes  
+**Audience:** System administrators, DevOps  
+**Update Frequency:** After every git commit  
+
+#### What Goes Into lastchanges.md?
+
+**MUST Include:**
+- Date and time of change
+- What was changed (high-level)
+- Why it was changed
+- Impact assessment
+- Git commit hash
+
+**MUST NOT Include:**
+- ❌ Code details (those are in git)
+- ❌ Session narratives (those are in `.session-*.md`)
+- ❌ User prompts (those are in `userprompts.md`)
+
+#### Structure
+
+```markdown
+# {Project} Last Changes Log
+
+## [YYYY-MM-DD HH:MM] [SESSION-XX-BRIEF] - Change Title
+
+**Session:** Session XX  
+**Agent:** {agent-name}  
+**Status:** {Status}  
+
+### Changes Made
+- Change 1
+- Change 2
+
+### Impact
+- What systems are affected?
+- Any breaking changes?
+
+### Git Commits
+- Hash: abc1234 - Description
+- Hash: def5678 - Description
+
+---
+
+## [YYYY-MM-DD HH:MM] [SESSION-YY-BRIEF] - Change Title
+
+...
+```
+
+---
+
+### 📋 DOCUMENTATION HIERARCHY (CRITICAL)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  DOCUMENTATION HIERARCHY - NEVER DEVIATE                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. PRIMARY: .session-{nr}-{id}.md                          │
+│     └─► DETAILED session documentation                      │
+│     └─► Technical implementation                            │
+│     └─► Test results                                        │
+│     └─► Mandate compliance                                  │
+│                                                              │
+│  2. SECONDARY: userprompts.md                               │
+│     └─► HIGH-LEVEL summary                                  │
+     └─► Project status                                       │
+│     └─► Major milestones (compressed)                       │
+│     └─► Links to .session-*.md                              │
+│                                                              │
+│  3. TERTIARY: lastchanges.md                                │
+│     └─► CHRONOLOGICAL change log                            │
+│     └─► Git commit references                               │
+│     └─► Impact assessment                                   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### The Golden Rule
+
+> **NO DUPLICATES!** Each piece of information lives in EXACTLY ONE place.
+> 
+> - Technical details → `.session-*.md`
+> - High-level status → `userprompts.md`
+> - Change history → `lastchanges.md`
+
+---
+
+### 📋 MANDATORY WORKFLOW
+
+**When Starting a Session:**
+1. Create `.session-{nr}-{id}.md` IMMEDIATELY
+2. Fill in header (Session ID, Date, Status, Branch)
+3. Define OBJECTIVE
+
+**During the Session:**
+1. Update `.session-{nr}-{id}.md` in real-time
+2. Mark tasks as completed
+3. Document decisions
+
+**After the Session:**
+1. Finalize `.session-{nr}-{id}.md`
+2. Update `userprompts.md` with brief summary
+3. Update `lastchanges.md` with change log
+4. Git commit with reference to session file
+
+---
+
+### 📋 EXAMPLES
+
+#### Good: Clear Separation
+
+```markdown
+// .session-19-ses_xxx.md (DETAILED)
+## Implementation
+Used Steel Browser CDP with Skyvern orchestration.
+Code snippet:
+const steel = await connectToSteelBrowser('localhost:9223');
+```
+
+```markdown
+// userprompts.md (HIGH-LEVEL)
+## SESSION [2026-01-30] [Architecture Decision]
+Implemented Holy Trinity architecture.
+Details: .session-19-ses_xxx.md
+```
+
+```markdown
+// lastchanges.md (CHRONOLOGICAL)
+## [2026-01-30] Architecture Decision
+Changed browser engine from Playwright to Steel CDP.
+Commit: f6b7a93
+```
+
+#### Bad: Duplicates
+
+```markdown
+// ❌ WRONG: Don't copy from .session-*.md to userprompts.md
+## SESSION [2026-01-30]
+Used Steel Browser CDP with Skyvern orchestration.
+const steel = await connectToSteelBrowser('localhost:9223');
+[This duplicates .session-*.md content!]
+```
+
+---
+
+### 📋 COMPLIANCE CHECKLIST
+
+Before ending ANY session:
+
+- [ ] `.session-{nr}-{id}.md` created and complete?
+- [ ] `userprompts.md` updated with brief summary?
+- [ ] `lastchanges.md` updated with change log?
+- [ ] NO duplicates between files?
+- [ ] Git commit references session file?
+
+---
+
+**Effective Date:** 2026-01-30  
+**Mandate:** MANDATE -7 (Session Documentation)  
+**Status:** ACTIVE - All previous documentation rules SUPERSEDED

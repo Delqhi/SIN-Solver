@@ -84,6 +84,67 @@ Execute the "10-Phase Ultimate Rescue Plan" to transform `room-01-dashboard-cock
 
 ## AKTUELLER ARBEITSBEREICH
 
+**{Architecture Decision};SESSION-19-ARCHITECTURE-DECISION-COMPLETED**  
+**{Next};WORKER-REFACTOR-TO-STEEL-SKYVERN-MISTRAL-IN-PROGRESS**
+
+---
+
+## SESSION [2026-01-30 21:30] [SESSION-19-ARCHITECTURE-DECISION] - The Holy Trinity
+
+**Collective Analysis:**
+After extensive testing and research, discovered that OpenCode ZEN API endpoint doesn't work (returns "Not Found"). Tested multiple endpoints and API keys - all failed. Meanwhile, Mistral API works perfectly. Also realized that Steel Browser (CDP) provides real-time DOM updates while Playwright uses slow polling. This led to a revolutionary architecture decision.
+
+**Resulting Mission:**
+Document and implement the "Holy Trinity" architecture: Steel Browser (CDP) + Skyvern + Mistral AI.
+
+**Key Decisions:**
+1. **Browser Engine:** agent-05-steel-browser (CDP) - Real-time DOM, no polling
+2. **Orchestrator:** Skyvern - AI-driven decisions, self-healing
+3. **Vision AI:** Mistral (pixtral-12b) - 10x cheaper than OpenAI
+4. **Fallback:** Stagehand - Alternative orchestrator
+
+**Critical Insight:**
+> "Steel Browser is the Ferrari, Skyvern is the F1 Driver, Mistral is the Navigator"
+
+Without the driver and navigator, the Ferrari won't win the race!
+
+**What We Learned:**
+- Steel Browser alone cannot make decisions (needs Skyvern)
+- Skyvern alone is slow (needs Steel Browser CDP for speed)
+- Mistral is 10x cheaper than OpenAI with same quality
+- OpenCode ZEN API doesn't work (endpoint issue, not key issue)
+- Playwright is outdated for real-time automation (use CDP instead)
+
+**Architecture Rules (MANDATORY):**
+- ❌ NEVER use direct Playwright in production
+- ❌ NEVER use OpenAI GPT-4V (too expensive)
+- ❌ NEVER use api.opencode.ai (doesn't work)
+- ✅ ALWAYS use Steel Browser (CDP) + Skyvern + Mistral
+
+**Documentation Created:**
+- `.session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md` - Complete session log
+- `workers/2captcha-worker/AGENTS.md` - Local project docs
+- `AGENTS_APPENDIX.md` - Updated project rules
+- `lastchanges.md` - Architecture decision entry
+- `environments-jeremy.md` - API keys documented
+
+**Next Steps:**
+1. Refactor worker to use new architecture
+2. Implement Steel Browser CDP connector
+3. Integrate Skyvern orchestration
+4. Connect Mistral vision API
+5. Test end-to-end CAPTCHA solving
+
+**Iteration Check:**
+- Goal: Working CAPTCHA worker with AI
+- Status: Architecture decided, documentation complete
+- Alignment: 100% aligned with "truly intelligent" directive
+- Blocker: None - ready to implement
+
+---
+
+## AKTUELLER ARBEITSBEREICH (PREVIOUS)
+
 **{Rescue Mission};PHASE-1-10-dashboard-COMPLETED**
 
 ---
