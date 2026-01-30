@@ -105,37 +105,36 @@ let isInitializing = false;
 let initializationPromise: Promise<void> | null = null;
 
 const initializeSolver = async (): Promise<void> => {
-  if (solver) return;
+   if (solver) return;
 
-  if (isInitializing) {
-    if (initializationPromise) {
-      await initializationPromise;
-    }
-    return;
-  }
+   if (isInitializing) {
+     if (initializationPromise) {
+       await initializationPromise;
+     }
+     return;
+   }
 
-  isInitializing = true;
-  initializationPromise = (async () => {
-    try {
-      logger.info('Initializing multi-agent CAPTCHA solver...');
-      solver = await createDefaultMultiAgentSolver({
-        timeout: parseInt(process.env.REQUEST_TIMEOUT_MS || '30000'),
-        minConfidence: 0.7,
-        logging: { enabled: true, level: 'info' },
-      });
-      logger.info('✅ Multi-agent solver initialized successfully', {
-        timeout: process.env.REQUEST_TIMEOUT_MS || '30000',
-        minConfidence: 0.7,
-      });
-    } catch (err) {
-      logger.error('❌ Solver initialization failed:', err);
-      isInitializing = false;
-      throw err;
-    }
-  })();
+   isInitializing = true;
+   initializationPromise = (async () => {
+     try {
+       logger.info('Initializing multi-agent CAPTCHA solver...');
+       solver = await createDefaultMultiAgentSolver({
+         timeout: parseInt(process.env.REQUEST_TIMEOUT_MS || '30000'),
+         minConfidence: 0.7,
+       });
+       logger.info('✅ Multi-agent solver initialized successfully', {
+         timeout: process.env.REQUEST_TIMEOUT_MS || '30000',
+         minConfidence: 0.7,
+       });
+     } catch (err) {
+       logger.error('❌ Solver initialization failed:', err);
+       isInitializing = false;
+       throw err;
+     }
+   })();
 
-  await initializationPromise;
-  isInitializing = false;
+   await initializationPromise;
+   isInitializing = false;
 };
 
 // ============================================

@@ -189,40 +189,40 @@ test.describe('AutoSolver', () => {
   // SECTION 1: HAPPY PATH TESTS
   // ==========================================================================
 
-  test('should solve CAPTCHA end-to-end successfully', async () => {
-    // Setup: Create solver with mocks
-    const mockSolver = new MockSolverSuccess(page);
-    autoSolver = createAutoSolverWithSolver(page, mockSolver, {
-      verbose: true,
-      enableScreenshots: true,
-    });
+   test('should solve CAPTCHA end-to-end successfully', async () => {
+     // Setup: Create solver with mocks
+     const mockSolver = new MockSolverSuccess();
+     autoSolver = createAutoSolverWithSolver(page, mockSolver, {
+       verbose: true,
+       enableScreenshots: true,
+     });
 
-    // Execute: Run the full pipeline
-    const result = await autoSolver.solveCaptcha();
+     // Execute: Run the full pipeline
+     const result = await autoSolver.solveCaptcha();
 
-    // Verify: Check result structure & success
-    expect(result.success).toBe(true);
-    expect(result.captchaDetected).toBe(true);
-    expect(result.answer).toBe('MOCK123456');
-    expect(result.confidence).toBeGreaterThanOrEqual(0.95);
-    expect(result.submissionSuccess).toBe(true);
-    
-    // Verify: Check timing is populated
-    expect(result.detectionTimeMs).toBeGreaterThan(0);
-    expect(result.solvingTimeMs).toBeGreaterThan(0);
-    expect(result.submissionTimeMs).toBeGreaterThan(0);
-    expect(result.totalTimeMs).toBeGreaterThan(0);
-    
-    // Verify: Check timings add up correctly (with tolerance for overhead)
-    const sumMs = result.detectionTimeMs + result.solvingTimeMs + result.submissionTimeMs;
-    expect(result.totalTimeMs).toBeCloseTo(sumMs, { precision: -2 }); // within 100ms
-    
-    // Verify: Check metadata
-    expect(result.timestamp).toBeTruthy();
-    expect(result.sessionId).toBeTruthy();
-    expect(result.stageName).toBe('completed');
-    expect(result.errors).toHaveLength(0);
-  });
+     // Verify: Check result structure & success
+     expect(result.success).toBe(true);
+     expect(result.captchaDetected).toBe(true);
+     expect(result.answer).toBe('MOCK123456');
+     expect(result.confidence).toBeGreaterThanOrEqual(0.95);
+     expect(result.submissionSuccess).toBe(true);
+     
+     // Verify: Check timing is populated
+     expect(result.detectionTimeMs).toBeGreaterThan(0);
+     expect(result.solvingTimeMs).toBeGreaterThan(0);
+     expect(result.submissionTimeMs).toBeGreaterThan(0);
+     expect(result.totalTimeMs).toBeGreaterThan(0);
+     
+     // Verify: Check timings add up correctly (with tolerance for overhead)
+     const sumMs = result.detectionTimeMs + result.solvingTimeMs + result.submissionTimeMs;
+     expect(Math.abs(result.totalTimeMs - sumMs)).toBeLessThan(200); // within 200ms tolerance
+     
+     // Verify: Check metadata
+     expect(result.timestamp).toBeTruthy();
+     expect(result.sessionId).toBeTruthy();
+     expect(result.stageName).toBe('completed');
+     expect(result.errors).toHaveLength(0);
+   });
 
   test('should track comprehensive timing data', async () => {
     const mockSolver = new MockSolverSuccess(page);

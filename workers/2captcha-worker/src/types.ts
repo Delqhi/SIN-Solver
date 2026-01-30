@@ -241,6 +241,46 @@ export interface DetectAndSolveResponse {
 }
 
 /**
+ * Worker job request
+ */
+export interface WorkerJobRequest {
+  jobId: string;
+  type: 'detect' | 'solve' | 'detect-and-solve';
+  url?: string;
+  priority: 1 | 2 | 3 | 4 | 5;
+  timeout?: number;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+/**
+ * Worker job response
+ */
+export interface WorkerJobResponse {
+  jobId: string;
+  status: JobStatus;
+  result?: JobResult;
+  error?: JobError;
+  completedAt?: string;
+  durationMs: number;
+}
+
+/**
+ * Worker statistics (aggregated metrics)
+ */
+export interface WorkerStats {
+  total: number;
+  successful: number;
+  accuracy: number;
+  earnings: number;
+  averageEarnings: number;
+  totalTime: number;
+  averageTime: number;
+  uptime: number;
+  lastUpdated: string;
+}
+
+/**
  * Job status query response
  */
 export interface JobStatusResponse {

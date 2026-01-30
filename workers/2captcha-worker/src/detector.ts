@@ -9,9 +9,11 @@
  * - Timeout tracking (60-120s per CAPTCHA)
  * - Element interaction detection
  * - Error resilience & auto-retry
+ * - Alert system integration (errors, timeouts, failures)
  */
 
 import { Page, ElementHandle, Locator } from 'playwright';
+import { AlertSystem } from './alerts';
 
 export interface CaptchaDetectionResult {
   detected: boolean;
@@ -54,101 +56,210 @@ export enum CaptchaType {
  */
 export class TwoCaptchaDetector {
   private page: Page;
+  private alertSystem: AlertSystem;
   private timeoutMs: number = 120000; // Default 120s
   private detectionAttempts: number = 0;
   private maxAttempts: number = 10;
   private waitBetweenAttemptsMs: number = 500;
-  private startTime: number = 0; // Track detection start time
+  private startTime: number = 0;
+  private timeoutAlertSent: boolean = false; // Track if timeout alert already sent
 
-  constructor(page: Page, timeoutMs?: number) {
+  constructor(page: Page, alertSystem: AlertSystem, timeoutMs?: number) {
     this.page = page;
-    this.startTime = Date.now(); // Initialize start time
+    this.alertSystem = alertSystem;
+    this.startTime = Date.now();
     if (timeoutMs) {
       this.timeoutMs = timeoutMs;
     }
   }
 
-  /**
-   * Main detection method - returns complete CAPTCHA info
-   */
-  async detect(): Promise<CaptchaDetectionResult> {
-    const startTime = Date.now();
-    const result: CaptchaDetectionResult = {
-      detected: false,
-      type: CaptchaType.Unknown,
-      elements: {},
-      timeoutMs: this.timeoutMs,
-      startTime,
-      metadata: {},
-    };
+   /**
+    * Main detection method - returns complete CAPTCHA info
+    * Sends alerts on detection failures, timeouts, and screenshot issues
+    */
+   async detect(): Promise<CaptchaDetectionResult> {
+     const startTime = Date.now();
+     const result: CaptchaDetectionResult = {
+       detected: false,
+       type: CaptchaType.Unknown,
+       elements: {},
+       timeoutMs: this.timeoutMs,
+       startTime,
+       metadata: {},
+     };
 
-    try {
-      // Step 1: Wait for CAPTCHA to appear (with retries)
-      await this.waitForCaptchaPresence();
+     try {
+       // Check if timeout is approaching BEFORE attempting detection
+       if (this.isTimeoutApproaching(30000)) {
+         if (!this.timeoutAlertSent) {
+           this.alertSystem.timeoutWarning(
+             'DETECTOR',
+             this.getRemainingTime(),
+             { maxTimeout: this.timeoutMs, detectionPhase: 'start' }
+           );
+           this.timeoutAlertSent = true;
+         }
+       }
 
-      // Step 2: Detect CAPTCHA type
-      result.type = await this.detectCaptchaType();
-      result.detected = result.type !== CaptchaType.Unknown;
+       // Step 1: Wait for CAPTCHA to appear (with retries)
+       try {
+         await this.waitForCaptchaPresence();
+       } catch (waitError) {
+         this.alertSystem.errorAlert(
+           waitError instanceof Error ? waitError : new Error(String(waitError)),
+           {
+             jobId: 'detector-job',
+             jobType: 'detect',
+             phase: 'waitForCaptchaPresence',
+             attempts: this.detectionAttempts,
+             timeElapsed: Date.now() - startTime,
+           }
+         );
+         throw waitError;
+       }
 
-      if (!result.detected) {
-        return result;
-      }
+       // Step 2: Detect CAPTCHA type
+       result.type = await this.detectCaptchaType();
+       result.detected = result.type !== CaptchaType.Unknown;
 
-      // Step 3: Locate all interactive elements
-      result.elements = await this.locateElements(result.type);
+       if (!result.detected) {
+         // Send alert for detection failure
+         this.alertSystem.errorAlert(
+           new Error(`Failed to detect CAPTCHA type after ${this.detectionAttempts} attempts`),
+           {
+             jobId: 'detector-job',
+             jobType: 'detect',
+             phase: 'detectCaptchaType',
+             attempts: this.detectionAttempts,
+             detectedType: result.type,
+             timeElapsed: Date.now() - startTime,
+           }
+         );
+         return result;
+       }
 
-      // Step 4: Take screenshot of CAPTCHA area
-      const screenshotBuffer = await this.captureScreenshot(
-        result.elements.containerLocator || result.elements.imageLocator
-      );
-      if (screenshotBuffer) {
-        result.screenshot = screenshotBuffer;
-        result.screenshotBase64 = screenshotBuffer.toString('base64');
-      }
+       // Check timeout again before element location
+       if (this.isTimeoutApproaching(20000)) {
+         if (!this.timeoutAlertSent) {
+           this.alertSystem.timeoutWarning(
+             'DETECTOR',
+             this.getRemainingTime(),
+             { maxTimeout: this.timeoutMs, detectionPhase: 'afterTypeDetection' }
+           );
+           this.timeoutAlertSent = true;
+         }
+       }
 
-      // Step 5: Gather metadata
-      result.metadata = await this.gatherMetadata(result.type, result.elements);
+       // Step 3: Locate all interactive elements
+       try {
+         result.elements = await this.locateElements(result.type);
+       } catch (elementError) {
+         this.alertSystem.errorAlert(
+           elementError instanceof Error ? elementError : new Error(String(elementError)),
+           {
+             jobId: 'detector-job',
+             jobType: 'detect',
+             phase: 'locateElements',
+             captchaType: result.type,
+             timeElapsed: Date.now() - startTime,
+           }
+         );
+         throw elementError;
+       }
 
-      console.log(`[CAPTCHA DETECTED] Type: ${result.type}, Elements: ${Object.keys(result.elements).length}`);
-      return result;
-    } catch (error) {
-      console.error(`[CAPTCHA DETECTION ERROR] ${error instanceof Error ? error.message : String(error)}`);
-      result.detected = false;
-      return result;
-    }
-  }
+       // Step 4: Take screenshot of CAPTCHA area
+       const screenshotBuffer = await this.captureScreenshot(
+         result.elements.containerLocator || result.elements.imageLocator
+       );
+       if (screenshotBuffer) {
+         result.screenshot = screenshotBuffer;
+         result.screenshotBase64 = screenshotBuffer.toString('base64');
+       } else {
+         // Send alert for screenshot failure
+         this.alertSystem.errorAlert(
+           new Error('Failed to capture screenshot of CAPTCHA area'),
+           {
+             jobId: 'detector-job',
+             jobType: 'detect',
+             phase: 'captureScreenshot',
+             captchaType: result.type,
+             elementCount: Object.keys(result.elements).length,
+             timeElapsed: Date.now() - startTime,
+           }
+         );
+       }
 
-  /**
-   * Wait for CAPTCHA to appear on page with dynamic waits
-   */
-  private async waitForCaptchaPresence(maxWaitMs: number = 30000): Promise<void> {
-    const startTime = Date.now();
-    this.detectionAttempts = 0;
+       // Step 5: Gather metadata
+       result.metadata = await this.gatherMetadata(result.type, result.elements);
 
-    while (Date.now() - startTime < maxWaitMs) {
-      this.detectionAttempts++;
+       console.log(`[CAPTCHA DETECTED] Type: ${result.type}, Elements: ${Object.keys(result.elements).length}`);
+       return result;
+     } catch (error) {
+       console.error(`[CAPTCHA DETECTION ERROR] ${error instanceof Error ? error.message : String(error)}`);
+       
+       // Send alert for detection error
+       this.alertSystem.errorAlert(
+         error instanceof Error ? error : new Error(String(error)),
+         {
+           jobId: 'detector-job',
+           jobType: 'detect',
+           phase: 'detect',
+           timeElapsed: Date.now() - startTime,
+           attempts: this.detectionAttempts,
+         }
+       );
+       
+       result.detected = false;
+       return result;
+     }
+   }
 
-      // Check for common CAPTCHA selectors
-      const captchaFound = await Promise.race([
-        this.checkImageCaptcha(),
-        this.checkRecaptchaV2(),
-        this.checkHCaptcha(),
-        this.checkSliderCaptcha(),
-        this.checkClickCaptcha(),
-      ]).catch(() => false);
+   /**
+    * Wait for CAPTCHA to appear on page with dynamic waits
+    * Sends timeout warnings if approaching deadline
+    */
+   private async waitForCaptchaPresence(maxWaitMs: number = 30000): Promise<void> {
+     const startTime = Date.now();
+     this.detectionAttempts = 0;
 
-      if (captchaFound) {
-        console.log(`[CAPTCHA PRESENCE] Found after ${this.detectionAttempts} attempts`);
-        return;
-      }
+     while (Date.now() - startTime < maxWaitMs) {
+       this.detectionAttempts++;
 
-      // Adaptive wait - reduce delay on each iteration
-      const delay = Math.max(100, this.waitBetweenAttemptsMs - (this.detectionAttempts * 10));
-      await this.page.waitForTimeout(delay);
-    }
+       // Check timeout approaching during wait loop
+       if (this.isTimeoutApproaching(10000) && !this.timeoutAlertSent) {
+         this.alertSystem.timeoutWarning(
+           'DETECTOR_WAIT',
+           this.getRemainingTime(),
+           { 
+             maxWaitMs, 
+             elapsedWaitMs: Date.now() - startTime,
+             detectionAttempts: this.detectionAttempts 
+           }
+         );
+         this.timeoutAlertSent = true;
+       }
 
-    throw new Error(`CAPTCHA not detected within ${maxWaitMs}ms`);
-  }
+       // Check for common CAPTCHA selectors
+       const captchaFound = await Promise.race([
+         this.checkImageCaptcha(),
+         this.checkRecaptchaV2(),
+         this.checkHCaptcha(),
+         this.checkSliderCaptcha(),
+         this.checkClickCaptcha(),
+       ]).catch(() => false);
+
+       if (captchaFound) {
+         console.log(`[CAPTCHA PRESENCE] Found after ${this.detectionAttempts} attempts`);
+         return;
+       }
+
+       // Adaptive wait - reduce delay on each iteration
+       const delay = Math.max(100, this.waitBetweenAttemptsMs - (this.detectionAttempts * 10));
+       await this.page.waitForTimeout(delay);
+     }
+
+     throw new Error(`CAPTCHA not detected within ${maxWaitMs}ms`);
+   }
 
   /**
    * Detect CAPTCHA type by checking various selectors
