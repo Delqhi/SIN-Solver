@@ -1,0 +1,74 @@
+# GitHub CODEOWNERS file for SIN-Solver
+# Automatically assigns code reviewers based on file patterns
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for the entire repository
+* @Delqhi/maintainers @Delqhi/code-reviewers
+
+# API & Gateway (room-13-api-brain)
+/api/ @Delqhi/backend-team
+/api/routes/ @Delqhi/backend-team
+/api/models/ @Delqhi/backend-team
+/api/middleware/ @Delqhi/backend-team
+
+# Agents
+/agents/ @Delqhi/agent-team
+/agents/agentzero/ @Delqhi/agent-team
+/agents/steel/ @Delqhi/agent-team
+/agents/skyvern/ @Delqhi/agent-team
+
+# Workers & Task Execution
+/workers/ @Delqhi/worker-team
+/workers/survey_worker/ @Delqhi/worker-team
+/workers/captcha_worker/ @Delqhi/worker-team
+
+# Storage & Database
+/storage/ @Delqhi/database-team
+/storage/postgres/ @Delqhi/database-team
+/storage/redis/ @Delqhi/database-team
+/storage/migrations/ @Delqhi/database-team
+
+# Docker & Infrastructure
+/docker/ @Delqhi/devops-team
+/docker-compose.yml @Delqhi/devops-team
+/docker-compose.enterprise.yml @Delqhi/devops-team
+/Dockerfile @Delqhi/devops-team
+
+# CI/CD & GitHub Workflows
+/.github/workflows/ @Delqhi/devops-team @Delqhi/code-reviewers
+/.github/ @Delqhi/devops-team
+
+# Documentation
+/docs/ @Delqhi/docs-team
+*.md @Delqhi/docs-team
+CONTRIBUTING.md @Delqhi/maintainers
+SECURITY.md @Delqhi/security-team
+CODE_OF_CONDUCT.md @Delqhi/maintainers
+
+# Tests
+/tests/ @Delqhi/qa-team
+/tests/unit/ @Delqhi/qa-team
+/tests/integration/ @Delqhi/qa-team
+/tests/e2e/ @Delqhi/qa-team
+
+# Workflows & Automation
+/workflows/ @Delqhi/automation-team
+/workflows/templates/ @Delqhi/automation-team
+
+# Configuration & Root Files
+.env.example @Delqhi/devops-team
+Makefile @Delqhi/devops-team
+requirements.txt @Delqhi/backend-team
+requirements-dev.txt @Delqhi/backend-team
+pyproject.toml @Delqhi/backend-team
+package.json @Delqhi/frontend-team
+tsconfig.json @Delqhi/frontend-team
+
+# Security & Secrets
+/secret/ @Delqhi/security-team
+/vault/ @Delqhi/security-team
+.env @Delqhi/security-team
+
+# These files require all maintainers approval
+LICENSE @Delqhi/maintainers
+CHANGELOG.md @Delqhi/maintainers

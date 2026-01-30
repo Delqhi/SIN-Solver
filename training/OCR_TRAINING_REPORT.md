@@ -1,15 +1,15 @@
 # OCR Model Training Report
 
-**Generated:** 2026-01-29 23:44:58
+**Generated:** 2026-01-30 09:06:10
 **Location:** /Users/jeremy/dev/SIN-Solver/training
 
 ## Summary
 
 | Model | Type | Status | Training Time | Images |
 |-------|------|--------|---------------|--------|
-| Text OCR | ddddocr | completed | 2.40s | 44 |
-| Math OCR | ddddocr | completed | 0.74s | 44 |
-| Audio | Whisper | completed | 9.84s | 44 |
+| Text OCR | ddddocr | failed | 0.00s | 0 |
+| Math OCR | ddddocr | failed | 0.00s | 0 |
+| Audio | Whisper | failed | 0.00s | 0 |
 
 ## Model Details
 
@@ -17,19 +17,19 @@
 - **Type:** ddddocr
 - **Location:** `/Users/jeremy/dev/SIN-Solver/models/text_ocr_model`
 - **Purpose:** Text CAPTCHA character recognition
-- **Status:** ✅ completed
+- **Status:** ✅ failed
 
 ### Math OCR Model
 - **Type:** ddddocr
 - **Location:** `/Users/jeremy/dev/SIN-Solver/models/math_ocr_model`
 - **Purpose:** Math equation recognition and solving
-- **Status:** ✅ completed
+- **Status:** ✅ failed
 
 ### Audio Transcription Model
 - **Type:** OpenAI Whisper (base)
 - **Location:** `/Users/jeremy/dev/SIN-Solver/models/audio_whisper_model`
 - **Purpose:** Audio CAPTCHA transcription
-- **Status:** ✅ completed
+- **Status:** ✅ failed
 
 ## Notes
 

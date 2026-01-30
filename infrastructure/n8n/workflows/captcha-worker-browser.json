@@ -1,0 +1,493 @@
+{
+  "name": "2Captcha Browser Worker - Autonomous Solving",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "start-captcha-worker",
+        "options": {
+          "responseMode": "responseNode"
+        }
+      },
+      "id": "webhook-start",
+      "name": "Start Worker Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 300],
+      "webhookId": "start-captcha-worker"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "hours", "hoursInterval": 1 }]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Hourly Auto-Start",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [100, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://agent-05-steel-browser:3000/v1/sessions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"options\": {\n    \"proxy\": null,\n    \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n    \"viewport\": {\n      \"width\": 1920,\n      \"height\": 1080\n    }\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "create-browser-session",
+      "name": "Create Steel Browser Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [350, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $json.id }}/actions/navigate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"url\": \"https://2captcha.com/auth/login\",\n  \"waitUntil\": \"networkidle\"\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "navigate-login",
+      "name": "Navigate to Login Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [550, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $('Create Steel Browser Session').item.json.id }}/actions/execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"script\": \"(async () => {\\n  // Wait for page to load\\n  await new Promise(r => setTimeout(r, 2000));\\n  \\n  // Fill login credentials from environment\\n  const emailInput = document.querySelector('input[name=\\\"email\\\"], input[type=\\\"email\\\"]');\\n  const passwordInput = document.querySelector('input[name=\\\"password\\\"], input[type=\\\"password\\\"]');\\n  \\n  if (emailInput && passwordInput) {\\n    emailInput.value = '{{ $env.TWOCAPTCHA_EMAIL }}';\\n    emailInput.dispatchEvent(new Event('input', { bubbles: true }));\\n    \\n    passwordInput.value = '{{ $env.TWOCAPTCHA_PASSWORD }}';\\n    passwordInput.dispatchEvent(new Event('input', { bubbles: true }));\\n    \\n    // Find and click login button\\n    const loginBtn = document.querySelector('button[type=\\\"submit\\\"], input[type=\\\"submit\\\"]');\\n    if (loginBtn) {\\n      loginBtn.click();\\n    }\\n    return { success: true, message: 'Login submitted' };\\n  }\\n  return { success: false, message: 'Login form not found' };\\n})()\"\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "perform-login",
+      "name": "Perform Login",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 400]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "id": "wait-login",
+      "name": "Wait for Login",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [950, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $('Create Steel Browser Session').item.json.id }}/actions/navigate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"url\": \"https://2captcha.com/work/start\",\n  \"waitUntil\": \"networkidle\"\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "navigate-work",
+      "name": "Navigate to Work Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1150, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $('Create Steel Browser Session').item.json.id }}/actions/execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"script\": \"(async () => {\\n  await new Promise(r => setTimeout(r, 2000));\\n  \\n  // Look for start work button\\n  const startBtn = document.querySelector('[class*=\\\"start\\\"], button:contains(\\\"Start\\\"), a:contains(\\\"Start\\\")') || \\n                   Array.from(document.querySelectorAll('button, a')).find(el => el.textContent.toLowerCase().includes('start'));\\n  \\n  if (startBtn) {\\n    startBtn.click();\\n    return { success: true, message: 'Start button clicked' };\\n  }\\n  return { success: false, message: 'Start button not found, may already be working' };\\n})()\"\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "click-start-work",
+      "name": "Click Start Work",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1350, 400]
+    },
+    {
+      "parameters": {
+        "loopCount": 100,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "solving-loop",
+      "name": "Captcha Solving Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1550, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $('Create Steel Browser Session').item.json.id }}/screenshot",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "take-screenshot",
+      "name": "Take Screenshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      {\n        \"text\": \"You are a CAPTCHA solving assistant. Look at this screenshot from 2captcha.com work page. \\n\\nAnalyze the CAPTCHA shown and provide:\\n1. The type of CAPTCHA (text, image selection, math, etc.)\\n2. The exact solution to enter\\n3. Any selector or input field to target\\n\\nRespond in JSON format ONLY:\\n{\\n  \\\"captcha_type\\\": \\\"type\\\",\\n  \\\"solution\\\": \\\"the answer\\\",\\n  \\\"selector\\\": \\\"input field selector if visible\\\",\\n  \\\"confidence\\\": 0.95\\n}\\n\\nIf no CAPTCHA is visible or page shows \\\"waiting for task\\\", respond:\\n{\\n  \\\"captcha_type\\\": \\\"none\\\",\\n  \\\"solution\\\": null,\\n  \\\"status\\\": \\\"waiting\\\"\\n}\"\n      },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $json.body.toString('base64') }}\"\n        }\n      }\n    ]\n  }],\n  \"generationConfig\": {\n    \"temperature\": 0.1,\n    \"maxOutputTokens\": 500\n  }\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "analyze-with-gemini",
+      "name": "Analyze CAPTCHA with Gemini",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1950, 400],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "gemini-api-key",
+          "name": "Gemini API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Gemini response\nconst response = $input.item.json;\nlet analysis = { captcha_type: 'none', solution: null, status: 'unknown' };\n\ntry {\n  const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';\n  // Extract JSON from response\n  const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    analysis = JSON.parse(jsonMatch[0]);\n  }\n} catch (e) {\n  analysis.error = e.message;\n}\n\nreturn { json: analysis };"
+      },
+      "id": "parse-gemini-response",
+      "name": "Parse Gemini Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2150, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-solution",
+              "leftValue": "={{ $json.solution }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-has-solution",
+      "name": "IF Has Solution",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2350, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $('Create Steel Browser Session').item.json.id }}/actions/execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"script\": \"(async () => {\\n  const solution = '{{ $json.solution }}';\\n  const selector = '{{ $json.selector }}' || 'input[type=\\\"text\\\"], input:not([type])';\\n  \\n  // Find input field\\n  const input = document.querySelector(selector);\\n  if (input) {\\n    input.value = solution;\\n    input.dispatchEvent(new Event('input', { bubbles: true }));\\n    input.dispatchEvent(new Event('change', { bubbles: true }));\\n    \\n    // Find and click submit button\\n    await new Promise(r => setTimeout(r, 500));\\n    const submitBtn = document.querySelector('button[type=\\\"submit\\\"], input[type=\\\"submit\\\"], [class*=\\\"submit\\\"]') ||\\n                      Array.from(document.querySelectorAll('button')).find(el => el.textContent.toLowerCase().includes('submit') || el.textContent.toLowerCase().includes('send'));\\n    if (submitBtn) {\\n      submitBtn.click();\\n      return { success: true, solution: solution, message: 'Solution submitted' };\\n    }\\n    return { success: false, solution: solution, message: 'Submit button not found' };\\n  }\\n  return { success: false, message: 'Input field not found' };\\n})()\"\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "submit-solution",
+      "name": "Submit Solution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2550, 300]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "seconds"
+      },
+      "id": "wait-result",
+      "name": "Wait for Result",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2750, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://agent-05-steel-browser:3000/v1/sessions/{{ $('Create Steel Browser Session').item.json.id }}/actions/execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"script\": \"(async () => {\\n  // Check for success/failure indicators on page\\n  const pageText = document.body.innerText.toLowerCase();\\n  const isCorrect = pageText.includes('correct') || pageText.includes('success') || pageText.includes('earned');\\n  const isWrong = pageText.includes('wrong') || pageText.includes('incorrect') || pageText.includes('error');\\n  \\n  // Try to find earnings display\\n  const earningsEl = document.querySelector('[class*=\\\"earning\\\"], [class*=\\\"balance\\\"], [class*=\\\"money\\\"]');\\n  const earnings = earningsEl ? earningsEl.textContent : null;\\n  \\n  return {\\n    result: isCorrect ? 'correct' : (isWrong ? 'wrong' : 'unknown'),\\n    earnings: earnings,\\n    pageStatus: pageText.substring(0, 500)\\n  };\\n})()\"\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "check-result",
+      "name": "Check Result",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2950, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://builder-1.1-captcha-worker:8019/api/stats/record",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"platform\": \"2captcha\",\n  \"captcha_type\": \"{{ $('Parse Gemini Response').item.json.captcha_type }}\",\n  \"result\": \"{{ $json.result }}\",\n  \"earnings\": \"{{ $json.earnings }}\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "record-stats",
+      "name": "Record Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3150, 300]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "id": "wait-next-captcha",
+      "name": "Wait for Next",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2550, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://room-01-dashboard:3000/api/chat/message",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"🔄 CAPTCHA Worker Status:\\n- Platform: 2captcha.com\\n- Last solve: {{ $('Parse Gemini Response').item.json.captcha_type || 'waiting' }}\\n- Result: {{ $json.result || 'pending' }}\\n- Session active\",\n  \"type\": \"status\"\n}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "notify-status",
+      "name": "Notify Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3350, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "continue-loop",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "error",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-continue",
+      "name": "IF Continue",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3550, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, message: 'Worker session started', sessionId: $('Create Steel Browser Session').item.json.id }) }}",
+        "options": {}
+      },
+      "id": "respond-success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [550, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://room-01-dashboard:3000/api/chat/message",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"⚠️ CAPTCHA Worker Error:\\n- Error detected in workflow\\n- Attempting auto-correction...\\n- Session: {{ $('Create Steel Browser Session').item.json.id }}\",\n  \"type\": \"error\"\n}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "notify-error",
+      "name": "Notify Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3750, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Auto-correction logic\nconst error = $input.item.json;\n\n// Common corrections:\n// 1. Session expired -> Create new session\n// 2. Login failed -> Retry login\n// 3. Page not found -> Navigate back to work page\n\nlet correction = {\n  action: 'retry',\n  reason: 'Unknown error',\n  steps: ['Take new screenshot', 'Re-analyze page state']\n};\n\nif (error.message?.includes('session') || error.message?.includes('expired')) {\n  correction = {\n    action: 'new_session',\n    reason: 'Browser session expired',\n    steps: ['Create new Steel session', 'Re-login', 'Navigate to work']\n  };\n}\n\nif (error.message?.includes('login') || error.message?.includes('auth')) {\n  correction = {\n    action: 'relogin',\n    reason: 'Authentication required',\n    steps: ['Navigate to login', 'Submit credentials', 'Verify login']\n  };\n}\n\nreturn { json: correction };"
+      },
+      "id": "auto-correct",
+      "name": "Auto-Correct Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3950, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://room-01-dashboard:3000/api/chat/message",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"🔧 Auto-Correction Applied:\\n- Action: {{ $json.action }}\\n- Reason: {{ $json.reason }}\\n- Steps: {{ $json.steps.join(', ') }}\",\n  \"type\": \"info\"\n}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "notify-correction",
+      "name": "Notify Correction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [4150, 500]
+    }
+  ],
+  "connections": {
+    "Start Worker Webhook": {
+      "main": [
+        [
+          { "node": "Respond Success", "type": "main", "index": 0 },
+          { "node": "Create Steel Browser Session", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Hourly Auto-Start": {
+      "main": [[{ "node": "Create Steel Browser Session", "type": "main", "index": 0 }]]
+    },
+    "Create Steel Browser Session": {
+      "main": [[{ "node": "Navigate to Login Page", "type": "main", "index": 0 }]]
+    },
+    "Navigate to Login Page": {
+      "main": [[{ "node": "Perform Login", "type": "main", "index": 0 }]]
+    },
+    "Perform Login": {
+      "main": [[{ "node": "Wait for Login", "type": "main", "index": 0 }]]
+    },
+    "Wait for Login": {
+      "main": [[{ "node": "Navigate to Work Page", "type": "main", "index": 0 }]]
+    },
+    "Navigate to Work Page": {
+      "main": [[{ "node": "Click Start Work", "type": "main", "index": 0 }]]
+    },
+    "Click Start Work": {
+      "main": [[{ "node": "Captcha Solving Loop", "type": "main", "index": 0 }]]
+    },
+    "Captcha Solving Loop": {
+      "main": [[{ "node": "Take Screenshot", "type": "main", "index": 0 }]]
+    },
+    "Take Screenshot": {
+      "main": [[{ "node": "Analyze CAPTCHA with Gemini", "type": "main", "index": 0 }]]
+    },
+    "Analyze CAPTCHA with Gemini": {
+      "main": [[{ "node": "Parse Gemini Response", "type": "main", "index": 0 }]]
+    },
+    "Parse Gemini Response": {
+      "main": [[{ "node": "IF Has Solution", "type": "main", "index": 0 }]]
+    },
+    "IF Has Solution": {
+      "main": [
+        [{ "node": "Submit Solution", "type": "main", "index": 0 }],
+        [{ "node": "Wait for Next", "type": "main", "index": 0 }]
+      ]
+    },
+    "Submit Solution": {
+      "main": [[{ "node": "Wait for Result", "type": "main", "index": 0 }]]
+    },
+    "Wait for Result": {
+      "main": [[{ "node": "Check Result", "type": "main", "index": 0 }]]
+    },
+    "Check Result": {
+      "main": [[{ "node": "Record Stats", "type": "main", "index": 0 }]]
+    },
+    "Record Stats": {
+      "main": [[{ "node": "Notify Status", "type": "main", "index": 0 }]]
+    },
+    "Notify Status": {
+      "main": [[{ "node": "IF Continue", "type": "main", "index": 0 }]]
+    },
+    "IF Continue": {
+      "main": [
+        [{ "node": "Captcha Solving Loop", "type": "main", "index": 0 }],
+        [{ "node": "Notify Error", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait for Next": {
+      "main": [[{ "node": "Captcha Solving Loop", "type": "main", "index": 0 }]]
+    },
+    "Notify Error": {
+      "main": [[{ "node": "Auto-Correct Logic", "type": "main", "index": 0 }]]
+    },
+    "Auto-Correct Logic": {
+      "main": [[{ "node": "Notify Correction", "type": "main", "index": 0 }]]
+    },
+    "Notify Correction": {
+      "main": [[{ "node": "Create Steel Browser Session", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "delqhi-platform"
+  },
+  "tags": ["captcha", "worker", "2captcha", "browser-automation", "steel", "gemini"]
+}

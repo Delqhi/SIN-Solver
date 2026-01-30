@@ -1,0 +1,71 @@
+global:
+  # Rocket.Chat webhook URLs - loaded from environment variables
+  resolve_timeout: 5m
+
+route:
+  # Root route configuration
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'rocketchat-warning'
+  
+  # P1 (Critical) Alerts - HIGH PRIORITY
+  routes:
+    - match:
+        severity: critical
+      receiver: 'rocketchat-critical'
+      group_wait: 0s
+      group_interval: 5m
+      repeat_interval: 30m
+
+    # P2 (Warning) Alerts - MEDIUM PRIORITY
+    - match:
+        severity: warning
+      receiver: 'rocketchat-warning'
+      group_wait: 10s
+      group_interval: 10m
+      repeat_interval: 1h
+
+    # P3 (Info) Alerts - LOW PRIORITY
+    - match:
+        severity: info
+      receiver: 'rocketchat-info'
+      group_wait: 30s
+      group_interval: 30m
+      repeat_interval: 4h
+
+receivers:
+  # CRITICAL ALERTS - #alerts-critical (Red, High-Priority)
+  - name: 'rocketchat-critical'
+    webhook_configs:
+      - url: 'http://rocketchat-webhook:8093/webhook'
+        send_resolved: true
+
+  # WARNING ALERTS - #alerts-warning (Yellow, Medium-Priority)
+  - name: 'rocketchat-warning'
+    webhook_configs:
+      - url: 'http://rocketchat-webhook:8093/webhook'
+        send_resolved: true
+
+  # INFO ALERTS - #alerts-info (Blue, Low-Priority)
+  - name: 'rocketchat-info'
+    webhook_configs:
+      - url: 'http://rocketchat-webhook:8093/webhook'
+        send_resolved: true
+
+# Alert suppression rules (prevent alert storms)
+inhibit_rules:
+  # Suppress warning alerts when critical is already fired
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+
+  # Suppress info alerts when warning is already fired
+  - source_match:
+      severity: 'warning'
+    target_match:
+      severity: 'info'
+    equal: ['alertname', 'service']

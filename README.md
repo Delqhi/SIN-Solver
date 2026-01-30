@@ -328,6 +328,58 @@ http://localhost:3001
 | **Loki** | 3100 | Log aggregation & search |
 | **AlertManager** | 9093 | Alert management & routing |
 
+### Rocket.Chat Alert Integration
+
+SIN-Solver integrates with **Rocket.Chat** for real-time alert notifications. Alerts are automatically routed to different channels based on severity level using a webhook adapter that bridges Alertmanager and Rocket.Chat.
+
+**Alert Routing by Severity:**
+- 🔴 **#alerts-critical** - P1 (Critical) alerts - Sent immediately (group_wait=0s)
+- 🟡 **#alerts-warning** - P2 (Warning) alerts - Grouped and sent every 10 seconds (group_wait=10s)
+- 🔵 **#alerts-info** - P3 (Info) alerts - Grouped and sent every 30 seconds (group_wait=30s)
+
+**Architecture:**
+```
+Alertmanager (9093) 
+    ↓ 
+Webhook Adapter (8093) 
+    ↓ 
+Rocket.Chat Webhooks 
+    ↓ 
+Chat Channels
+```
+
+**Quick Setup:**
+1. Create three incoming webhooks in Rocket.Chat admin panel (Administration → Integrations → New)
+2. Configure webhook URLs in `.env` file:
+   ```bash
+   ROCKETCHAT_WEBHOOK_CRITICAL=https://delqhi.chat/hooks/incoming/abc123...
+   ROCKETCHAT_WEBHOOK_WARNING=https://delqhi.chat/hooks/incoming/def456...
+   ROCKETCHAT_WEBHOOK_INFO=https://delqhi.chat/hooks/incoming/ghi789...
+   ```
+3. Start the monitoring stack:
+   ```bash
+   cd Docker/builders/builder-1.1-captcha-worker/monitoring
+   docker-compose up -d
+   ```
+
+**Test Alert Routing:**
+```bash
+cd Docker/builders/builder-1.1-captcha-worker/monitoring
+curl -X POST http://localhost:8093/webhook \
+  -H "Content-Type: application/json" \
+  -d @test-alert.json
+```
+
+**Monitoring Container Details:**
+- **Service:** `rocketchat-webhook-adapter` (Flask application)
+- **Port:** 8093
+- **Health Check:** `GET /health` returns `{"status": "healthy"}`
+- **Configuration:** `.env` file in monitoring directory
+- **Logs:** `docker-compose logs -f rocketchat-webhook-adapter`
+
+**Complete Setup & Production Guide:** 
+📖 See [Rocket.Chat Alertmanager Integration Guide](./Docker/builders/builder-1.1-captcha-worker/monitoring/README.md) and [Production Deployment Guide](./Docker/builders/builder-1.1-captcha-worker/monitoring/PRODUCTION-DEPLOYMENT.md)
+
 ---
 
 ## 🔌 API Documentation

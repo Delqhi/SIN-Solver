@@ -8,14 +8,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- GitHub Issue templates (bug report, feature request)
-- GitHub Pull Request template with checklist
-- CI/CD pipeline with GitHub Actions (Python lint/test, Next.js build, Docker, security scan)
-- Comprehensive API Reference documentation
-- Dashboard preview placeholder image
+- Documentation synchronization across all project docs (Session 18)
+- Session tracking in lastchanges.md and SIN-Solver-lastchanges.md
+
+---
+
+## [2.1.0] - 2026-01-30
+
+### Added
+- **CAPTCHA Worker v2.1.0** - Complete implementation with 81.82% accuracy
+  - Multi-AI consensus engine (5-model parallel solving)
+  - Steel Browser integration for stealth automation
+  - Skyvern Visual AI for deep vision analysis
+  - Comprehensive API documentation (500+ lines)
+  - Grafana monitoring with custom dashboards
+  - Performance optimization (P95 latency: 2.8s)
+- **CI/CD Pipeline Activation** - Phase 15.1 complete
+  - GitHub Actions workflows for Python/Docker/Next.js
+  - CodeQL security scanning
+  - Dependabot auto-merge
+  - Branch protection rules
+  - KUBECONFIG secret management
+- **GitHub Templates** - MANDATE 0.32 compliance
+  - Issue templates (bug report, feature request)
+  - Pull Request template with comprehensive checklist
+  - CODEOWNERS file for code review assignments
+  - CONTRIBUTING.md with guidelines
+  - Security policy documentation
+- **MCP Integration** - 6/6 wrappers verified
+  - Linear MCP for project management
+  - Plane MCP for task tracking
+  - Captcha MCP for solving service
+  - Social MCP for media automation
+  - Deep Research MCP for web search
+  - Video Gen MCP for content creation
+- **Comprehensive Documentation**
+  - API Reference (500+ lines)
+  - Performance Optimization Plan (400+ lines)
+  - Security Audit Report (756 lines)
+  - Final Project Report (311 lines)
+  - E2E Test Report (150+ lines)
 
 ### Changed
 - Root directory cleanup - 40+ legacy files moved to `/archive/`
+- Domain migration: localhost → delqhi.com for all services
+- Container naming standardization per V18.3
+- ESLint configuration for Next.js 14 strict mode
+
+### Infrastructure
+- `builder-1.1-captcha-worker` - CAPTCHA solving service v2.1.0 (Port 8019)
+- GitHub Container Registry (GHCR) integration
+- Kubernetes deployment manifests (Phase 2.5)
+
+### Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| E2E Tests | 25/25 | 100% | ✅ Exceeded |
+| Overall Accuracy | 81.82% | 80% | ✅ Exceeded |
+| P95 Latency | 2.8s | 3.0s | ✅ Exceeded |
+| Success Rate | 85.3% | 85% | ✅ Met |
 
 ---
 

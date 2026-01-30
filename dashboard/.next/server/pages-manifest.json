@@ -1,1 +1,7 @@
-{"/_app":"pages/_app.js","/_error":"pages/_error.js","/api/captcha/solve":"pages/api/captcha/solve.js","/api/captcha/stats":"pages/api/captcha/stats.js","/api/captcha/status":"pages/api/captcha/status.js","/api/chat/message":"pages/api/chat/message.js","/api/chat/history":"pages/api/chat/history.js","/api/docker/logs":"pages/api/docker/logs.js","/api/docker/control":"pages/api/docker/control.js","/api/docker/stats":"pages/api/docker/stats.js","/api/docs/content":"pages/api/docs/content.js","/api/health":"pages/api/health.js","/api/services":"pages/api/services.js","/api/workflows/[id]/correct":"pages/api/workflows/[id]/correct.js","/api/workflows/active":"pages/api/workflows/active.js","/api/workflows/generate":"pages/api/workflows/generate.js","/chat-demo":"pages/chat-demo.html","/api/docs":"pages/api/docs.js","/":"pages/index.html","/dashboard":"pages/dashboard.html","/docs":"pages/docs.html","/vault":"pages/vault.html","/api/utils/validators":"pages/api/utils/validators.js","/workflow-demo":"pages/workflow-demo.html","/api/utils/errorHandler":"pages/api/utils/errorHandler.js","/api/utils/logger":"pages/api/utils/logger.js","/_document":"pages/_document.js","/404":"pages/404.html"}
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/": "pages/index.js",
+  "/dashboard": "pages/dashboard.js"
+}

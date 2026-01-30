@@ -9,6 +9,7 @@ import base64
 import io
 import logging
 import os
+import sys
 import time
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -16,11 +17,25 @@ from typing import List, Optional, Dict, Any
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, status, BackgroundTasks, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel, Field, validator
 from prometheus_client import Counter, Histogram, Gauge, Info, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
+from starlette.middleware.base import BaseHTTPMiddleware
+
+# Add app/tools to path for unified solver
+sys.path.insert(0, "/app")
+
+# Import unified captcha solver
+try:
+    from app.tools.captcha_solver import UnifiedCaptchaSolver, CaptchaResult
+
+    UNIFIED_SOLVER_AVAILABLE = True
+except ImportError as e:
+    UNIFIED_SOLVER_AVAILABLE = False
+    logging.warning(f"Unified solver not available: {e}")
 
 # Import modular components
 from src.solvers.veto_engine import VetoEngine
@@ -124,27 +139,52 @@ class CaptchaSolveResponse(BaseModel):
 
 
 # ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+
+# API KEY VALIDATION
+API_KEY = os.getenv("CAPTCHA_API_KEY", "sk-test-captcha-worker-2026")
+ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+]
+
+# ============================================================================
 # GLOBAL INSTANCES
 # ============================================================================
 
+unified_solver: Optional[UnifiedCaptchaSolver] = None
 veto_engine: Optional[VetoEngine] = None
 rate_limiter: Optional[RateLimiter] = None
 redis_client: Optional[RedisClient] = None
 ocr_detector: Optional[OcrElementDetector] = None
 mistral_circuit: Optional[CircuitBreaker] = None
 qwen_circuit: Optional[CircuitBreaker] = None
+security = HTTPBearer()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
-    global veto_engine, rate_limiter, redis_client, ocr_detector
+    global unified_solver, veto_engine, rate_limiter, redis_client, ocr_detector
     global mistral_circuit, qwen_circuit
 
-    logger.info("🚀 Starting builder-1.1-captcha-worker v2.1.0...")
+    logger.info("🚀 Starting builder-1.1-captcha-worker v3.0.0...")
+    logger.info(f"   Unified Solver Available: {UNIFIED_SOLVER_AVAILABLE}")
 
     try:
-        # Initialize OCR detector
+        # Initialize Unified Captcha Solver (NEW - YOLO + OCR)
+        if UNIFIED_SOLVER_AVAILABLE:
+            yolo_model_path = os.getenv("YOLO_MODEL_PATH", "/app/models/best.pt")
+            unified_solver = UnifiedCaptchaSolver(
+                yolo_model_path=yolo_model_path,
+                confidence_threshold=0.7,
+                enable_local_solvers=True,
+                enable_api_fallback=True,
+            )
+            health = unified_solver.health_check()
+            logger.info(f"✅ Unified solver initialized: {health}")
+
+        # Initialize OCR detector (legacy)
         ocr_detector = OcrElementDetector()
         logger.info("✅ OCR detector initialized")
 
@@ -162,14 +202,17 @@ async def lifespan(app: FastAPI):
         qwen_circuit = CircuitBreaker("qwen_api", failure_threshold=3)
         logger.info("✅ Circuit breakers initialized")
 
-        # Initialize veto engine
+        # Initialize veto engine (legacy fallback)
         veto_engine = VetoEngine()
-        logger.info("✅ Veto engine initialized")
+        logger.info("✅ Veto engine initialized (fallback)")
 
         # Update metrics
         ACTIVE_WORKERS.set(1)
 
         logger.info("✅ Captcha Worker started successfully - READY FOR PRODUCTION")
+        logger.info(
+            f"   Solver Mode: {'UNIFIED (YOLO+OCR)' if unified_solver else 'LEGACY (Veto)'}"
+        )
 
     except Exception as e:
         logger.error(f"❌ Failed to initialize: {e}")
@@ -196,12 +239,29 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+async def verify_api_key(authorization: str = Header(None)) -> str:
+    """Verify API key from Authorization header"""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+
+    # Extract token from "Bearer <token>" format
+    if authorization.startswith("Bearer "):
+        token = authorization[7:]
+    else:
+        token = authorization
+
+    if token != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return token
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["POST", "GET", "OPTIONS"],
+    allow_headers=["authorization", "content-type"],
 )
 
 
@@ -256,7 +316,7 @@ async def readiness_check():
 
 
 @app.post("/api/solve", response_model=CaptchaSolveResponse)
-async def solve_captcha(request: CaptchaSolveRequest):
+async def solve_captcha(request: CaptchaSolveRequest, api_key: str = Depends(verify_api_key)):
     """Solve a single CAPTCHA with full feature support"""
     if not veto_engine:
         raise HTTPException(status_code=503, detail="Solver not initialized")
@@ -277,42 +337,52 @@ async def solve_captcha(request: CaptchaSolveRequest):
                 client_id=request.client_id,
             )
 
+    result = None
+    captcha_type_detected = request.captcha_type or "unknown"
+
     try:
-        with CAPTCHA_SOLVE_DURATION.time():
-            # Handle different input types
-            if request.image_data:
-                # Decode image
-                image_data = base64.b64decode(request.image_data)
-                nparr = np.frombuffer(image_data, np.uint8)
-                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-                if image is None:
-                    return CaptchaSolveResponse(
-                        success=False,
-                        error="Invalid image data",
-                        solve_time_ms=int((time.time() - start_time) * 1000),
-                    )
-
-                # OCR Detection for elements
-                if ocr_detector:
-                    elements = ocr_detector.detect_elements(image)
-                    logger.debug(f"Detected {len(elements)} elements via OCR")
-
-                # Solve using Veto Engine
-                result = await veto_engine.solve_text_captcha(request.image_data)
-
-            elif request.url:
-                # Browser-based solving
-                result = await veto_engine.solve_with_browser(
-                    request.url, captcha_type="auto", timeout=request.timeout
+        if request.image_data:
+            if unified_solver:
+                solve_result = await unified_solver.solve(
+                    image_base64=request.image_data,
+                    captcha_type=request.captcha_type,
+                    timeout=request.timeout,
                 )
 
+                result = {
+                    "success": solve_result.success,
+                    "solution": solve_result.solution,
+                    "solution_type": solve_result.captcha_type,
+                    "captcha_type": solve_result.captcha_type,
+                    "confidence": solve_result.confidence,
+                    "solver_used": solve_result.solver_used,
+                }
+                captcha_type_detected = (
+                    solve_result.captcha_type or request.captcha_type or "unknown"
+                )
             else:
-                return CaptchaSolveResponse(
-                    success=False,
-                    error="Must provide either image_data or url",
-                    solve_time_ms=int((time.time() - start_time) * 1000),
+                result = await veto_engine.solve_text_captcha(request.image_data)
+                captcha_type_detected = (
+                    result.get("captcha_type", request.captcha_type) or "unknown"
                 )
+
+        elif request.url:
+            result = await veto_engine.solve_with_browser(
+                request.url, captcha_type="auto", timeout=request.timeout
+            )
+            captcha_type_detected = result.get("captcha_type", "browser") or "browser"
+
+        else:
+            return CaptchaSolveResponse(
+                success=False,
+                error="Must provide either image_data or url",
+                solve_time_ms=int((time.time() - start_time) * 1000),
+            )
+
+        solve_time_ms = int((time.time() - start_time) * 1000)
+        CAPTCHA_SOLVE_DURATION.labels(captcha_type=captcha_type_detected).observe(
+            solve_time_ms / 1000.0
+        )
 
         solve_time_ms = int((time.time() - start_time) * 1000)
 
@@ -348,7 +418,12 @@ async def solve_captcha(request: CaptchaSolveRequest):
 
 
 @app.post("/api/solve/text", response_model=CaptchaSolveResponse)
-async def solve_text_captcha(image_base64: str, client_id: str = "default", timeout: int = 30):
+async def solve_text_captcha(
+    image_base64: str,
+    client_id: str = "default",
+    timeout: int = 30,
+    api_key: str = Depends(verify_api_key),
+):
     """Solve text-based CAPTCHA"""
     request = CaptchaSolveRequest(
         image_data=image_base64, captcha_type="text", client_id=client_id, timeout=timeout
@@ -358,7 +433,11 @@ async def solve_text_captcha(image_base64: str, client_id: str = "default", time
 
 @app.post("/api/solve/image-grid", response_model=CaptchaSolveResponse)
 async def solve_image_grid_captcha(
-    image_base64: str, instructions: str, client_id: str = "default", timeout: int = 45
+    image_base64: str,
+    instructions: str,
+    client_id: str = "default",
+    timeout: int = 45,
+    api_key: str = Depends(verify_api_key),
 ):
     """Solve image grid CAPTCHA (hCaptcha/reCAPTCHA style)"""
     return await solve_browser_captcha(
@@ -367,7 +446,9 @@ async def solve_image_grid_captcha(
 
 
 @app.post("/api/solve/browser", response_model=CaptchaSolveResponse)
-async def solve_browser_captcha(url: str, client_id: str = "default", timeout: int = 60):
+async def solve_browser_captcha(
+    url: str, client_id: str = "default", timeout: int = 60, api_key: str = Depends(verify_api_key)
+):
     """Solve CAPTCHA on live webpage using Steel Browser"""
     request = CaptchaSolveRequest(
         url=url, captcha_type="browser", client_id=client_id, timeout=timeout
@@ -376,7 +457,7 @@ async def solve_browser_captcha(url: str, client_id: str = "default", timeout: i
 
 
 @app.post("/api/solve/batch")
-async def solve_batch(batch_request: BatchCaptchaRequest):
+async def solve_batch(batch_request: BatchCaptchaRequest, api_key: str = Depends(verify_api_key)):
     """Solve batch of CAPTCHAs (max 100)"""
     if not veto_engine:
         raise HTTPException(status_code=503, detail="Solver not initialized")
