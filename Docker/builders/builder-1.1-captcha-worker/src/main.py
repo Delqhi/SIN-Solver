@@ -456,7 +456,6 @@ async def solve_batch_endpoint(batch_request: BatchCaptchaRequest):
     async def process_single(request: CaptchaSolveRequest, batch_id: str):
         async with semaphore:
             result = await solve_captcha(request)
-            # Create new response with batch_id
             return CaptchaSolveResponse(
                 success=result.success,
                 solution=result.solution,
@@ -470,10 +469,8 @@ async def solve_batch_endpoint(batch_request: BatchCaptchaRequest):
                 timestamp=result.timestamp,
             )
 
-    # Create tasks
-    tasks = [
-        process_single(req, batch_request.batch_id) for req in batch_request.requests[:100]
-    ]  # Limit to 100
+    requests_to_process = batch_request.requests[:100]
+    tasks = [process_single(req, batch_request.batch_id) for req in requests_to_process]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
     # Handle exceptions
