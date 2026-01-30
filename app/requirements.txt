@@ -17,7 +17,7 @@ opencv-python==4.9.0.80
 numpy==1.26.0
 
 # OCR Engine - REAL IMPLEMENTATION (NO PLACEHOLDER)
-ddddocr==1.5.5
+ddddocr==1.6.0
 
 # Monitoring & Metrics (Production)
 prometheus-client==0.19.0
