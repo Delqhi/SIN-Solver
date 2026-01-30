@@ -39,40 +39,20 @@ receivers:
   # CRITICAL ALERTS - #alerts-critical (Red, High-Priority)
   - name: 'rocketchat-critical'
     webhook_configs:
-      - url: '${ROCKETCHAT_WEBHOOK_CRITICAL}'
+      - url: 'http://rocketchat-webhook:8093/webhook'
         send_resolved: true
-        http_sd_configs: []
-        headers:
-          Content-Type: 'application/json'
-        # Custom webhook transformation for Rocket.Chat
-        title: '🔴 CRITICAL ALERT'
-        text: '{{ .GroupLabels.alertname }}'
-        # Ensure JSON payload format
-        action: alert
 
   # WARNING ALERTS - #alerts-warning (Yellow, Medium-Priority)
   - name: 'rocketchat-warning'
     webhook_configs:
-      - url: '${ROCKETCHAT_WEBHOOK_WARNING}'
+      - url: 'http://rocketchat-webhook:8093/webhook'
         send_resolved: true
-        http_sd_configs: []
-        headers:
-          Content-Type: 'application/json'
-        title: '🟡 WARNING ALERT'
-        text: '{{ .GroupLabels.alertname }}'
-        action: alert
 
   # INFO ALERTS - #alerts-info (Blue, Low-Priority)
   - name: 'rocketchat-info'
     webhook_configs:
-      - url: '${ROCKETCHAT_WEBHOOK_INFO}'
+      - url: 'http://rocketchat-webhook:8093/webhook'
         send_resolved: true
-        http_sd_configs: []
-        headers:
-          Content-Type: 'application/json'
-        title: '🔵 INFO ALERT'
-        text: '{{ .GroupLabels.alertname }}'
-        action: alert
 
 # Alert suppression rules (prevent alert storms)
 inhibit_rules:
