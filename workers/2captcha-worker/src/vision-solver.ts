@@ -177,7 +177,10 @@ export class VisionSolver {
       });
 
       // Convert AgentResult to SolverResult format for consensus engine
-      const consensusInputs = solverResults.map((r) => ({
+      // ⚠️ CRITICAL FIX: Use validResults (filtered) not solverResults (all)
+      // Failed agents have answer='' and confidence=0, which breaks majority voting
+      // by preventing valid agents from matching ('' !== 'ANSWER123')
+      const consensusInputs = validResults.map((r) => ({
         agentId: r.agentId,
         answer: r.answer,
         confidence: r.confidence,
@@ -186,7 +189,30 @@ export class VisionSolver {
         timestamp: r.timestamp,
       }));
 
+      // DEBUG: Log data flowing to consensus engine
+      this.logger.info('[DEBUG] consensusInputs ready for consensus engine', {
+        count: consensusInputs.length,
+        inputs: consensusInputs.map(r => ({
+          agentId: r.agentId,
+          answer: r.answer.substring(0, 50), // First 50 chars
+          confidence: r.confidence,
+        })),
+      });
+
       const decision = this.consensusEngine.compareAnswers(consensusInputs);
+
+      // DEBUG: Log consensus decision
+      this.logger.info('[DEBUG] consensus decision returned', {
+        action: decision.action,
+        reason: decision.reason,
+        answer: decision.answer?.substring(0, 50),
+        confidence: decision.confidence,
+        agentResults: decision.agentResults?.map(r => ({
+          agentId: r.agentId,
+          answer: r.answer?.substring(0, 50),
+          confidence: r.confidence,
+        })),
+      });
 
       // Validate decision safety
       const validation = validateDecision(decision);
