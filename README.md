@@ -490,6 +490,101 @@ For comprehensive API documentation with all endpoints, parameters, and examples
 
 ---
 
+## 🔐 Security (v2.1.0 - Enterprise Hardening)
+
+SIN-Solver implements **enterprise-grade security** across all services with a focus on **zero-trust architecture** and **secrets management**.
+
+### Three-Layer Security Implementation
+
+#### 1. API Key Authentication
+All protected endpoints require **HTTPBearer token** authentication:
+```bash
+curl -X POST https://delqhi.com/api/solve \
+  -H "Authorization: Bearer {CAPTCHA_API_KEY}" \
+  -H "Content-Type: application/json"
+```
+
+**Protected Endpoints:**
+- `POST /api/solve` - Solve CAPTCHA (requires auth)
+- `POST /api/solve/text` - Text CAPTCHA solving (requires auth)
+- `POST /api/solve/image-grid` - Grid CAPTCHA solving (requires auth)
+- `POST /api/solve/browser` - Browser-automated solving (requires auth)
+- `POST /api/solve/batch` - Batch solving (requires auth)
+
+**Public Endpoints (No Auth):**
+- `GET /health` - Service health
+- `GET /ready` - Readiness probe
+- `GET /metrics` - Prometheus metrics
+- `GET /rate-limits` - Current rate limits
+
+#### 2. CORS Hardening
+✅ **No wildcard CORS** - Explicit origin whitelist only
+```env
+ALLOWED_ORIGINS=http://localhost:3000,https://api.delqhi.com
+```
+
+#### 3. Secret Management
+✅ **Environment-based configuration** - Never in code
+- API keys in `.env` file
+- `.env` protected by `.gitignore`
+- Runtime loading from environment variables
+
+### Security Documentation
+
+For comprehensive security guides, see:
+
+| Document | Purpose | Coverage |
+|----------|---------|----------|
+| **[SECURITY.md](./Docker/builders/builder-1.1-captcha-worker/SECURITY.md)** | CAPTCHA Worker security | API auth, CORS, secrets, incident response |
+| **[API-SECURITY.md](./Docs/API-SECURITY.md)** | Enterprise API security | Auth patterns, error handling, testing |
+| **[test-security.sh](./Docker/builders/builder-1.1-captcha-worker/test-security.sh)** | Automated security tests | 17 test scenarios covering auth, CORS, endpoints |
+
+### Running Security Tests
+
+```bash
+# Navigate to CAPTCHA Worker service
+cd Docker/builders/builder-1.1-captcha-worker
+
+# Start service
+docker-compose up -d
+
+# Run security test suite (17 tests)
+bash test-security.sh
+
+# Expected output:
+# ✅ All 17 security tests PASSED!
+```
+
+### Security Checklist (Pre-Production)
+
+- [ ] API key is configured in `.env` (never hardcoded)
+- [ ] CORS origins whitelist is configured (no wildcards)
+- [ ] `.env` file is in `.gitignore`
+- [ ] All 17 security tests pass
+- [ ] Production domain configured (https://)
+- [ ] Secrets rotation plan in place
+- [ ] Incident response procedure documented
+- [ ] Team trained on secret management
+
+### Compliance & Standards
+
+✅ **OWASP Top 10** - All covered by security hardening  
+✅ **HTTPBearer RFC 6750** - Standard authentication  
+✅ **REST API Best Practices** - HTTP status codes, error handling  
+✅ **Secret Management** - Environment variables, no hardcoding  
+
+### Reporting Security Issues
+
+Found a vulnerability? **DO NOT** open a public issue. Instead:
+
+Email: **security@delqhi.com** with:
+- Description of vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if applicable)
+
+---
+
 ## 📚 Documentation
 
 Complete documentation is available in the `./docs/` directory:
