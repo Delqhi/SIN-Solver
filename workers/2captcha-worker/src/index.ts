@@ -114,10 +114,14 @@ async function initializeDetector(browser: Browser): Promise<TwoCaptchaDetector>
     });
 
     // Initialize detector (will use the provided page or create new ones)
-    const detector = new TwoCaptchaDetector(page, {
-      headless: process.env.HEADLESS !== 'false',
-      timeout: parseInt(process.env.DETECTOR_TIMEOUT_MS || '60000', 10),
-    });
+    const alertSystem: AlertSystem = {
+      onCaptchaDetected: async (info) => detectorLogger.info(`CAPTCHA detected: ${info.id}`),
+      onError: async (error) => detectorLogger.error(`Error: ${error.message}`),
+      onSuccess: async (result) => detectorLogger.info(`✅ ${result.message}`),
+      onWarning: async (message) => detectorLogger.warn(`⚠️ ${message}`),
+      onTimeout: async (message) => detectorLogger.warn(`⏱️ ${message}`),
+    };
+    const detector = new TwoCaptchaDetector(page, alertSystem, parseInt(process.env.DETECTOR_TIMEOUT_MS || '60000', 10));
 
     // Close the temporary page (detector will create its own when needed)
     await page.close();
