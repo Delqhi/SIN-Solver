@@ -147,13 +147,53 @@ function initializeWorkerService(
     console.log(`[Queue] Job queued for retry: ${data.jobId} (attempt ${data.attempt})`);
   });
 
-  workerService.on('job-cancelled', (data) => {
-    console.log(`[Queue] Job cancelled: ${data.jobId} - ${data.reason}`);
-  });
+   workerService.on('job-cancelled', (data) => {
+     console.log(`[Queue] Job cancelled: ${data.jobId} - ${data.reason}`);
+   });
 
-  console.log('[Worker] ✅ Worker service initialized successfully');
-  return workerService;
-}
+   // Anti-ban event listeners
+   workerService.on('anti-ban-delay', (data) => {
+     if (process.env.VERBOSE_ANTI_BAN === 'true') {
+       console.log(`[AntiBan] ⏸️  Applying delay: ${data.ms}ms`);
+     }
+   });
+
+   workerService.on('anti-ban-break', (data) => {
+     console.log(`[AntiBan] 🛑 Break required: ${data.duration}ms`);
+   });
+
+   workerService.on('anti-ban-captcha-skipped', () => {
+     if (process.env.VERBOSE_ANTI_BAN === 'true') {
+       console.log(`[AntiBan] ⊘ CAPTCHA skipped (anti-ban protection)`);
+     }
+   });
+
+   workerService.on('anti-ban-captcha-solved', (data) => {
+     if (process.env.VERBOSE_ANTI_BAN === 'true') {
+       console.log(`[AntiBan] ✅ CAPTCHA solved (total in session: ${data.totalInSession})`);
+     }
+   });
+
+   workerService.on('anti-ban-work-hours-exceeded', () => {
+     console.warn(`[AntiBan] ⚠️  Work hours exceeded - pausing job processing`);
+   });
+
+   workerService.on('anti-ban-session-limit', () => {
+     console.warn(`[AntiBan] ⚠️  Session limit reached - no more jobs will be processed`);
+   });
+
+   workerService.on('anti-ban-session-started', () => {
+     const pattern = process.env.ANTI_BAN_PATTERN || 'normal';
+     console.log(`[AntiBan] ✅ Anti-ban session started (pattern: ${pattern})`);
+   });
+
+   workerService.on('anti-ban-session-stopped', () => {
+     console.log(`[AntiBan] ⏹️  Anti-ban session stopped`);
+   });
+
+   console.log('[Worker] ✅ Worker service initialized successfully');
+   return workerService;
+ }
 
 /**
  * Start the worker service
@@ -179,19 +219,28 @@ async function startWorker(): Promise<void> {
      apiServer = createApiServer(workerService, detector, port);
      await apiServer.start();
 
-     console.log('\n✅ 2captcha worker started successfully\n');
-     console.log('Environment:');
-     console.log(`  - Max workers: ${process.env.MAX_WORKERS || 5}`);
-     console.log(`  - Queue size: ${process.env.MAX_QUEUE_SIZE || 1000}`);
-     console.log(`  - Timeout: ${process.env.DEFAULT_TIMEOUT_MS || 60000}ms`);
-     console.log(`  - Max retries: ${process.env.MAX_RETRIES || 3}`);
-     console.log(`  - Headless: ${process.env.HEADLESS !== 'false'}`);
-     console.log('\n✅ API Server:');
-     console.log(`  - Server: http://0.0.0.0:${port}`);
-     console.log(`  - Health Check: GET http://localhost:${port}/health`);
-     console.log(`  - Metrics: GET http://localhost:${port}/api/metrics`);
-     console.log(`  - Queue Status: GET http://localhost:${port}/api/queue`);
-     console.log(`  - Job Submission: POST http://localhost:${port}/api/jobs\n`);
+      console.log('\n✅ 2captcha worker started successfully\n');
+      console.log('Environment:');
+      console.log(`  - Max workers: ${process.env.MAX_WORKERS || 5}`);
+      console.log(`  - Queue size: ${process.env.MAX_QUEUE_SIZE || 1000}`);
+      console.log(`  - Timeout: ${process.env.DEFAULT_TIMEOUT_MS || 60000}ms`);
+      console.log(`  - Max retries: ${process.env.MAX_RETRIES || 3}`);
+      console.log(`  - Headless: ${process.env.HEADLESS !== 'false'}`);
+      
+      // Anti-ban configuration
+      const antiBanEnabled = process.env.ANTI_BAN_ENABLED !== 'false';
+      if (antiBanEnabled) {
+        console.log(`  - Anti-Ban: enabled (pattern: ${process.env.ANTI_BAN_PATTERN || 'normal'}, hours: ${process.env.WORK_HOURS_START || 8}-${process.env.WORK_HOURS_END || 22})`);
+      } else {
+        console.log(`  - Anti-Ban: disabled`);
+      }
+      
+      console.log('\n✅ API Server:');
+      console.log(`  - Server: http://0.0.0.0:${port}`);
+      console.log(`  - Health Check: GET http://localhost:${port}/health`);
+      console.log(`  - Metrics: GET http://localhost:${port}/api/metrics`);
+      console.log(`  - Queue Status: GET http://localhost:${port}/api/queue`);
+      console.log(`  - Job Submission: POST http://localhost:${port}/api/jobs\n`);
   } catch (error) {
     console.error('\n❌ Failed to start worker:', error);
     await gracefulShutdown(1);

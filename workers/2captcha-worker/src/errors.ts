@@ -228,7 +228,12 @@ export class InvalidSolutionError extends CaptchaSolvingError {
         context: { ...context, reason },
       }
     );
-    this.code = 'INVALID_SOLUTION';
+    Object.defineProperty(this, 'code', {
+      value: 'INVALID_SOLUTION',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, InvalidSolutionError.prototype);
   }
 }
@@ -267,7 +272,12 @@ export class SubmitButtonNotFoundError extends CaptchaSubmissionError {
         context: { ...context, selectors },
       }
     );
-    this.code = 'SUBMIT_BUTTON_NOT_FOUND';
+    Object.defineProperty(this, 'code', {
+      value: 'SUBMIT_BUTTON_NOT_FOUND',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, SubmitButtonNotFoundError.prototype);
   }
 }
@@ -285,7 +295,12 @@ export class SubmissionFailedError extends CaptchaSubmissionError {
         context: { ...context, reason },
       }
     );
-    this.code = 'SUBMISSION_FAILED';
+    Object.defineProperty(this, 'code', {
+      value: 'SUBMISSION_FAILED',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, SubmissionFailedError.prototype);
   }
 }
@@ -332,7 +347,12 @@ export class OperationTimeoutError extends TimeoutError {
       elapsedMs,
       { ...context, operation }
     );
-    this.code = 'OPERATION_TIMEOUT';
+    Object.defineProperty(this, 'code', {
+      value: 'OPERATION_TIMEOUT',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, OperationTimeoutError.prototype);
   }
 }
@@ -350,7 +370,12 @@ export class JobTimeoutError extends TimeoutError {
       elapsedMs,
       { ...context, jobId }
     );
-    this.code = 'JOB_TIMEOUT';
+    Object.defineProperty(this, 'code', {
+      value: 'JOB_TIMEOUT',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, JobTimeoutError.prototype);
   }
 }
@@ -409,8 +434,18 @@ export class JobNotFoundError extends JobQueueError {
         context: { ...context, jobId },
       }
     );
-    this.code = 'JOB_NOT_FOUND';
-    this.httpStatus = 404;
+    Object.defineProperty(this, 'code', {
+      value: 'JOB_NOT_FOUND',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
+    Object.defineProperty(this, 'httpStatus', {
+      value: 404,
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, JobNotFoundError.prototype);
   }
 }
@@ -431,8 +466,18 @@ export class InvalidJobStateError extends JobQueueError {
         context: { ...context, jobId, currentState, expectedState },
       }
     );
-    this.code = 'INVALID_JOB_STATE';
-    this.httpStatus = 409;
+    Object.defineProperty(this, 'code', {
+      value: 'INVALID_JOB_STATE',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
+    Object.defineProperty(this, 'httpStatus', {
+      value: 409,
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, InvalidJobStateError.prototype);
   }
 }
@@ -451,8 +496,18 @@ export class WorkerPoolExhaustedError extends JobQueueError {
         context: { ...context, maxWorkers, queueLength },
       }
     );
-    this.code = 'WORKER_POOL_EXHAUSTED';
-    this.httpStatus = 503;
+    Object.defineProperty(this, 'code', {
+      value: 'WORKER_POOL_EXHAUSTED',
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
+    Object.defineProperty(this, 'httpStatus', {
+      value: 503,
+      writable: false,
+      enumerable: true,
+      configurable: false
+    });
     Object.setPrototypeOf(this, WorkerPoolExhaustedError.prototype);
   }
 }
