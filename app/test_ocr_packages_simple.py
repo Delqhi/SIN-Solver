@@ -14,17 +14,21 @@ print("=" * 60)
 print("\n1️⃣  Testing imports...")
 try:
     import numpy as np
+
     print("   ✅ numpy")
-    
+
     import cv2
+
     print("   ✅ opencv-python (cv2)")
-    
+
     import PIL.Image
+
     print("   ✅ pillow (PIL)")
-    
+
     import pytesseract
+
     print("   ✅ pytesseract")
-    
+
     print("   ✅ All core imports working!")
 except ImportError as e:
     print(f"   ❌ Import failed: {e}")
@@ -43,12 +47,12 @@ except Exception as e:
 print("\n3️⃣  Testing Tesseract OCR on synthetic image...")
 try:
     from PIL import Image, ImageDraw, ImageFont
-    
+
     # Create a simple image with text
-    img = Image.new('RGB', (200, 50), color='white')
+    img = Image.new("RGB", (200, 50), color="white")
     draw = ImageDraw.Draw(img)
-    draw.text((10, 10), "HELLO123", fill='black')
-    
+    draw.text((10, 10), "HELLO123", fill="black")
+
     # Try to OCR it
     text = pytesseract.image_to_string(img)
     if text.strip():
@@ -62,6 +66,7 @@ except Exception as e:
 print("\n4️⃣  Testing PaddleOCR imports (no model download)...")
 try:
     from paddleocr import PaddleOCR
+
     print("   ✅ paddleocr import successful")
     print("   ℹ️  (Models will be loaded on first actual use)")
 except ImportError as e:
@@ -72,6 +77,7 @@ except ImportError as e:
 print("\n5️⃣  Testing YOLO imports...")
 try:
     from ultralytics import YOLO
+
     print("   ✅ ultralytics.YOLO import successful")
 except ImportError as e:
     print(f"   ❌ YOLO import failed: {e}")

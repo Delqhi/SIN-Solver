@@ -11,7 +11,7 @@ Exports:
     - get_security_manager: Function to get security manager instance
     - require_api_key: Dependency for API key authentication
     - verify_token_dependency: Dependency for JWT token verification
-    - Router modules: solve, auth, health, workers, steel, chat, docs, 
+    - Router modules: solve, auth, health, workers, steel, chat, docs,
                      pentest, secrets, resources, system
 
 This enables imports like:

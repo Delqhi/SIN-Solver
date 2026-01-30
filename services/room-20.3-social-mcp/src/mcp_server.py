@@ -33,7 +33,7 @@ def run_yt_dlp(url: str, args: list[str] = None) -> dict:
     if args:
         cmd.extend(args)
     cmd.append(url)
-    
+
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
         if result.returncode == 0:
@@ -46,8 +46,17 @@ def run_yt_dlp(url: str, args: list[str] = None) -> dict:
 def extract_frame(video_path: str, timestamp: str) -> Optional[str]:
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
         cmd = [
-            "ffmpeg", "-ss", timestamp, "-i", video_path,
-            "-vframes", "1", "-q:v", "2", "-y", tmp.name
+            "ffmpeg",
+            "-ss",
+            timestamp,
+            "-i",
+            video_path,
+            "-vframes",
+            "1",
+            "-q:v",
+            "2",
+            "-y",
+            tmp.name,
         ]
         try:
             subprocess.run(cmd, capture_output=True, timeout=30)
@@ -62,42 +71,49 @@ def extract_frame(video_path: str, timestamp: str) -> Optional[str]:
 async def analyze_with_gemini(image_base64: str, prompt: str) -> str:
     if not GEMINI_API_KEY:
         return "Error: GEMINI_API_KEY not set"
-    
+
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-    
+
     payload = {
-        "contents": [{
-            "parts": [
-                {"text": prompt},
-                {"inline_data": {"mime_type": "image/jpeg", "data": image_base64}}
-            ]
-        }]
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt},
+                    {"inline_data": {"mime_type": "image/jpeg", "data": image_base64}},
+                ]
+            }
+        ]
     }
-    
+
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json=payload, timeout=60)
         if response.status_code == 200:
             data = response.json()
-            return data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response")
+            return (
+                data.get("candidates", [{}])[0]
+                .get("content", {})
+                .get("parts", [{}])[0]
+                .get("text", "No response")
+            )
         return f"Gemini Error: {response.status_code}"
 
 
 async def analyze_with_grok(text: str, prompt: str) -> str:
     if not OPENCODE_API_KEY:
         return "Error: OPENCODE_API_KEY not set"
-    
+
     url = "https://api.opencode.ai/v1/chat/completions"
-    
+
     payload = {
         "model": "opencode/grok-code",
         "messages": [
             {"role": "system", "content": "You are a helpful assistant analyzing video content."},
-            {"role": "user", "content": f"{prompt}\n\nContent:\n{text}"}
-        ]
+            {"role": "user", "content": f"{prompt}\n\nContent:\n{text}"},
+        ],
     }
-    
+
     headers = {"Authorization": f"Bearer {OPENCODE_API_KEY}"}
-    
+
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json=payload, headers=headers, timeout=60)
         if response.status_code == 200:
@@ -108,12 +124,8 @@ async def analyze_with_grok(text: str, prompt: str) -> str:
 
 async def post_to_clawdbot(message: str, platforms: list[str] = None) -> dict:
     url = f"{CLAWDBOT_URL}/api/notify"
-    payload = {
-        "message": message,
-        "type": "info",
-        "providers": platforms or ["all"]
-    }
-    
+    payload = {"message": message, "type": "info", "providers": platforms or ["all"]}
+
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(url, json=payload, timeout=30)
@@ -130,11 +142,9 @@ async def list_tools() -> list[Tool]:
             description="Get metadata and transcript from YouTube/TikTok/Instagram video",
             inputSchema={
                 "type": "object",
-                "properties": {
-                    "url": {"type": "string", "description": "Video URL"}
-                },
-                "required": ["url"]
-            }
+                "properties": {"url": {"type": "string", "description": "Video URL"}},
+                "required": ["url"],
+            },
         ),
         Tool(
             name="analyze_video_frame",
@@ -144,10 +154,10 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "url": {"type": "string", "description": "Video URL"},
                     "timestamp": {"type": "string", "description": "Timestamp (e.g., '01:30')"},
-                    "prompt": {"type": "string", "description": "What to analyze in the frame"}
+                    "prompt": {"type": "string", "description": "What to analyze in the frame"},
                 },
-                "required": ["url", "timestamp", "prompt"]
-            }
+                "required": ["url", "timestamp", "prompt"],
+            },
         ),
         Tool(
             name="analyze_transcript",
@@ -156,10 +166,10 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "url": {"type": "string", "description": "Video URL"},
-                    "prompt": {"type": "string", "description": "Analysis prompt"}
+                    "prompt": {"type": "string", "description": "Analysis prompt"},
                 },
-                "required": ["url", "prompt"]
-            }
+                "required": ["url", "prompt"],
+            },
         ),
         Tool(
             name="post_to_social",
@@ -171,11 +181,11 @@ async def list_tools() -> list[Tool]:
                     "platforms": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "Platforms: telegram, whatsapp, discord, all"
-                    }
+                        "description": "Platforms: telegram, whatsapp, discord, all",
+                    },
                 },
-                "required": ["message"]
-            }
+                "required": ["message"],
+            },
         ),
         Tool(
             name="download_video",
@@ -184,11 +194,11 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "url": {"type": "string", "description": "Video URL"},
-                    "format": {"type": "string", "description": "Format: best, mp4, mp3"}
+                    "format": {"type": "string", "description": "Format: best, mp4, mp3"},
                 },
-                "required": ["url"]
-            }
-        )
+                "required": ["url"],
+            },
+        ),
     ]
 
 
@@ -197,7 +207,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     if name == "get_video_info":
         url = arguments["url"]
         info = run_yt_dlp(url, ["--write-auto-subs", "--skip-download"])
-        
+
         result = {
             "title": info.get("title", "Unknown"),
             "description": info.get("description", ""),
@@ -207,67 +217,67 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             "like_count": info.get("like_count", 0),
             "upload_date": info.get("upload_date", ""),
             "subtitles": info.get("subtitles", {}),
-            "automatic_captions": list(info.get("automatic_captions", {}).keys())
+            "automatic_captions": list(info.get("automatic_captions", {}).keys()),
         }
-        
+
         return [TextContent(type="text", text=json.dumps(result, indent=2))]
-    
+
     elif name == "analyze_video_frame":
         url = arguments["url"]
         timestamp = arguments["timestamp"]
         prompt = arguments["prompt"]
-        
+
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp:
             cmd = ["yt-dlp", "-f", "best[height<=720]", "-o", tmp.name, url]
             subprocess.run(cmd, capture_output=True, timeout=120)
-            
+
             frame_b64 = extract_frame(tmp.name, timestamp)
             os.unlink(tmp.name)
-            
+
             if frame_b64:
                 analysis = await analyze_with_gemini(frame_b64, prompt)
                 return [TextContent(type="text", text=analysis)]
             return [TextContent(type="text", text="Failed to extract frame")]
-    
+
     elif name == "analyze_transcript":
         url = arguments["url"]
         prompt = arguments["prompt"]
-        
+
         info = run_yt_dlp(url, ["--write-auto-subs", "--skip-download"])
-        
+
         transcript = info.get("description", "") + "\n\n"
         if "automatic_captions" in info:
             for lang, subs in info.get("automatic_captions", {}).items():
                 if lang.startswith("en"):
                     transcript += f"[{lang}] Available"
                     break
-        
+
         analysis = await analyze_with_grok(transcript, prompt)
         return [TextContent(type="text", text=analysis)]
-    
+
     elif name == "post_to_social":
         message = arguments["message"]
         platforms = arguments.get("platforms", ["all"])
-        
+
         result = await post_to_clawdbot(message, platforms)
         return [TextContent(type="text", text=json.dumps(result, indent=2))]
-    
+
     elif name == "download_video":
         url = arguments["url"]
         fmt = arguments.get("format", "best")
-        
+
         output_dir = "/tmp/sin-social-downloads"
         os.makedirs(output_dir, exist_ok=True)
-        
+
         output_path = os.path.join(output_dir, "%(title)s.%(ext)s")
         cmd = ["yt-dlp", "-f", fmt, "-o", output_path, url]
-        
+
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-        
+
         if result.returncode == 0:
             return [TextContent(type="text", text=f"Downloaded to {output_dir}")]
         return [TextContent(type="text", text=f"Error: {result.stderr}")]
-    
+
     return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
 
@@ -287,7 +297,7 @@ http_app = FastAPI(
     title="SIN-Social-MCP",
     description="Social media automation MCP for video analysis and posting",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 http_app.add_middleware(
@@ -325,14 +335,18 @@ async def health_check():
         tools_available=5,
         gemini_configured=bool(GEMINI_API_KEY),
         opencode_configured=bool(OPENCODE_API_KEY),
-        clawdbot_url=CLAWDBOT_URL
+        clawdbot_url=CLAWDBOT_URL,
     )
 
 
 @http_app.get("/tools")
 async def list_available_tools():
     tools = await list_tools()
-    return {"tools": [{"name": t.name, "description": t.description, "schema": t.inputSchema} for t in tools]}
+    return {
+        "tools": [
+            {"name": t.name, "description": t.description, "schema": t.inputSchema} for t in tools
+        ]
+    }
 
 
 @http_app.post("/tools/execute")
@@ -352,7 +366,9 @@ async def api_get_video_info(url: str):
 
 @http_app.post("/api/video/analyze-frame")
 async def api_analyze_frame(url: str, timestamp: str, prompt: str):
-    result = await call_tool("analyze_video_frame", {"url": url, "timestamp": timestamp, "prompt": prompt})
+    result = await call_tool(
+        "analyze_video_frame", {"url": url, "timestamp": timestamp, "prompt": prompt}
+    )
     return {"analysis": result[0].text}
 
 
@@ -364,7 +380,9 @@ async def api_analyze_transcript(url: str, prompt: str):
 
 @http_app.post("/api/social/post")
 async def api_post_to_social(message: str, platforms: list[str] = None):
-    result = await call_tool("post_to_social", {"message": message, "platforms": platforms or ["all"]})
+    result = await call_tool(
+        "post_to_social", {"message": message, "platforms": platforms or ["all"]}
+    )
     return json.loads(result[0].text)
 
 

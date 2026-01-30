@@ -12,6 +12,7 @@ from typing import Optional, Tuple
 
 logger = logging.getLogger("VisionCache")
 
+
 class VisionCache:
     def __init__(self, db_path: str = ".opencode/room10_records.db"):
         self.db_path = db_path
@@ -25,7 +26,9 @@ class VisionCache:
                 self.conn = sqlite3.connect(self.db_path)
                 self.conn.execute("PRAGMA journal_mode=WAL;")
             except sqlite3.OperationalError:
-                logger.warning("Could not open database file or enable WAL, using in-memory database")
+                logger.warning(
+                    "Could not open database file or enable WAL, using in-memory database"
+                )
                 self.conn = sqlite3.connect(":memory:")
 
             try:
@@ -54,12 +57,13 @@ class VisionCache:
         try:
             from PIL import Image
             import imagehash
+
             img = Image.open(image_path)
             # Use pHash for robust matching against slight compression/noise
             return str(imagehash.phash(img))
         except ImportError:
             # Fallback to standard hash if imagehash not installed
-            with open(image_path, 'rb') as f:
+            with open(image_path, "rb") as f:
                 return hashlib.md5(f.read()).hexdigest()
         except Exception as e:
             logger.warning(f"pHash calculation failed: {e}")
@@ -70,15 +74,14 @@ class VisionCache:
             return None
         try:
             cursor = self.conn.execute(
-                "SELECT result FROM golden_records WHERE hash = ?",
-                (image_hash,)
+                "SELECT result FROM golden_records WHERE hash = ?", (image_hash,)
             )
             result = cursor.fetchone()
 
             if result:
                 self.conn.execute(
                     "UPDATE golden_records SET usage_count = usage_count + 1 WHERE hash = ?",
-                    (image_hash,)
+                    (image_hash,),
                 )
                 self.conn.commit()
                 return result[0]
@@ -92,7 +95,7 @@ class VisionCache:
         try:
             self.conn.execute(
                 "INSERT OR REPLACE INTO golden_records (hash, result) VALUES (?, ?)",
-                (image_hash, result)
+                (image_hash, result),
             )
             self.conn.commit()
         except:

@@ -18,6 +18,7 @@ router = APIRouter(prefix="/api/services", tags=["services"])
 async def get_service_registry():
     """Dependency injection for service registry"""
     from main import service_registry
+
     if not service_registry:
         raise HTTPException(status_code=503, detail="Service registry not available")
     return service_registry
@@ -32,16 +33,18 @@ async def register_service(service_data: dict, registry=None):
 
 @router.get("", response_model=List[dict])
 async def list_services(
-    status_filter: Optional[str] = Query(None, description="Filter by status: healthy, degraded, offline"),
-    registry=None
+    status_filter: Optional[str] = Query(
+        None, description="Filter by status: healthy, degraded, offline"
+    ),
+    registry=None,
 ):
     """List all registered services with optional filtering"""
     try:
         services = await registry.list_all_services()
-        
+
         if status_filter:
-            services = [s for s in services if s.get('status') == status_filter]
-        
+            services = [s for s in services if s.get("status") == status_filter]
+
         return services
     except Exception as e:
         logger.error(f"Error listing services: {e}")
@@ -67,16 +70,16 @@ async def get_service_health(service_name: str, registry=None):
     try:
         is_healthy = await registry.check_service_health(service_name)
         service = registry.services.get(service_name)
-        
+
         if not service:
             raise HTTPException(status_code=404, detail=f"Service not found: {service_name}")
-        
+
         return {
             "service_name": service_name,
-            "status": service.get('status', 'unknown'),
+            "status": service.get("status", "unknown"),
             "healthy": is_healthy,
-            "last_heartbeat": service.get('last_heartbeat'),
-            "response_time_ms": service.get('avg_response_time_ms', 0)
+            "last_heartbeat": service.get("last_heartbeat"),
+            "response_time_ms": service.get("avg_response_time_ms", 0),
         }
     except Exception as e:
         logger.error(f"Error checking service health: {e}")
@@ -103,11 +106,11 @@ async def send_heartbeat(service_name: str, response_time_ms: float = 0.0, regis
         success = await registry.heartbeat(service_name, response_time_ms)
         if not success:
             raise HTTPException(status_code=404, detail=f"Service not found: {service_name}")
-        
+
         return {
             "service_name": service_name,
             "heartbeat_received": True,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         logger.error(f"Error processing heartbeat: {e}")
@@ -120,11 +123,11 @@ async def update_service(service_name: str, update_data: ServiceUpdate, registry
     try:
         if service_name not in registry.services:
             raise HTTPException(status_code=404, detail=f"Service not found: {service_name}")
-        
+
         service = registry.services[service_name]
         update_dict = update_data.model_dump(exclude_unset=True)
         service.update(update_dict)
-        
+
         return service
     except Exception as e:
         logger.error(f"Error updating service: {e}")

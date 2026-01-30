@@ -8,6 +8,7 @@ from app.services.captcha_detector import get_captcha_detector
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("StressTest")
 
+
 async def run_stress_test():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
@@ -45,6 +46,7 @@ async def run_stress_test():
 
         await asyncio.sleep(5)
         await browser.close()
+
 
 if __name__ == "__main__":
     asyncio.run(run_stress_test())

@@ -58,12 +58,12 @@ def sample_captcha_paths(fixtures_dir):
     """Get paths to sample CAPTCHA images"""
     captchas_dir = fixtures_dir / "captchas"
     samples = {}
-    
+
     for captcha_type in ["text", "math", "recaptcha", "hcaptcha"]:
         type_dir = captchas_dir / captcha_type
         if type_dir.exists():
             samples[captcha_type] = list(type_dir.glob("*.png"))
-    
+
     return samples
 
 
@@ -71,8 +71,9 @@ def sample_captcha_paths(fixtures_dir):
 def ground_truth(fixtures_dir):
     """Load ground truth data"""
     import json
+
     gt_path = fixtures_dir / "ground_truth.json"
-    
+
     if gt_path.exists():
         with open(gt_path) as f:
             return json.load(f)

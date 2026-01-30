@@ -6,7 +6,7 @@ Complete browser fingerprint evasion + bot detection bypass
 
 Based on leaked strategies from:
 - 2captcha.com
-- anti-captcha.com  
+- anti-captcha.com
 - DeathByCaptcha
 - Puppeteer-extra-plugin-stealth
 """
@@ -27,19 +27,20 @@ except ImportError:
 
 logger = logging.getLogger("StealthEngine")
 
+
 class StealthEngine:
     """
     Ultimate Anti-Detection Engine (V2.1 - 2026 Elite)
     Indistinguishable from a real human across JA4 TLS, HTTP/2, and Behavioral layers.
     """
-    
+
     USER_AGENTS = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
     ]
-    
+
     @staticmethod
     async def apply_ultimate_stealth(page: Page, proxy_metadata: Optional[Dict] = None) -> None:
         """
@@ -47,35 +48,35 @@ class StealthEngine:
         Synchronizes TLS/JA4, HTTP/2, Browser Fingerprints, and Behavioral Mimicry.
         """
         proxy_metadata = proxy_metadata or {}
-        
+
         # 0. Apply playwright-stealth (Industry Standard)
         if stealth_async:
             try:
                 await stealth_async(page)
             except Exception as e:
                 logger.warning(f"⚠️ playwright-stealth failed: {e}")
-            
+
         # 1. Remove automation markers
         await StealthEngine._remove_automation_markers(page)
-        
+
         # 2. Add realistic browser properties (Timezone, Language, RTC, Fonts)
         await StealthEngine._inject_realistic_properties(page, proxy_metadata)
-        
+
         # 3. Randomize fingerprints (Canvas, Audio, WebGL, WebGPU)
         await StealthEngine._randomize_fingerprints(page)
-        
+
         # 4. Add human-like behaviors
         await StealthEngine._enable_human_behaviors(page)
-        
+
         # 5. Disable WebRTC (IP leak prevention)
         await StealthEngine._disable_webrtc(page)
 
         # 6. Inject Realistic Browser History (50-100 entries)
         await StealthEngine._inject_realistic_history(page)
-        
+
         # 7. 🔥 CEO 2026: Mobile Sensor Spoofing (Gyro/Accel)
         await StealthEngine._spoof_mobile_sensors(page)
-        
+
         # 8. 🔥 CEO 2026: Modern API Spoofing (Battery, Bluetooth, USB)
         await StealthEngine._spoof_modern_apis(page)
 
@@ -87,7 +88,9 @@ class StealthEngine:
         if random.random() < 0.7:
             await StealthEngine._perform_warmup_behavior(page)
 
-        logger.info(f"🛡️ [Stealth V2.1] Ghost Layer Active. JA4/H2 Aligned. GeoSync: {proxy_metadata.get('countryCode', 'US')}")
+        logger.info(
+            f"🛡️ [Stealth V2.1] Ghost Layer Active. JA4/H2 Aligned. GeoSync: {proxy_metadata.get('countryCode', 'US')}"
+        )
 
     @staticmethod
     async def _perform_warmup_behavior(page: Page) -> None:
@@ -95,19 +98,20 @@ class StealthEngine:
         try:
             # 1. Random 'Thinking' Pause
             await asyncio.sleep(random.uniform(1.2, 3.5))
-            
+
             # 2. Random Scroll (checking the page)
             if random.random() < 0.5:
                 await page.mouse.wheel(0, random.randint(100, 400))
                 await asyncio.sleep(random.uniform(0.5, 1.2))
                 await page.mouse.wheel(0, -random.randint(50, 200))
-            
+
             # 3. Random Mouse 'Scan' (human scanning the page)
             for _ in range(random.randint(1, 3)):
                 tx, ty = random.randint(100, 700), random.randint(100, 500)
                 await HumanBehavior.human_mouse_move(page, tx, ty, steps=random.randint(20, 40))
                 await asyncio.sleep(random.uniform(0.2, 0.8))
-        except: pass
+        except:
+            pass
 
     @staticmethod
     async def _apply_ja4_and_http2_alignment(page: Page) -> None:
@@ -140,7 +144,7 @@ class StealthEngine:
             // 2. JA4-H (HTTP) Header Ordering Alignment
             // Ensuring navigator.languages and other signals match common browser header order
             // Note: Actual header order must be set in the proxy or browser launch options.
-            
+
             // 3. SEC-CH-UA Consistency
             // Ensuring Client Hints match the User-Agent exactly
             if (navigator.userAgentData) {
@@ -152,7 +156,7 @@ class StealthEngine:
                 Object.defineProperty(navigator.userAgentData, 'brands', { get: () => brands });
                 Object.defineProperty(navigator.userAgentData, 'mobile', { get: () => false });
                 Object.defineProperty(navigator.userAgentData, 'platform', { get: () => 'Windows' });
-                
+
                 // 🔥 CEO 2026: Add getHighEntropyValues spoofing
                 const originalGetHighEntropyValues = navigator.userAgentData.getHighEntropyValues;
                 navigator.userAgentData.getHighEntropyValues = function(hints) {
@@ -169,7 +173,6 @@ class StealthEngine:
             }
         })();
         """)
-
 
     @staticmethod
     async def _apply_ja4_signal_deception(page: Page) -> None:
@@ -245,15 +248,15 @@ class StealthEngine:
         await page.add_init_script("""
         // === CRITICAL: Remove Automation Markers ===
         Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-        
+
         // Chrome CDP markers
         delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
         delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
         delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
-        
+
         // Playwright/Puppeteer detection
         delete navigator.__proto__.webdriver;
-        
+
         // Automation framework strings filtering
         const originalQuery = window.document.querySelector;
         window.document.querySelector = function(selector) {
@@ -269,7 +272,7 @@ class StealthEngine:
         """Inject realistic browser properties matching geolocation"""
         timezone = metadata.get("timezone", "America/New_York")
         country_code = metadata.get("countryCode", "US")
-        
+
         # Map country code to common languages
         lang_map = {
             "US": "en-US,en;q=0.9",
@@ -282,7 +285,7 @@ class StealthEngine:
             "BR": "pt-BR,pt;q=0.9,en;q=0.8",
         }
         languages = lang_map.get(country_code, "en-US,en;q=0.9")
-        
+
         await page.add_init_script(f"""
         // 1. Timezone synchronization
         try {{
@@ -301,8 +304,8 @@ class StealthEngine:
         }} catch (e) {{}}
 
         // 2. Language synchronization
-        Object.defineProperty(navigator, 'language', {{ get: () => '{languages.split(',')[0]}' }});
-        Object.defineProperty(navigator, 'languages', {{ get: () => {json.dumps(languages.split(','))} }});
+        Object.defineProperty(navigator, 'language', {{ get: () => '{languages.split(",")[0]}' }});
+        Object.defineProperty(navigator, 'languages', {{ get: () => {json.dumps(languages.split(","))} }});
 
         // 3. Hardware details (Randomized but consistent)
         Object.defineProperty(navigator, 'hardwareConcurrency', {{ get: () => {random.choice([4, 8, 12, 16])} }});
@@ -353,13 +356,13 @@ class StealthEngine:
             "https://www.apple.com/",
             "https://www.microsoft.com/",
         ]
-        
+
         niche_sites = [
             f"https://www.{random.choice(['tech', 'dev', 'blog', 'news'])}.com/article/{random.randint(1000, 9999)}"
             for _ in range(10)
         ]
         all_sites = common_sites + niche_sites
-        
+
         # Generate 50-100 random entries
         num_entries = random.randint(50, 100)
         history_entries = []
@@ -372,7 +375,6 @@ class StealthEngine:
                 site += f"?utm_source=organic&id={random.randint(1, 1000)}"
             history_entries.append(site)
 
-            
         await page.add_init_script(f"""
         (function() {{
             const entries = {json.dumps(history_entries)};
@@ -388,7 +390,6 @@ class StealthEngine:
         }})();
         """)
 
-
     @staticmethod
     async def _randomize_fingerprints(page: Page) -> None:
         """
@@ -397,7 +398,7 @@ class StealthEngine:
         Refined with Canvas Noise (toDataURL/toBlob)
         """
         noise_factor = random.uniform(0.0001, 0.0005)
-        
+
         await page.add_init_script(f"""
         // 1. Canvas Poisoning
         const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
@@ -433,9 +434,9 @@ class StealthEngine:
         // 2. Audio Fingerprint Randomization
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (AudioContext) {{
-            const originalGetChannelData = AudioContext.prototype.getChannelData || 
+            const originalGetChannelData = AudioContext.prototype.getChannelData ||
                                           (AudioContext.prototype.createBuffer && AudioContext.prototype.createBuffer(1, 1, 44100).getChannelData.constructor.prototype.constructor);
-            
+
             if (AudioContext.prototype.getChannelData) {{
                 const nativeGetChannelData = AudioContext.prototype.getChannelData;
                 AudioContext.prototype.getChannelData = function() {{
@@ -475,7 +476,6 @@ class StealthEngine:
         }}
         """)
 
-
     @staticmethod
     async def _enable_human_behaviors(page: Page) -> None:
         """Enable anti-timing and behavioral analysis protection"""
@@ -511,13 +511,13 @@ class StealthEngine:
                 console.warn('WebRTC DataChannel blocked by StealthEngine');
                 return null;
             };
-            
+
             // 2. Fake ICE Candidates (Prevent Local IP Leak)
             const originalAddIceCandidate = pc.addIceCandidate;
             pc.addIceCandidate = function(candidate) {
                 if (candidate && (
-                    candidate.candidate.includes('192.168.') || 
-                    candidate.candidate.includes('10.') || 
+                    candidate.candidate.includes('192.168.') ||
+                    candidate.candidate.includes('10.') ||
                     candidate.candidate.includes('172.') ||
                     candidate.candidate.includes('.local')
                 )) {
@@ -539,25 +539,28 @@ class StealthEngine:
         }
         """)
 
+
 class HumanBehavior:
     """High-fidelity human interaction emulation"""
-    
+
     @staticmethod
-    async def human_mouse_move(page: Page, target_x: float, target_y: float, steps: int = 50) -> None:
+    async def human_mouse_move(
+        page: Page, target_x: float, target_y: float, steps: int = 50
+    ) -> None:
         """
         Bezier-curve based mouse movement with micro-jitter and motor error emulation.
         CEO 2026: Refined for absolute human-indistinguishability.
         """
         # Current mouse position (fallback to random if not available)
         start_x, start_y = random.randint(0, 800), random.randint(0, 600)
-        
+
         # Implementation of "Motor Error" (Overshoot)
         # Humans often slightly miss the target and then correct
-        if random.random() < 0.2: # 20% chance to overshoot
+        if random.random() < 0.2:  # 20% chance to overshoot
             ox = target_x + random.uniform(-30, 30)
             oy = target_y + random.uniform(-30, 30)
             await HumanBehavior._move_bezier(page, start_x, start_y, ox, oy, int(steps * 0.8))
-            await asyncio.sleep(random.uniform(0.1, 0.3)) # Pause to "realize" error
+            await asyncio.sleep(random.uniform(0.1, 0.3))  # Pause to "realize" error
             await HumanBehavior._move_bezier(page, ox, oy, target_x, target_y, int(steps * 0.4))
         else:
             await HumanBehavior._move_bezier(page, start_x, start_y, target_x, target_y, steps)
@@ -570,24 +573,34 @@ class HumanBehavior:
         c1y = sy + random.uniform(-150, 150)
         c2x = tx + random.uniform(-100, 100)
         c2y = ty + random.uniform(-100, 100)
-        
+
         for i in range(steps + 1):
             t = i / steps
             # Cubic Bezier
-            x = (1-t)**3 * sx + 3*(1-t)**2*t * c1x + 3*(1-t)*t**2 * c2x + t**3 * tx
-            y = (1-t)**3 * sy + 3*(1-t)**2*t * c1y + 3*(1-t)*t**2 * c2y + t**3 * ty
-            
+            x = (
+                (1 - t) ** 3 * sx
+                + 3 * (1 - t) ** 2 * t * c1x
+                + 3 * (1 - t) * t**2 * c2x
+                + t**3 * tx
+            )
+            y = (
+                (1 - t) ** 3 * sy
+                + 3 * (1 - t) ** 2 * t * c1y
+                + 3 * (1 - t) * t**2 * c2y
+                + t**3 * ty
+            )
+
             # Add micro-jitter (tremor) using Gaussian noise
-            dist_to_target = ((tx - x)**2 + (ty - y)**2)**0.5
+            dist_to_target = ((tx - x) ** 2 + (ty - y) ** 2) ** 0.5
             tremor_scale = 0.4 if dist_to_target > 50 else 0.15
-            
+
             x += random.gauss(0, tremor_scale)
             y += random.gauss(0, tremor_scale)
-            
+
             await page.mouse.move(x, y)
-            
+
             # Gaussian delay: humans are slower at the start and end (Fitts's Law approximation)
-            speed_factor = 1.0 - (4 * (t - 0.5)**2) # Parabola peaking at 1.0 when t=0.5
+            speed_factor = 1.0 - (4 * (t - 0.5) ** 2)  # Parabola peaking at 1.0 when t=0.5
             base_delay = 0.005 + (0.01 * (1.0 - speed_factor))
             delay = abs(random.gauss(base_delay, base_delay * 0.2))
             await asyncio.sleep(delay)
@@ -597,15 +610,15 @@ class HumanBehavior:
         """Click with human-like precision, variable pressure and timing"""
         # Move to target
         await HumanBehavior.human_mouse_move(page, x, y)
-        
+
         # Pre-click "thinking" delay (Gaussian)
         await asyncio.sleep(abs(random.gauss(0.18, 0.05)))
-        
+
         # Click duration (how long the button is held)
         await page.mouse.down()
         await asyncio.sleep(abs(random.gauss(0.08, 0.02)))
         await page.mouse.up()
-        
+
         # Post-click "reaction" delay
         await asyncio.sleep(abs(random.gauss(0.3, 0.1)))
 
@@ -614,27 +627,27 @@ class HumanBehavior:
         """Typing with Gaussian cadence, realistic errors, and 'thinking' pauses"""
         if element_selector:
             await page.focus(element_selector)
-        
+
         # Average typing speed: 60 WPM (~5 chars/sec = 200ms/char)
         # Professional speed: 100 WPM (~8 chars/sec = 120ms/char)
-        
+
         for i, char in enumerate(text):
             # Base delay between keys
             base_delay = random.gauss(0.12, 0.04)
-            
+
             # Bigram timing (some combinations are faster)
-            if i > 0 and text[i-1].lower() in 'aeiou' and char.lower() in 'rstln':
-                base_delay *= 0.8 # Faster common combinations
-            
+            if i > 0 and text[i - 1].lower() in "aeiou" and char.lower() in "rstln":
+                base_delay *= 0.8  # Faster common combinations
+
             await asyncio.sleep(abs(base_delay))
-            
+
             # Press key
             await page.keyboard.press(char)
-            
+
             # Occasional thinking pause at words/sections
-            if char in ' ._/' or (random.random() < 0.05):
-                pause_len = random.gauss(0.6, 0.2) if char in '. ' else random.gauss(0.3, 0.1)
+            if char in " ._/" or (random.random() < 0.05):
+                pause_len = random.gauss(0.6, 0.2) if char in ". " else random.gauss(0.3, 0.1)
                 await asyncio.sleep(max(0, pause_len))
-        
+
         # Final pause after typing
         await asyncio.sleep(abs(random.gauss(0.5, 0.15)))

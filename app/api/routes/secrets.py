@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
 def verify_internal_token(x_internal_token: Optional[str] = Header(None)):
     """
     Verifies that the request comes from an internal service within the Haus-Netzwerk.
@@ -15,6 +16,7 @@ def verify_internal_token(x_internal_token: Optional[str] = Header(None)):
         logger.warning(f"Unauthorized secret access attempt with token: {x_internal_token}")
         raise HTTPException(status_code=401, detail="Unauthorized")
     return x_internal_token
+
 
 @router.get("/all", response_model=Dict[str, str])
 async def get_all_secrets(token: str = Depends(verify_internal_token)):
@@ -35,6 +37,7 @@ async def get_all_secrets(token: str = Depends(verify_internal_token)):
         "OLLAMA_URL": settings.ollama_url or "http://localhost:11434",
     }
 
+
 @router.get("/{secret_name}")
 async def get_secret(secret_name: str, token: str = Depends(verify_internal_token)):
     """
@@ -51,8 +54,8 @@ async def get_secret(secret_name: str, token: str = Depends(verify_internal_toke
         # Local
         "OLLAMA_URL": settings.ollama_url,
     }
-    
+
     if secret_name not in secrets:
         raise HTTPException(status_code=404, detail="Secret not found")
-        
+
     return {secret_name: secrets[secret_name] or ""}

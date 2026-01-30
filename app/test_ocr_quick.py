@@ -3,6 +3,7 @@
 Quick OCR test - faster than full test suite
 Tests only what's working
 """
+
 import sys
 from pathlib import Path
 
@@ -13,11 +14,11 @@ tests_passed = 0
 tests_failed = 0
 
 packages_to_test = [
-    ('pytesseract', 'import pytesseract'),
-    ('paddleocr', 'from paddleocr import PaddleOCR'),
-    ('cv2', 'import cv2'),
-    ('PIL', 'from PIL import Image'),
-    ('numpy', 'import numpy'),
+    ("pytesseract", "import pytesseract"),
+    ("paddleocr", "from paddleocr import PaddleOCR"),
+    ("cv2", "import cv2"),
+    ("PIL", "from PIL import Image"),
+    ("numpy", "import numpy"),
 ]
 
 print("=" * 60)
@@ -43,16 +44,16 @@ try:
     import cv2
     from PIL import Image
     import numpy as np
-    
+
     # Create a simple test image
     test_image = np.zeros((100, 100, 3), dtype=np.uint8)
     cv2.putText(test_image, "TEST123", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-    
+
     # Save temporarily
-    Image.fromarray(test_image).save('/tmp/test_ocr.png')
-    
+    Image.fromarray(test_image).save("/tmp/test_ocr.png")
+
     # Try to OCR it
-    result = pytesseract.image_to_string('/tmp/test_ocr.png')
+    result = pytesseract.image_to_string("/tmp/test_ocr.png")
     if result.strip():
         print(f"✅ Tesseract OCR    - Can process images")
         tests_passed += 1
@@ -63,10 +64,11 @@ except Exception as e:
     print(f"❌ Tesseract OCR    - {str(e)[:50]}")
     tests_failed += 1
 
-# Test PaddleOCR 
+# Test PaddleOCR
 try:
     from paddleocr import PaddleOCR
-    ocr = PaddleOCR(use_angle_cls=True, lang='en')
+
+    ocr = PaddleOCR(use_angle_cls=True, lang="en")
     print(f"✅ PaddleOCR        - Initialized successfully")
     tests_passed += 1
 except Exception as e:

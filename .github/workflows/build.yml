@@ -38,17 +38,23 @@ env:
 
 jobs:
   # ===========================================================================
-  # BUILD MATRIX: Build multiple Docker images
+  # BUILD MATRIX: Build multiple Docker images (SEQUENTIAL to avoid resource contention)
+  # Session 7+ Analysis: Previous timeout of 60 minutes was insufficient
+  # Workflow still timed out at 70+ minutes even with max-parallel: 1
+  # New timeout: 120 minutes for genuine slow builds on GitHub Actions
   # ===========================================================================
   build:
     name: 'Build Docker Images'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 120
     permissions:
       contents: read
       packages: write
 
     strategy:
+      # Use max-parallel: 1 for sequential builds to avoid resource exhaustion
+      # This prevents GitHub Actions timeout during large image extraction
+      max-parallel: 1
       matrix:
         include:
           - name: 'Dashboard (Next.js)'
@@ -57,16 +63,16 @@ jobs:
             context: '.'
             build_args: ''
 
-          - name: 'API Brain'
-            dockerfile: 'services/api-brain/Dockerfile'
-            image_name: 'sin-solver-api-brain'
-            context: 'services/api-brain'
+          - name: 'Vault API'
+            dockerfile: 'services/room-02-vault-api/Dockerfile'
+            image_name: 'sin-solver-vault-api'
+            context: 'services/room-02-vault-api'
             build_args: ''
 
-          - name: 'Captcha Worker'
-            dockerfile: 'services/solver-14-captcha-worker/Dockerfile'
-            image_name: 'sin-solver-captcha-worker'
-            context: 'services/solver-14-captcha-worker'
+          - name: 'Captcha Solver'
+            dockerfile: 'services/solver-19-captcha-solver/Dockerfile'
+            image_name: 'sin-solver-captcha-solver'
+            context: 'services/solver-19-captcha-solver'
             build_args: ''
 
     steps:
@@ -79,6 +85,9 @@ jobs:
         uses: docker/setup-buildx-action@v2
         with:
           version: latest
+          driver-options: |
+            image=moby/buildkit:latest
+            network=host
 
       - name: 'Log in to Container Registry'
         if: github.event_name != 'pull_request'
@@ -164,8 +173,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Images Built" >> $GITHUB_STEP_SUMMARY
           echo "- \`sin-solver-dashboard\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`sin-solver-api-brain\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`sin-solver-captcha-worker\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`sin-solver-vault-api\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`sin-solver-captcha-solver\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Registry" >> $GITHUB_STEP_SUMMARY
           echo "Registry: \`${{ env.REGISTRY }}\`" >> $GITHUB_STEP_SUMMARY

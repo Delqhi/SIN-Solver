@@ -7,10 +7,11 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+
 class RedisCache:
     _instance = None
     _lock = asyncio.Lock()
-    
+
     def __init__(self):
         self.redis = None
         self.enabled = False

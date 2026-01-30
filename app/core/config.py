@@ -8,19 +8,19 @@ from pydantic import Field, field_validator
 
 logger = logging.getLogger(__name__)
 
+
 class Settings(BaseSettings):
     # Configuration Directory (for storing keys, accounts, etc.)
     config_dir: str = Field(
-        default_factory=lambda: os.path.expanduser("~/.sin-solver/config"),
-        env="CONFIG_DIR"
+        default_factory=lambda: os.path.expanduser("~/.sin-solver/config"), env="CONFIG_DIR"
     )
-    
+
     # API Security
     secret_key: str = Field(..., env="SECRET_KEY")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 7  # 1 week
     refresh_token_expire_days: int = 30
-    
+
     # Infrastructure IPs (Haus-Netzwerk 2026)
     role: str = Field(default="worker", env="ROLE")
     orchestrator_url: str = Field(default="http://172.20.0.31:8000", env="ORCHESTRATOR_URL")
@@ -28,11 +28,11 @@ class Settings(BaseSettings):
     steel_cdp_url: str = Field(default="ws://172.20.0.20:3000/", env="STEEL_CDP_URL")
     redis_url: str = Field(default="redis://172.20.0.10:6379", env="REDIS_URL")
     database_url: str = Field(..., env="DATABASE_URL")
-    
+
     # Worker Credentials
     worker_email: Optional[str] = Field(default=None, env="WORKER_EMAIL")
     worker_password: Optional[str] = Field(default=None, env="WORKER_PASSWORD")
-    
+
     # FREE AI Provider Keys (NO PAID SERVICES!)
     mistral_api_key: Optional[str] = Field(default=None, env="MISTRAL_API_KEY")
     gemini_api_key: Optional[str] = Field(default=None, env="GEMINI_API_KEY")
@@ -40,17 +40,17 @@ class Settings(BaseSettings):
     cerebras_api_key: Optional[str] = Field(default=None, env="CEREBRAS_API_KEY")
     sambanova_api_key: Optional[str] = Field(default=None, env="SAMBANOVA_API_KEY")
     ollama_url: str = Field(default="http://localhost:11434", env="OLLAMA_URL")
-    
+
     # Captcha Solving (Self-Hosted)
     captcha_solver_mode: str = Field(default="self_hosted", env="CAPTCHA_SOLVER_MODE")
     captcha_vision_provider: str = Field(default="gemini", env="CAPTCHA_VISION_PROVIDER")
     default_ai_provider: str = Field(default="gemini", env="DEFAULT_AI_PROVIDER")
     fallback_ai_provider: str = Field(default="mistral", env="FALLBACK_AI_PROVIDER")
-    
+
     # Feature Flags
     headless: bool = True
     debug: bool = False
-    
+
     @field_validator("database_url")
     @classmethod
     def validate_database_url(cls, v):
@@ -70,8 +70,8 @@ class Settings(BaseSettings):
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(
-                    f"{self.orchestrator_url}/secrets/all", 
-                    headers={"X-Internal-Token": self.secret_key}
+                    f"{self.orchestrator_url}/secrets/all",
+                    headers={"X-Internal-Token": self.secret_key},
                 )
                 if response.status_code == 200:
                     secrets = response.json()
@@ -88,6 +88,5 @@ class Settings(BaseSettings):
         env_file = ".env"
         extra = "ignore"
 
+
 settings = Settings()
-
-

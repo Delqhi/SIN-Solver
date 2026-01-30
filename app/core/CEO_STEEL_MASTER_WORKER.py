@@ -33,10 +33,11 @@ from app.services.vision_orchestrator import RateLimitError
 # Structured CEO Logger
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] ⚡ %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s [%(levelname)s] ⚡ %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 logger = logging.getLogger("SteelMaster")
+
 
 class SteelMasterWorker:
     def __init__(self):
@@ -48,23 +49,24 @@ class SteelMasterWorker:
         self.orchestrator_url = settings.orchestrator_url
         self.analytics = get_analytics_engine()
         self.client = httpx.AsyncClient(timeout=10.0)
-        
+
         # Concurrency Control
         self.max_concurrent_missions = int(os.getenv("CONCURRENT_MISSIONS", "1"))
         self.semaphore = asyncio.Semaphore(self.max_concurrent_missions)
-        
+
     def add_log(self, msg):
         log_entry = f"{datetime.now().strftime('%H:%M:%S')} - {msg}"
         self.log_history.append(log_entry)
-        if len(self.log_history) > 100: self.log_history.pop(0)
+        if len(self.log_history) > 100:
+            self.log_history.pop(0)
         logger.info(msg)
 
     async def setup(self):
         self.add_log(f"🚀 [CEO] Initializing {self.role.upper()} mission stack...")
-        
+
         # 🔥 ENTERPRISE 2026: Synchronize secrets with Room-13 (API Koordinator)
         await settings.fetch_secrets_from_room13()
-        
+
         return await self.controller.initialize(stealth_mode=True)
 
     async def execute_mission(self, mission_data: Dict):
@@ -74,48 +76,56 @@ class SteelMasterWorker:
             mission_id = mission_data.get("mission_id", "unnamed")
             self.add_log(f"💰 [CEO] Mission START ({mission_id}). Targeting: {target_url}")
             solve_start = time.time()
-            
+
             try:
                 # 🔥 PRODUCTION SOLVER - Integrated with Proxy Rotation & Stealth
                 success = await self.controller.solve_any_captcha(target_url)
                 solve_time = int((time.time() - solve_start) * 1000)
-                
+
                 if success:
-                    self.add_log(f"✅ [CEO] Mission SUCCESS ({mission_id})! Solved in {solve_time}ms. Revenue +$$$")
+                    self.add_log(
+                        f"✅ [CEO] Mission SUCCESS ({mission_id})! Solved in {solve_time}ms. Revenue +$$$"
+                    )
                     # Real-time Analytics Integration
                     self.analytics.record_solve(
                         success=True,
                         solve_time_ms=solve_time,
                         solver_used="steel-precision",
-                        captcha_type="auto-detected"
+                        captcha_type="auto-detected",
                     )
-                    
+
                     # Report success to orchestrator
                     try:
                         await self.client.post(
                             f"{self.orchestrator_url}/system/report_success",
                             json={
-                                "worker_id": self.worker_id, 
+                                "worker_id": self.worker_id,
                                 "mission_id": mission_id,
-                                "url": target_url, 
+                                "url": target_url,
                                 "solved": True,
-                                "solve_time_ms": solve_time
-                            }
+                                "solve_time_ms": solve_time,
+                            },
                         )
                     except Exception as report_err:
                         logger.debug(f"Report success failed: {report_err}")
                 else:
-                    self.add_log(f"⚠️ [CEO] Mission FAILED ({mission_id}). CAPTCHA not detected or unsupported.")
+                    self.add_log(
+                        f"⚠️ [CEO] Mission FAILED ({mission_id}). CAPTCHA not detected or unsupported."
+                    )
                     self.analytics.record_solve(
                         success=False,
                         solve_time_ms=solve_time,
                         solver_used="steel-precision",
-                        captcha_type="auto-detected"
+                        captcha_type="auto-detected",
                     )
                     # Report failure
                     await self.client.post(
                         f"{self.orchestrator_url}/system/report_failure",
-                        json={"worker_id": self.worker_id, "mission_id": mission_id, "error": "not_solved"}
+                        json={
+                            "worker_id": self.worker_id,
+                            "mission_id": mission_id,
+                            "error": "not_solved",
+                        },
                     )
             except RateLimitError:
                 self.add_log("🛑 [CEO] Rate limit hit! Triggering recovery...")
@@ -127,7 +137,7 @@ class SteelMasterWorker:
                 self.analytics.record_error("solver_error")
                 await self.client.post(
                     f"{self.orchestrator_url}/system/report_failure",
-                    json={"worker_id": self.worker_id, "mission_id": mission_id, "error": str(e)}
+                    json={"worker_id": self.worker_id, "mission_id": mission_id, "error": str(e)},
                 )
 
     async def production_mission_loop(self):
@@ -138,11 +148,13 @@ class SteelMasterWorker:
                 if not self.controller.page or self.controller.page.is_closed():
                     self.add_log("⚠️ [CEO] Connection lost. Re-initializing...")
                     await self.setup()
-                
+
                 # POLL SYSTEM STATE / FETCH TASK
                 try:
                     # Request a specific task from the orchestrator
-                    resp = await self.client.get(f"{self.orchestrator_url}/system/fetch_task?worker_id={self.worker_id}")
+                    resp = await self.client.get(
+                        f"{self.orchestrator_url}/system/fetch_task?worker_id={self.worker_id}"
+                    )
                     if resp.status_code == 200:
                         mission_data = resp.json()
                         if mission_data.get("task_available"):
@@ -150,17 +162,19 @@ class SteelMasterWorker:
                             if self.semaphore._value > 0:
                                 asyncio.create_task(self.execute_mission(mission_data))
                             else:
-                                self.add_log("⏳ [CEO] At max concurrency. Waiting for worker slot...")
+                                self.add_log(
+                                    "⏳ [CEO] At max concurrency. Waiting for worker slot..."
+                                )
                         else:
                             # self.add_log(f"💤 [CEO] No tasks available. Sleeping...")
                             pass
                     elif resp.status_code == 404:
-                         # Standby mode
-                         pass
+                        # Standby mode
+                        pass
                 except Exception as req_err:
                     self.add_log(f"⚠️ [CEO] API Poll Failed: {req_err}")
 
-                await asyncio.sleep(1) # Faster polling for high throughput
+                await asyncio.sleep(1)  # Faster polling for high throughput
             except RateLimitError:
                 self.add_log("🔄 [CEO] Global Rate Limit Recovery initiated (Proxy Rotation)...")
                 await self.controller.reconnect_with_new_proxy()
@@ -183,7 +197,9 @@ class SteelMasterWorker:
             await self.client.aclose()
             await self.controller.close()
 
+
 worker = SteelMasterWorker()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -193,7 +209,9 @@ async def lifespan(app: FastAPI):
     worker.is_running = False
     await task
 
+
 app = FastAPI(lifespan=lifespan)
+
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
@@ -225,6 +243,7 @@ async def index():
     </html>
     """
     return HTMLResponse(content=html_content)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

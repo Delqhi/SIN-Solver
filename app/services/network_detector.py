@@ -5,23 +5,28 @@ from playwright.async_api import Request, Page
 
 logger = logging.getLogger(__name__)
 
+
 class NetworkCaptchaDetector:
     """
     Detects CAPTCHAs by monitoring network traffic for known provider domains.
     """
-    
+
     PROVIDER_DOMAINS = {
         "recaptcha": ["google.com/recaptcha", "gstatic.com/recaptcha", "recaptcha.net"],
         "hcaptcha": ["hcaptcha.com", "newassets.hcaptcha.com"],
         "funcaptcha": ["arkoselabs.com", "funcaptcha.com", "client-api.arkoselabs.com"],
-        "cloudflare": ["challenges.cloudflare.com", "cloudflare.com/cdn-cgi/challenge-platform", "turnstile"],
+        "cloudflare": [
+            "challenges.cloudflare.com",
+            "cloudflare.com/cdn-cgi/challenge-platform",
+            "turnstile",
+        ],
         "geetest": ["geetest.com", "static.geetest.com"],
         "lemin": ["leminnow.com"],
         "datadome": ["datadome.co"],
         "perimeterx": ["perimeterx.net"],
         "aws_waf": ["captcha.awswaf.com", "waf.aws.amazon.com"],
         "recaptcha_enterprise": ["google.com/recaptcha/enterprise"],
-        "akamai": ["akamai.com/cp", "akamaized.net"]
+        "akamai": ["akamai.com/cp", "akamaized.net"],
     }
 
     def __init__(self):

@@ -12,9 +12,15 @@ import os
 import asyncio
 
 from src.models import (
-    CredentialCreate, CredentialResponse, CredentialUpdate,
-    ServiceRegister, ServiceResponse, ServiceDiscovery,
-    SystemHealth, ServiceHealthStatus, ErrorResponse
+    CredentialCreate,
+    CredentialResponse,
+    CredentialUpdate,
+    ServiceRegister,
+    ServiceResponse,
+    ServiceDiscovery,
+    SystemHealth,
+    ServiceHealthStatus,
+    ErrorResponse,
 )
 from src.services.credential_manager import CredentialManager
 from src.services.service_registry import ServiceRegistry
@@ -38,21 +44,19 @@ health_monitor_task = None
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     logger.info("Starting Room-13 API Coordinator...")
-    
+
     global credential_mgr, service_registry, health_monitor_task
-    
+
     # Initialize services
     credential_mgr = CredentialManager(db=None)
     service_registry = ServiceRegistry(db=None)
-    
+
     # Start background health check task
-    health_monitor_task = asyncio.create_task(
-        service_registry.periodic_health_check()
-    )
+    health_monitor_task = asyncio.create_task(service_registry.periodic_health_check())
     logger.info("✅ Room-13 Coordinator started")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Room-13 API Coordinator...")
     if health_monitor_task:
@@ -64,7 +68,7 @@ app = FastAPI(
     title="Room-13: API Coordinator",
     description="Central hub for credentials, service discovery, and API gateway",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(LoggingMiddleware)
@@ -91,7 +95,7 @@ async def health():
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "version": "1.0.0",
-        "service": "room-13-api-coordinator"
+        "service": "room-13-api-coordinator",
     }
 
 
@@ -100,18 +104,18 @@ async def system_health() -> SystemHealth:
     """Get overall system health"""
     if not service_registry:
         raise HTTPException(status_code=503, detail="Service registry not initialized")
-    
+
     all_services = await service_registry.list_all_services()
-    healthy = sum(1 for s in all_services if s['status'] == 'healthy')
-    degraded = sum(1 for s in all_services if s['status'] == 'degraded')
-    offline = sum(1 for s in all_services if s['status'] == 'offline')
-    
+    healthy = sum(1 for s in all_services if s["status"] == "healthy")
+    degraded = sum(1 for s in all_services if s["status"] == "degraded")
+    offline = sum(1 for s in all_services if s["status"] == "offline")
+
     overall_status = ServiceHealthStatus.HEALTHY
     if offline > 0:
         overall_status = ServiceHealthStatus.OFFLINE
     elif degraded > 0:
         overall_status = ServiceHealthStatus.DEGRADED
-    
+
     return SystemHealth(
         status=overall_status,
         timestamp=datetime.utcnow(),
@@ -121,7 +125,7 @@ async def system_health() -> SystemHealth:
         services_total=len(all_services),
         database_status="connected",
         redis_status="connected",
-        version="1.0.0"
+        version="1.0.0",
     )
 
 
@@ -130,7 +134,7 @@ async def create_credential(credential: CredentialCreate) -> CredentialResponse:
     """Create new credential (encrypted)"""
     if not credential_mgr:
         raise HTTPException(status_code=503, detail="Credential manager not initialized")
-    
+
     try:
         cred = credential_mgr.create_credential(
             name=credential.name,
@@ -139,7 +143,7 @@ async def create_credential(credential: CredentialCreate) -> CredentialResponse:
             value=credential.value,
             description=credential.description,
             metadata=credential.metadata,
-            expires_at=credential.expires_at
+            expires_at=credential.expires_at,
         )
         return CredentialResponse(**cred)
     except Exception as e:
@@ -152,7 +156,7 @@ async def get_service_credentials(service_name: str) -> list:
     """Get all credentials for a service"""
     if not credential_mgr:
         raise HTTPException(status_code=503, detail="Credential manager not initialized")
-    
+
     creds = credential_mgr.get_service_credentials(service_name)
     return creds
 
@@ -162,7 +166,7 @@ async def register_service(service: ServiceRegister) -> ServiceResponse:
     """Register a new service"""
     if not service_registry:
         raise HTTPException(status_code=503, detail="Service registry not initialized")
-    
+
     try:
         registered = await service_registry.register_service(
             name=service.name,
@@ -172,7 +176,7 @@ async def register_service(service: ServiceRegister) -> ServiceResponse:
             health_endpoint=service.health_check.endpoint,
             dependencies=[d.name for d in service.dependencies],
             credentials_needed=service.credentials_needed,
-            metadata=service.metadata
+            metadata=service.metadata,
         )
         return ServiceResponse(**registered)
     except Exception as e:
@@ -185,7 +189,7 @@ async def list_services() -> list:
     """List all registered services"""
     if not service_registry:
         raise HTTPException(status_code=503, detail="Service registry not initialized")
-    
+
     return await service_registry.list_all_services()
 
 
@@ -194,11 +198,11 @@ async def discover_service(service_name: str) -> ServiceDiscovery:
     """Discover a service by name"""
     if not service_registry:
         raise HTTPException(status_code=503, detail="Service registry not initialized")
-    
+
     service = await service_registry.discover_service(service_name)
     if not service:
         raise HTTPException(status_code=404, detail=f"Service not found: {service_name}")
-    
+
     return ServiceDiscovery(**service)
 
 
@@ -207,12 +211,12 @@ async def gateway_status():
     """Get API gateway status"""
     if not service_registry:
         raise HTTPException(status_code=503, detail="Service registry not initialized")
-    
+
     healthy = await service_registry.discover_all_healthy()
     return {
         "status": "operational",
         "healthy_services": len(healthy),
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -223,10 +227,11 @@ async def http_exception_handler(request, exc):
         error=exc.detail,
         message=str(exc.detail),
         status_code=exc.status_code,
-        request_id=str(request.headers.get("x-request-id", "unknown"))
+        request_id=str(request.headers.get("x-request-id", "unknown")),
     ).model_dump()
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

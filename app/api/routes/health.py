@@ -17,6 +17,7 @@ ROOMS = [
     {"id": "15", "name": "SurfSense", "ip": "172.20.0.60", "port": 3000},
 ]
 
+
 async def check_port(ip: str, port: int) -> bool:
     try:
         _, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=1.0)
@@ -26,17 +27,16 @@ async def check_port(ip: str, port: int) -> bool:
     except:
         return False
 
+
 @router.get("/")
 async def health():
     return {"status": "healthy", "service": "sin-solver-orchestrator"}
+
 
 @router.get("/rooms")
 async def room_status():
     results = []
     for room in ROOMS:
         is_up = await check_port(room["ip"], room["port"])
-        results.append({
-            **room,
-            "status": "UP" if is_up else "DOWN"
-        })
+        results.append({**room, "status": "UP" if is_up else "DOWN"})
     return results

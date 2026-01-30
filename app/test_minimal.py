@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Minimal OCR package test - no PaddleOCR imports."""
+
 import sys
 from pathlib import Path
 
@@ -9,6 +10,7 @@ print("=" * 50)
 # Test 1: numpy
 try:
     import numpy as np
+
     print("✅ numpy")
 except:
     print("❌ numpy failed")
@@ -17,6 +19,7 @@ except:
 # Test 2: cv2
 try:
     import cv2
+
     print("✅ opencv-python (cv2)")
 except:
     print("❌ opencv failed")
@@ -25,6 +28,7 @@ except:
 # Test 3: PIL
 try:
     from PIL import Image
+
     print("✅ pillow (PIL)")
 except:
     print("❌ PIL failed")
@@ -33,6 +37,7 @@ except:
 # Test 4: pytesseract
 try:
     import pytesseract
+
     print("✅ pytesseract")
 except:
     print("❌ pytesseract failed")
@@ -41,6 +46,7 @@ except:
 # Test 5: ultralytics (YOLO)
 try:
     from ultralytics import YOLO
+
     print("✅ ultralytics (YOLO)")
 except:
     print("❌ YOLO failed")

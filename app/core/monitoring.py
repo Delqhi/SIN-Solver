@@ -30,7 +30,12 @@ from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics._internal.instrument import Counter, Histogram, UpDownCounter
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION, DEPLOYMENT_ENVIRONMENT
+from opentelemetry.sdk.resources import (
+    Resource,
+    SERVICE_NAME,
+    SERVICE_VERSION,
+    DEPLOYMENT_ENVIRONMENT,
+)
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from prometheus_client import (
@@ -81,12 +86,12 @@ _meter: Optional[Any] = None
 def init_tracing() -> TracerProvider:
     """Initialize OpenTelemetry tracing with Jaeger exporter."""
     global _tracer_provider, _tracer
-    
+
     if _tracer_provider is not None:
         return _tracer_provider
-    
+
     _tracer_provider = TracerProvider(resource=_resource)
-    
+
     # Jaeger exporter for traces
     jaeger_exporter = JaegerExporter(
         agent_host_name=os.getenv("JAEGER_AGENT_HOST", "172.20.0.29"),
@@ -94,29 +99,29 @@ def init_tracing() -> TracerProvider:
         collector_endpoint=JAEGER_ENDPOINT,
     )
     _tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
-    
+
     # OTLP exporter as fallback/backup
     if os.getenv("OTLP_ENABLED", "true").lower() == "true":
         otlp_exporter = OTLPSpanExporter(endpoint=OTLP_ENDPOINT, insecure=True)
         _tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    
+
     trace.set_tracer_provider(_tracer_provider)
     _tracer = _tracer_provider.get_tracer(__name__)
-    
+
     return _tracer_provider
 
 
 def init_metrics() -> MeterProvider:
     """Initialize OpenTelemetry metrics with Prometheus exporter."""
     global _meter_provider, _meter
-    
+
     if _meter_provider is not None:
         return _meter_provider
-    
+
     reader = PrometheusMetricReader()
     _meter_provider = MeterProvider(resource=_resource, metric_readers=[reader])
     _meter = _meter_provider.get_meter(__name__)
-    
+
     return _meter_provider
 
 
@@ -140,9 +145,10 @@ def get_meter() -> Any:
 # Prometheus Metrics (Business)
 # =============================================================================
 
+
 class CaptchaMetrics:
     """CAPTCHA-specific business metrics."""
-    
+
     def __init__(self):
         # Solve metrics
         self.solves_total = PromCounter(
@@ -162,7 +168,7 @@ class CaptchaMetrics:
             ["captcha_type", "solver"],
             buckets=[0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.5],
         )
-        
+
         # Quality metrics
         self.solve_confidence = PromHistogram(
             "captcha_solve_confidence",
@@ -176,7 +182,7 @@ class CaptchaMetrics:
             ["captcha_type"],
             buckets=[0, 1, 2, 3, 5, 10],
         )
-        
+
         # AI Model performance
         self.model_requests_total = PromCounter(
             "ai_model_requests_total",
@@ -194,7 +200,7 @@ class CaptchaMetrics:
             "Total tokens used by AI models",
             ["model", "provider", "token_type"],
         )
-        
+
         # Queue metrics
         self.queue_depth = Gauge(
             "captcha_queue_depth",
@@ -207,7 +213,7 @@ class CaptchaMetrics:
             ["captcha_type", "priority"],
             buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
         )
-        
+
         # System health
         self.health_check_duration = PromHistogram(
             "health_check_duration_seconds",
@@ -225,7 +231,7 @@ class CaptchaMetrics:
             "Rate of CAPTCHA detection by type",
             ["captcha_type"],
         )
-        
+
         # Business metrics
         self.revenue_usd = PromCounter(
             "captcha_revenue_usd_total",
@@ -237,15 +243,17 @@ class CaptchaMetrics:
             "Success rate by CAPTCHA type",
             ["captcha_type"],
         )
-        
+
         # Service info
         self.service_info = Info("sin_solver_service", "SIN-Solver service information")
-        self.service_info.info({
-            "version": SERVICE_VERSION_VALUE,
-            "environment": ENVIRONMENT,
-            "service": SERVICE_NAME_VALUE,
-        })
-    
+        self.service_info.info(
+            {
+                "version": SERVICE_VERSION_VALUE,
+                "environment": ENVIRONMENT,
+                "service": SERVICE_NAME_VALUE,
+            }
+        )
+
     def record_solve(
         self,
         captcha_type: str,
@@ -275,7 +283,7 @@ class CaptchaMetrics:
             solver=solver,
         ).observe(confidence)
         self.solve_retries.labels(captcha_type=captcha_type).observe(retries)
-    
+
     def record_model_request(
         self,
         model: str,
@@ -307,18 +315,18 @@ class CaptchaMetrics:
                 provider=provider,
                 token_type="output",
             ).inc(output_tokens)
-    
+
     def update_queue_depth(self, captcha_type: str, priority: str, depth: int) -> None:
         """Update queue depth gauge."""
         self.queue_depth.labels(
             captcha_type=captcha_type,
             priority=priority,
         ).set(depth)
-    
+
     def update_active_workers(self, worker_type: str, count: int) -> None:
         """Update active workers gauge."""
         self.active_workers.labels(worker_type=worker_type).set(count)
-    
+
     def update_success_rate(self, captcha_type: str, rate: float) -> None:
         """Update success rate gauge."""
         self.success_rate.labels(captcha_type=captcha_type).set(rate)
@@ -340,9 +348,10 @@ def get_metrics() -> CaptchaMetrics:
 # HTTP Request Metrics
 # =============================================================================
 
+
 class HTTPMetrics:
     """HTTP request metrics middleware."""
-    
+
     def __init__(self):
         self.requests_total = PromCounter(
             "http_requests_total",
@@ -372,23 +381,23 @@ class HTTPMetrics:
             "Number of active HTTP requests",
             ["method"],
         )
-    
+
     async def middleware(self, request: Request, call_next: Callable) -> Response:
         """ASGI middleware for HTTP metrics."""
         method = request.method
         path = request.url.path
-        
+
         # Skip metrics endpoint itself
         if path == "/metrics":
             return await call_next(request)
-        
+
         self.active_requests.labels(method=method).inc()
         start_time = time.time()
-        
+
         try:
             response = await call_next(request)
             status_code = response.status_code
-            
+
             # Record metrics
             duration = time.time() - start_time
             self.requests_total.labels(
@@ -400,7 +409,7 @@ class HTTPMetrics:
                 method=method,
                 endpoint=path,
             ).observe(duration)
-            
+
             # Request/response sizes
             if request.headers.get("content-length"):
                 self.request_size_bytes.labels(
@@ -412,7 +421,7 @@ class HTTPMetrics:
                     method=method,
                     endpoint=path,
                 ).observe(int(response.headers["content-length"]))
-            
+
             return response
         finally:
             self.active_requests.labels(method=method).dec()
@@ -422,9 +431,10 @@ class HTTPMetrics:
 # Performance Profiling
 # =============================================================================
 
+
 class PerformanceProfiler:
     """Performance profiling utilities."""
-    
+
     def __init__(self):
         self.profiles: dict[str, Any] = {}
         self.function_calls = PromCounter(
@@ -438,7 +448,7 @@ class PerformanceProfiler:
             ["function", "module"],
             buckets=[0.001, 0.01, 0.1, 1.0, 10.0],
         )
-    
+
     @contextmanager
     def profile(self, name: str, module: str = "unknown"):
         """Profile a block of code."""
@@ -449,25 +459,31 @@ class PerformanceProfiler:
             duration = time.perf_counter() - start
             self.function_calls.labels(function=name, module=module).inc()
             self.function_duration.labels(function=name, module=module).observe(duration)
-    
+
     def profile_async(self, name: str, module: str = "unknown"):
         """Decorator to profile async functions."""
+
         def decorator(func: Callable) -> Callable:
             @functools.wraps(func)
             async def wrapper(*args, **kwargs):
                 with self.profile(name, module):
                     return await func(*args, **kwargs)
+
             return wrapper
+
         return decorator
-    
+
     def profile_sync(self, name: str, module: str = "unknown"):
         """Decorator to profile sync functions."""
+
         def decorator(func: Callable) -> Callable:
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 with self.profile(name, module):
                     return func(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
 
@@ -491,11 +507,13 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 def traced(name: Optional[str] = None, attributes: Optional[dict] = None):
     """Decorator to add tracing to a function."""
+
     def decorator(func: F) -> F:
         span_name = name or func.__name__
         tracer = get_tracer()
-        
+
         if asyncio.iscoroutinefunction(func):
+
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
                 with tracer.start_as_current_span(span_name) as span:
@@ -505,8 +523,10 @@ def traced(name: Optional[str] = None, attributes: Optional[dict] = None):
                     span.set_attribute("function.name", func.__name__)
                     span.set_attribute("function.module", func.__module__)
                     return await func(*args, **kwargs)
+
             return async_wrapper  # type: ignore
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args, **kwargs):
                 with tracer.start_as_current_span(span_name) as span:
@@ -516,7 +536,9 @@ def traced(name: Optional[str] = None, attributes: Optional[dict] = None):
                     span.set_attribute("function.name", func.__name__)
                     span.set_attribute("function.module", func.__module__)
                     return func(*args, **kwargs)
+
             return sync_wrapper  # type: ignore
+
     return decorator
 
 
@@ -535,9 +557,10 @@ def start_span(name: str, attributes: Optional[dict] = None):
 # Health Checks
 # =============================================================================
 
+
 class HealthChecker:
     """Health check registry and execution."""
-    
+
     def __init__(self):
         self.checks: dict[str, Callable[[], dict]] = {}
         self.health_status = Gauge(
@@ -550,16 +573,16 @@ class HealthChecker:
             "Timestamp of last health check",
             ["component"],
         )
-    
+
     def register(self, name: str, check_func: Callable[[], dict]) -> None:
         """Register a health check."""
         self.checks[name] = check_func
-    
+
     async def run_checks(self) -> dict[str, Any]:
         """Run all registered health checks."""
         results = {}
         overall_healthy = True
-        
+
         for name, check_func in self.checks.items():
             profiler = get_profiler()
             with profiler.profile(f"health_check_{name}", "health"):
@@ -577,14 +600,14 @@ class HealthChecker:
                         "error": str(e),
                         "response_time_ms": (time.time() - start) * 1000,
                     }
-                
+
                 results[name] = result
                 self.health_status.labels(component=name).set(1 if result["healthy"] else 0)
                 self.last_check_timestamp.labels(component=name).set(time.time())
-                
+
                 if not result["healthy"]:
                     overall_healthy = False
-        
+
         return {
             "status": "healthy" if overall_healthy else "unhealthy",
             "timestamp": time.time(),
@@ -607,28 +630,29 @@ def get_health_checker() -> HealthChecker:
 # FastAPI Integration
 # =============================================================================
 
+
 def setup_monitoring(app: FastAPI) -> None:
     """Setup complete monitoring for FastAPI application."""
     # Initialize OpenTelemetry
     init_tracing()
     init_metrics()
-    
+
     # Instrument FastAPI
     FastAPIInstrumentor.instrument_app(app)
-    
+
     # Instrument HTTPX (for external API calls)
     HTTPXClientInstrumentor().instrument()
-    
+
     # Instrument Redis (if used)
     RedisInstrumentor().instrument()
-    
+
     # Setup HTTP metrics middleware
     http_metrics = HTTPMetrics()
-    
+
     @app.middleware("http")
     async def metrics_middleware(request: Request, call_next: Callable) -> Response:
         return await http_metrics.middleware(request, call_next)
-    
+
     # Add metrics endpoint
     @app.get("/metrics")
     async def metrics_endpoint() -> Response:
@@ -637,42 +661,43 @@ def setup_monitoring(app: FastAPI) -> None:
             content=generate_latest(),
             media_type=CONTENT_TYPE_LATEST,
         )
-    
+
     # Add health endpoint
     @app.get("/health")
     async def health_endpoint() -> dict:
         """Health check endpoint."""
         checker = get_health_checker()
         result = await checker.run_checks()
-        
+
         status_code = 200 if result["status"] == "healthy" else 503
         from fastapi.responses import JSONResponse
+
         return JSONResponse(content=result, status_code=status_code)
-    
+
     # Add ready endpoint (for Kubernetes probes)
     @app.get("/ready")
     async def ready_endpoint() -> dict:
         """Readiness probe endpoint."""
         return {"status": "ready", "timestamp": time.time()}
-    
+
     # Add startup probe
     @app.get("/startup")
     async def startup_endpoint() -> dict:
         """Startup probe endpoint."""
         return {"status": "started", "timestamp": time.time()}
-    
+
     # Register default health checks
     checker = get_health_checker()
-    
+
     def db_health_check():
         """Check database connectivity."""
         # This will be implemented based on actual DB connection
         return {"healthy": True, "message": "Database connection OK"}
-    
+
     def redis_health_check():
         """Check Redis connectivity."""
         return {"healthy": True, "message": "Redis connection OK"}
-    
+
     checker.register("database", db_health_check)
     checker.register("redis", redis_health_check)
 
@@ -681,9 +706,10 @@ def setup_monitoring(app: FastAPI) -> None:
 # Auto-scaling Metrics
 # =============================================================================
 
+
 class AutoscalingMetrics:
     """Metrics for auto-scaling decisions."""
-    
+
     def __init__(self):
         self.cpu_usage = Gauge(
             "app_cpu_usage_percent",
@@ -705,18 +731,18 @@ class AutoscalingMetrics:
             "app_queue_size",
             "Current processing queue size",
         )
-    
+
     def update_system_metrics(self) -> None:
         """Update system-level metrics."""
         import psutil
-        
+
         cpu = psutil.cpu_percent(interval=1)
         memory = psutil.virtual_memory()
-        
+
         self.cpu_usage.set(cpu)
         self.memory_usage.set(memory.used)
         self.memory_usage_percent.set(memory.percent)
-    
+
     async def start_collection(self, interval: int = 30) -> None:
         """Start periodic metrics collection."""
         while True:
