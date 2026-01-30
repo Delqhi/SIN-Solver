@@ -606,7 +606,7 @@ export class WorkerService extends EventEmitter {
     return {
       jobId: job.id,
       type: 'detect',
-      status: 'success',
+      status: 'completed',
       data: result,
       timestamp: new Date().toISOString(),
     };
@@ -626,7 +626,7 @@ export class WorkerService extends EventEmitter {
     return {
       jobId: job.id,
       type: 'solve',
-      status: 'success',
+      status: 'completed',
       data: { solution: 'TBD', solverType: request.captchaType },
       timestamp: new Date().toISOString(),
     };
