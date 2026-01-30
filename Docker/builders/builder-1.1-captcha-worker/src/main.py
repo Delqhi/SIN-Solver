@@ -152,6 +152,7 @@ ALLOWED_ORIGINS = [
 # GLOBAL INSTANCES
 # ============================================================================
 
+unified_solver: Optional[UnifiedCaptchaSolver] = None
 veto_engine: Optional[VetoEngine] = None
 rate_limiter: Optional[RateLimiter] = None
 redis_client: Optional[RedisClient] = None
@@ -164,13 +165,26 @@ security = HTTPBearer()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
-    global veto_engine, rate_limiter, redis_client, ocr_detector
+    global unified_solver, veto_engine, rate_limiter, redis_client, ocr_detector
     global mistral_circuit, qwen_circuit
 
-    logger.info("🚀 Starting builder-1.1-captcha-worker v2.1.0...")
+    logger.info("🚀 Starting builder-1.1-captcha-worker v3.0.0...")
+    logger.info(f"   Unified Solver Available: {UNIFIED_SOLVER_AVAILABLE}")
 
     try:
-        # Initialize OCR detector
+        # Initialize Unified Captcha Solver (NEW - YOLO + OCR)
+        if UNIFIED_SOLVER_AVAILABLE:
+            yolo_model_path = os.getenv("YOLO_MODEL_PATH", "/app/models/best.pt")
+            unified_solver = UnifiedCaptchaSolver(
+                yolo_model_path=yolo_model_path,
+                confidence_threshold=0.7,
+                enable_local_solvers=True,
+                enable_api_fallback=True,
+            )
+            health = unified_solver.health_check()
+            logger.info(f"✅ Unified solver initialized: {health}")
+
+        # Initialize OCR detector (legacy)
         ocr_detector = OcrElementDetector()
         logger.info("✅ OCR detector initialized")
 
@@ -188,14 +202,17 @@ async def lifespan(app: FastAPI):
         qwen_circuit = CircuitBreaker("qwen_api", failure_threshold=3)
         logger.info("✅ Circuit breakers initialized")
 
-        # Initialize veto engine
+        # Initialize veto engine (legacy fallback)
         veto_engine = VetoEngine()
-        logger.info("✅ Veto engine initialized")
+        logger.info("✅ Veto engine initialized (fallback)")
 
         # Update metrics
         ACTIVE_WORKERS.set(1)
 
         logger.info("✅ Captcha Worker started successfully - READY FOR PRODUCTION")
+        logger.info(
+            f"   Solver Mode: {'UNIFIED (YOLO+OCR)' if unified_solver else 'LEGACY (Veto)'}"
+        )
 
     except Exception as e:
         logger.error(f"❌ Failed to initialize: {e}")
