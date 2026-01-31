@@ -28,6 +28,8 @@ Build an AI-powered CAPTCHA solving worker that can:
 
 **{Rotation Test Suite Consolidation + Build Fixes};STATUS-COMPLETED**
 
+**{Agent-07 VNC Debugging + Autonomous Worker Update};STATUS-COMPLETED**
+
 ---
 
 ## SESSION [2026-01-31] [OpenCode Integration v2.0] - MAJOR UPGRADE
@@ -117,6 +119,27 @@ Ensure zero work loss during rotation events by saving session state to Redis be
 - ✅ Phase-level error handling
 
 **Next Steps:** (SUPERSEDED by v2.0)
+
+**Reference:** .session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md
+
+---
+
+## SESSION [2026-01-31] [Agent-07 VNC Debugging + Autonomous Worker Update] - COMPLETED
+
+**Collective Analysis:**  
+Aligned Agent-07 VNC browser configuration with non-standard ports and updated the autonomous worker defaults to target the headfull CDP/HTTP endpoints for reliable debugging.
+
+**Resulting Mission:**  
+Keep headfull debugging stable while preserving Steel Browser defaults for production use.
+
+**Key Decisions:**
+- ✅ Agent-07 VNC uses ports 50070 (VNC), 50071 (noVNC), 50072 (CDP), 50073 (HTTP API).
+- ✅ Autonomous worker uses config-backed CDP/HTTP URLs and typed WebSocket event handling.
+
+**Next Steps:**
+- ✅ LSP diagnostics clean
+- ✅ npm run build
+- ✅ npm test -- tests/rotation-system.test.ts
 
 **Reference:** .session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md
 
@@ -390,5 +413,7 @@ Keep the autonomous solver compatible with headfull debugging while preserving S
 - ✅ Autonomous worker uses STEEL_* env overrides and defaults to Agent-07 VNC CDP/HTTP for debug sessions.
 
 **Next Steps:**
-- ⏳ Confirm build/test when environment is available
+- ✅ LSP diagnostics clean
+- ✅ npm run build (tsc)
+- ✅ npm test -- tests/rotation-system.test.ts
 - ⏳ Commit and push documentation updates

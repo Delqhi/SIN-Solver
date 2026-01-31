@@ -1,9 +1,9 @@
-# Agent 05: VNC Browser (Headfull Mode)
+# Agent 07: VNC Browser (Headfull Mode)
 
 **Alternative to:** Steel Browser (Headless)  
 **Purpose:** Visual browser automation with GUI access  
-**Container:** `agent-05-vnc-browser`  
-**Image:** `mrcolorr/vnc-browser:latest`
+**Container:** `agent-07-vnc-browser`  
+**Image:** `siomiz/chrome:latest`
 
 ---
 
@@ -25,7 +25,7 @@ This agent provides a **HEADFULL** Chrome browser with VNC access, allowing you 
 
 ### 1. Start VNC Browser
 ```bash
-cd Docker/agents/agent-05-vnc-browser
+cd Docker/agents/agent-07-vnc-browser
 docker-compose up -d
 ```
 
@@ -34,19 +34,19 @@ docker-compose up -d
 **Option A: VNC Viewer (Recommended)**
 ```bash
 # macOS: Open Screen Sharing
-open vnc://localhost:5900
+open vnc://localhost:50070
 
 # Password: delqhi-admin (or your VNC_PASSWORD)
 ```
 
 **Option B: Web Browser (noVNC)**
 ```
-http://localhost:5901
+http://localhost:50071
 ```
 
 ### 3. Verify CDP Access
 ```bash
-curl http://localhost:50015/json/version
+curl http://localhost:50072/json/version
 ```
 
 ---
@@ -55,10 +55,10 @@ curl http://localhost:50015/json/version
 
 | Service | Port | Purpose |
 |---------|------|---------|
-| VNC | 5900 | Remote Desktop (VNC Viewer) |
-| noVNC | 5901 | Web-based VNC (Browser) |
-| CDP | 50015 | Chrome DevTools Protocol |
-| API | 50005 | HTTP API (if available) |
+| VNC | 50070 | Remote Desktop (VNC Viewer) |
+| noVNC | 50071 | Web-based VNC (Browser) |
+| CDP | 50072 | Chrome DevTools Protocol |
+| API | 50073 | HTTP API (if available) |
 
 ---
 
@@ -73,9 +73,9 @@ Copy `.env.example` to `.env` and adjust:
 BROWSER_MODE=vnc  # or 'steel' for headless
 
 # VNC Settings
-VNC_BROWSER_PORT=5900
-VNC_WEB_PORT=5901
-VNC_CDP_PORT=50015
+VNC_BROWSER_PORT=50070
+VNC_WEB_PORT=50071
+VNC_CDP_PORT=50072
 VNC_PASSWORD=your-secure-password
 VNC_RESOLUTION=1920x1080
 ```
@@ -98,7 +98,7 @@ cd ../agent-05-steel
 docker-compose up -d
 
 # Stop VNC Browser
-docker stop agent-05-vnc-browser
+docker stop agent-07-vnc-browser
 ```
 
 ---
@@ -111,7 +111,7 @@ const CDP = require('chrome-remote-interface');
 
 const client = await CDP({
   host: 'localhost',
-  port: 50015  // VNC Browser CDP Port
+  port: 50072  // VNC Browser CDP Port
 });
 
 // Navigate
@@ -124,7 +124,7 @@ const { data } = await client.Page.captureScreenshot();
 ### Connect with Puppeteer
 ```typescript
 const browser = await puppeteer.connect({
-  browserWSEndpoint: 'ws://localhost:50015/devtools/browser',
+  browserWSEndpoint: 'ws://localhost:50072/devtools/browser',
   defaultViewport: null  // Use actual window size
 });
 
@@ -135,7 +135,7 @@ await page.goto('https://example.com');
 ### Connect with Playwright
 ```typescript
 const browser = await chromium.connectOverCDP(
-  'http://localhost:50015'
+  'http://localhost:50072'
 );
 
 const context = await browser.newContext();
@@ -147,7 +147,7 @@ const page = await context.newPage();
 ## 🎨 VNC Clients
 
 ### macOS
-- **Screen Sharing** (built-in): `open vnc://localhost:5900`
+- **Screen Sharing** (built-in): `open vnc://localhost:50070`
 - **VNC Viewer** (RealVNC): Download from realvnc.com
 
 ### Windows
@@ -167,10 +167,10 @@ const page = await context.newPage();
 - **Change in:** `.env` file → `VNC_PASSWORD`
 
 ### Network Security
-- VNC port (5900) should NOT be exposed publicly
+- VNC port (50070) should NOT be exposed publicly
 - Use SSH tunnel for remote access:
   ```bash
-  ssh -L 5900:localhost:5900 user@server
+  ssh -L 50070:localhost:50070 user@server
   ```
 
 ---
@@ -183,7 +183,7 @@ const page = await context.newPage();
 docker ps | grep vnc-browser
 
 # Check logs
-docker logs agent-05-vnc-browser
+docker logs agent-07-vnc-browser
 
 # Restart
 docker-compose restart
@@ -207,7 +207,7 @@ VNC_RESOLUTION=1280x720
 ## 📁 Files
 
 ```
-agent-05-vnc-browser/
+agent-07-vnc-browser/
 ├── docker-compose.yml      # Service definition
 ├── .env.example            # Configuration template
 ├── README.md               # This file
@@ -250,12 +250,12 @@ agent-05-vnc-browser/
 
 ## 📚 References
 
-- **VNC Browser Image:** https://hub.docker.com/r/mrcolorr/vnc-browser
+- **VNC Browser Image:** https://hub.docker.com/r/siomiz/chrome
 - **Steel Browser:** https://docs.steel.dev
 - **Chrome DevTools Protocol:** https://chromedevtools.github.io/devtools-protocol/
 
 ---
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Last Updated:** 2026-01-31  
 **Status:** Active

@@ -851,3 +851,88 @@ GET /session/{id}/message
 - Survers: 53000-53499
 - Builders: 53500-53999
 
+
+## [2026-01-31 06:30] [TASK-111-VNC-BROWSER-BROWSERLESS] - ✅ COMPLETED
+
+**Session:** Task 111 - Finalize VNC Browser Setup (ARM64)  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - Browserless VNC Browser Working
+
+### Summary
+Successfully migrated VNC Browser from unstable `siomiz/chrome` (AMD64 emulation) to `ghcr.io/browserless/chromium` (ARM64 native).
+
+### Changes Made
+
+#### 1. Docker Configuration Updated
+- **File:** `Docker/agents/agent-07-vnc-browser/docker-compose.yml`
+- **Image:** `ghcr.io/browserless/chromium:latest` (ARM64 native)
+- **Ports:** 50070 (Debugger UI), 50072 (CDP API)
+- **Token:** `delqhi-admin`
+- **Features:** Preboot Chrome, session management, debugger UI
+
+#### 2. Worker Configuration Updated
+- **File:** `workers/2captcha-worker/src/autonomous-worker.ts`
+- **Added:** `steelToken` configuration parameter
+- **Updated:** `connectCDP()` method to use two-level WebSocket system
+  - Level 1: Browser WebSocket (for target management)
+  - Level 2: Target WebSocket (for page control)
+- **Updated:** `disconnect()` to close both WebSockets
+
+#### 3. Test Files Created
+- **File:** `workers/2captcha-worker/test-cdp-debug.ts`
+- **Purpose:** Verify CDP connection to Browserless
+- **Status:** All tests passing
+
+### Technical Details
+
+**Browserless Two-Level WebSocket Architecture:**
+```
+Browser WS (ws://localhost:50072?token=xxx)
+  └─► Target.createTarget()
+      └─► Target WS (ws://localhost:50072/devtools/page/<id>?token=xxx)
+          └─► Page.navigate()
+          └─► Page.loadEventFired
+```
+
+**Why This Works:**
+- Browserless uses browser-level WS for target management
+- Page-level WS required for actual CDP commands (Page.*, Runtime.*, etc.)
+- Token authentication required for both levels
+
+### Test Results
+
+✅ Container running and healthy  
+✅ CDP HTTP endpoint responding  
+✅ WebSocket connection successful  
+✅ Page navigation working  
+✅ CAPTCHA detection working  
+✅ Solution submission working  
+
+**Test Output:**
+```
+✅ Browser: Chrome/145.0.7632.0
+✅ Protocol: 1.3
+✅ Connected to browser
+✅ Target created: A7BBFD84DB28536115EF7CF0B704860C
+✅ Connected to target
+✅ Page loaded
+✅ CAPTCHA detected: recaptcha
+✅ Solution submitted
+✅ Erfolg: true
+⏱️ Dauer: 8115ms
+```
+
+### Next Steps
+- Task 112: Verify CDP Connection (✅ DONE - part of this task)
+- Task 113: Verify Web VNC Connection (pending)
+- Task 114: Run Autonomous Worker Test (✅ DONE - working)
+- Task 115: Document VNC Browser Setup (pending)
+
+### Git Commit
+```bash
+git add Docker/agents/agent-07-vnc-browser/docker-compose.yml
+git add workers/2captcha-worker/src/autonomous-worker.ts
+git add workers/2captcha-worker/test-cdp-debug.ts
+git commit -m "feat: Task 111 - Browserless VNC Browser setup with two-level CDP"
+```
+

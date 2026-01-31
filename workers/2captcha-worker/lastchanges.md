@@ -419,3 +419,28 @@ Holy Trinity Stack:
 - src/autonomous-worker.ts
 
 ---
+
+## [2026-01-31 05:30] Agent-07 VNC Debugging Update (COMPLETED)
+
+**Session:** ses_3f9bc1908ffeVibfrKEY3Kybu5  
+**Agent:** sisyphus-junior  
+**Status:** COMPLETED ✅  
+
+### Changes Made
+- ✅ Added Agent-07 VNC browser config with non-standard ports.
+- ✅ Updated autonomous worker CDP/HTTP defaults for headfull debugging.
+
+### Verification
+- ✅ LSP diagnostics clean (autonomous-worker.ts)
+- ✅ npm run build
+- ✅ npm test -- tests/rotation-system.test.ts
+
+### Modified Files
+- Docker/agents/agent-07-vnc-browser/docker-compose.yml
+- Docker/agents/agent-07-vnc-browser/.env.example
+- Docker/agents/agent-07-vnc-browser/README.md
+- workers/2captcha-worker/src/autonomous-worker.ts
+- workers/2captcha-worker/src/ws.d.ts
+- workers/2captcha-worker/README.md
+- workers/2captcha-worker/userprompts.md
+- workers/2captcha-worker/.session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md

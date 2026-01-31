@@ -56,7 +56,20 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 - Restored explicit IPRotationManager config typing in HolyTrinityWorker
 
 ### 🧪 Testing
-- Pending: LSP diagnostics, build, and rotation-suite verification
+- Completed: LSP diagnostics, build, and rotation-suite verification
+
+---
+
+## Recent Changes (Session 2026-01-31 - VNC Browser Update)
+
+### ✨ New Features
+- Added Agent-07 VNC browser container configuration for headfull debugging (ports 50070/50071/50072).
+
+### 🔧 Improvements
+- 2Captcha autonomous worker now targets Agent-07 VNC CDP/HTTP endpoints for reliable debugging sessions.
+
+### 🧪 Testing
+- LSP diagnostics clean for updated autonomous worker.
 
 ---
 

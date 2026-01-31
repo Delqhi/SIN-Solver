@@ -13,12 +13,16 @@ interface SolverResult {
   error?: string;
 }
 
+type WebSocketWithEvents = WebSocket & { on: (...args: any[]) => void; off: (...args: any[]) => void };
+
 export class AutonomousCaptchaWorker {
-  private cdpWs: WebSocket | null = null;
-  private targetId: string | null = null;
-  private sessionId: string | null = null;
+  private browserWs: WebSocketWithEvents | null = null;
+  private cdpWs: WebSocketWithEvents | null = null;
   private config = {
-    steelCdpUrl: process.env.STEEL_CDP_URL || 'ws://localhost:50015/devtools/browser',
+    // Using Agent-07 VNC Browser (Browserless - reliable CDP with GUI)
+    steelCdpUrl: process.env.STEEL_CDP_URL || 'ws://localhost:50072/devtools/browser',
+    steelHttpUrl: process.env.STEEL_HTTP_URL || 'http://localhost:50072',
+    steelToken: process.env.STEEL_TOKEN || 'delqhi-admin',
     skyvernUrl: process.env.SKYVERN_URL || 'http://localhost:50006',
     ollamaUrl: process.env.OLLAMA_URL || 'http://localhost:11434',
     opencodeUrl: process.env.OPENCODE_URL || 'http://localhost:50004',
@@ -61,33 +65,72 @@ export class AutonomousCaptchaWorker {
   }
 
   private async connectCDP(): Promise<void> {
-    console.log('🔌 Connecting to Steel Browser CDP...');
+    console.log('🔌 Connecting to Browserless VNC Browser CDP...');
     
-    const response = await fetch('http://localhost:50015/json/version');
-    const version = await response.json() as any;
+    const token = this.config.steelToken;
+    const httpUrl = this.config.steelHttpUrl;
+    
+    // Step 1: Get browser version (with auth)
+    const versionRes = await fetch(`${httpUrl}/json/version?token=${token}`);
+    if (!versionRes.ok) throw new Error(`Failed to get version: ${versionRes.status}`);
+    const version = await versionRes.json() as any;
     console.log(`✅ Browser: ${version.Browser}`);
+    console.log(`✅ Protocol: ${version['Protocol-Version']}`);
 
-    const targetsRes = await fetch('http://localhost:50015/json/list');
-    const targets = await targetsRes.json() as any[];
+    // Step 2: Connect to browser-level WebSocket to create a target
+    const browserWsUrl = version.webSocketDebuggerUrl
+      .replace('0.0.0.0:3000', '127.0.0.1:50072')
+      + `?token=${token}`;
     
-    let target = targets.find((t: any) => t.type === 'page');
-    if (!target) {
-      const newRes = await fetch('http://localhost:50015/json/new?about:blank', { method: 'PUT' });
-      target = await newRes.json();
-    }
-
-    this.targetId = target.id;
-    this.cdpWs = new WebSocket(target.webSocketDebuggerUrl);
+    console.log(`🔌 Connecting to browser WebSocket...`);
+    this.browserWs = new WebSocket(browserWsUrl) as WebSocketWithEvents;
 
     return new Promise((resolve, reject) => {
-      this.cdpWs!.on('open', () => {
-        console.log('✅ CDP Connected');
-        this.cdpWs!.send(JSON.stringify({ id: 1, method: 'Runtime.enable' }));
-        this.cdpWs!.send(JSON.stringify({ id: 2, method: 'Page.enable' }));
-        this.cdpWs!.send(JSON.stringify({ id: 3, method: 'DOM.enable' }));
-        resolve();
+      const timeout = setTimeout(() => reject(new Error('Browser connection timeout')), 15000);
+      
+      (this.browserWs as WebSocketWithEvents).on('open', () => {
+        clearTimeout(timeout);
+        console.log('✅ Connected to browser');
+        
+        // Create a new target (page)
+        this.browserWs!.send(JSON.stringify({
+          id: 1,
+          method: 'Target.createTarget',
+          params: { url: 'about:blank' }
+        }));
       });
-      this.cdpWs!.on('error', reject);
+      
+      (this.browserWs as WebSocketWithEvents).on('message', (data: any) => {
+        const msg = JSON.parse(data.toString());
+        
+        if (msg.id === 1 && msg.result?.targetId) {
+          const targetId = msg.result.targetId;
+          console.log(`✅ Target created: ${targetId}`);
+          
+          // Step 3: Connect to target-level WebSocket
+          const targetWsUrl = `ws://127.0.0.1:50072/devtools/page/${targetId}?token=${token}`;
+          console.log(`🔌 Connecting to target WebSocket...`);
+          
+          this.cdpWs = new WebSocket(targetWsUrl) as WebSocketWithEvents;
+          
+          this.cdpWs.on('open', () => {
+            console.log('✅ Connected to target');
+            
+            // Enable CDP domains on target
+            this.cdpWs!.send(JSON.stringify({ id: 1, method: 'Runtime.enable' }));
+            this.cdpWs!.send(JSON.stringify({ id: 2, method: 'Page.enable' }));
+            this.cdpWs!.send(JSON.stringify({ id: 3, method: 'DOM.enable' }));
+            resolve();
+          });
+          
+          this.cdpWs.on('error', (err: any) => reject(err));
+        }
+      });
+      
+      (this.browserWs as WebSocketWithEvents).on('error', (err: any) => {
+        clearTimeout(timeout);
+        reject(err);
+      });
     });
   }
 
@@ -107,13 +150,13 @@ export class AutonomousCaptchaWorker {
         const msg = JSON.parse(data.toString());
         if (msg.method === 'Page.loadEventFired') {
           clearTimeout(timeout);
-          this.cdpWs!.off('message', handler);
+          (this.cdpWs as WebSocketWithEvents).off('message', handler);
           console.log('✅ Page loaded');
           resolve();
         }
       };
 
-      this.cdpWs!.on('message', handler);
+      (this.cdpWs as WebSocketWithEvents).on('message', handler);
     });
   }
 
@@ -153,12 +196,12 @@ export class AutonomousCaptchaWorker {
         const msg = JSON.parse(data.toString());
         if (msg.id === 5 && msg.result?.data) {
           clearTimeout(timeout);
-          this.cdpWs!.off('message', handler);
+          (this.cdpWs as WebSocketWithEvents).off('message', handler);
           resolve(Buffer.from(msg.result.data, 'base64'));
         }
       };
 
-      this.cdpWs!.on('message', handler);
+      (this.cdpWs as WebSocketWithEvents).on('message', handler);
     });
   }
 
@@ -313,12 +356,12 @@ export class AutonomousCaptchaWorker {
         const msg = JSON.parse(data.toString());
         if (msg.id === 6) {
           clearTimeout(timeout);
-          this.cdpWs!.off('message', handler);
+          (this.cdpWs as WebSocketWithEvents).off('message', handler);
           resolve(msg.result?.result?.value);
         }
       };
 
-      this.cdpWs!.on('message', handler);
+      (this.cdpWs as WebSocketWithEvents).on('message', handler);
     });
   }
 
@@ -326,6 +369,10 @@ export class AutonomousCaptchaWorker {
     if (this.cdpWs) {
       this.cdpWs.close();
       this.cdpWs = null;
+    }
+    if (this.browserWs) {
+      this.browserWs.close();
+      this.browserWs = null;
     }
     console.log('🔌 Disconnected');
   }
