@@ -1043,3 +1043,118 @@ Completely rewrote the VNC Browser README to reflect the Browserless migration.
 - **Old:** 1.1 (siomiz/chrome)
 - **New:** 2.0 (Browserless)
 
+
+## [2026-01-31 07:15] [TASK-116-AUTO-HEALING-CDP] - ✅ COMPLETED
+
+**Session:** Task 116 - Implement Auto-Healing for CDP Connection  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All Tests Passed
+
+### Summary
+Created a robust auto-healing CDP connection manager that automatically recovers from connection failures.
+
+### Features Implemented
+
+#### 1. Auto-Healing CDP Manager (`auto-healing-cdp.ts`)
+**File:** `workers/2captcha-worker/src/auto-healing-cdp.ts`
+
+**Key Features:**
+- ✅ **Two-Level WebSocket Connection** - Proper Browserless connection pattern
+- ✅ **Exponential Backoff Retry** - Configurable retries with increasing delays
+- ✅ **Health Check Monitoring** - Periodic checks every 30 seconds (configurable)
+- ✅ **Stale Connection Detection** - Detects inactive connections (60s threshold)
+- ✅ **Automatic Recovery** - Self-heals on disconnect
+- ✅ **Event Emitter** - Emits events for monitoring (connecting, connected, disconnected, retrying, healthy, unhealthy)
+- ✅ **Command Queue** - Handles CDP commands with timeout and retry
+- ✅ **Navigation Healing** - Retries navigation if it fails
+
+**Configuration Options:**
+```typescript
+{
+  httpUrl: string;              // Browserless HTTP endpoint
+  token: string;                // Authentication token
+  maxRetries?: number;          // Max retry attempts (default: 3)
+  retryDelay?: number;          // Initial retry delay in ms (default: 1000)
+  healthCheckInterval?: number; // Health check interval in ms (default: 30000)
+  connectionTimeout?: number;   // Connection timeout in ms (default: 15000)
+}
+```
+
+**Public Methods:**
+- `connect()` - Initialize connection with auto-healing
+- `disconnect()` - Clean disconnect with cleanup
+- `sendCommand(method, params)` - Send CDP command with auto-retry
+- `navigate(url)` - Navigate with healing on failure
+- `getState()` - Get current connection state
+
+**Events Emitted:**
+- `connecting` - Starting connection attempt
+- `connected` - Successfully connected
+- `disconnected` - Connection lost
+- `retrying` - Attempting retry ({ attempt, delay })
+- `healthy` - Health check passed
+- `unhealthy` - Health check failed
+- `failed` - Max retries exceeded
+- `error` - Error occurred
+- `message` - CDP message received
+
+#### 2. Test Suite (`test-auto-healing.ts`)
+**File:** `workers/2captcha-worker/test-auto-healing.ts`
+
+**Tests:**
+1. ✅ Connection establishment
+2. ✅ Navigation to URL
+3. ✅ CDP command execution
+4. ✅ Connection state monitoring
+5. ✅ Clean disconnect
+
+### Test Results
+```
+Test 1: Connection - ✅ PASS
+Test 2: Navigation - ✅ PASS
+Test 3: CDP Command - ✅ PASS
+Test 4: State Check - ✅ PASS
+Test 5: Disconnect - ✅ PASS
+─────────────────────────────
+Overall: ✅ ALL TESTS PASSED
+```
+
+### Usage Example
+```typescript
+import { AutoHealingCDPManager } from './src/auto-healing-cdp';
+
+const manager = new AutoHealingCDPManager({
+  httpUrl: 'http://localhost:50072',
+  token: 'delqhi-admin',
+  maxRetries: 3,
+  retryDelay: 1000
+});
+
+// Listen for events
+manager.on('connected', () => console.log('Connected!'));
+manager.on('unhealthy', () => console.log('Healing...'));
+
+// Connect with auto-healing
+await manager.connect();
+
+// Navigate with automatic retry
+await manager.navigate('https://example.com');
+
+// Send CDP commands
+const result = await manager.sendCommand('Runtime.evaluate', {
+  expression: 'document.title'
+});
+```
+
+### Benefits
+- 🛡️ **Resilient** - Automatically recovers from network issues
+- 🔄 **Self-Healing** - No manual intervention required
+- 📊 **Observable** - Events for monitoring and alerting
+- ⚡ **Fast Recovery** - Exponential backoff for quick reconnection
+- 🧹 **Clean** - Proper cleanup on disconnect
+
+### Next Steps
+- Task 117: Add Visual Debugging Mode (screenshots on error)
+- Task 131: Implement CDP Connection Retry Logic (✅ DONE - part of this task)
+- Task 132: Add Browserless Session Timeout Handling (✅ DONE - part of this task)
+
