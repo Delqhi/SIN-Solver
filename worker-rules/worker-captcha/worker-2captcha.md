@@ -1,498 +1,382 @@
-# 2Captcha.com Worker Rules & Anti-Ban Protocol
+# 2Captcha.com Worker Rules - ABSOLUTE COMPLIANCE REQUIRED
 
-> **⚠️ CRITICAL: Account Survival = 95%+ Success Rate**
-> 
-> 2Captcha monitors worker performance. Below 95% success rate = Account deletion. No second chances.
+## ⚠️ CRITICAL WARNING
 
-**Last Updated:** 2026-01-30  
-**Status:** PRODUCTION READY  
-**Priority:** 🔴 CRITICAL
-
----
-
-## 🎯 CORE PRINCIPLE: HUMAN SIMULATION
-
-We are NOT a bot. We are a HUMAN worker using AI assistance.
-Every action must appear naturally human.
+**ACCOUNT BAN RISK: 100% if rules violated!**
+- 2Captcha has ZERO tolerance for low accuracy
+- One strike = Account deleted permanently
+- No second chances, no appeals
 
 ---
 
-## 📋 ABSOLUTE RULES (VIOLATION = BAN)
+## 🎯 GOLDEN RULES (NON-NEGOTIABLE)
 
-### Rule 1: 95% Success Rate Minimum
+### RULE 1: MINIMUM 95% ACCURACY
 ```
-SUCCESS_RATE = (Correct_Solves / Total_Attempts) × 100
-
-IF Success_Rate < 95%:
-    → ACCOUNT_FLAGGED_FOR_REVIEW
-    → LIKELY_DELETION
-    → NO_SECOND_CHANCE
+SUCCESS RATE: ≥ 95% (absolute minimum)
+TARGET RATE:  ≥ 98% (recommended)
 ```
+- Below 95% = Account review → DELETION
+- Monitor accuracy in real-time
+- Stop solving if accuracy drops below 95%
 
-**Implementation:**
-- Track every solve attempt
-- Calculate rolling 100-captcha success rate
-- Alert when dropping below 96% (buffer zone)
-- STOP solving if below 95%
-
-### Rule 2: 3-Agent Consensus System
+### RULE 2: MULTI-MODEL CONSENSUS (TRIPLE VERIFICATION)
 ```
-Agent 1 (Vision) ──┐
-Agent 2 (OCR) ─────┼──→ Consensus Engine ──→ 95% Match? ──→ Submit
-Agent 3 (Pattern) ─┘                           │
-                                                └─ NO ──→ "Cannot Solve"
-```
+CAPTCHA SOLVING WORKFLOW:
 
-**Requirements:**
-- Minimum 2 agents must agree 100% on solution
-- OR all 3 agents with 95%+ similarity
-- Skyvern only submits when consensus reached
-- Default action: "Cannot Solve" button
-
-### Rule 3: Cannot Solve is DEFAULT
-```
-IF Confidence < 95%:
-    → CLICK "Cannot Solve (Alt + Q)"
-    → SKIP captcha
-    → NO penalty for skipping
-    
-IF Confidence >= 95%:
-    → CLICK "Send (Enter)"
-    → Submit solution
+1. CAPTCHA arrives from 2Captcha.com
+2. Send to Agent 1 (Primary Model) → Gets answer A
+3. Send to Agent 2 (Secondary Model) → Gets answer B  
+4. Send to Agent 3 (Tertiary Model) → Gets answer C
+5. COMPARE ANSWERS:
+   
+   IF (A == B == C) with ≥95% confidence:
+      → SUBMIT ANSWER to 2Captcha
+   
+   IF (2 of 3 match) with ≥95% confidence:
+      → SUBMIT MAJORITY ANSWER to 2Captcha
+   
+   IF (all different) OR (confidence < 95%):
+      → CLICK "CANNOT SOLVE" BUTTON
+      → DO NOT GUESS!
+      → DO NOT SUBMIT!
 ```
 
-### Rule 4: NO Parallel Workers
+### RULE 3: "CANNOT SOLVE" IS ACCEPTABLE
 ```
-MAX_WORKERS_PER_PROVIDER = 1
+When to click "Cannot Solve":
+- All 3 agents disagree
+- Confidence below 95%
+- CAPTCHA type not supported
+- Image quality too poor
+- Timeout approaching
 
-IF Worker_A_Active_ON_2CAPTCHA:
-    → Worker_B_MUST_WAIT
-    → OR use different IP + Account
-    → OR use different provider (Kolotibablo)
-```
-
-### Rule 5: Session Continuity
-```
-Cookies: MUST persist between sessions
-Login: Reuse existing session when possible
-IP: Should remain consistent per account
-Location: Same city/region per account
+NEVER guess to maintain speed!
+Quality > Quantity on 2Captcha!
 ```
 
 ---
 
-## 🤖 ANTI-BOT PROTECTION SYSTEM
+## 🤖 AGENT CONFIGURATION
 
-### 1. Human Behavior Simulation
+### Agent 1: Primary Solver (Skyvern/Steel)
+- **Role**: First analysis
+- **Model**: High-accuracy vision model
+- **Timeout**: 30 seconds
+- **Confidence threshold**: 95%
 
-#### Mouse Movements
-```python
-# NOT this (robotic):
-move_to(x, y)  # Direct line
+### Agent 2: Secondary Solver (GPT-4V/Claude)
+- **Role**: Verification
+- **Model**: Different architecture than Agent 1
+- **Timeout**: 30 seconds
+- **Confidence threshold**: 95%
 
-# DO this (human):
-move_to(x, y, method="bezier")  # Curved path
-move_to(x, y, noise=0.15)       # 15% random deviation
-move_to(x, y, overshoot=True)   # Overshoot then correct
-```
+### Agent 3: Tertiary Solver (Local OCR/YOLO)
+- **Role**: Final check
+- **Model**: On-device model (ddddocr)
+- **Timeout**: 15 seconds
+- **Confidence threshold**: 95%
 
-**Mouse Patterns:**
-- Curved trajectories (Bezier curves)
-- Variable speed (fast → slow near target)
-- Occasional overshoot and correction
-- Random micro-movements (hand tremor simulation)
-- Sometimes miss and click nearby (human error)
-
-#### Click Patterns
-```python
-# Random offset from center
-click_offset = random.gauss(0, 5)  # 5px standard deviation
-
-# Sometimes miss slightly
-if random.random() < 0.05:  # 5% miss rate
-    click(x + 10, y - 5)    # Miss by 10px
-    sleep(0.3)
-    click(x, y)             # Correct
-```
-
-#### Typing Simulation
-```python
-# Variable typing speed
-for char in solution:
-    sleep(random.gauss(0.12, 0.04))  # 120ms ± 40ms
-    type(char)
-    
-# Occasional typos
-if random.random() < 0.03:  # 3% typo rate
-    type(wrong_char)
-    sleep(0.2)
-    press('backspace')
-    sleep(0.1)
-    type(correct_char)
-```
-
-#### Response Delays
-```python
-# NOT instant (bot-like)
-# DO variable delays
-base_delay = random.gauss(2.5, 0.8)  # 2.5s ± 0.8s
-complexity_factor = len(captcha_text) * 0.3  # 300ms per char
-final_delay = base_delay + complexity_factor + random.uniform(0, 1)
-sleep(final_delay)
-```
-
-### 2. Session Management & IP Protection
-
-#### IP Reputation Monitoring
-```python
-class IPManager:
-    def check_ip_health(self):
-        metrics = {
-            'solve_time_avg': self.get_avg_solve_time(),
-            'success_rate': self.get_success_rate(),
-            'rejection_rate': self.get_rejection_rate()
-        }
-        
-        # Trigger reconnect if:
-        if metrics['solve_time_avg'] > baseline * 1.5:
-            self.trigger_reconnect()
-        if metrics['rejection_rate'] > 0.10:  # 10% rejection
-            self.trigger_reconnect()
-```
-
-#### Geographic Consistency
-```python
-class GeoTracker:
-    def __init__(self):
-        self.last_ip = None
-        self.last_location = None
-        
-    def check_location_jump(self, new_ip):
-        new_location = self.get_geo_ip(new_ip)
-        distance = self.calculate_distance(self.last_location, new_location)
-        
-        # Cooldown based on distance
-        if distance > 100:  # km
-            cooldown_minutes = distance / 100 * 15  # 15 min per 100km
-            self.enforce_cooldown(cooldown_minutes)
-```
-
-#### Automatic Reconnect Logic
-```python
-def trigger_reconnect():
-    """Reset IP when detection quality drops"""
-    # 1. Logout cleanly
-    logout_worker()
-    
-    # 2. Trigger router reconnect
-    # FritzBox example:
-    requests.post('http://fritz.box:49000/upnp/control/WANIPConn1',
-                  headers={'SOAPAction': 'urn:schemas-upnp-org:service:WANIPConnection:1#ForceTermination'})
-    
-    # 3. Wait for new IP
-    while get_current_ip() == old_ip:
-        sleep(5)
-    
-    # 4. Cooldown period
-    sleep(900)  # 15 minutes
-    
-    # 5. Resume with new session
-    login_worker()
-```
-
-### 3. Work Schedule & Breaks
-
-#### Maximum Work Duration
-```python
-MAX_CONTINUOUS_WORK_MINUTES = 150  # 2.5 hours
-BREAK_DURATION_MINUTES = random.randint(5, 15)
-
-if work_duration > MAX_CONTINUOUS_WORK_MINUTES:
-    take_break(BREAK_DURATION_MINUTES)
-    reset_session()
-```
-
-#### Progressive Difficulty Detection
-```python
-def detect_difficulty_increase():
-    """Detect when captchas get harder (bot suspicion)"""
-    recent_solves = get_last_n_solves(20)
-    
-    # Signs of increased difficulty:
-    signs = {
-        'avg_solve_time_increased': recent_avg > baseline_avg * 1.3,
-        'more_complex_captchas': complex_count > 0.6 * len(recent_solves),
-        'rejection_rate_up': rejections > 0.08 * len(recent_solves)
-    }
-    
-    if sum(signs.values()) >= 2:
-        return True  # Take break
-```
-
-#### Random Micro-Breaks
-```python
-# Every 20-40 captchas, take a 30-90 second break
-if captchas_solved % random.randint(20, 40) == 0:
-    sleep(random.randint(30, 90))
-    # Scroll page, move mouse randomly
-    simulate_idle_behavior()
-```
+### Consensus Engine (Skyvern Controller)
+- **Role**: Decision maker
+- **Logic**: Compare A, B, C
+- **Action**: Submit OR Cannot Solve
+- **Logging**: All decisions logged
 
 ---
 
-## 🎮 2CAPTCHA.COM SPECIFIC WORKFLOW
+## 📊 ACCURACY MONITORING
 
-### Entry Point
-```
-https://2captcha.com/play-and-earn/play
-```
-
-**NOT:**
-- ❌ /work/start (404)
-- ❌ /make-money-online (landing page)
-
-**YES:**
-- ✅ /play-and-earn/play (actual solving interface)
-
-### Page Elements
-
-#### Training Mode (First Time)
-```
-URL: /play-and-earn/training
-- Progress: "Training progress X/Y"
-- Instructions: "Here are 6 digits..."
-- Input field: "Enter captcha answer here..."
-- Buttons: "Cannot solve (Alt + Q)", "Send (Enter)"
-- Timer: "Time left to solve the captcha: XX sec"
-```
-
-**Action:** Complete training (14 captchas) then proceed to real work.
-
-#### Real Work Mode
-```
-URL: /play-and-earn/play
-- Stats: "Earned: $X.XXXX", "Solved: N"
-- Rate: "Rate: $0.10 per 1000 captchas"
-- Captcha image (center)
-- Input field
-- Timer bar
-- Buttons: "Cannot solve", "Send"
-```
-
-### Solving Loop
-
+### Real-Time Metrics
 ```python
-while True:
-    # 1. Wait for captcha
-    captcha = wait_for_captcha(timeout=30)
-    
-    # 2. Screenshot
-    screenshot = take_screenshot()
-    
-    # 3. 3-Agent Analysis
-    agent_1_result = vision_agent.analyze(screenshot)
-    agent_2_result = ocr_agent.analyze(screenshot)
-    agent_3_result = pattern_agent.analyze(screenshot)
-    
-    # 4. Consensus Check
-    consensus = calculate_consensus([
-        agent_1_result,
-        agent_2_result,
-        agent_3_result
-    ])
-    
-    # 5. Decision
-    if consensus.confidence >= 0.95:
-        # Human-like typing
-        type_with_delays(consensus.solution)
-        sleep(random.gauss(1.5, 0.5))
-        click_send_button()
-    else:
-        click_cannot_solve_button()
-    
-    # 6. Check break conditions
-    if should_take_break():
-        take_break()
-    
-    # 7. Check IP health
-    if ip_health_degraded():
-        reconnect_and_cooldown()
-```
-
----
-
-## 🔐 SECURITY MEASURES
-
-### Cookie Persistence
-```python
-# Save cookies after each session
-import pickle
-
-def save_session_cookies(driver, account_id):
-    cookies = driver.get_cookies()
-    with open(f'/data/cookies/{account_id}.pkl', 'wb') as f:
-        pickle.dump(cookies, f)
-
-def load_session_cookies(driver, account_id):
-    try:
-        with open(f'/data/cookies/{account_id}.pkl', 'rb') as f:
-            cookies = pickle.load(f)
-        for cookie in cookies:
-            driver.add_cookie(cookie)
-        return True
-    except FileNotFoundError:
-        return False
-```
-
-### Browser Fingerprint Consistency
-```python
-# Same fingerprint per account
-FINGERPRINT = {
-    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
-    'screen_resolution': (1920, 1080),
-    'color_depth': 24,
-    'timezone': 'Europe/Berlin',
-    'language': 'de-DE',
-    'platform': 'Win32',
-    'canvas_noise': 0.5,  # Consistent noise
-    'webgl_vendor': 'Google Inc.',
-    'webgl_renderer': 'ANGLE (NVIDIA, NVIDIA GeForce GTX 1660...'
+accuracy_stats = {
+    "total_attempts": 0,
+    "correct_solves": 0,
+    "cannot_solve": 0,
+    "current_accuracy": 100.0,
+    "hourly_accuracy": [],
+    "daily_accuracy": []
 }
+
+# Update after each CAPTCHA
+if submitted_answer:
+    accuracy_stats["total_attempts"] += 1
+    # Wait for 2Captcha feedback (async)
+    # Update correct_solves based on feedback
+    accuracy_stats["current_accuracy"] = (
+        accuracy_stats["correct_solves"] / 
+        accuracy_stats["total_attempts"] * 100
+    )
 ```
 
-### Multi-Account Isolation
-```python
-# Each account in separate Docker container
-# Each container gets dedicated IP
-# No shared cookies/sessions between accounts
+### Auto-Stop Triggers
+```
+IF accuracy < 95% for 10 consecutive CAPTCHAs:
+    → PAUSE solving
+    → ALERT operator
+    → INVESTIGATE models
+    → RESUME only after fix
 
-class WorkerInstance:
-    def __init__(self, account_id, ip_address):
-        self.container = create_isolated_container()
-        self.ip = assign_dedicated_ip(ip_address)
-        self.account = load_account_credentials(account_id)
-        self.fingerprint = load_fingerprint(account_id)
+IF accuracy < 90% at any time:
+    → EMERGENCY STOP
+    → DO NOT RESUME without human review
 ```
 
 ---
 
-## 📊 MONITORING & ALERTS
+## 🔄 WORKER WORKFLOW
 
-### Success Rate Tracking
-```python
-class SuccessTracker:
-    def __init__(self, window_size=100):
-        self.attempts = deque(maxlen=window_size)
-        
-    def record_attempt(self, success: bool):
-        self.attempts.append(success)
-        
-    def get_success_rate(self) -> float:
-        if not self.attempts:
-            return 1.0
-        return sum(self.attempts) / len(self.attempts)
-    
-    def check_health(self):
-        rate = self.get_success_rate()
-        if rate < 0.95:
-            alert_critical(f"Success rate dropped to {rate:.1%}")
-            return False
-        elif rate < 0.96:
-            alert_warning(f"Success rate at {rate:.1%}, approaching limit")
-        return True
+### Step 1: Login to 2Captcha.com
+```
+1. Open https://2captcha.com
+2. Login with worker credentials
+3. Navigate to "Start Work" / "Solve CAPTCHAs"
+4. Wait for CAPTCHA assignment
 ```
 
-### Real-Time Dashboard
+### Step 2: Receive CAPTCHA
 ```
-┌─────────────────────────────────────────┐
-│ 2Captcha Worker Monitor                 │
-├─────────────────────────────────────────┤
-│ Success Rate: 97.3% ✅                  │
-│ Session Time: 1h 23m                    │
-│ Captchas Solved: 147                    │
-│ Earned: $0.0147                         │
-│ Avg Solve Time: 4.2s                    │
-│ Current IP: 185.XXX.XXX.XXX             │
-│ Next Break: 27 minutes                  │
-│                                         │
-│ [STOP] [PAUSE] [RECONNECT]              │
-└─────────────────────────────────────────┘
+1. 2Captcha presents CAPTCHA image
+2. Worker captures image/screenshot
+3. Worker has 60-120 seconds to solve
+4. Timer visible on page
+```
+
+### Step 3: Multi-Agent Analysis
+```
+1. Send image to Agent 1 → Answer A (confidence %)
+2. Send image to Agent 2 → Answer B (confidence %)
+3. Send image to Agent 3 → Answer C (confidence %)
+4. Wait for all 3 responses (max 30s)
+```
+
+### Step 4: Consensus Decision
+```
+IF A == B == C AND all confidences ≥ 95%:
+    → Submit Answer A
+    → Log: "UNANIMOUS: {answer}"
+
+ELIF (A == B OR A == C OR B == C) AND confidences ≥ 95%:
+    → Submit majority answer
+    → Log: "MAJORITY: {answer} (2/3)"
+
+ELSE:
+    → Click "CANNOT SOLVE"
+    → Log: "NO CONSENSUS - SKIPPED"
+```
+
+### Step 5: Submit or Skip
+```
+IF submitting:
+    → Type answer in text field
+    → Click "Submit" button
+    → Wait for next CAPTCHA
+
+IF cannot solve:
+    → Click "Cannot Solve" button
+    → Wait for next CAPTCHA
+```
+
+---
+
+## ⚡ PERFORMANCE TARGETS
+
+### Speed vs Accuracy Balance
+```
+Target solve time: 15-30 seconds per CAPTCHA
+Maximum solve time: 60 seconds (before timeout)
+
+Speed is secondary to accuracy!
+Better to skip than submit wrong answer!
+```
+
+### Daily Volume Targets
+```
+Conservative: 100-200 CAPTCHAs/day
+Moderate: 200-500 CAPTCHAs/day
+Aggressive: 500+ CAPTCHAs/day (only with proven 98%+ accuracy)
+
+Start conservative, increase gradually!
+```
+
+---
+
+## 🛡️ ANTI-BAN PROTECTION
+
+### Behavior Patterns to Avoid
+```
+❌ NEVER:
+- Solve too fast (< 5 seconds consistently)
+- Solve 24/7 without breaks
+- Submit same wrong answer repeatedly
+- Use only one model/agent
+- Guess when unsure
+- Ignore "Cannot Solve" option
+
+✅ ALWAYS:
+- Vary solve times (10-45 seconds)
+- Take breaks (5-10 min every hour)
+- Use multiple models for consensus
+- Click "Cannot Solve" when unsure
+- Monitor accuracy continuously
+- Stay above 95% accuracy
+```
+
+### Human-Like Behavior
+```
+- Random delays between CAPTCHAs
+- Occasional "Cannot Solve" clicks (5-10%)
+- Variable typing speed
+- Mouse movements (if tracked)
+- Breaks during "night hours"
+```
+
+---
+
+## 📈 SUCCESS METRICS
+
+### Daily Reports
+```
+Date: 2026-01-30
+CAPTCHAs Attempted: 150
+CAPTCHAs Solved: 142
+CAPTCHAs Skipped: 8
+Accuracy: 94.7% ⚠️ (BELOW 95%!)
+Earnings: $X.XX
+Status: ⚠️ WARNING - Accuracy low
+```
+
+### Weekly Reviews
+```
+- Review accuracy trends
+- Adjust models if needed
+- Update consensus thresholds
+- Check for ban warnings
+- Optimize for accuracy over speed
 ```
 
 ---
 
 ## 🚨 EMERGENCY PROCEDURES
 
-### If Account Flagged
-```python
-def emergency_stop():
-    """Immediate stop all activity"""
-    stop_solving()
-    save_session_state()
-    notify_admin("ACCOUNT FLAGGED - STOPPED")
-    # Do NOT login again for 24 hours
+### If Accuracy Drops Below 95%
+```
+1. IMMEDIATELY stop solving
+2. Do NOT submit more answers
+3. Click "Cannot Solve" for remaining
+4. Log out of 2Captcha
+5. Investigate model performance
+6. Fix issues before resuming
+7. Resume with conservative volume
 ```
 
-### If IP Banned
-```python
-def handle_ip_ban():
-    """Switch to backup IP"""
-    logout_cleanly()
-    switch_to_backup_ip()
-    cooldown(3600)  # 1 hour
-    attempt_relogin()
+### If Account Warning Received
+```
+1. STOP all solving immediately
+2. Review last 100 submissions
+3. Identify error patterns
+4. Fix underlying issues
+5. Wait 24 hours before resuming
+6. Resume with 50% volume
+7. Monitor extra carefully
 ```
 
-### If Success Rate Drops
-```python
-def handle_low_success_rate():
-    """Pause and analyze"""
-    pause_solving()
-    
-    # Analyze last 50 attempts
-    failures = analyze_recent_failures(50)
-    
-    if failures['pattern'] == 'captcha_type_changed':
-        retrain_agents()
-    elif failures['pattern'] == 'ip_reputation':
-        reconnect_ip()
-    elif failures['pattern'] == 'account_flagged':
-        emergency_stop()
+### If Account Banned
+```
+1. Accept ban (no appeal possible)
+2. Document what went wrong
+3. Create new account with NEW:
+   - Email
+   - IP address (VPN/proxy)
+   - Payment method
+   - Behavior patterns
+4. Start with ultra-conservative settings
+5. Build reputation slowly
 ```
 
 ---
 
-## 📝 CHECKLIST: Before Starting Worker
+## 💰 EARNINGS OPTIMIZATION
 
-- [ ] 2captcha.com worker account created
-- [ ] Account verified (email confirmed)
+### Rate per CAPTCHA (approximate)
+```
+Text CAPTCHA:    $0.0003 - $0.001
+Image CAPTCHA:   $0.001 - $0.003
+reCAPTCHA:       $0.002 - $0.005
+hCAPTCHA:        $0.002 - $0.005
+```
+
+### Earnings Calculation
+```
+Daily Volume: 300 CAPTCHAs
+Accuracy: 96%
+Successful: 288 CAPTCHAs
+Average rate: $0.002
+
+Daily earnings: 288 × $0.002 = $0.576
+Weekly earnings: ~$4.00
+Monthly earnings: ~$17.00
+
+WITH 98% ACCURACY:
+Daily: 294 × $0.002 = $0.588
+Monthly: ~$17.50
+
+Accuracy improvement = More earnings!
+```
+
+---
+
+## 🔧 TECHNICAL IMPLEMENTATION
+
+### Required Components
+```
+1. Browser Automation (Skyvern/Steel)
+2. CAPTCHA Detection (screenshot/analysis)
+3. Multi-Agent Solver (3 models)
+4. Consensus Engine (decision logic)
+5. Accuracy Tracker (metrics)
+6. Auto-Stop (safety)
+7. Logging (audit trail)
+```
+
+### Tech Stack
+```
+- Browser: Steel Browser (stealth mode)
+- Agents: Skyvern + GPT-4V + ddddocr
+- Controller: Python/Node.js
+- Monitoring: Real-time dashboard
+- Alerts: Telegram/Slack integration
+```
+
+---
+
+## ✅ PRE-LAUNCH CHECKLIST
+
+Before starting 2Captcha work:
+
+- [ ] All 3 agents tested individually
+- [ ] Consensus engine tested
+- [ ] Accuracy tracking implemented
+- [ ] Auto-stop triggers configured
+- [ ] Logging system active
+- [ ] Dashboard monitoring ready
+- [ ] Emergency procedures documented
+- [ ] Test run: 50 CAPTCHAs with >95% accuracy
+- [ ] USD currency selected in 2Captcha account
 - [ ] Payment method configured
-- [ ] Dedicated IP assigned
-- [ ] Browser fingerprint configured
-- [ ] Cookie persistence enabled
-- [ ] 3-agent consensus system tested
-- [ ] Success rate monitoring active
-- [ ] Emergency stop procedure tested
-- [ ] Break schedule configured
-- [ ] Backup IP available
-- [ ] Real-time dashboard accessible
 
 ---
 
-## 🔗 RELATED DOCUMENTATION
+## 📚 RELATED DOCUMENTATION
 
 - [Worker Architecture](../worker-architecture.md)
-- [Anti-Ban Strategies](../anti-ban-strategies.md)
-- [IP Management](../ip-management.md)
-- [Kolotibablo Rules](./worker-kolotibablo.md)
-- [Multi-Account Setup](../multi-account-setup.md)
+- [Captcha Types](../../captchas/captcha-types.md)
+- [Model Consensus](../../ai/consensus-engine.md)
+- [Ban Prevention](../../security/anti-ban-strategies.md)
 
 ---
 
-**⚠️ REMEMBER: We are HUMANS using AI tools, not bots.**
-
-Every action must pass the "human test": Would a real person do it this way?
-
-If in doubt: **SLOW DOWN, TAKE BREAK, CLICK "CANNOT SOLVE"**
-
-Better safe than banned.
+**VERSION**: 1.0  
+**LAST UPDATED**: 2026-01-30  
+**COMPLIANCE**: MANDATORY - No exceptions  
+**ENFORCEMENT**: Automatic accuracy monitoring

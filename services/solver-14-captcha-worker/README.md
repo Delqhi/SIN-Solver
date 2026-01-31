@@ -216,6 +216,10 @@ The integrated YOLO + OCR solver provides:
 
 ## 📡 API Endpoints
 
+**Base URL:** `http://localhost:8080`
+
+The API provides 4 core endpoints for worker control and monitoring:
+
 ### GET /health
 
 Health check endpoint - returns worker status and service dependencies.
@@ -231,27 +235,41 @@ curl http://localhost:8080/health
   "status": "healthy",
   "worker": {
     "status": "running",
-    "solving_active": true
+    "solving_active": true,
+    "uptime_seconds": 24
   },
   "solver": {
-    "status": "healthy",
-    "url": "http://localhost:8019"
+    "status": "unknown",
+    "url": "http://captcha-solver:8019"
   },
   "browser": {
-    "status": "connected",
-    "url": "http://localhost:3005"
+    "status": "unknown",
+    "url": "http://localhost:3000"
   },
   "database": {
-    "status": "connected",
-    "url": "postgresql://localhost:5433"
+    "status": "unknown",
+    "url": "postgresql://localhost:5432"
   },
   "cache": {
-    "status": "connected",
-    "url": "redis://localhost:6380"
+    "status": "unknown",
+    "url": "redis://localhost:6379"
   },
-  "timestamp": "2024-01-29T10:30:00Z"
+  "timestamp": "2026-01-30T21:44:57.824Z"
 }
 ```
+
+**Response Details:**
+- `status`: Overall health (healthy, degraded, unhealthy)
+- `worker`: Worker process status and uptime
+- `solver`: Solver service connectivity
+- `browser`: Browser (Steel/Playwright) connectivity
+- `database`: PostgreSQL database connectivity
+- `cache`: Redis cache connectivity
+- `timestamp`: Response timestamp (ISO 8601)
+
+**HTTP Status Code:** 200 (Always, even if dependencies are down)
+
+---
 
 ### GET /stats
 
@@ -266,23 +284,210 @@ curl http://localhost:8080/stats
 ```json
 {
   "worker_id": "captcha-worker-001",
-  "uptime_seconds": 3600,
-  "total_solved": 450,
-  "total_failed": 28,
-  "total_earned_cents": 2250,
-  "average_solve_time_ms": 2456,
-  "success_rate_percent": 94.1,
-  "current_streak": 23,
-  "earnings_per_hour": 2.50,
+  "uptime_seconds": 25,
+  "total_solved": 0,
+  "total_failed": 0,
+  "total_earned_cents": 0,
+  "average_solve_time_ms": 0,
+  "success_rate_percent": 0,
+  "current_streak": 0,
+  "earnings_per_hour": 0,
   "captcha_breakdown": {
-    "text": 180,
-    "image_click": 140,
-    "slider": 90,
-    "math": 40
+    "text": 0,
+    "image_click": 0,
+    "slider": 0,
+    "math": 0
   },
-  "timestamp": "2024-01-29T10:30:00Z"
+  "timestamp": "2026-01-30T21:44:58.313Z"
 }
 ```
+
+**Response Details:**
+- `worker_id`: Unique worker identifier
+- `uptime_seconds`: Seconds since worker started
+- `total_solved`: Total CAPTCHAs solved (cumulative)
+- `total_failed`: Total failed solve attempts
+- `total_earned_cents`: Total earnings in cents (1 cent = 0.01 USD)
+- `average_solve_time_ms`: Average time to solve one CAPTCHA (milliseconds)
+- `success_rate_percent`: Success rate as percentage (0.0-100.0)
+- `current_streak`: Number of consecutive successful solves
+- `earnings_per_hour`: Estimated hourly earnings (calculated from current rate)
+- `captcha_breakdown`: Count per CAPTCHA type (text, image_click, slider, math)
+- `timestamp`: Response timestamp (ISO 8601)
+
+**HTTP Status Code:** 200
+
+---
+
+### POST /start
+
+Start the worker if it's not already running.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/start
+```
+
+**Response (200 OK) - If worker starts:**
+```json
+{
+  "message": "Worker started successfully",
+  "timestamp": "2026-01-30T21:44:59.000Z"
+}
+```
+
+**Response (200 OK) - If already running:**
+```json
+{
+  "error": "Worker is already running",
+  "timestamp": "2026-01-30T21:44:59.000Z"
+}
+```
+
+**HTTP Status Code:** 200
+
+**Behavior:**
+- Idempotent operation (safe to call multiple times)
+- Returns 200 even if already running
+- Check `/health` endpoint to verify worker status
+- Worker takes 2-5 seconds to fully initialize
+
+---
+
+### POST /stop
+
+Stop the worker if it's currently running.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/stop
+```
+
+**Response (200 OK) - If worker stops:**
+```json
+{
+  "message": "Worker stopped successfully",
+  "timestamp": "2026-01-30T21:44:59.411Z"
+}
+```
+
+**Response (200 OK) - If not running:**
+```json
+{
+  "error": "Worker is not running",
+  "timestamp": "2026-01-30T21:44:59.000Z"
+}
+```
+
+**HTTP Status Code:** 200
+
+**Behavior:**
+- Idempotent operation (safe to call multiple times)
+- Returns 200 even if not running
+- Gracefully shuts down worker (60 second timeout)
+- Check `/health` endpoint to verify worker stopped
+
+---
+
+## 🔄 API Usage Examples
+
+### Example 1: Check Worker Health
+
+```bash
+# Simple health check
+curl http://localhost:8080/health | jq .
+
+# Output: Returns JSON with status of all services
+```
+
+### Example 2: Get Current Earnings
+
+```bash
+# Get stats
+curl http://localhost:8080/stats | jq '.total_earned_cents, .earnings_per_hour'
+
+# Output:
+# 2250      (Total earned: $22.50)
+# 2.50      (Rate: $2.50/hour)
+```
+
+### Example 3: Start Worker & Monitor
+
+```bash
+# Start worker
+curl -X POST http://localhost:8080/start | jq .
+
+# Wait a moment
+sleep 3
+
+# Check if it's running
+curl http://localhost:8080/health | jq '.worker.status'
+
+# Output: "running"
+```
+
+### Example 4: Stop Worker & Verify
+
+```bash
+# Stop worker
+curl -X POST http://localhost:8080/stop | jq .
+
+# Verify it stopped
+curl http://localhost:8080/health | jq '.worker.status'
+
+# Output: "stopped"
+```
+
+---
+
+## ✅ API Endpoint Testing Status
+
+**Tested:** 2026-01-30 21:45 UTC
+
+| Endpoint | Status | Response Code | Test Result |
+|----------|--------|---|---|
+| **GET /health** | ✅ Working | 200 | Returns complete health status |
+| **GET /stats** | ✅ Working | 200 | Returns worker statistics |
+| **POST /start** | ✅ Working | 200 | Returns start message (idempotent) |
+| **POST /stop** | ✅ Working | 200 | Returns stop message (idempotent) |
+
+**Service Status:**
+- ✅ All 4 endpoints responding with HTTP 200
+- ✅ JSON responses properly formatted
+- ✅ No compilation errors
+- ✅ Service running successfully with clean build
+
+---
+
+## 🐛 Recent Fixes (2026-01-30)
+
+### Issue: TypeScript Build Caching Bug
+
+**Problem:** Modified source code wasn't reflected in compiled JavaScript
+
+**Root Cause:** 
+- Fixed `src/api.ts` to use `worker.getIsRunning()` method
+- But compiled `dist/api.js` still had old `worker.isRunning()` code
+- TypeScript compiler cached old build artifacts
+
+**Solution Applied:**
+```bash
+# Removed stale build artifacts
+rm -rf dist/
+
+# Rebuilt from scratch
+npm run build
+
+# Result: Fresh compilation with correct method calls
+```
+
+**What Changed:**
+- ✅ Fixed all 3 instances of `isRunning()` → `getIsRunning()` in src/api.ts
+- ✅ Added proper getter method in browser-captcha-worker.ts (line 799)
+- ✅ Cleaned and rebuilt dist/ folder
+- ✅ All 4 API endpoints now working correctly
+
+**Prevention:** Always do `rm -rf dist/ && npm run build` if you suspect stale code
 
 ---
 

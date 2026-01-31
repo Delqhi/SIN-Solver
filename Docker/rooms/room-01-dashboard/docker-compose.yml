@@ -17,7 +17,7 @@ services:
     volumes:
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
-       - "${DASHBOARD_PORT:-3011}:3011"
+       - "${DASHBOARD_PORT:-51001}:3011" # Dashboard Cockpit (extreme: 51001)
     networks:
       - sin-solver-network
     healthcheck:

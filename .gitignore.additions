@@ -1,0 +1,18 @@
+# Build artifacts - Next.js
+dashboard/.next/
+dashboard/.swc/
+
+# Test results
+workers/2captcha-worker/test-results/
+workers/2captcha-worker/playwright-report/
+
+# Logs and temporary files
+*.backup
+.env.*
+submission-logs/
+phase*.txt
+
+# Session files (archive these instead of ignoring)
+test-mistral-vision.ts
+*.session*.md
+

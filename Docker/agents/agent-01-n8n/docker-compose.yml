@@ -30,7 +30,7 @@ services:
       N8N_WEBHOOKS_URL: ${N8N_WEBHOOKS_URL:-http://localhost:5678}
       WEBHOOK_TUNNEL_URL: ${WEBHOOK_TUNNEL_URL:-http://agent-01-n8n-orchestrator:5678}
     ports:
-      - "${N8N_PORT:-5678}:5678"
+      - "${N8N_PORT:-50001}:5678"  # n8n Orchestrator (extreme: 50001)
     volumes:
       - n8n_data:/home/node/.n8n
       - ./workflows:/home/node/.n8n/workflows:ro

@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # 2Captcha Worker Service
+  builder-1-captcha-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: builder-1-captcha-worker
+    ports:
+      - "8019:8019"
+    environment:
+      # API Server Configuration
+      PORT: 8019
+      NODE_ENV: ${NODE_ENV:-development}
+
+      # Worker Configuration
+      MAX_WORKERS: ${MAX_WORKERS:-5}
+      MAX_QUEUE_SIZE: ${MAX_QUEUE_SIZE:-1000}
+      DEFAULT_TIMEOUT_MS: ${DEFAULT_TIMEOUT_MS:-60000}
+      DETECTOR_TIMEOUT_MS: ${DETECTOR_TIMEOUT_MS:-120000}
+      REQUEST_TIMEOUT_MS: ${REQUEST_TIMEOUT_MS:-30000}
+
+      # Retry Configuration
+      MAX_RETRIES: ${MAX_RETRIES:-3}
+      RETRY_BACKOFF_MS: ${RETRY_BACKOFF_MS:-1000}
+
+      # Browser Configuration
+      HEADLESS: ${HEADLESS:-true}
+      STEALTH_MODE: ${STEALTH_MODE:-true}
+
+      # Anti-Ban Configuration
+      ANTI_BAN_ENABLED: ${ANTI_BAN_ENABLED:-true}
+      ANTI_BAN_PATTERN: ${ANTI_BAN_PATTERN:-normal}
+      WORK_HOURS_START: ${WORK_HOURS_START:-8}
+      WORK_HOURS_END: ${WORK_HOURS_END:-22}
+      VERBOSE_ANTI_BAN: ${VERBOSE_ANTI_BAN:-false}
+
+      # Vision/AI Configuration
+      VISION_PROVIDER: ${VISION_PROVIDER:-opencode}
+      VISION_MODEL: ${VISION_MODEL:-gemini-3-flash}
+      VISION_TIMEOUT: ${VISION_TIMEOUT:-30000}
+      VISION_CONFIDENCE_THRESHOLD: ${VISION_CONFIDENCE_THRESHOLD:-0.85}
+
+      # API Keys
+      OPENCODE_API_KEY: ${OPENCODE_API_KEY:-}
+      OPENCODE_ZEN_API_KEY: ${OPENCODE_ZEN_API_KEY:-}
+      VISION_API_KEY: ${VISION_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      SKYVERN_API_KEY: ${SKYVERN_API_KEY:-}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      VERBOSE_LOGGING: ${VERBOSE_LOGGING:-false}
+
+      # Alerting
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+
+      # Alert Thresholds
+      ALERT_ACCURACY_WARNING_THRESHOLD: ${ALERT_ACCURACY_WARNING_THRESHOLD:-75}
+      ALERT_EMERGENCY_STOP_THRESHOLD: ${ALERT_EMERGENCY_STOP_THRESHOLD:-50}
+      ALERT_RATE_LIMIT_SECONDS: ${ALERT_RATE_LIMIT_SECONDS:-300}
+
+    volumes:
+      # Mount source code for development (optional)
+      # - .:/app:delegated
+      # Mount logs directory
+      - ./logs:/app/logs
+      # Mount screenshots directory
+      - ./screenshots:/app/screenshots
+      # Mount metrics directory
+      - ./metrics:/app/metrics
+
+    networks:
+      - captcha-network
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8019/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        labels: "service=captcha-worker"
+
+networks:
+  captcha-network:
+    driver: bridge

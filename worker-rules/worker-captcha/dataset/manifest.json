@@ -1,412 +1,484 @@
 {
-  "text_easy": [
+  "images": [
     {
-      "filename": "HELLO_v0.png",
-      "ground_truth": "HELLO",
+      "filename": "text_easy/NVPSIP.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/HELLO_v0.png"
+      "ground_truth": "NVPSIP",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "HELLO_v1.png",
-      "ground_truth": "HELLO",
+      "filename": "text_easy/RGSAWT.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/HELLO_v1.png"
+      "ground_truth": "RGSAWT",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "WORLD_v0.png",
-      "ground_truth": "WORLD",
+      "filename": "text_easy/ZJGPPO.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/WORLD_v0.png"
+      "ground_truth": "ZJGPPO",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "PYTHON_v0.png",
-      "ground_truth": "PYTHON",
+      "filename": "text_easy/OMEPFJ.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/PYTHON_v0.png"
+      "ground_truth": "OMEPFJ",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "CODE_v0.png",
-      "ground_truth": "CODE",
+      "filename": "text_easy/JGIWVZ.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CODE_v0.png"
+      "ground_truth": "JGIWVZ",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "TEST_v0.png",
-      "ground_truth": "TEST",
+      "filename": "text_easy/IPXAZH.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/TEST_v0.png"
+      "ground_truth": "IPXAZH",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "TEST_v1.png",
-      "ground_truth": "TEST",
+      "filename": "text_easy/FTUQVB.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/TEST_v1.png"
+      "ground_truth": "FTUQVB",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "EASY_v0.png",
-      "ground_truth": "EASY",
+      "filename": "text_easy/QDIODG.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/EASY_v0.png"
+      "ground_truth": "QDIODG",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "EASY_v1.png",
-      "ground_truth": "EASY",
+      "filename": "text_easy/GGKWWU.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/EASY_v1.png"
+      "ground_truth": "GGKWWU",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "SIMPLE_v0.png",
-      "ground_truth": "SIMPLE",
+      "filename": "text_easy/NLKAPS.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/SIMPLE_v0.png"
+      "ground_truth": "NLKAPS",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "CLEAR_v0.png",
-      "ground_truth": "CLEAR",
+      "filename": "text_easy/XTCNWO.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CLEAR_v0.png"
+      "ground_truth": "XTCNWO",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "CLEAR_v1.png",
-      "ground_truth": "CLEAR",
+      "filename": "text_easy/EWZPTK.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CLEAR_v1.png"
+      "ground_truth": "EWZPTK",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "BASIC_v0.png",
-      "ground_truth": "BASIC",
+      "filename": "text_easy/SECDCR.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/BASIC_v0.png"
+      "ground_truth": "SECDCR",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "BASIC_v1.png",
-      "ground_truth": "BASIC",
+      "filename": "text_easy/KQFGJF.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/BASIC_v1.png"
+      "ground_truth": "KQFGJF",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "QUICK_v0.png",
-      "ground_truth": "QUICK",
+      "filename": "text_easy/LFLLHF.png",
       "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/QUICK_v0.png"
+      "ground_truth": "LFLLHF",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "CAPTCHA_v0.png",
-      "ground_truth": "CAPTCHA",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CAPTCHA_v0.png"
-    },
-    {
-      "filename": "CAPTCHA_v1.png",
-      "ground_truth": "CAPTCHA",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/CAPTCHA_v1.png"
-    },
-    {
-      "filename": "VERIFY_v0.png",
-      "ground_truth": "VERIFY",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/VERIFY_v0.png"
-    },
-    {
-      "filename": "VERIFY_v1.png",
-      "ground_truth": "VERIFY",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/VERIFY_v1.png"
-    },
-    {
-      "filename": "PROOF_v0.png",
-      "ground_truth": "PROOF",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/PROOF_v0.png"
-    },
-    {
-      "filename": "LOGIN_v0.png",
-      "ground_truth": "LOGIN",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/LOGIN_v0.png"
-    },
-    {
-      "filename": "SECURE_v0.png",
-      "ground_truth": "SECURE",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/SECURE_v0.png"
-    },
-    {
-      "filename": "SECURE_v1.png",
-      "ground_truth": "SECURE",
-      "category": "text_easy",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_easy/SECURE_v1.png"
-    }
-  ],
-  "text_hard": [
-    {
-      "filename": "X9K2M_v0.png",
-      "ground_truth": "X9K2M",
+      "filename": "text_hard/COEBX.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/X9K2M_v0.png"
+      "ground_truth": "COEBX",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "X9K2M_v1.png",
-      "ground_truth": "X9K2M",
+      "filename": "text_hard/XDQOJ.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/X9K2M_v1.png"
+      "ground_truth": "XDQOJ",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "Q4R7L_v0.png",
-      "ground_truth": "Q4R7L",
+      "filename": "text_hard/GLWKP.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Q4R7L_v0.png"
+      "ground_truth": "GLWKP",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "Q4R7L_v1.png",
-      "ground_truth": "Q4R7L",
+      "filename": "text_hard/HMVHK.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Q4R7L_v1.png"
+      "ground_truth": "HMVHK",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "W8N3P_v0.png",
-      "ground_truth": "W8N3P",
+      "filename": "text_hard/RXHOD.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/W8N3P_v0.png"
+      "ground_truth": "RXHOD",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "V2T6H_v0.png",
-      "ground_truth": "V2T6H",
+      "filename": "text_hard/TGXHO.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/V2T6H_v0.png"
+      "ground_truth": "TGXHO",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "V2T6H_v1.png",
-      "ground_truth": "V2T6H",
+      "filename": "text_hard/BTZZR.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/V2T6H_v1.png"
+      "ground_truth": "BTZZR",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "B1F9G_v0.png",
-      "ground_truth": "B1F9G",
+      "filename": "text_hard/WGEHB.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/B1F9G_v0.png"
+      "ground_truth": "WGEHB",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "B1F9G_v1.png",
-      "ground_truth": "B1F9G",
+      "filename": "text_hard/ESMXV.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/B1F9G_v1.png"
+      "ground_truth": "ESMXV",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "J5S8D_v0.png",
-      "ground_truth": "J5S8D",
+      "filename": "text_hard/BRQZX.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/J5S8D_v0.png"
+      "ground_truth": "BRQZX",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "E4A7C_v0.png",
-      "ground_truth": "E4A7C",
+      "filename": "text_hard/ZVYDE.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/E4A7C_v0.png"
+      "ground_truth": "ZVYDE",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "U2O6I_v0.png",
-      "ground_truth": "U2O6I",
+      "filename": "text_hard/RDWNF.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/U2O6I_v0.png"
+      "ground_truth": "RDWNF",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "U2O6I_v1.png",
-      "ground_truth": "U2O6I",
+      "filename": "text_hard/GBSRF.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/U2O6I_v1.png"
+      "ground_truth": "GBSRF",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "Y3K9L_v0.png",
-      "ground_truth": "Y3K9L",
+      "filename": "text_hard/KUNWI.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Y3K9L_v0.png"
+      "ground_truth": "KUNWI",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "Y3K9L_v1.png",
-      "ground_truth": "Y3K9L",
+      "filename": "text_hard/EMIJM.png",
       "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Y3K9L_v1.png"
+      "ground_truth": "EMIJM",
+      "difficulty": "hard",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "Z1X4V_v0.png",
-      "ground_truth": "Z1X4V",
-      "category": "text_hard",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/text_hard/Z1X4V_v0.png"
-    }
-  ],
-  "numbers_only": [
-    {
-      "filename": "123456_v0.png",
-      "ground_truth": "123456",
+      "filename": "numbers_only/859959.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/123456_v0.png"
+      "ground_truth": "859959",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "789012_v0.png",
-      "ground_truth": "789012",
+      "filename": "numbers_only/725505.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/789012_v0.png"
+      "ground_truth": "725505",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "789012_v1.png",
-      "ground_truth": "789012",
+      "filename": "numbers_only/827763.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/789012_v1.png"
+      "ground_truth": "827763",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "456789_v0.png",
-      "ground_truth": "456789",
+      "filename": "numbers_only/547093.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/456789_v0.png"
+      "ground_truth": "547093",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "234567_v0.png",
-      "ground_truth": "234567",
+      "filename": "numbers_only/270685.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/234567_v0.png"
+      "ground_truth": "270685",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "234567_v1.png",
-      "ground_truth": "234567",
+      "filename": "numbers_only/108256.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/234567_v1.png"
+      "ground_truth": "108256",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "890123_v0.png",
-      "ground_truth": "890123",
+      "filename": "numbers_only/969832.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/890123_v0.png"
+      "ground_truth": "969832",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "567890_v0.png",
-      "ground_truth": "567890",
+      "filename": "numbers_only/356883.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/567890_v0.png"
+      "ground_truth": "356883",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "012345_v0.png",
-      "ground_truth": "012345",
+      "filename": "numbers_only/151171.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/012345_v0.png"
+      "ground_truth": "151171",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "345678_v0.png",
-      "ground_truth": "345678",
+      "filename": "numbers_only/434165.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/345678_v0.png"
+      "ground_truth": "434165",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "345678_v1.png",
-      "ground_truth": "345678",
+      "filename": "numbers_only/481316.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/345678_v1.png"
+      "ground_truth": "481316",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "678901_v0.png",
-      "ground_truth": "678901",
+      "filename": "numbers_only/541533.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/678901_v0.png"
+      "ground_truth": "541533",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "678901_v1.png",
-      "ground_truth": "678901",
+      "filename": "numbers_only/043786.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/678901_v1.png"
+      "ground_truth": "043786",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "901234_v0.png",
-      "ground_truth": "901234",
+      "filename": "numbers_only/654939.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/901234_v0.png"
+      "ground_truth": "654939",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "901234_v1.png",
-      "ground_truth": "901234",
+      "filename": "numbers_only/444840.png",
       "category": "numbers_only",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/numbers_only/901234_v1.png"
-    }
-  ],
-  "mixed": [
+      "ground_truth": "444840",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
+    },
     {
-      "filename": "A1B2C3_v0.png",
-      "ground_truth": "A1B2C3",
+      "filename": "mixed/5WMJ4N.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/A1B2C3_v0.png"
+      "ground_truth": "5WMJ4N",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "A1B2C3_v1.png",
-      "ground_truth": "A1B2C3",
+      "filename": "mixed/BIIZRK.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/A1B2C3_v1.png"
+      "ground_truth": "BIIZRK",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "X9Y8Z7_v0.png",
-      "ground_truth": "X9Y8Z7",
+      "filename": "mixed/71OSPM.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/X9Y8Z7_v0.png"
+      "ground_truth": "71OSPM",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "P4Q5R6_v0.png",
-      "ground_truth": "P4Q5R6",
+      "filename": "mixed/U6JGNF.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/P4Q5R6_v0.png"
+      "ground_truth": "U6JGNF",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "M2N3O4_v0.png",
-      "ground_truth": "M2N3O4",
+      "filename": "mixed/BB5K0O.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/M2N3O4_v0.png"
+      "ground_truth": "BB5K0O",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "K7L8J9_v0.png",
-      "ground_truth": "K7L8J9",
+      "filename": "mixed/KJEPXG.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/K7L8J9_v0.png"
+      "ground_truth": "KJEPXG",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "D5E6F7_v0.png",
-      "ground_truth": "D5E6F7",
+      "filename": "mixed/JT4TB8.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/D5E6F7_v0.png"
+      "ground_truth": "JT4TB8",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "D5E6F7_v1.png",
-      "ground_truth": "D5E6F7",
+      "filename": "mixed/ECU7BX.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/D5E6F7_v1.png"
+      "ground_truth": "ECU7BX",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "G1H2I3_v0.png",
-      "ground_truth": "G1H2I3",
+      "filename": "mixed/DI808R.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/G1H2I3_v0.png"
+      "ground_truth": "DI808R",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "S8T9U0_v0.png",
-      "ground_truth": "S8T9U0",
+      "filename": "mixed/9D9XJO.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/S8T9U0_v0.png"
+      "ground_truth": "9D9XJO",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "W2X3Y4_v0.png",
-      "ground_truth": "W2X3Y4",
+      "filename": "mixed/Q98TF9.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/W2X3Y4_v0.png"
+      "ground_truth": "Q98TF9",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "V6Z1A2_v0.png",
-      "ground_truth": "V6Z1A2",
+      "filename": "mixed/QIXN6V.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/V6Z1A2_v0.png"
+      "ground_truth": "QIXN6V",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     },
     {
-      "filename": "V6Z1A2_v1.png",
-      "ground_truth": "V6Z1A2",
+      "filename": "mixed/L3OHZ4.png",
       "category": "mixed",
-      "path": "/Users/jeremy/dev/SIN-Solver/worker-rules/worker-captcha/dataset/mixed/V6Z1A2_v1.png"
+      "ground_truth": "L3OHZ4",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
+    },
+    {
+      "filename": "mixed/10EG1Y.png",
+      "category": "mixed",
+      "ground_truth": "10EG1Y",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
+    },
+    {
+      "filename": "mixed/FHIBYA.png",
+      "category": "mixed",
+      "ground_truth": "FHIBYA",
+      "difficulty": "easy",
+      "width": 200,
+      "height": 80
     }
   ]
 }

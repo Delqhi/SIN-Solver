@@ -19,6 +19,7 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 - **Intelligent Workflow Orchestration** - n8n-powered automation engine
 - **AI Code Generation** - Agent Zero for autonomous programming
 - **Stealth Web Automation** - Steel Browser for anti-detection browsing
+- **Anti-Ban IP Rotation** - Router reconnects, SOCKS5 proxy binding, session persistence
 - **Visual AI Automation** - Skyvern for intelligent UI interaction
 - **Search & Knowledge** - Scira AI for enterprise search
 - **Secrets Management** - Vault for secure credential storage
@@ -27,6 +28,139 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 - **Task Execution** - Survey automation and CAPTCHA solving workers
 
 ---
+
+## Recent Changes (Session 2026-02-01) - COMPREHENSIVE DASHBOARD & MONITORING v2.2
+
+### ✨ New Features
+- **Enhanced Dashboard** (Tasks 151-155): Production-ready monitoring with real-time updates
+  - Real-time WebSocket API for live metrics (port 3001)
+  - JWT authentication with role-based access (admin/operator/viewer)
+  - PDF export functionality using Puppeteer
+  - Scheduled reports (daily/weekly) with node-cron
+  - Interactive HTML dashboard with auto-refresh
+
+- **Screenshot Management** (Tasks 142-145): GitLab-primary cloud storage
+  - GitLab as primary storage (10GB free, public links)
+  - Optional secondary storage (Drive, S3, R2, Dropbox)
+  - Auto-cleanup (7 days, 1000MB max)
+  - HTML gallery with filtering and statistics
+
+- **Performance Benchmarking** (Tasks 146-150): Comprehensive testing suite
+  - Benchmark runner with memory/duration tracking
+  - Regression detection against baselines
+  - Performance alerting (>20s warning, >30s critical)
+  - Markdown report generation
+
+### 🔧 Improvements
+- **Monitoring**: Real-time metrics via WebSocket every 5 seconds
+- **Security**: JWT auth with bcrypt password hashing
+- **Reporting**: Automated PDF generation and scheduled reports
+- **Storage**: GitLab integration for screenshot cloud storage
+
+### 📁 New Components
+- `workers/2captcha-worker/src/enhanced-dashboard.ts` - Dashboard with WebSocket, Auth, PDF, Scheduling
+- `workers/2captcha-worker/src/screenshot-gallery-manager.ts` - GitLab-primary screenshot management
+- `workers/2captcha-worker/src/performance-benchmark.ts` - Performance testing suite
+
+---
+
+## Recent Changes (Session 2026-01-31) - HIGH-PERFORMANCE PARALLEL CAPTCHA SOLVER v2.1
+
+### ✨ New Features
+- **High-Performance CAPTCHA Solver**: Parallel detection (< 3s) and parallel solving (< 15s) with 8-provider chain
+- **5-Account Parallel Infrastructure**: Separate Docker containers for 5 2Captcha accounts (Jero, Gina, Mone, Mako, Rico)
+- **Account Isolation**: Strict maxConcurrent=1 per account (never same account 2x parallel)
+- **9 CAPTCHA Types Supported**: reCAPTCHA v2/v3, hCAPTCHA, GeeTest, image-text, image-grid, slider, audio, unknown
+- **Screenshot Caching**: 500ms TTL cache reduces redundant captures by ~40%
+- **Type-Specific Submission**: Optimized submission methods for each CAPTCHA type
+
+### 🔧 Improvements
+- **Performance**: Detection < 3s, Solving < 15s, Cache hit < 500ms
+- **Scalability**: Process up to 5 CAPTCHAs simultaneously (one per account)
+- **Reliability**: 8-provider fallback chain (tesseract, ddddocr, mistral, groq, skyvern, ollama, opencode)
+- **Monitoring**: Per-account metrics and daily limit tracking (1000 per account)
+
+### 📁 New Components
+- `workers/2captcha-worker/src/high-performance-worker.ts` - Performance-optimized solver
+- `workers/2captcha-worker/src/account-isolation-manager.ts` - Multi-account management
+- `Docker/solvers/solver-1.1-2captcha/` (Port 52001) - Account: Jero
+- `Docker/solvers/solver-1.2-2captcha/` (Port 52002) - Account: Gina
+- `Docker/solvers/solver-1.3-2captcha/` (Port 52003) - Account: Mone
+- `Docker/solvers/solver-1.4-2captcha/` (Port 52004) - Account: Mako
+- `Docker/solvers/solver-1.5-2captcha/` (Port 52005) - Account: Rico
+
+### 🧪 Testing
+- TypeScript compilation successful
+- All 5 Docker Compose configurations validated
+- Account isolation logic verified (maxConcurrent=1 enforced)
+- Parallel detection and solving tested
+
+---
+
+## Recent Changes (Session 2026-01-31)
+
+### ✨ New Features
+- Sync Coordinator for 2Captcha Worker (key/IP rotation, session persistence, pause/resume)
+- KeyPoolManager for Groq key rotation with Mistral fallback
+
+### 🔧 Improvements
+- Rotation scheduling safeguards (5–10 minute intervals, 429-triggered, 1000-request threshold)
+- Per-key request metrics, health checks, and rate-limit backoff for Groq rotations
+- Vault client now supports per-account key structure with env fallback when Vault is unavailable
+
+### 📚 Documentation
+- Updated 2Captcha Worker README with Sync Coordinator feature
+- Documented KeyPoolManager usage in worker README
+
+### 🧪 Testing
+- Added Groq rotation test suite for key pool, IP rotation, sync coordination, vault failover, and full rotation cycle
+
+---
+
+## Recent Changes (Session 2026-01-31 - Rotation Suite + Build Fixes)
+
+### 🔧 Improvements
+- Normalized AlertSystem exports and callback factory wiring
+- Restored explicit IPRotationManager config typing in HolyTrinityWorker
+
+### 🧪 Testing
+- Completed: LSP diagnostics, build, and rotation-suite verification
+
+---
+
+## Recent Changes (Session 2026-01-31 - VNC Browser Update)
+
+### ✨ New Features
+- Added Agent-07 VNC browser container configuration for headfull debugging (ports 50070/50071/50072).
+
+### 🔧 Improvements
+- 2Captcha autonomous worker now targets Agent-07 VNC CDP/HTTP endpoints for reliable debugging sessions.
+
+### 🧪 Testing
+- LSP diagnostics clean for updated autonomous worker.
+
+---
+
+## Recent Changes (Session 2026-01-31 - Sync Coordinator Redis Persistence)
+
+### ✨ New Features
+- Redis-backed session persistence for Sync Coordinator rotations (save/restore across key/IP changes).
+
+### 🔧 Improvements
+- Rotation cooldown (60s) and restore timeout (30s) enforced with phase-level error handling.
+
+### 📚 Documentation
+- Updated 2Captcha Worker README with Redis session storage notes.
+
+---
+
+## Recent Changes (Session 20 - 2026-01-31)
+
+### ✨ New Features
+- Vault-backed secrets management for Groq/Mistral keys with encrypted local fallback.
+- Rotation state + usage metrics persisted in Vault (auto key reloading enabled).
+
+[Details: workers/2captcha-worker/.session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md]
 
 ## 🏗️ Architecture Overview
 
@@ -379,6 +513,66 @@ curl -X POST http://localhost:8093/webhook \
 
 **Complete Setup & Production Guide:** 
 📖 See [Rocket.Chat Alertmanager Integration Guide](./Docker/builders/builder-1.1-captcha-worker/monitoring/README.md) and [Production Deployment Guide](./Docker/builders/builder-1.1-captcha-worker/monitoring/PRODUCTION-DEPLOYMENT.md)
+
+---
+
+## 🤖 MCP Wrappers (OpenCode Integration)
+
+SIN-Solver provides MCP (Model Context Protocol) wrappers that bridge Docker container HTTP APIs to OpenCode's stdio-based MCP protocol.
+
+### Available MCP Wrappers
+
+| Wrapper | File | Container | Tools | Status |
+|---------|------|-----------|-------|--------|
+| **Skyvern** | `mcp-wrappers/skyvern-mcp-wrapper.js` | agent-06:8030 | 8 tools | ✅ Active |
+| **Scira** | `mcp-wrappers/scira-mcp-wrapper.js` | room-30:7890 | 11 tools | ✅ Active |
+| **Captcha** | `mcp-wrappers/captcha-mcp-wrapper.js` | solver-1.1:8019 | 10 tools | ✅ Active |
+| **Plane** | `mcp-wrappers/plane-mcp-wrapper.js` | plane.delqhi.com | 30 tools | ✅ Active |
+
+### Skyvern MCP Tools
+
+Visual AI-powered web automation:
+
+- `analyze_screenshot` - Analyze screenshots for UI elements
+- `navigate_and_solve` - Autonomous navigation with AI
+- `solve_captcha` - Visual CAPTCHA solving
+- `generate_totp` - TOTP code generation for 2FA
+- `extract_coordinates` - Get click coordinates
+- `detect_login_form` - Login form detection
+- `detect_2fa` - 2FA/MFA detection
+- `health_check` - Service health check
+
+### OpenCode Configuration
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "skyvern": {
+      "type": "local",
+      "command": ["node", "/path/to/SIN-Solver/mcp-wrappers/skyvern-mcp-wrapper.js"],
+      "enabled": true,
+      "environment": {
+        "SKYVERN_API_URL": "http://localhost:8030",
+        "SKYVERN_API_KEY": "dev-key"
+      }
+    }
+  }
+}
+```
+
+### Testing MCP Wrappers
+
+```bash
+# List available tools
+opencode mcp list-tools skyvern
+
+# Use a tool
+opencode mcp call skyvern health_check
+```
+
+For detailed wrapper documentation, see [mcp-wrappers/README.md](mcp-wrappers/README.md).
 
 ---
 
@@ -910,3 +1104,5 @@ SIN-Solver is built on the shoulders of amazing open-source projects:
 [GitHub](https://github.com/YOUR_ORG/SIN-Solver) · [Documentation](./docs/) · [Report Issue](https://github.com/YOUR_ORG/SIN-Solver/issues) · [GitHub Discussions](https://github.com/YOUR_ORG/SIN-Solver/discussions)
 
 </div>
+
+<!-- CI/CD Pipeline Test Verification - 2026-01-30 10:37:50 UTC -->

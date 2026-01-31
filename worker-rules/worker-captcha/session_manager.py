@@ -13,13 +13,17 @@ import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any, TYPE_CHECKING
 import subprocess
 
 import aiohttp
 import requests
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
+
+# TYPE_CHECKING imports (not executed at runtime, only for type checkers)
+if TYPE_CHECKING:
+    from fritzconnection.lib.fritzwlan import FritzWLAN
 
 # Configure logging
 logging.basicConfig(
@@ -95,7 +99,7 @@ class HealthMetrics:
 class GeoIPLookup:
     """Handle geographic IP lookups with caching"""
 
-    def __init__(self, cache_dir: Path = None):
+    def __init__(self, cache_dir: Optional[Path] = None):
         self.cache_dir = cache_dir or Path.home() / ".cache" / "geoip"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.geolocator = Nominatim(user_agent="sin-solver-session-manager")
@@ -304,12 +308,20 @@ class SessionManager:
     def __init__(
         self,
         account_id: str,
-        storage_dir: Path = None,
-        router_config: Dict = None,
+        storage_dir: Optional[Path] = None,
+        router_config: Optional[Dict[str, Any]] = None,
     ):
         self.account_id = account_id
-        self.storage_dir = storage_dir or (Path.home() / ".sin-solver" / "sessions" / account_id)
+        # Use provided storage_dir or default
+        if storage_dir is None:
+            storage_dir = Path("/data/sessions")
+        self.storage_dir: Path = storage_dir
         self.storage_dir.mkdir(parents=True, exist_ok=True)
+
+        # Use provided router_config or empty dict
+        if router_config is None:
+            router_config = {}
+        self.router_config: Dict[str, Any] = router_config
 
         self.cookies_file = self.storage_dir / "cookies.pkl"
         self.session_file = self.storage_dir / "session.json"
@@ -318,7 +330,6 @@ class SessionManager:
         self.cookies: Dict = {}
         self.health = HealthMetrics()
         self.ip_manager = IPRotationManager(account_id)
-        self.router_config = router_config or {}
 
         self.session_start_time: Optional[datetime] = None
         self.consecutive_failures = 0
@@ -330,7 +341,7 @@ class SessionManager:
     # COOKIE PERSISTENCE
     # ========================
 
-    def save_cookies(self, cookies: Dict = None):
+    def save_cookies(self, cookies: Optional[Dict] = None):
         """Save cookies to persistent storage"""
         if cookies:
             self.cookies = cookies

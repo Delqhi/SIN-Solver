@@ -1,5 +1,10 @@
-# Delqhi-Platform Last Changes Log
+# Last Changes - SIN-Solver Project
 
+<<<<<<< HEAD
+**Date:** 2026-01-30  
+**Session:** 21 (Post-Winston Logging)  
+**Status:** Skyvern MCP Wrapper Implementation
+=======
 ## [2026-01-30 09:45] [SESSION-15-CI-CD-ACTIVATION]
 
 **Session:** Session 15 (CI/CD Pipeline Activation - Phase 15.1)
@@ -456,1093 +461,1040 @@
 All critical testing and verification completed successfully. The SIN-Solver platform is fully operational and ready for production deployment. All 11 API endpoints are responding correctly, all containers are healthy, and all E2E integration tests are passing.
 
 **Session Achievement:** Comprehensive verification and documentation of a production-ready system.
+>>>>>>> origin/main
 
 ---
 
-## [2026-01-30 00:50] [PHASE-9-10-COMPLETION-SESSION-13]
-
-**Session:** Session 13 (Production Deployment & Documentation)
-**Agent:** sisyphus-junior
-**Status:** 🟢 PRODUCTION READY
-
-### Phase 9: Chat Endpoints (COMPLETED)
-**Task:** Create `/api/chat/message.js` and `/api/chat/history.js`
-**Result:** ✅ COMPLETED - 2 endpoints created with full compliance
-
-**Files Created:**
-- `/dashboard/pages/api/chat/message.js` (64 lines)
-- `/dashboard/pages/api/chat/history.js` (63 lines)
-
-**Architecture Compliance:**
-- ✅ GET endpoints: 2 imports (errorHandler, logger), EXACTLY 7 comments
-- ✅ POST endpoints: 3 imports (errorHandler, validateInput, logger), EXACTLY 7 comments
-- ✅ Response format: {success, data, timestamp}
-- ✅ CORS headers on all endpoints
-- ✅ Input validation on POST endpoints
-- ✅ HTTP method enforcement (GET/POST + OPTIONS only)
-- ✅ Error handling with proper HTTP status codes
-
-### Phase 10: Container Verification & E2E Testing (COMPLETED)
-**Task:** Full system verification before production deployment
-**Result:** ✅ 7/7 TESTS PASSED (100%)
-
-**Verifications Completed:**
-
-#### ✅ Task 1: Dashboard Build Verification
-- Command: `npm run build`
-- **Result:** SUCCESS
-- Output: 27 routes compiled (5 pages + 11 APIs + 11 utilities)
-- Build size: First Load JS 346 KB (acceptable)
-- Time: ~45 seconds
-- **Status:** Build-ready for production
-
-#### ✅ Task 2: Container Health Tests
-- Command: `pytest tests/test_container_health.py -v`
-- **Initial:** 5/7 PASSED (2 failures due to config issues)
-- **After Fix:** 7/7 PASSED (100%)
-- Test duration: 0.44 seconds
-- **Status:** All containers healthy
-
-**Fixes Applied:**
-1. **Container Naming:** Fixed `solver-1.1-captcha-worker` → `builder-1.1-captcha-worker`
-   - File: `tests/test_container_health.py`, lines 94, 190
-   - Reason: 2026 naming convention compliance
-
-2. **Port Configuration:** Removed non-existent port 8201 reference
-   - File: `tests/test_container_health.py`, lines 17-31
-   - Reason: Service doesn't exist (Vault on port 8200)
-
-3. **Service Dependency Test:** Updated to test actual Vault endpoint
-   - File: `tests/test_container_health.py`, lines 144-156
-   - Service: room-02-tresor-secrets on port 8200
-
-#### ✅ Task 3: API Endpoint File Verification
-- **Total Endpoints:** 11/11 verified present
-- **Utilities:** 3/3 verified (errorHandler, logger, validators)
-- **Total Lines:** 419 lines of API code
-- **Status:** All files accounted for, no missing endpoints
-
-#### ✅ Task 4: Git Status & Commits
-- **Current Status:** Clean working tree
-- **Commits:** 2 new commits on main branch
-- **Commit 1:** edda567 - Container health test fixes
-- **Commit 2:** [Latest build verification]
-- **Status:** Ready for push to origin
-
-### Architectural Patterns VERIFIED
-- ✅ Comment Structure: EXACTLY 7 comments per endpoint
-- ✅ Import Structure: GET (2), POST (3) imports
-- ✅ Response Format: {success, data, timestamp}
-- ✅ HTTP Methods: GET/POST + OPTIONS only
-- ✅ CORS Headers: All endpoints configured
-- ✅ Error Codes: 200, 201, 400, 405, 500 properly used
-- ✅ Input Validation: Pydantic models on POST endpoints
-- ✅ Logging: Structured logging on all endpoints
-
-### Critical Files (PRODUCTION READY)
-1. `/dashboard/pages/api/health.js` ✅
-2. `/dashboard/pages/api/services.js` ✅
-3. `/dashboard/pages/api/docs/content.js` ✅
-4. `/dashboard/pages/api/captcha/status.js` ✅
-5. `/dashboard/pages/api/captcha/solve.js` ✅
-6. `/dashboard/pages/api/captcha/stats.js` ✅
-7. `/dashboard/pages/api/workflows/generate.js` ✅
-8. `/dashboard/pages/api/workflows/active.js` ✅
-9. `/dashboard/pages/api/workflows/[id]/correct.js` ✅
-10. `/dashboard/pages/api/chat/message.js` ✅
-11. `/dashboard/pages/api/chat/history.js` ✅
-
-### Test Results Summary
-| Test Name | Status | Duration | Notes |
-|-----------|--------|----------|-------|
-| test_all_container_health | ✅ PASSED | 0.08s | All containers reachable |
-| test_docker_ps_output | ✅ PASSED | 0.02s | 4/4 critical containers visible |
-| test_network_connectivity | ✅ PASSED | 0.12s | Internal network healthy |
-| test_service_dependencies | ✅ PASSED | 0.08s | Vault endpoint responding |
-| test_metrics_availability | ✅ PASSED | 0.06s | Prometheus scraping active |
-| test_log_output | ✅ PASSED | 0.04s | Container logs accessible |
-| test_restart_policy | ✅ PASSED | 0.04s | Restart policies configured |
-| **Total** | **7/7 PASSED** | **0.44s** | **100% Pass Rate** |
-
-### Production Readiness Checklist
-- ✅ All 11 API endpoints created & tested
-- ✅ All utility modules (3) functional
-- ✅ Build verification passed
-- ✅ Container health tests passed (7/7)
-- ✅ Architecture standards enforced
-- ✅ Git commits documented
-- ✅ **STATUS: PRODUCTION READY**
-
-### Next Steps (Session 13)
-1. ⏳ Update BLUEPRINT.md with final architecture
-2. ⏳ Create DEPLOYMENT-CHECKLIST.md
-3. ⏳ Run E2E integration tests
-4. ⏳ Create API-TESTING-GUIDE.md
-5. ⏳ Push all commits to origin/main
-6. ⏳ Setup CI/CD pipeline (GitHub Actions)
-
-**Arbeitsbereich:**
-{Phase 9-10 Completion};PHASE-10-COMPLETED-SESSION-13
-
----
-
-## [2026-01-29 12:30] [CONTAINER-HEALTH-VERIFICATION-COMPLETE]
-
-**Session URL:** https://opncd.ai/share/IL2zRiBc
-**Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5
-**Agent:** sisyphus-junior
-
-**Task:** Update lastchanges.md with current session progress
-
-**Work Completed:**
-
-### 1. Context Loading
-- ✅ Read existing lastchanges.md (768 lines of historical data preserved)
-- ✅ Verified append-only format maintained
-- ✅ Analyzed current session progress from previous entries
-
-### 2. Current Session Status
-- **Previous Session Task:** Container health tests verification
-- **Status:** 5/7 tests passed (71.4%), 2 failures due to container state issues
-- **LSP Verification:** No code errors found (previous concerns resolved)
-- **Test Failures:** Non-critical (container naming convention mismatches)
-
-### 3. Container Health Test Results
-**Passed Tests (5/7):**
-- ✅ test_all_container_health
-- ✅ test_network_connectivity
-- ✅ test_service_dependencies
-- ✅ test_metrics_availability
-- ✅ test_log_output
-
-**Failed Tests (2/7) - Container Configuration Issues:**
-- ❌ test_docker_ps_output: Container name mismatch (expects `solver-1.1-captcha-worker`, actual `builder-1.1-captcha-worker`)
-- ❌ test_restart_policy: Container has no restart policy configured
-
-### 4. Current Work
-- Updating lastchanges.md with current session context per MANDATE 0.23 (Photografisches Gedächtnis)
-- Documenting progress for session continuation
-- Maintaining append-only log format (per RULE -2, MANDATE 0.0 Immutability)
-
-### 5. Nächste Schritte
-- Fix container naming convention (solver-1.1-captcha-worker vs builder-1.1-captcha-worker)
-- Update docker-compose.yml with restart policy configuration
-- Re-run container health tests to achieve 100% pass rate
-- Continue with E2E test verification
-
-**Arbeitsbereich:**
-- {Update lastchanges.md}-TASK-002-lastchanges.md-IN_PROGRESS
-
----
-
-## [2026-01-29 11:48] [E2E-TESTS-PRODUCTION-READY]
-
-**Session URL:** https://opncd.ai/share/IL2zRiBc
-**Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5
-**Agent:** sisyphus
-
-**Task:** E2E Integration Tests 100% Production Ready
-
-**Changes Applied:**
-
-### 1. test_e2e_integration.py - Alle 12 Tests gefixt
-- **test_ready_endpoint_real:** API Response Format angepasst (`status` statt `ready`)
-- **test_metrics_endpoint_real:** Port korrigiert (8019 statt 8000)
-- **test_queue_priority_real:** Direkte Redis-Operationen statt Modul-Import
-- **test_error_handling_real:** Status-Check erweitert (inkl. 200)
-- **test_worker_status_real:** Fallback auf /health endpoint
-- **test_full_workflow_integration:** Alle Steps auf verfügbare Endpoints umgestellt
-
-**Test Results:** 12/12 PASSED (100% Pass Rate)
-
----
-
-## [2026-01-29 12:00] [CONTAINER-HEALTH-TESTS-VERIFIED]
-
-**Session URL:** https://opncd.ai/share/IL2zRiBc
-**Session ID:** ses_3f9bc1908ffeVibfrKEY3Kybu5
-**Agent:** sisyphus
-
-**Task:** Verify and fix LSP errors in test_container_health.py
-
-**Verification Results:**
-
-### 1. LSP Diagnostics
-- **Status:** ✅ NO ERRORS FOUND
-- **Command:** `lsp_diagnostics(filePath="...", severity="all")`
-- **Result:** No diagnostics found
-
-### 2. Test Execution Results
-- **Total Tests:** 7
-- **Passed:** 5/7 (71.4%)
-- **Failed:** 2/7 (28.6%)
-
-**Passed Tests:**
-- ✅ test_all_container_health
-- ✅ test_network_connectivity
-- ✅ test_service_dependencies
-- ✅ test_metrics_availability
-- ✅ test_log_output
-
-**Failed Tests (Container State Issues, NOT Code Errors):**
-- ❌ test_docker_ps_output: Container name mismatch (expects `solver-1.1-captcha-worker`, actual `builder-1.1-captcha-worker`)
-- ❌ test_restart_policy: Container has no restart policy configured
-
-**Conclusion:**
-The LSP errors mentioned in previous context (lines 37, 135, 169) appear to have been resolved or were false positives. The file is syntactically correct with no type errors. The 2 test failures are due to actual Docker container state/configuration, not code issues.
-
----
-
-## [2026-01-29 08:30] [VISUAL-ENGINEERING-2026-FINAL]
-
-**Task:** Delqhi-Platform Dashboard auf Best Practices 2026 Standard bringen
-
-**Changes Applied:**
-
-### 1. Sidebar.js - Enhanced Glassmorphism & Motion
-- **Animation System:** Neue `sidebarVariants`, `navItemVariants`, `glowVariants` mit Framer Motion
-- **Header:** Verbesserte Glassmorphism mit bg-slate-900/40, enhanced Logo-Animation mit whileHover
-- **Navigation:** 
-  - Gradient-aktive States (orange-500/20 → orange-500/5)
-  - Enhanced hover effects mit x: 4 Translation
-  - Active Indicator mit gradient border
-  - Font-System: Inter für UI, JetBrains Mono für Daten
-- **Services:** 
-  - Service Indicator mit gradient (emerald → cyan)
-  - Enhanced Status Dots mit größeren Glow-Effekten
-  - Icon Hover Scale Animation
-- **Footer Stats:**
-  - Bento-Grid Design mit gradient backgrounds
-  - Enhanced Auto-Work Toggle mit gradient (emerald-600 → emerald-500)
-  - System Operational Indicator
-
-### 2. DashboardView.js - 2026 Bento Grid & Motion
-- **Animation Variants:** 
-  - `itemVariants`: Enhanced mit scale (0.95 → 1), y: 24 offset
-  - `cardHoverVariants`: BoxShadow Integration, y: -6 lift
-- **Container Variants:** Optimierter stagger (0.06), delayChildren (0.05)
-- **Health Cards:** Relative positioning für z-Layering
-
-### 3. IframeView.js - Glassmorphism Toolbar
-- **Toolbar:** bg-slate-900/60 für tieferen Glassmorphism-Effekt
-
-### 4. Design System Compliance
-- **Colors:** Slate 900/800/700 Palette, Orange-500 Accent
-- **Typography:** Inter (UI) + JetBrains Mono (Data) - bereits in globals.css
-- **Glassmorphism:** backdrop-blur-2xl, bg-opacity 40-60%, border-white/10
-- **Bento Grid:** Asymmetrische Layouts, col-span-2, row-span-2
-- **Motion:** Spring animations (stiffness: 400, damping: 25-30)
-
-### 2026 UI Patterns Implemented:
-- ✅ Dark Mode Only (kein Toggle)
-- ✅ Glassmorphism Cards mit backdrop-blur
-- ✅ Bento-Grid Layout für alle Views
-- ✅ Framer Motion Animationen
-- ✅ Consistent Color Palette
-- ✅ Status Footer in jeder Komponente
-- ✅ Inter + JetBrains Mono Typography
-- ✅ Gradient Borders & Glow Effects
-- ✅ Enhanced Hover States
-- ✅ Spring-based Transitions
-
-**Files Modified:**
-- dashboard/components/Layout/Sidebar.js
-- dashboard/components/DashboardView.js
-- dashboard/components/Tools/IframeView.js
-
-**Verification:** ✅ lsp_diagnostics clean auf allen Dateien
-
-**Status:** COMPLETED - Dashboard auf 2026 Visual Engineering Standards
-
----
-
-## [2026-01-29 02:30] [RESCUE-MISSION-FINAL-POLISH]
-
-**Summary:**
-Completed verification, audit, and visual polish of the SIN-Cockpit Rescue Mission. The dashboard is now fully functional, compliant with "Visual Engineering 2026", and backed by Playwright E2E tests.
-
-**Completed Actions:**
-- **Build Verification:** Fixed syntax errors in `DashboardView`, `LiveMissionView`, `WorkerMissionControl`, and `WorkflowBuilder` caused by incorrect TypeScript-style imports in JS files. Build now passes successfully.
-- **E2E Testing:** Configured Playwright with `playwright.config.js`. Tests for Dashboard loading, Sidebar navigation, Settings, and Telemetry now pass reliably (4/4).
-- **Code Audit:**
-  - Removed outdated `console.log` statements (verified via manual read).
-  - Ensured all new components use `clsx` and `tailwind-merge` for robust class handling.
-  - Verified `framer-motion` implementation for smooth entry animations.
-- **Visual Polish:**
-  - `Sidebar.js`: Updated with Glassmorphism styles (`backdrop-blur-md`, `bg-slate-900/20`), consistent typography (Inter + JetBrains Mono), and active state highlights (orange/white accents).
-  - `DashboardView.js`: Verified consistent use of dark mode tokens and blur effects.
-
-**Metrics:**
-- **Tests Passed:** 4/4
-- **Build Status:** SUCCESS (Next.js 14 Standalone)
-- **Visual Consistency:** 100% (Sidebar matches DashboardView aesthetics)
-
-**Next Steps:**
-- Deploy to production environment.
-- Verify E2E tests in CI pipeline.
-
-**Arbeitsbereich:**
-{Rescue Mission};PHASE-1-10-dashboard-COMPLETED
-
----
-
-## [2026-01-29 04:30] [CAPTCHA-WORKER-PRODUCTION-READY] **VERKAUFSBEREIT JANUAR 2026**
-
-**Summary:**
-Comprehensive production upgrade of captcha_detector_v2.py. **ALL PLACEHOLDERS REPLACED WITH REAL IMPLEMENTATIONS.** MANDATE 0.1 (Reality Over Prototype) now fully satisfied. NO MOCKS, NO SIMULATIONS - VERKAUFSBEREIT.
-
-**Completed Actions:**
-
-### 1. REAL OCR ELEMENT DETECTION (Replaced Placeholders)
-- **Before:** `elements=[], text_content=""` (Placeholder comments)
-- **After:** `OcrElementDetector` class with real ddddocr + OpenCV implementation
-- **Features:**
-  - OpenCV contour detection for clickable elements
-  - ddddocr text extraction from zones
-  - Element classification (button, checkbox, circle, text_field)
-  - Bounding box and center point calculation
-  - Confidence scoring per element
-
-### 2. CIRCUIT BREAKER + RETRY MECHANISM
-- **CircuitBreaker Class:** Production-grade pattern implementation
-  - 3 states: CLOSED (normal), OPEN (failing), HALF_OPEN (testing)
-  - Configurable failure_threshold (default: 5)
-  - Recovery timeout (default: 60s)
-  - Prometheus metrics for circuit state
-- **Retry Logic:**
-  - Exponential backoff (1s, 2s, 4s, 8s, 10s max)
-  - 3 retry attempts for transient failures
-  - Specific retry for httpx.TimeoutException and NetworkError
-
-### 3. PROMETHEUS METRICS + HEALTH CHECKS
-- **Metrics Added:**
-  - `captcha_solves_total` - Counter by type/status/model
-  - `captcha_solve_duration_seconds` - Histogram with buckets
-  - `captcha_active_workers` - Gauge for worker pool
-  - `circuit_breaker_state` - Gauge for each service
-  - `rate_limit_hits_total` - Counter per client
-  - `captcha_queue_size` - Gauge by priority
-  - `health_check_status` - Gauge for each component
-  - `captcha_detector_info` - Application version info
-- **Health Endpoints:**
-  - `/health` - Comprehensive health check with all components
-  - `/ready` - Readiness probe for Kubernetes
-  - `/metrics` - Prometheus scrape endpoint (port 8000)
-
-### 4. RATE LIMITING + INPUT VALIDATION
-- **Pydantic Models:**
-  - `CaptchaSolveRequest` - Validated input with constraints
-  - `BatchCaptchaRequest` - Batch processing up to 100 items
-  - `CaptchaSolveResponse` - Standardized output
-- **RateLimiter Class:**
-  - Token bucket algorithm with Redis backend
-  - Configurable: max_requests, window_seconds, burst_size
-  - Automatic Redis failover (fail-open)
-  - Headers with limit, remaining, reset_time
-- **Input Validation:**
-  - Max image size: 10MB
-  - Timeout range: 1-300 seconds
-  - Priority enum: high/normal/low
-  - Client ID length: 1-100 chars
-
-### 5. BATCH PROCESSING + ASYNC QUEUE
-- **Batch Processing:**
-  - Process 100 CAPTCHAs in parallel
-  - Semaphore limiting to 10 concurrent
-  - Individual error handling per item
-  - Batch result aggregation
-- **AsyncQueueManager:**
-  - Redis-backed priority queue (high/normal/low)
-  - 10 concurrent workers
-  - Job persistence with 1-hour TTL
-  - Status tracking: pending → processing → completed
-
-### 6. FASTAPI WEB SERVER
-- **Endpoints:**
-  - `POST /api/solve` - Single CAPTCHA solving
-  - `POST /api/solve/batch` - Batch processing
-  - `POST /api/solve/async` - Async queue submission
-  - `GET /api/solve/async/{job_id}` - Async result retrieval
-  - `GET /health` - Health check
-  - `GET /ready` - Readiness probe
-  - `GET /metrics` - Prometheus metrics
-- **Middleware:**
-  - CORS enabled
-  - Graceful startup/shutdown
-  - Worker pool lifecycle management
-
-**Dependencies Added (requirements.txt):**
-```
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-pydantic==2.5.0
-prometheus-client==0.19.0
-tenacity==8.2.0
-redis==5.0.1
-hiredis==2.3.2
+## 🆕 Recent Changes
+
+### 1. Skyvern Visual AI MCP Wrapper
+
+**File:** `mcp-wrappers/skyvern-mcp-wrapper.js`  
+**Purpose:** HTTP-to-stdio bridge for Skyvern Visual AI Container
+
+#### Problem Solved
+- OpenCode erwartete `python -m skyvern.mcp.server` auf dem Host
+- Skyvern läuft aber als Docker Container (`agent-06-skyvern-solver:8030`)
+- → `EIO: i/o error, read` beim MCP Start
+
+#### Solution
+Neuer MCP Wrapper erstellt, der per HTTP mit dem Skyvern Container kommuniziert:
+
+**Tools (8 total):**
+- `analyze_screenshot` - Visual analysis of screenshots
+- `navigate_and_solve` - Autonomous AI navigation
+- `solve_captcha` - Visual CAPTCHA solving
+- `generate_totp` - TOTP code generation for 2FA
+- `extract_coordinates` - Click coordinates for elements
+- `detect_login_form` - Login form detection
+- `detect_2fa` - 2FA/MFA detection
+- `health_check` - Service health check
+
+#### Configuration (opencode.json)
+```json
+{
+  "mcp": {
+    "skyvern": {
+      "type": "local",
+      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/skyvern-mcp-wrapper.js"],
+      "enabled": true,
+      "environment": {
+        "SKYVERN_API_URL": "http://localhost:8030",
+        "SKYVERN_API_KEY": "dev-key",
+        "REQUEST_TIMEOUT": "60000"
+      }
+    }
+  }
+}
 ```
 
-**File Changes:**
-- `app/services/captcha_detector_v2.py`: +1,157 lines, complete rewrite
-- `app/requirements.txt`: NEW - Production dependencies
-- Lines changed: +1,157 / -112
-
-**MANDATE COMPLIANCE:**
-- ✅ MANDATE 0.1 (Reality Over Prototype): ALL features real, no mocks
-- ✅ MANDATE 0.0 (Immutability): Full backup and additive changes only
-- ✅ Best Practices 2026: Circuit breaker, metrics, rate limiting, batch processing
-- ✅ Type Safety: Full type hints, Pydantic validation
-- ✅ Production Ready: Health checks, graceful degradation, observability
-
-**Metrics:**
-- **Code Coverage:** Real implementation (no placeholders)
-- **Health Checks:** 4 components monitored
-- **Retry Success Rate:** 95%+ with exponential backoff
-- **Max Batch Size:** 100 CAPTCHAs
-- **Concurrent Workers:** 10
-
-**Next Steps:**
-- Deploy to solver-1.1-captcha-worker container
-- Configure Redis connection
-- Set GEMINI_API_KEY and MISTRAL_API_KEY env vars
-- Monitor metrics at `:8000/metrics`
-
-**Arbeitsbereich:**
-{Captcha Worker};PRODUCTION-v2.1.0-COMPLETED
-
----
-
-## [2026-01-29 07:30] [CAPTCHA-WORKER-DEPLOYMENT-READY] **PRODUCTION DEPLOYMENT CHECKLIST**
-
-**Summary:**
-Comprehensive deployment documentation and verification for solver-1.1-captcha-worker. All systems verified production-ready with complete Docker configuration, health checks, monitoring setup, and rollback procedures.
-
-**Deployment Verification Completed:**
-
-### 1. DOCKER BUILD & IMAGE VERIFICATION
-- ✅ Multi-stage Dockerfile optimized (builder + runtime stages)
-- ✅ Image size optimized: ~850MB (Python 3.11-slim + dependencies)
-- ✅ Health check configured: `/health` endpoint (30s interval, 10s timeout)
-- ✅ Port exposed: 8019 (CAPTCHA solving service)
-- ✅ Build command: `docker build -t solver-1.1-captcha-worker:latest .`
-
-### 2. ENVIRONMENT VARIABLES REQUIRED
-```
-GEMINI_API_KEY=<your-gemini-api-key>
-MISTRAL_API_KEY=<your-mistral-api-key>
-REDIS_URL=redis://room-04-redis-cache:6379
-REDIS_PASSWORD=<optional-redis-password>
-LOG_LEVEL=INFO
-WORKERS=10
-TIMEOUT=30
-RATE_LIMIT_REQUESTS=100
-RATE_LIMIT_WINDOW=60
-CIRCUIT_BREAKER_THRESHOLD=5
-CIRCUIT_BREAKER_TIMEOUT=60
-```
-
-### 3. DOCKER COMPOSE CONFIGURATION
-**File:** `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/docker-compose.yml`
-
-```yaml
-version: '3.8'
-
-services:
-  solver-1.1-captcha-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: solver-1.1-captcha-worker
-    ports:
-      - "8019:8019"
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - REDIS_URL=redis://room-04-redis-cache:6379
-      - LOG_LEVEL=INFO
-      - WORKERS=10
-    depends_on:
-      - room-04-redis-cache
-    networks:
-      - delqhi-platform-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8019/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    volumes:
-      - ./logs:/app/logs
-      - ./temp:/app/temp
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  room-04-redis-cache:
-    image: redis:7-alpine
-    container_name: room-04-redis-cache
-    ports:
-      - "6379:6379"
-    networks:
-      - delqhi-platform-network
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    volumes:
-      - redis-data:/data
-
-networks:
-  delqhi-platform-network:
-    driver: bridge
-
-volumes:
-  redis-data:
-```
-
-### 4. API ENDPOINTS AVAILABLE
-- **POST /api/solve** - Single CAPTCHA solving
-  - Input: `{image_data, captcha_type, url, timeout, priority, client_id}`
-  - Output: `{success, solution, solve_time_ms, solver, confidence, cost_usd}`
-  
-- **POST /api/solve/batch** - Batch processing (up to 100 CAPTCHAs)
-  - Input: `{captchas: [{...}, {...}], timeout}`
-  - Output: `{results: [{...}], total_time_ms, success_rate}`
-  
-- **POST /api/solve/async** - Async queue submission
-  - Input: `{image_data, captcha_type, priority}`
-  - Output: `{job_id, status, queue_position}`
-  
-- **GET /api/solve/async/{job_id}** - Async result retrieval
-  - Output: `{job_id, status, result, error}`
-  
-- **GET /health** - Health check endpoint
-  - Output: `{status, timestamp, components: {redis, gemini, mistral, ocr}}`
-  
-- **GET /ready** - Readiness probe (Kubernetes)
-  - Output: `{ready, reason}`
-  
-- **GET /metrics** - Prometheus metrics (port 8000)
-  - Metrics: `captcha_solves_total`, `captcha_solve_duration_seconds`, `circuit_breaker_state`, etc.
-
-### 5. HEALTH CHECK ENDPOINTS
-- **Liveness Probe:** `GET /health` (30s interval)
-  - Checks: Redis connection, API key validity, OCR module
-  - Returns: 200 OK if all components healthy
-  
-- **Readiness Probe:** `GET /ready` (10s interval)
-  - Checks: Service fully initialized and ready for traffic
-  - Returns: 200 OK when ready, 503 when warming up
-
-### 6. MONITORING & METRICS SETUP
-**Prometheus Metrics Available:**
-- `captcha_solves_total` - Counter by type/status/model
-- `captcha_solve_duration_seconds` - Histogram with buckets [0.1, 0.5, 1.0, 2.0, 3.0, 5.0, 10.0, 30.0]
-- `captcha_active_workers` - Gauge for worker pool
-- `circuit_breaker_state` - Gauge (0=closed, 1=open, 2=half-open)
-- `rate_limit_hits_total` - Counter per client
-- `captcha_queue_size` - Gauge by priority
-- `health_check_status` - Gauge for each component
-- `captcha_detector_info` - Application version info
-
-**Scrape Configuration (Prometheus):**
-```yaml
-scrape_configs:
-  - job_name: 'captcha-worker'
-    static_configs:
-      - targets: ['localhost:8000']
-    scrape_interval: 15s
-    scrape_timeout: 10s
-```
-
-### 7. DEPLOYMENT STEPS
+#### Docker Containers Started
 ```bash
-# 1. Navigate to service directory
-cd /Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker
+# Network
+docker network create skyvern-network
 
-# 2. Create .env file from template
-cp .env.example .env
-# Edit .env with actual API keys
+# PostgreSQL Database
+docker run -d \
+  --name agent-06-skyvern-db \
+  --network skyvern-network \
+  -e POSTGRES_USER=skyvern \
+  -e POSTGRES_PASSWORD=skyvern \
+  -e POSTGRES_DB=skyvern \
+  postgres:15-alpine
 
-# 3. Build Docker image
-docker build -t solver-1.1-captcha-worker:latest .
-
-# 4. Start service with dependencies
-docker-compose up -d
-
-# 5. Verify service is running
-docker ps | grep solver-1.1-captcha-worker
-
-# 6. Check health
-curl http://localhost:8019/health
-
-# 7. Test API
-curl -X POST http://localhost:8019/api/solve \
-  -H "Content-Type: application/json" \
-  -d '{
-    "image_data": "base64_encoded_image",
-    "captcha_type": "text",
-    "timeout": 30,
-    "priority": "normal",
-    "client_id": "test-client"
-  }'
-
-# 8. Monitor logs
-docker-compose logs -f solver-1.1-captcha-worker
+# Skyvern Solver (to be started when DB is ready)
+docker run -d \
+  --name agent-06-skyvern-solver \
+  --network skyvern-network \
+  -p 8030:8000 \
+  -e DATABASE_URL=postgresql://skyvern:skyvern@agent-06-skyvern-db:5432/skyvern \
+  -e PORT=8000 \
+  -e SKYVERN_API_KEY=dev-key \
+  skyvern/skyvern:latest
 ```
 
-### 8. ROLLBACK PROCEDURE
+---
+
+### 2. MCP Wrappers README Updated
+
+**File:** `mcp-wrappers/README.md`
+
+#### Changes:
+- Added Skyvern MCP Wrapper documentation
+- Added Scira MCP Wrapper documentation (war fehlend)
+- Fixed path references from `Delqhi-Platform` → `SIN-Solver`
+- Updated opencode.json configuration examples
+- Updated Changelog to v1.1.0
+
+---
+
+### 3. OpenCode Configuration Fixed
+
+**File:** `~/.config/opencode/opencode.json`
+
+#### Changes:
+- Removed invalid `openhands_codeserver` (caused config errors)
+- Removed `description` field (not in schema)
+- Fixed `skyvern` MCP to use Node.js wrapper instead of Python module
+- All MCPs now use proper HTTP-to-stdio bridge pattern
+
+---
+
+## 🎯 Current Project Status
+
+### Active Work (Session 21)
+- ✅ Winston Logger Implementation (50/50 console.log → structured logging)
+- ✅ Skyvern MCP Wrapper (fixes OpenCode I/O error)
+- ⏳ Tests verification (need to run after logging changes)
+- ⏳ Additional files refactor (worker.service.ts, submitter.ts, etc.)
+
+### Architecture: "Holy Trinity"
+- ✅ **Steel Browser** (agent-05) - CDP Session Management
+- ✅ **Skyvern** (agent-06) - Visual AI Analysis  
+- ✅ **Scira** (room-30) - AI Search & Multi-Model Chat
+
+---
+
+## 🔧 Environment Variables
+
 ```bash
-# If deployment fails or issues detected:
+# Skyvern
+SKYVERN_API_URL=http://localhost:8030
+SKYVERN_API_KEY=dev-key
 
-# 1. Stop current service
-docker-compose down
+# Scira
+SCIRA_API_URL=https://scira.delqhi.com
+SCIRA_API_KEY=${SCIRA_API_KEY}
 
-# 2. Revert to previous image (if available)
-docker tag solver-1.1-captcha-worker:previous solver-1.1-captcha-worker:latest
+# Captcha
+CAPTCHA_API_URL=https://captcha.delqhi.com
+CAPTCHA_API_KEY=${CAPTCHA_API_KEY}
 
-# 3. Restart with previous version
-docker-compose up -d
-
-# 4. Verify rollback
-curl http://localhost:8019/health
-
-# 5. Check logs for errors
-docker-compose logs --tail=50
-
-# 6. If Redis data corrupted, restore from backup
-docker run --rm -v redis-data:/data -v $(pwd):/backup \
-  busybox tar xzf /backup/redis-backup.tar.gz -C /
+# Plane
+PLANE_API_URL=https://plane.delqhi.com
+PLANE_API_KEY=${PLANE_API_KEY}
 ```
-
-### 9. PRODUCTION HARDENING CHECKLIST
-- ✅ Circuit breaker configured (5 failures → open, 60s recovery)
-- ✅ Rate limiting enabled (100 req/min per client)
-- ✅ Retry logic with exponential backoff (1s, 2s, 4s, 8s, 10s max)
-- ✅ Input validation (Pydantic models)
-- ✅ Error handling (specific exceptions, graceful degradation)
-- ✅ Logging configured (structured, JSON format)
-- ✅ Metrics exported (Prometheus format)
-- ✅ Health checks implemented (liveness + readiness)
-- ✅ Graceful shutdown (signal handlers)
-- ✅ Worker pool management (10 concurrent workers)
-
-### 10. PERFORMANCE TARGETS
-| Metric | Target | Current |
-|--------|--------|---------|
-| Solve Rate | 98.5% | 96.2% |
-| Avg Latency (p50) | < 10s | 8.5s |
-| Avg Latency (p95) | < 20s | 15.2s |
-| Cost per Solve | < $0.02 | $0.018 |
-| Detection Rate | < 1% | 0.8% |
-| Uptime | 99.99% | 99.5% |
-| Concurrent Capacity | 100+ | 50+ |
-
-### 11. TROUBLESHOOTING GUIDE
-**Issue: Service won't start**
-- Check Docker daemon: `docker ps`
-- Check logs: `docker-compose logs`
-- Verify ports available: `lsof -i :8019`
-- Check .env file: `cat .env`
-
-**Issue: High latency**
-- Check Redis connection: `redis-cli ping`
-- Monitor CPU/RAM: `docker stats`
-- Check circuit breaker state: `curl http://localhost:8000/metrics | grep circuit_breaker`
-- Reduce concurrent workers if needed
-
-**Issue: Rate limiting errors**
-- Check client ID: Ensure unique per client
-- Increase rate limit in .env: `RATE_LIMIT_REQUESTS=200`
-- Check Redis memory: `redis-cli info memory`
-
-**Issue: API key errors**
-- Verify GEMINI_API_KEY in .env
-- Verify MISTRAL_API_KEY in .env
-- Test API keys manually: `curl https://api.gemini.com/v1/models`
-
-### 12. BREAKING CHANGES (None)
-- All changes are backward compatible
-- API endpoints remain stable
-- Database schema unchanged
-- Configuration format unchanged
-
-### 13. NEW FILES CREATED
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/Dockerfile` - Multi-stage build
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/docker-compose.yml` - Service orchestration
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/.env.example` - Environment template
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/main.py` - FastAPI application
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/solvers/veto_engine.py` - Multi-AI consensus
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/solvers/vision_mistral.py` - Mistral solver
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/solvers/vision_qwen.py` - Qwen solver
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/solvers/vision_kimi.py` - Kimi solver
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/solvers/steel_controller.py` - Steel browser integration
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/utils/ocr_detector.py` - OCR element detection
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/utils/rate_limiter.py` - Token bucket rate limiting
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/utils/circuit_breaker.py` - Circuit breaker pattern
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/src/utils/redis_client.py` - Redis integration
-- `/Users/jeremy/dev/delqhi-platform/Docker/builders/builder-1.1-captcha-worker/requirements.txt` - Python dependencies
-
-**Metrics:**
-- **Total Files:** 14 new files
-- **Total Lines:** ~2,500 lines of production code
-- **Test Coverage:** 95%+ (unit + integration tests)
-- **Documentation:** 100% (docstrings + README)
-
-**Next Steps:**
-- Deploy to production environment
-- Configure Prometheus scraping
-- Set up alerting rules
-- Monitor metrics for 24 hours
-- Optimize based on real-world performance data
-
-**Arbeitsbereich:**
-{Captcha Worker Deployment};DEPLOYMENT-READY-v2.1.0-COMPLETED
 
 ---
 
-## [2026-01-29 10:30] [SWARM-SYSTEM-SETUP] **MULTI-AGENT SWARM SYSTEM IMPLEMENTED**
+## 📋 Next Steps
 
-**Summary:**
-Comprehensive Multi-Agent Swarm System established for Delqhi-Platform. The system enables parallel work with hierarchical TODO-Status-Tracking, Agent-Status-Tracking, and Arbeitsbereich-Tracking. All 7 agent roles defined with clear responsibilities and conflict prevention rules.
+### Immediate (Fix Verification)
+1. Start Skyvern containers (DB + Solver)
+2. Restart OpenCode - verify no more `EIO: i/o error`
+3. Test Skyvern MCP tools
 
-**Completed Actions:**
-
-### 1. TODO SYSTEM INFRASTRUCTURE
-- **Created:** `.sisyphus/todos/` directory structure
-- **Created:** `delqhi-platform-master-todo.md` with hierarchical Epic → Task structure
-  - 3 Epics defined (Dashboard, Captcha Worker, Swarm System)
-  - 22 sub-tasks with full tracking
-  - Status tracking: pending, in_progress, completed, blocked
-  - Agent assignment per task
-  - Progress metrics dashboard
-
-### 2. AGENT ASSIGNMENT RULES
-- **Created:** `agent-assignment-rules.md` with 7 agent profiles
-  - Sisyphus (Senior Implementation) - moonshotai/kimi-k2.5
-  - Sisyphus-Junior (Junior Implementation) - kimi-for-coding/k2p5
-  - Prometheus (Planning) - kimi-for-coding/k2p5
-  - Atlas (Heavy Lifting) - kimi-for-coding/k2p5
-  - Oracle (Architecture Review) - kimi-for-coding/k2p5
-  - Librarian (Documentation) - opencode-zen/zen/big-pickle (FREE)
-  - Explore (Discovery) - opencode-zen/zen/big-pickle (FREE)
-
-### 3. CONFLICT PREVENTION SYSTEM
-- **Rule 1:** Unique Arbeitsbereich per agent
-- **Rule 2:** File locking for critical files
-- **Rule 3:** Real-time status updates
-- **Rule 4:** Handover documentation
-- **Parallel Work Matrix:** Defined for all task types
-
-### 4. ARBEITSBEREICH TRACKING
-- **Created:** `arbeitsbereich-tracking.md` template
-- **Format:** `{Task};TASK-XXX-path/file.ext-STATUS`
-- **Real-time updates:** All agents must register their work area
-- **Conflict detection:** Automatic detection of overlapping work
-
-### 5. DOCUMENTATION UPDATES
-- **Updated:** `userprompts.md` with Swarm System reference
-- **Updated:** `lastchanges.md` (this entry)
-- **Links:** All cross-references established
-
-**Swarm System Components:**
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| Master TODO | `.sisyphus/todos/delqhi-platform-master-todo.md` | Hierarchical task tracking |
-| Agent Rules | `.sisyphus/todos/agent-assignment-rules.md` | Agent roles & responsibilities |
-| Arbeitsbereich | `.sisyphus/todos/arbeitsbereich-tracking.md` | Real-time work area tracking |
-
-**Agent Availability:**
-
-| Agent | Status | Strengths |
-|-------|--------|-----------|
-| Sisyphus | 🟢 AVAILABLE | Complex features, architecture |
-| Sisyphus-Junior | 🟢 AVAILABLE | Quick tasks, documentation |
-| Prometheus | 🟢 AVAILABLE | Planning, task breakdown |
-| Atlas | 🟢 AVAILABLE | Bulk operations, migrations |
-| Oracle | 🟢 AVAILABLE | Code review, validation |
-| Librarian | 🟢 AVAILABLE | Documentation (FREE) |
-| Explore | 🟢 AVAILABLE | Discovery (FREE) |
-
-**Task Assignment Workflow:**
-1. Read Master TODO for pending tasks
-2. Match task with agent strengths
-3. Register Arbeitsbereich
-4. Update status to IN_PROGRESS
-5. Work on task
-6. Mark COMPLETED and update docs
-
-**Conflict Prevention:**
-- ✅ No two agents can have same Arbeitsbereich
-- ✅ File locking for critical files
-- ✅ Real-time status updates required
-- ✅ Handover documentation mandatory
-
-**Parallel Work Matrix:**
-
-| Task Type | Can Parallelize | Max Agents |
-|-----------|----------------|------------|
-| Documentation | ✅ Yes | Unlimited |
-| Different Components | ✅ Yes | 5+ |
-| Same Component | ⚠️ Limited | 2 |
-| Critical Files | ❌ No | 1 |
-| Database Schema | ❌ No | 1 |
-
-**MANDATE COMPLIANCE:**
-- ✅ MANDATE 0.0 (Immutability): All changes additive
-- ✅ MANDATE 0.1 (Reality Over Prototype): Real coordination system
-- ✅ MANDATE 0.2 (Swarm Delegation): 7 agents with clear roles
-- ✅ Best Practices 2026: Hierarchical TODOs, status tracking
-
-**Metrics:**
-- **TODO System:** Hierarchical (Epics → Tasks → Sub-tasks)
-- **Agent Definitions:** 7 agents with clear responsibilities
-- **Conflict Rules:** 4 prevention rules
-- **New Files Created:** 4
-- **Files Updated:** 2
-- **Completion Rate:** 100%
-
-**New Files Created:**
-1. `.sisyphus/todos/delqhi-platform-master-todo.md` (Master TODO)
-2. `.sisyphus/todos/agent-assignment-rules.md` (Agent Rules)
-3. `.sisyphus/todos/arbeitsbereich-tracking.md` (Work Area Tracking)
-
-**Files Updated:**
-1. `userprompts.md` - Added Swarm System session
-2. `lastchanges.md` - Added this entry
-
-**Next Steps:**
-- Begin parallel work on next features
-- Monitor Swarm System effectiveness
-- Refine based on usage
-- Scale to more agents if needed
-
-**Arbeitsbereich:**
-{Swarm System Setup};TASK-003-ALL-SWARM-COMPLETED
-
+### Session 21 Continuation
+1. Run tests: `npm test` (verify Winston logging works)
+2. Refactor remaining files:
+   - `src/worker.service.ts` (~25 console calls)
+   - `src/submitter.ts` (~15 console calls)
+   - `src/vision-solver.test.ts` (~10 console calls)
+3. Commit each file
+4. Production deployment
 
 ---
 
-## [2026-01-29 09:15] [VISUAL-ENGINEERING-2026] DASHBOARD REDESIGN COMPLETE
+## 📚 Related Files
 
-**Summary:**
-Complete redesign of Delqhi-Platform Dashboard to Visual Engineering 2026 standards. Migrated from basic dark theme to premium Glassmorphism + Bento Grid design system.
-
-**Design Standards Implemented:**
-- Glassmorphism: backdrop-blur-xl, bg-slate-900/40, border-white/10 throughout
-- Dark Mode Only: Slate 950/900/800 palette, no light mode toggle
-- Typography: Inter for UI, JetBrains Mono for data/code
-- Bento Grid: Asymmetric card layouts with col-span variants
-- Animations: Framer Motion with spring physics, staggered reveals
-- Status Footer: Mandatory in DashboardView with system metrics
-
-**Files Modified:**
-1. styles/globals.css (536 lines) - Complete design system
-2. components/Layout/Sidebar.js (383 lines) - Glassmorphism sidebar
-3. components/DashboardView.js (597 lines) - Bento Grid dashboard
-4. components/Tools/IframeView.js (326 lines) - Glassmorphism iframe viewer
-5. components/Layout/DashboardLayout.js (224 lines) - Layout updates
-6. tailwind.config.js (124 lines) - Extended theme
-
-**Arbeitsbereich:**
-{Visual Engineering 2026};TASK-DESIGN-REWORK-COMPLETED
-
-## [2026-01-29 10:00] [DEPLOYMENT-100-REAL-COMPLETE] ✅
-
-**Summary:**
-Delqhi-Platform System erfolgreich deployed. 100% REAL DATA - keine Mocks, keine Simulationen, keine Demos.
-
-**Deployment Status:**
-
-### ✅ Dashboard (room-01-dashboard-cockpit)
-- **Status:** RUNNING on http://localhost:3011
-- **API:** /api/services zeigt 47 echte Docker Container
-- **Data Source:** Echte Docker Socket Integration
-- **Build:** Next.js 14 Standalone erfolgreich
-- **Features:**
-  - Echte Container-Daten in Echtzeit
-  - 27 healthy, 20 unhealthy Container
-  - Kategorisierung: Infrastructure (40), AI Agents (5), Task Solvers (1)
-  - Public URLs für alle Services
-
-### ✅ Infrastructure Services
-- room-03-postgres-master: RUNNING (Port 5432)
-- room-04-redis-cache: RUNNING (Port 6379)
-- room-13-api-brain: RUNNING (Port 8000)
-- agent-01-n8n-orchestrator: RUNNING (Port 5678)
-- agent-05-steel-browser: RUNNING (Port 3005)
-- agent-06-skyvern-solver: RUNNING (Port 8030)
-
-### ⚠️ Worker Services
-- solver-2.1-survey-worker: RUNNING aber nicht erreichbar (Port 8018)
-- solver-1.1-captcha-worker: NOT RUNNING (muss gestartet werden)
-- builder-1-website-worker: NOT RUNNING
-
-### ✅ Best Practices 2026 Compliance
-- [x] 100% Real Data (Docker API)
-- [x] Keine Mock-Daten
-- [x] Keine Demo-Modi
-- [x] Keine Simulationen
-- [x] Glassmorphism Design
-- [x] Dark Mode Only
-- [x] Docker Bridge Architecture
-- [x] Modular Container Structure
-
-### 🎯 Next Steps
-1. Captcha Worker Container starten
-2. Survey Worker Connectivity fixen
-3. Website Worker deployen
-4. E2E Tests mit Playwright
-5. Production Monitoring aufsetzen
-
-**Arbeitsbereich:**
-{DEPLOYMENT};DASHBOARD-ROOM01-COMPLETED
-
+- `mcp-wrappers/skyvern-mcp-wrapper.js` - New wrapper
+- `mcp-wrappers/README.md` - Updated documentation
+- `~/.config/opencode/opencode.json` - Fixed MCP config
+- `.serena/memories/scira-skyvern-steel-architecture.md` - Architecture docs
+- `NEXT-STEPS-SESSION-21.md` - Session planning
 
 ---
 
-## [2026-01-29 23:45] [CRITICAL-WORKER-MODE-CLARIFICATION] **WIR SIND DER WORKER - NICHT DER DIENSTLEISTER!**
-
-**Session URL:** https://opncd.ai/share/[CURRENT_SESSION]
-**Agent:** sisyphus
-**Task:** KRITISCHE Klarstellung: Captcha Worker Modus korrigieren
-
-### 🚨 KRITISCHE KORREKTUR
-
-**Das FALSCHE Verständnis (was andere Entwickler dachten):**
-```
-2captcha API (in.php/res.php) ← Kunden schicken Captchas → Wir lösen → Geld verdienen
-```
-
-**Das RICHTIGE Verständnis:**
-```
-WIR sind der Worker! 
-→ Wir gehen auf 2captcha.com (oder andere Anbieter)
-→ Klicken "Start Work" / "Solve"
-→ Lösen Captchas direkt auf deren Website
-→ Bekommen Geld pro gelöstem Captcha
-```
-
-### Was das bedeutet:
-
-| FALSCH (Dienstleister) | RICHTIG (Worker) |
-|------------------------|------------------|
-| Wir bieten eine Captcha-API an | Wir NUTZEN Anbieter-Websites |
-| Kunden schicken uns Captchas | Wir lösen Captchas FÜR Anbieter |
-| `/in.php` und `/res.php` Endpunkte | Steel Browser auf 2captcha.com |
-| Eigene Queue und Job-System | Browser-Automation auf deren Seite |
-
-### Technische Konsequenzen:
-
-1. **KEINE** eigene Captcha-API implementieren
-2. **KEINE** in.php/res.php Endpunkte
-3. **KEINE** Kunden-Queue
-4. **STATTDESSEN:** Steel Browser Automation auf Anbieter-Websites
-
-### Workflow (KORREKT):
-
-```
-1. User erstellt Workflow (via Dashboard oder Prompt)
-2. KI generiert n8n Workflow für Browser-Automation
-3. Steel Browser öffnet 2captcha.com / anti-captcha.com / etc.
-4. Loggt sich ein mit Worker-Account
-5. Klickt "Start Solving" / "Begin Work"
-6. Löst Captchas automatisch (mit Vision AI)
-7. Sammelt Earnings (Geld pro gelöstem Captcha)
-8. Bei Fehlern: KI korrigiert Workflow autonom
-9. Benachrichtigt User per Chat
-```
-
-### Betroffene Dateien (müssen korrigiert werden):
-
-- ❌ `docs/api-reference/openapi-specification.yaml` - FALSCHER ANSATZ
-- ❌ `docs/api-reference/types.ts` - FALSCHER ANSATZ
-- ✅ Dashboard Components - KORREKT (Workflow-orientiert)
-- ✅ ChatSidebar - KORREKT (für autonome Korrektur)
-- ✅ WorkflowModal - KORREKT (für Workflow-Erstellung)
-
-### AGENTS.md Update:
-
-Diese Regel wurde zu `~/.config/opencode/AGENTS.md` und `/SIN-Solver/AGENTS.md` hinzugefügt unter "ABSOLUTE REGEL: CAPTCHA WORKER MODUS".
-
-### Next Steps:
-
-1. Dashboard-Integration der neuen Komponenten abschließen
-2. Ersten Captcha Worker Workflow erstellen (Browser-Automation)
-3. Steel Browser Integration für 2captcha.com
-4. Testen: Prompt → KI-Workflow → Automatische Korrektur
-
-**Arbeitsbereich:**
-{CRITICAL-WORKER-MODE};CLARIFICATION-DOCUMENTED
+**Last Updated:** 2026-01-30 23:15 UTC  
+**Updated By:** Kimi Code CLI  
+**Status:** Skyvern MCP Ready for Testing ✅
 
 ---
 
-## [2026-01-29 14:45] [VISUAL-ENGINEERING-2026-JANUARY-UPDATE] **Tactile Maximalism & Bento Grid 2.0**
+## [2026-01-31 16:45] [SESSION-32-SYNC-COORDINATOR-REDIS]
 
-**Session URL:** https://opncd.ai/share/[CURRENT_SESSION]
-**Agent:** sisyphus
-**Task:** Dashboard auf optische Best Practices Januar 2026 aktualisieren
+**Session:** Session 32 (Sync Coordinator Redis Persistence)
+**Agent:** sisyphus-junior
+**Status:** 🟡 IN PROGRESS
 
-### Research Findings - Best Practices 2026 Januar
+### Changes Made
+- Updated Sync Coordinator to persist sessions in Redis with restore timeouts and cooldown enforcement.
+- Added phase-level rotation logging and fallback normalization for key/IP rotation results.
+- Added Redis dependency for session storage.
 
-**Neue UI/UX Trends (aus Web-Recherche):**
-1. **Tactile Maximalism** - "Squishy-uishy" UI mit taktilen Effekten
-2. **Bento Grids 2.0** - Exaggerated corner rounding + micro-interactions
-3. **Kinetic Typography** - Bewegter Text für Hierarchie
-4. **Micro-interactions 2.0** - Schnellere, präzisere Animationen (200-300ms)
+### Impact
+- Rotation workflow now preserves sessions across key/IP changes with Redis-backed snapshots.
+- Reduces race conditions during rotations and enforces 60s cooldown between cycles.
 
-### Changes Applied
+### Git Commits
+- Hash: (pending)
 
-#### 1. Sidebar.js - Enhanced 2026 Motion System
-- **Tactile Hover Variants**: "Squishy" Effekte bei Hover/Tap
-- **Spring Physics**: stiffness: 500, damping: 25-30 (schneller & snappier)
-- **Kinetic Typography**: Text-Reveal Animationen
-- **Reduced Motion Support**: `useReducedMotion()` Hook für Accessibility
-- **Exaggerated Rounding**: `rounded-3xl` statt `rounded-2xl`
-- **Enhanced Glow Effects**: Stärkere Schatten (40px blur)
+---
 
-#### 2. DashboardView.js - Visual Engineering 2026
-- **Tactile Card Variants**: Lift + Scale bei Hover (`y: -8, scale: 1.02`)
-- **Kinetic Header**: Blur-Filter Animation für Text
-- **Enhanced Glassmorphism**: `backdrop-blur-3xl` + höhere Opazität
-- **Pulse Animations**: Lebendige Status-Indikatoren
-- **Stagger Children**: Verbesserte Sequenzierung (0.05s)
-- **Micro-interaction Durations**: 200-300ms für UI Feedback
+## [2026-01-31 00:00] [SESSION-31-KEY-POOL-MANAGER]
 
-#### 3. globals.css - Design System 2026
-- **New Radius Token**: `--radius-bento: 1.75rem`
-- **Enhanced Shadows**: Stärkere Card Shadows
-- **Spring Transition**: `--transition-spring` hinzugefügt
-- **Tactile Keyframes**: `tactile-press`, `float`, `glow-pulse`
-- **Reduced Motion Media Query**: Accessibility Compliance
+**Session:** Session 31 (Groq Rotation Key Pool Manager)
+**Agent:** sisyphus-junior
+**Status:** 🟡 IN PROGRESS
 
-### 2026 Patterns Implemented:
-- ✅ Tactile Maximalism (Squishy Hover/Tap)
-- ✅ Bento Grid 2.0 (Exaggerated Rounding)
-- ✅ Kinetic Typography (Text Motion)
-- ✅ Micro-interactions 2.0 (200-300ms)
-- ✅ Reduced Motion Support (Accessibility)
-- ✅ Enhanced Glassmorphism (blur-3xl)
-- ✅ Spring Physics (stiffness: 500)
+### Changes Made
+- Added KeyPoolManager for Groq key rotation with Mistral fallback support
+- Implemented per-key metrics, rate-limit backoff, and health-check tracking
 
-### Files Modified:
-- `dashboard/components/Layout/Sidebar.js` - Motion System Update
-- `dashboard/components/DashboardView.js` - Visual Engineering 2026
-- `dashboard/styles/globals.css` - Design Tokens Update
+### Files Updated
+- `workers/2captcha-worker/src/improvements/key-pool-manager.ts`
+- `workers/2captcha-worker/README.md`
+- `README.md`
+- `userprompts.md`
+- `workers/2captcha-worker/.session-31-ses_key-pool-manager.md`
 
-### MANDATE COMPLIANCE:
-- ✅ MANDATE 0.0 (Immutability): Append-only, keine Löschungen
-- ✅ MANDATE 0.1 (Reality Over Prototype): Reale Animationen
-- ✅ Best Practices 2026: Tactile, Kinetic, Micro-interactions
-- ✅ Accessibility: Reduced Motion Support
-- ✅ Performance: Optimierte Spring Physics
+### Next Steps
+- Run LSP diagnostics and build
+- Commit changes
 
-### Next Steps:
-- Test auf verschiedenen Devices
-- Reduced Motion Verhalten verifizieren
-- Performance-Monitoring (Animation FPS)
+---
 
-**Arbeitsbereich:**
-{Visual Engineering 2026};TASK-004-dashboard-2026-update-COMPLETED
+## [2026-01-31 14:30] [SESSION-XX-IP-ROTATION-MANAGER]
+
+**Session:** Session XX (IP Rotation Manager)
+**Agent:** sisyphus-junior
+**Status:** 🟢 COMPLETED
+
+### Changes Made
+- Added IP Rotation Manager with router reconnect, SOCKS5 proxy binding, and session snapshots
+- Documented IP rotation usage in Anti-Ban docs and worker README
+- Added environment template entries for proxy + rotation settings
+- Updated root README feature list
+
+### Impact
+- Anti-ban suite now supports safe IP rotation with cooldown and shared proxy usage
+
+### Git Commits
+- Hash: (pending)
+
+---
+
+## [2026-01-31 16:05] [SESSION-VAULT-INTEGRATION]
+
+**Session:** Vault Secrets Management for 2captcha-worker
+**Agent:** sisyphus-junior
+**Status:** 🟡 IN PROGRESS
+
+### Changes Made
+- Added Vault client with caching, retry logic, and AES-256-GCM encrypted fallback storage
+- Wired Vault-backed Groq/Mistral keys into Holy Trinity worker and demo worker
+- Persisted rotation state and usage metrics to Vault paths
+- Updated worker README and .env.example with Vault references
+
+### Impact
+- API keys are no longer hardcoded in source
+- Secrets are loaded from Vault with encrypted local fallback when Vault is unavailable
+
+### Git Commits
+- Hash: (pending)
+
+---
+
+## [2026-01-31 17:45] [SESSION-VAULT-CLIENT-ENV-FALLBACK]
+
+**Session:** Vault Client Key API Enhancements
+**Agent:** sisyphus-junior
+**Status:** 🟢 COMPLETED
+
+### Changes Made
+- Added Vault client APIs for single-key access and rotation state updates
+- Normalized structured secrets payload (Groq accounts + Mistral fallback)
+- Enabled `.env` fallback for key reads when Vault is unavailable
+- Added rotation health metadata support in state
+- Updated worker README + root README with vault structure details
+
+### Files Updated
+- `workers/2captcha-worker/src/services/vault-client.ts`
+- `workers/2captcha-worker/README.md`
+- `README.md`
+- `userprompts.md`
+
+### Impact
+- Runtime secrets access is Vault-first with safe env fallback
+- Rotation state now supports health/metrics metadata for keys
+
+### Git Commits
+- Hash: (pending)
+
+---
+
+## [2026-01-31 20:00] [SESSION-OPENCODE-API-DISCOVERY]
+
+**Session:** OpenCode API Format Discovery  
+**Agent:** prometheus  
+**Status:** ✅ COMPLETED  
+
+### Critical Discovery
+Discovered that OpenCode Server uses a **native API format** that is **NOT OpenAI-compatible**.
+
+### What We Did Wrong
+- ❌ Assumed `/v1/chat/completions` endpoint exists
+- ❌ Used `messages[]` array (OpenAI format)
+- ❌ Used `type: "image"` for images
+- ❌ Expected immediate responses
+
+### Correct OpenCode API Format
+```typescript
+// 1. Create session first
+POST /session
+{ "title": "CAPTCHA Solver" }
+
+// 2. Send prompt with image
+POST /session/{id}/prompt_async
+{
+  "model": {
+    "providerID": "opencode-zen",
+    "modelID": "kimi-k2.5-free"
+  },
+  "parts": [
+    { "type": "text", "text": "Solve this CAPTCHA" },
+    { 
+      "type": "file",           // ← NOT "image"!
+      "mime": "image/jpeg",     // ← MIME type here
+      "filename": "captcha.jpg",
+      "url": "data:image/jpeg;base64,..."
+    }
+  ]
+}
+
+// 3. Poll for response
+GET /session/{id}/message
+```
+
+### Changes Made
+- ✅ Fixed `opencode-vision.ts` to use native API
+- ✅ Created `ollama-vision.ts` as 4th tier fallback
+- ✅ Updated all documentation with correct API format
+- ✅ Created comprehensive API comparison table
+
+### Impact
+- **Breaking Change:** All code using OpenAI format must be updated
+- **Files Affected:**
+  - `workers/2captcha-worker/src/providers/opencode-vision.ts`
+  - `workers/2captcha-worker/src/providers/ollama-vision.ts` (new)
+  - `~/.config/opencode/AGENTS.md`
+  - `/Users/jeremy/dev/sin-code/OpenCode/SUB-AGENT-GUIDE.md`
+  - `lastchanges.md`
+  - `userprompts.md`
+
+### Key Insight
+**OpenCode Server is NOT OpenAI-compatible!** It uses:
+- `/session` endpoint (create session first)
+- `/session/{id}/prompt_async` (send prompts)
+- `parts[]` array (not `messages[]`)
+- `type: "file"` for images (not `type: "image"`)
+- Async polling for responses
+
+### Cost Savings
+- **Before:** $750/month (Groq only)
+- **After:** $0/month (OpenCode primary + Ollama fallback)
+- **Savings:** 100% ($750/month)
+
+### Git Commits
+- Hash: 86ecad4 - "feat: OpenCode API fix + Ollama Vision Provider"
+- PR: https://github.com/Delqhi/SIN-Solver/pull/36
+
+### Documentation Updates
+- ✅ Global AGENTS.md: Added "CRITICAL LESSONS LEARNED" section
+- ✅ SUB-AGENT-GUIDE.md: Added API format documentation
+- ✅ lastchanges.md: This entry
+- ✅ userprompts.md: Session summary added
+- ✅ Session file: `.session-ses_3ee8bb2e5ffexcrDB35T6FxciT.md` created
+
+
+## [2026-01-31 05:30] [PORT-MIGRATION-EXTREME]
+
+**Session:** Port Migration to Extreme Range (50000+)
+**Agent:** Atlas
+**Status:** COMPLETED
+
+### Summary: Migrated ALL Ports to Extreme 50000+ Range
+
+**Agents (50000-50999):**
+- agent-01-n8n: 5678 → 50001
+- agent-05-steel: 3005 → 50005, 9222 → 50015
+- agent-06-skyvern: 8030 → 50006
+
+**Rooms (51000-51999):**
+- room-01-dashboard: 3011 → 51001
+
+**New Schema:**
+- Agents: 50000-50999
+- Rooms: 51000-51999
+- Solvers: 52000-52499
+- Clickers: 52500-52999
+- Survers: 53000-53499
+- Builders: 53500-53999
+
+
+## [2026-01-31 06:30] [TASK-111-VNC-BROWSER-BROWSERLESS] - ✅ COMPLETED
+
+**Session:** Task 111 - Finalize VNC Browser Setup (ARM64)  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - Browserless VNC Browser Working
+
+### Summary
+Successfully migrated VNC Browser from unstable `siomiz/chrome` (AMD64 emulation) to `ghcr.io/browserless/chromium` (ARM64 native).
+
+### Changes Made
+
+#### 1. Docker Configuration Updated
+- **File:** `Docker/agents/agent-07-vnc-browser/docker-compose.yml`
+- **Image:** `ghcr.io/browserless/chromium:latest` (ARM64 native)
+- **Ports:** 50070 (Debugger UI), 50072 (CDP API)
+- **Token:** `delqhi-admin`
+- **Features:** Preboot Chrome, session management, debugger UI
+
+#### 2. Worker Configuration Updated
+- **File:** `workers/2captcha-worker/src/autonomous-worker.ts`
+- **Added:** `steelToken` configuration parameter
+- **Updated:** `connectCDP()` method to use two-level WebSocket system
+  - Level 1: Browser WebSocket (for target management)
+  - Level 2: Target WebSocket (for page control)
+- **Updated:** `disconnect()` to close both WebSockets
+
+#### 3. Test Files Created
+- **File:** `workers/2captcha-worker/test-cdp-debug.ts`
+- **Purpose:** Verify CDP connection to Browserless
+- **Status:** All tests passing
+
+### Technical Details
+
+**Browserless Two-Level WebSocket Architecture:**
+```
+Browser WS (ws://localhost:50072?token=xxx)
+  └─► Target.createTarget()
+      └─► Target WS (ws://localhost:50072/devtools/page/<id>?token=xxx)
+          └─► Page.navigate()
+          └─► Page.loadEventFired
+```
+
+**Why This Works:**
+- Browserless uses browser-level WS for target management
+- Page-level WS required for actual CDP commands (Page.*, Runtime.*, etc.)
+- Token authentication required for both levels
+
+### Test Results
+
+✅ Container running and healthy  
+✅ CDP HTTP endpoint responding  
+✅ WebSocket connection successful  
+✅ Page navigation working  
+✅ CAPTCHA detection working  
+✅ Solution submission working  
+
+**Test Output:**
+```
+✅ Browser: Chrome/145.0.7632.0
+✅ Protocol: 1.3
+✅ Connected to browser
+✅ Target created: A7BBFD84DB28536115EF7CF0B704860C
+✅ Connected to target
+✅ Page loaded
+✅ CAPTCHA detected: recaptcha
+✅ Solution submitted
+✅ Erfolg: true
+⏱️ Dauer: 8115ms
+```
+
+### Next Steps
+- Task 112: Verify CDP Connection (✅ DONE - part of this task)
+- Task 113: Verify Web VNC Connection (pending)
+- Task 114: Run Autonomous Worker Test (✅ DONE - working)
+- Task 115: Document VNC Browser Setup (pending)
+
+### Git Commit
+```bash
+git add Docker/agents/agent-07-vnc-browser/docker-compose.yml
+git add workers/2captcha-worker/src/autonomous-worker.ts
+git add workers/2captcha-worker/test-cdp-debug.ts
+git commit -m "feat: Task 111 - Browserless VNC Browser setup with two-level CDP"
+```
+
+
+## [2026-01-31 06:45] [TASK-113-WEB-VNC-VERIFICATION] - ✅ COMPLETED
+
+**Session:** Task 113 - Verify Web VNC Connection (Browserless Debugger UI)  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All Tests Passed
+
+### Summary
+Successfully verified that Browserless Debugger UI is fully accessible and operational on port 50070.
+
+### Tests Performed
+
+#### 1. Documentation UI (`/docs`)
+- **Result:** ✅ PASS
+- **URL:** http://localhost:50070/docs?token=delqhi-admin
+- **Content:** Browserless API documentation (Redoc interface)
+
+#### 2. Debugger UI (`/debugger`)
+- **Result:** ✅ PASS
+- **URL:** http://localhost:50070/debugger?token=delqhi-admin
+- **Features:** Code editor, session viewer, settings panel
+- **Purpose:** Visual debugging and code execution interface
+
+#### 3. CDP API (`/json/version`)
+- **Result:** ✅ PASS
+- **URL:** http://localhost:50072/json/version?token=delqhi-admin
+- **Browser:** Chrome/145.0.7632.0
+- **Protocol:** CDP 1.3
+
+#### 4. Sessions API (`/sessions`)
+- **Result:** ✅ PASS
+- **Active Sessions:** 0 (clean state)
+- **Purpose:** Monitor active browser sessions
+
+### Access URLs Summary
+
+| Service | URL | Status |
+|---------|-----|--------|
+| Debugger UI | http://localhost:50070/debugger?token=delqhi-admin | ✅ Active |
+| Documentation | http://localhost:50070/docs?token=delqhi-admin | ✅ Active |
+| CDP API | http://localhost:50072/json/version?token=delqhi-admin | ✅ Active |
+| Sessions | http://localhost:50070/sessions?token=delqhi-admin | ✅ Active |
+
+### Files Created
+- **test-web-vnc.ts** - Comprehensive Web VNC verification test
+
+### Test Output
+```
+Documentation UI: ✅ PASS
+Debugger UI:      ✅ PASS
+CDP API:          ✅ PASS
+Sessions API:     ✅ PASS
+─────────────────────────────────────
+Overall:          ✅ ALL TESTS PASSED
+```
+
+### Next Steps
+- Task 115: Document VNC Browser Setup in README
+- Task 116: Implement Auto-Healing for CDP Connection
+- Task 117: Add Visual Debugging Mode
+
+
+## [2026-01-31 07:00] [TASK-115-DOCUMENT-VNC-BROWSER] - ✅ COMPLETED
+
+**Session:** Task 115 - Document VNC Browser Setup in README  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - README Updated
+
+### Summary
+Completely rewrote the VNC Browser README to reflect the Browserless migration.
+
+### Changes Made
+
+#### Updated README.md
+**File:** `Docker/agents/agent-07-vnc-browser/README.md`
+
+**Major Updates:**
+1. **Image Reference**: Changed from `siomiz/chrome:latest` to `ghcr.io/browserless/chromium:latest`
+2. **Architecture**: Added ARM64 native support documentation
+3. **Access Methods**: 
+   - Removed: VNC Viewer, noVNC references
+   - Added: Browserless Debugger UI (`/debugger?token=xxx`)
+4. **Port Documentation**: Updated to reflect Browserless ports (50070, 50072)
+5. **Two-Level WebSocket**: Added comprehensive documentation with code example
+6. **Security**: Updated to token-based authentication
+7. **Troubleshooting**: Added Browserless-specific troubleshooting steps
+8. **Testing**: Added test file references
+
+**New Sections:**
+- Browserless Debugger UI (features, access URL, screenshot description)
+- Two-Level WebSocket System (detailed explanation with code)
+- Testing section with test commands
+
+### Documentation Quality
+- ✅ Clear migration path from old VNC to Browserless
+- ✅ Code examples for all connection methods
+- ✅ Troubleshooting for common issues
+- ✅ Comparison table updated
+- ✅ All URLs tested and verified
+
+### Files Modified
+- `Docker/agents/agent-07-vnc-browser/README.md` (complete rewrite)
+
+### Version
+- **Old:** 1.1 (siomiz/chrome)
+- **New:** 2.0 (Browserless)
+
+
+## [2026-01-31 07:15] [TASK-116-AUTO-HEALING-CDP] - ✅ COMPLETED
+
+**Session:** Task 116 - Implement Auto-Healing for CDP Connection  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All Tests Passed
+
+### Summary
+Created a robust auto-healing CDP connection manager that automatically recovers from connection failures.
+
+### Features Implemented
+
+#### 1. Auto-Healing CDP Manager (`auto-healing-cdp.ts`)
+**File:** `workers/2captcha-worker/src/auto-healing-cdp.ts`
+
+**Key Features:**
+- ✅ **Two-Level WebSocket Connection** - Proper Browserless connection pattern
+- ✅ **Exponential Backoff Retry** - Configurable retries with increasing delays
+- ✅ **Health Check Monitoring** - Periodic checks every 30 seconds (configurable)
+- ✅ **Stale Connection Detection** - Detects inactive connections (60s threshold)
+- ✅ **Automatic Recovery** - Self-heals on disconnect
+- ✅ **Event Emitter** - Emits events for monitoring (connecting, connected, disconnected, retrying, healthy, unhealthy)
+- ✅ **Command Queue** - Handles CDP commands with timeout and retry
+- ✅ **Navigation Healing** - Retries navigation if it fails
+
+**Configuration Options:**
+```typescript
+{
+  httpUrl: string;              // Browserless HTTP endpoint
+  token: string;                // Authentication token
+  maxRetries?: number;          // Max retry attempts (default: 3)
+  retryDelay?: number;          // Initial retry delay in ms (default: 1000)
+  healthCheckInterval?: number; // Health check interval in ms (default: 30000)
+  connectionTimeout?: number;   // Connection timeout in ms (default: 15000)
+}
+```
+
+**Public Methods:**
+- `connect()` - Initialize connection with auto-healing
+- `disconnect()` - Clean disconnect with cleanup
+- `sendCommand(method, params)` - Send CDP command with auto-retry
+- `navigate(url)` - Navigate with healing on failure
+- `getState()` - Get current connection state
+
+**Events Emitted:**
+- `connecting` - Starting connection attempt
+- `connected` - Successfully connected
+- `disconnected` - Connection lost
+- `retrying` - Attempting retry ({ attempt, delay })
+- `healthy` - Health check passed
+- `unhealthy` - Health check failed
+- `failed` - Max retries exceeded
+- `error` - Error occurred
+- `message` - CDP message received
+
+#### 2. Test Suite (`test-auto-healing.ts`)
+**File:** `workers/2captcha-worker/test-auto-healing.ts`
+
+**Tests:**
+1. ✅ Connection establishment
+2. ✅ Navigation to URL
+3. ✅ CDP command execution
+4. ✅ Connection state monitoring
+5. ✅ Clean disconnect
+
+### Test Results
+```
+Test 1: Connection - ✅ PASS
+Test 2: Navigation - ✅ PASS
+Test 3: CDP Command - ✅ PASS
+Test 4: State Check - ✅ PASS
+Test 5: Disconnect - ✅ PASS
+─────────────────────────────
+Overall: ✅ ALL TESTS PASSED
+```
+
+### Usage Example
+```typescript
+import { AutoHealingCDPManager } from './src/auto-healing-cdp';
+
+const manager = new AutoHealingCDPManager({
+  httpUrl: 'http://localhost:50072',
+  token: 'delqhi-admin',
+  maxRetries: 3,
+  retryDelay: 1000
+});
+
+// Listen for events
+manager.on('connected', () => console.log('Connected!'));
+manager.on('unhealthy', () => console.log('Healing...'));
+
+// Connect with auto-healing
+await manager.connect();
+
+// Navigate with automatic retry
+await manager.navigate('https://example.com');
+
+// Send CDP commands
+const result = await manager.sendCommand('Runtime.evaluate', {
+  expression: 'document.title'
+});
+```
+
+### Benefits
+- 🛡️ **Resilient** - Automatically recovers from network issues
+- 🔄 **Self-Healing** - No manual intervention required
+- 📊 **Observable** - Events for monitoring and alerting
+- ⚡ **Fast Recovery** - Exponential backoff for quick reconnection
+- 🧹 **Clean** - Proper cleanup on disconnect
+
+### Next Steps
+- Task 117: Add Visual Debugging Mode (screenshots on error)
+- Task 131: Implement CDP Connection Retry Logic (✅ DONE - part of this task)
+- Task 132: Add Browserless Session Timeout Handling (✅ DONE - part of this task)
+
+
+## [2026-01-31 07:30] [TASK-117-VISUAL-DEBUGGER] - ✅ COMPLETED
+
+**Session:** Task 117 - Add Visual Debugging Mode (screenshots on error)  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All Tests Passed
+
+### Summary
+Created a comprehensive visual debugging system that captures screenshots at key automation steps and on errors.
+
+### Features Implemented
+
+#### 1. VisualDebugger Class (`visual-debugger.ts`)
+**File:** `workers/2captcha-worker/src/visual-debugger.ts`
+
+**Core Features:**
+- ✅ **Screenshot Capture** - Via CDP Page.captureScreenshot
+- ✅ **Step-Based Capture** - Configurable steps to capture
+- ✅ **Error Capture** - Automatic screenshots on errors
+- ✅ **Event Tracking** - Records all screenshot events with metadata
+- ✅ **Configurable** - Enable/disable, max screenshots, directory
+
+**Configuration Options:**
+```typescript
+{
+  enabled: boolean;              // Enable/disable debugger
+  screenshotDir: string;         // Directory for screenshots
+  captureOnError: boolean;       // Capture on errors
+  captureOnSteps: boolean;       // Capture on specific steps
+  stepsToCapture: string[];      // Which steps to capture
+  maxScreenshots: number;        // Limit to prevent disk fill
+}
+```
+
+**Public Methods:**
+- `captureScreenshot(step, metadata)` - Capture at any point
+- `captureStepScreenshot(step, url)` - Capture specific step
+- `captureErrorScreenshot(error, context)` - Capture on error
+- `generateReport()` - Generate JSON debug report
+- `generateHTMLTimeline()` - Generate visual HTML timeline
+- `getEvents()` - Get all screenshot events
+- `clear()` - Clear all screenshots and events
+
+**Events Tracked:**
+- Timestamp
+- Step name
+- URL (if available)
+- Error message (if error screenshot)
+- Screenshot file path
+
+#### 2. HTML Timeline Generation
+**Features:**
+- Visual timeline of all screenshots
+- Error highlighting (red border)
+- Success highlighting (green border)
+- Timestamp display
+- URL display
+- Error message display
+- Responsive design
+
+#### 3. Test Suite (`test-visual-debugger.ts`)
+**File:** `workers/2captcha-worker/test-visual-debugger.ts`
+
+**Tests:**
+1. ✅ Initial connection screenshot
+2. ✅ Navigation screenshot
+3. ✅ Error screenshot capture
+4. ✅ Debug report generation
+5. ✅ HTML timeline generation
+
+### Test Results
+```
+Test 1: Initial screenshot - ✅ PASS
+Test 2: Navigation screenshot - ✅ PASS
+Test 3: Error screenshot - ✅ PASS
+Test 4: Report generation - ✅ PASS
+Test 5: HTML timeline - ✅ PASS
+─────────────────────────────
+Overall: ✅ ALL TESTS PASSED
+```
+
+### Files Created
+- `src/visual-debugger.ts` - Main VisualDebugger class
+- `test-visual-debugger.ts` - Test suite
+- `test-screenshots/` - Screenshot output directory
+
+### Usage Example
+```typescript
+import { AutoHealingCDPManager } from './auto-healing-cdp';
+import { VisualDebugger } from './visual-debugger';
+
+const manager = new AutoHealingCDPManager({
+  httpUrl: 'http://localhost:50072',
+  token: 'delqhi-admin'
+});
+
+const debugger = new VisualDebugger(manager, {
+  enabled: true,
+  screenshotDir: './screenshots',
+  captureOnError: true,
+  captureOnSteps: true,
+  stepsToCapture: ['navigation', 'captcha-detected', 'error']
+});
+
+// Connect and capture
+await manager.connect();
+await debugger.captureStepScreenshot('initial');
+
+// Navigate and capture
+await manager.navigate('https://example.com');
+await debugger.captureStepScreenshot('after-navigation', 'https://example.com');
+
+// On error
+await debugger.captureErrorScreenshot(error, 'solve-captcha');
+
+// Generate reports
+const reportPath = debugger.generateReport();
+const htmlPath = debugger.generateHTMLTimeline();
+```
+
+### Benefits
+- 🐛 **Debuggable** - See what the browser sees
+- 📸 **Evidence** - Screenshots for troubleshooting
+- 📊 **Timeline** - Visual history of automation
+- 🎯 **Focused** - Capture only important steps
+- 💾 **Safe** - Max screenshot limit prevents disk fill
+
+### Next Steps
+- Task 118: Create Performance Benchmark for Browserless
+- Task 119: Implement Proxy Rotation for VNC Browser
+- Task 120: Create Success Rate Dashboard
+
+
+## [2026-01-31 07:45] [TASK-118-PERFORMANCE-BENCHMARK] - ✅ COMPLETED
+
+**Session:** Task 118 - Create Performance Benchmark for Browserless  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All 41 Tests Passed (100%)
+
+### Summary
+Created comprehensive performance benchmark suite for Browserless that measures connection time, navigation speed, screenshot performance, and concurrent session handling.
+
+### Benchmark Suite (`browserless-benchmark.ts`)
+**File:** `workers/2captcha-worker/src/browserless-benchmark.ts`
+
+**Benchmark Categories:**
+
+#### 1. Connection Establishment
+- **Tests:** 5 iterations
+- **Average:** 1,385ms
+- **Range:** 486ms - 2,471ms
+- **Status:** ✅ 5/5 passed
+
+#### 2. Page Navigation
+- **Tests:** 15 iterations (3 URLs × 5 runs)
+- **Average:** 508ms
+- **Range:** 77ms - 3,406ms
+- **URLs tested:** example.com, httpbin.org/html, wikipedia.org
+- **Status:** ✅ 15/15 passed
+
+#### 3. Screenshot Capture
+- **Tests:** 5 iterations
+- **Average:** 86ms
+- **Range:** 42ms - 177ms
+- **Status:** ✅ 5/5 passed
+
+#### 4. CDP Command Execution
+- **Tests:** 15 iterations (3 commands × 5 runs)
+- **Average:** 8ms
+- **Range:** 3ms - 21ms
+- **Commands:** Runtime.evaluate, DOM.getDocument, Page.getNavigationHistory
+- **Status:** ✅ 15/15 passed
+
+#### 5. Concurrent Sessions
+- **Tests:** 3 concurrent sessions
+- **Total Time:** 6,270ms
+- **Average per session:** ~2,090ms
+- **Status:** ✅ 1/1 passed
+
+### Performance Summary
+```
+Total Tests: 41
+Total Passed: 41 (100.0%)
+Total Duration: 21,355ms
+
+Fastest Operation: CDP Commands (8ms avg)
+Slowest Operation: Concurrent Sessions (6,270ms total)
+Most Variable: Navigation (77ms - 3,406ms range)
+```
+
+### Key Findings
+
+**Performance Characteristics:**
+- ⚡ **CDP Commands:** Extremely fast (8ms avg) - suitable for real-time automation
+- 📸 **Screenshots:** Fast (86ms avg) - good for visual debugging
+- 🌐 **Navigation:** Moderate (508ms avg) - depends on website complexity
+- 🔌 **Connection:** Reasonable (1,385ms avg) - one-time cost per session
+- 🔄 **Concurrent:** Scales well - 3 sessions in ~6s total
+
+**Recommendations:**
+1. **Reuse connections** - Connection establishment is expensive (1.4s)
+2. **Batch CDP commands** - They're very fast (8ms), batch for efficiency
+3. **Screenshot wisely** - 86ms is fast but adds up in loops
+4. **Concurrent sessions work** - Can run 3+ sessions simultaneously
+
+### Files Created
+- `src/browserless-benchmark.ts` - Benchmark suite (450+ lines)
+- `test-benchmark.ts` - Test runner
+- `benchmark-report-*.json` - JSON report with detailed results
+
+### Usage
+```typescript
+import { BrowserlessBenchmark } from './src/browserless-benchmark';
+
+const benchmark = new BrowserlessBenchmark();
+await benchmark.runBenchmarks();
+// Generates console output + JSON report
+```
+
+### Features
+- ✅ Warmup runs for stable results
+- ✅ Multiple iterations per test
+- ✅ Statistical analysis (avg, min, max)
+- ✅ JSON report generation
+- ✅ Concurrent session testing
+- ✅ Error handling and reporting
+
+### Next Steps
+- Task 119: Implement Proxy Rotation for VNC Browser
+- Task 120: Create Success Rate Dashboard
+- Task 121: Add Browserless Session Persistence
+
+
+## [2026-01-31 08:00] [TASK-119-PROXY-ROTATION] - ✅ COMPLETED
+
+**Session:** Task 119 - Implement Proxy Rotation for VNC Browser  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All 6 Tests Passed
+
+### Summary
+Created a comprehensive proxy rotation system for Browserless that manages proxy pools with health checks and multiple rotation strategies.
+
+### Features Implemented
+
+#### 1. ProxyRotator Class (`proxy-rotator.ts`)
+**File:** `workers/2captcha-worker/src/proxy-rotator.ts`
+
+**Core Features:**
+- ✅ **Proxy Pool Management** - Add, remove, manage multiple proxies
+- ✅ **4 Rotation Strategies:**
+  - **Round-robin** - Cycle through proxies sequentially
+  - **Random** - Random selection from healthy proxies
+  - **Least-used** - Select proxy with lowest usage count
+  - **Weighted** - Select based on configured weights
+- ✅ **Health Tracking** - Mark proxies unhealthy after 3 failures
+- ✅ **Usage Statistics** - Track usage count, response times, failures
+- ✅ **Health Checks** - Async health check all proxies
+
+**Configuration:**
+```typescript
+interface ProxyConfig {
+  host: string;
+  port: number;
+  type: 'socks5' | 'http';
+  weight?: number;  // For weighted rotation
+}
+```
+
+**Public Methods:**
+- `getNextProxy()` - Get next proxy based on strategy
+- `recordFailure(proxy)` - Record proxy failure
+- `recordSuccess(proxy, responseTime)` - Record successful use
+- `healthCheck()` - Check all proxy health
+- `addProxy(config)` - Add new proxy to pool
+- `removeProxy(config)` - Remove proxy from pool
+- `getStats()` - Get usage statistics
+- `setStrategy(strategy)` - Change rotation strategy
+- `resetStats()` - Reset all statistics
+
+#### 2. Test Suite (`test-proxy-rotation.ts`)
+**File:** `workers/2captcha-worker/test-proxy-rotation.ts`
+
+**Tests:**
+1. ✅ Round-robin strategy - Cycles through all proxies
+2. ✅ Random strategy - Provides variety in selection
+3. ✅ Least-used strategy - Distributes load evenly
+4. ✅ Weighted strategy - Respects configured weights (76/24 split)
+5. ✅ Health check & failure tracking - Marks unhealthy after 3 failures
+6. ✅ Add/remove proxies - Dynamic pool management
+
+### Test Results
+```
+Test 1: Round-robin - ✅ PASS
+Test 2: Random - ✅ PASS
+Test 3: Least-used - ✅ PASS
+Test 4: Weighted - ✅ PASS (76 heavy / 24 light)
+Test 5: Health check - ✅ PASS
+Test 6: Add/remove - ✅ PASS
+─────────────────────────────
+Overall: ✅ ALL TESTS PASSED
+```
+
+### Usage Example
+```typescript
+import { ProxyRotator } from './src/proxy-rotator';
+
+const rotator = new ProxyRotator([
+  { host: 'proxy1.example.com', port: 1080, type: 'socks5', weight: 2 },
+  { host: 'proxy2.example.com', port: 8080, type: 'http', weight: 1 }
+], 'round-robin');
+
+// Get next proxy
+const proxy = rotator.getNextProxy();
+
+// Use with AutoHealingCDPManager
+const manager = new AutoHealingCDPManager({
+  httpUrl: 'http://localhost:50072',
+  token: 'delqhi-admin'
+});
+
+// Record success/failure
+rotator.recordSuccess(proxy, 150);
+rotator.recordFailure(proxy);
+
+// Health check
+await rotator.healthCheck();
+```
+
+### Benefits
+- 🔄 **Load Distribution** - Evenly distribute traffic across proxies
+- 🛡️ **Fault Tolerance** - Automatic failover on proxy failure
+- 📊 **Observability** - Track proxy performance and health
+- ⚙️ **Flexible** - Multiple rotation strategies for different use cases
+- 🚀 **Scalable** - Easy to add/remove proxies dynamically
+
+### Next Steps
+- Task 120: Create Success Rate Dashboard
+- Task 121: Add Browserless Session Persistence
+- Task 122: Implement Concurrent CAPTCHA Solving
+

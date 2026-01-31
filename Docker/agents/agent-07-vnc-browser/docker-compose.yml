@@ -1,0 +1,81 @@
+# VNC Browser Service for Delqhi-Platform
+# Provides HEADFULL Chrome with VNC access via Browserless (ARM64 compatible)
+# Alternative to headless Steel Browser - uses ghcr.io/browserless/chromium
+
+services:
+  agent-07-vnc-browser:
+    image: ghcr.io/browserless/chromium:latest
+    container_name: agent-07-vnc-browser
+    hostname: agent-07-vnc-browser
+    ports:
+      - "${VNC_BROWSER_PORT:-50070}:3000"    # Debugger UI (noVNC-like interface)
+      - "${VNC_CDP_PORT:-50072}:3000"        # CDP API (Chrome DevTools Protocol)
+    environment:
+      # Authentication
+      - TOKEN=${VNC_PASSWORD:-delqhi-admin}
+      
+      # Performance & Concurrency
+      - MAX_CONCURRENT_SESSIONS=10
+      - MAX_QUEUE_LENGTH=100
+      - CONNECTION_TIMEOUT=60000
+      
+      # Browser Behavior
+      - PREBOOT_CHROME=true
+      - KEEP_ALIVE=true
+      - EXIT_ON_HEALTH_FAILURE=false
+      - CHROME_REFRESH_TIME=3600000
+      
+      # Debugging & UI
+      - ENABLE_DEBUGGER=true
+      - ENABLE_CORS=true
+      - ENABLE_XVFB=true
+      
+      # Resource Management
+      - DEFAULT_BLOCK_ADS=true
+      - DEFAULT_HEADLESS=false
+      - DEFAULT_IGNORE_HTTPS_ERRORS=true
+      - DEFAULT_IGNORE_DEFAULT_ARGS=false
+      
+      # Agent Metadata
+      - AGENT_NAME=agent-07-vnc-browser
+      - AGENT_ID=07-vnc
+      - AGENT_ROLE=browser-automation-headfull
+      - AGENT_VERSION=1.0.0
+      - BROWSER_MODE=headfull
+    volumes:
+      - vnc-browser-data:/data
+      - vnc-browser-downloads:/downloads
+    networks:
+      - sin-solver-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/json/version?token=${VNC_PASSWORD:-delqhi-admin}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=agent-07-vnc-browser"
+    labels:
+      - "com.delqhi.service=agent"
+      - "com.delqhi.agent-number=07-vnc"
+      - "com.delqhi.agent-role=browser-automation-headfull"
+      - "com.delqhi.browser-mode=headfull"
+      - "com.delqhi.vnc-enabled=true"
+      - "com.delqhi.version=1.0"
+      - "com.delqhi.image=browserless-chromium"
+
+volumes:
+  vnc-browser-data:
+    driver: local
+  vnc-browser-downloads:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network

@@ -4,11 +4,11 @@ services:
     image: skyvern/skyvern:latest
     container_name: agent-06-skyvern-solver
     ports:
-      - "8030:8000"
+      - "50006:8000"   # Skyvern API (extreme: 50006)
     environment:
       - PYTHONUNBUFFERED=1
       - SKYVERN_LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@room-03-postgres-master:5432/${DB_NAME}
+      - DATABASE_URL=postgresql://skyvern:skyvern_secure_2026@room-03-postgres-master:5432/skyvern
       - REDIS_URL=redis://room-04-redis-cache:6379
       - AGENT_NAME=agent-06-skyvern
       - AGENT_ID=06
@@ -22,10 +22,13 @@ services:
       - PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
     networks:
       - sin-solver-network
+      - skyvern-network
     volumes:
       - agent-06-data:/app/data
       - agent-06-cache:/root/.cache/ms-playwright
       - agent-06-screenshots:/app/screenshots
+      - ./custom-entrypoint.sh:/app/custom-entrypoint.sh:ro
+    entrypoint: ["/bin/bash", "/app/custom-entrypoint.sh"]
     restart: unless-stopped
     healthcheck:
       test:
@@ -61,3 +64,6 @@ networks:
   sin-solver-network:
     external: true
     name: sin-solver-network
+  skyvern-network:
+    external: true
+    name: skyvern-network

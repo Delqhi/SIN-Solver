@@ -12,23 +12,11 @@ on:
       - main
       - develop
       - 'feature/**'
-    paths:
-      - '.github/workflows/test.yml'
-      - 'dashboard/**'
-      - 'services/**'
-      - 'tests/**'
-      - 'package.json'
-      - 'package-lock.json'
+      - 'test/**'
   pull_request:
     branches:
       - main
       - develop
-    paths:
-      - '.github/workflows/test.yml'
-      - 'dashboard/**'
-      - 'services/**'
-      - 'tests/**'
-      - 'package.json'
 
 concurrency:
   group: test-${{ github.ref }}
