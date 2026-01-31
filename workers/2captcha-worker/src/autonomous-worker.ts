@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { AutoHealingCDPManager } from './auto-healing-cdp';
 import { VisualDebugger } from './visual-debugger';
+import { BrowserlessConnectionPool } from './browserless-connection-pool';
+import { getRegionConfig, validateRegionConfig, getRegionConfigSummary } from './region-config-parser';
 
 interface SolverResult {
   success: boolean;
@@ -18,6 +20,8 @@ interface SolverResult {
 export class AutonomousCaptchaWorker {
   private cdpManager: AutoHealingCDPManager | null = null;
   private debugger: VisualDebugger | null = null;
+  private connectionPool: BrowserlessConnectionPool | null = null;
+  private useRegionManager: boolean = false;
   private config = {
     // Using Agent-07 VNC Browser (Browserless - reliable CDP with GUI)
     steelHttpUrl: process.env.STEEL_HTTP_URL || 'http://localhost:50072',
@@ -40,12 +44,48 @@ export class AutonomousCaptchaWorker {
     console.log('');
 
     try {
-      // Initialize CDP Manager
-      this.cdpManager = new AutoHealingCDPManager({
-        httpUrl: this.config.steelHttpUrl,
-        token: this.config.steelToken
-      });
-      await this.cdpManager.connect();
+      // Check if region-aware connections are enabled
+      const regionConfig = getRegionConfig();
+      if (regionConfig.enabled && validateRegionConfig(regionConfig)) {
+        console.log('🌍 Region-aware connections ENABLED');
+        console.log(getRegionConfigSummary(regionConfig));
+        
+        this.useRegionManager = true;
+        this.connectionPool = new BrowserlessConnectionPool(
+          this.config.steelHttpUrl,
+          {
+            maxTotal: 5,
+            acquireTimeoutMs: 30000,
+            idleTimeoutMs: 60000,
+            healthCheckIntervalMs: 30000,
+            enableRegionManager: true,
+            regions: regionConfig.regions,
+            regionManagerOptions: regionConfig.options
+          }
+        );
+        
+        this.setupRegionEventHandlers();
+        
+        // Get a connection from the pool
+        const connection = await this.connectionPool.acquire();
+        // Note: The pool manages CDP connections internally
+        // We still need cdpManager for the existing methods
+        this.cdpManager = new AutoHealingCDPManager({
+          httpUrl: this.config.steelHttpUrl,
+          token: this.config.steelToken
+        });
+        await this.cdpManager.connect();
+      } else {
+        console.log('🔧 Using standard CDP connection (regions disabled)');
+        this.useRegionManager = false;
+        
+        // Initialize CDP Manager (backward compatible)
+        this.cdpManager = new AutoHealingCDPManager({
+          httpUrl: this.config.steelHttpUrl,
+          token: this.config.steelToken
+        });
+        await this.cdpManager.connect();
+      }
 
       // Initialize Visual Debugger
       this.debugger = new VisualDebugger(this.cdpManager, {
@@ -263,7 +303,31 @@ export class AutonomousCaptchaWorker {
     return result.result?.value;
   }
 
+  private setupRegionEventHandlers(): void {
+    if (!this.connectionPool) return;
+    
+    this.connectionPool.on('connectionAcquired', ({ connectionId }: { connectionId: string }) => {
+      console.log(`🔗 Connection acquired: ${connectionId}`);
+    });
+    
+    this.connectionPool.on('connectionReleased', ({ connectionId }: { connectionId: string }) => {
+      console.log(`🔓 Connection released: ${connectionId}`);
+    });
+    
+    this.connectionPool.on('connectionError', ({ connectionId, error }: { connectionId: string; error: string }) => {
+      console.log(`⚠️ Connection error (${connectionId}): ${error}`);
+    });
+    
+    this.connectionPool.on('poolExhausted', () => {
+      console.log(`🚨 Connection pool exhausted!`);
+    });
+  }
+
   private async disconnect(): Promise<void> {
+    if (this.connectionPool) {
+      await this.connectionPool.shutdown();
+      this.connectionPool = null;
+    }
     await this.cdpManager?.disconnect();
     this.cdpManager = null;
     this.debugger = null;
