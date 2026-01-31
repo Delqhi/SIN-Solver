@@ -54,8 +54,11 @@
 | **agent-05-steel-browser** | Steel API | **50005** | 3000 | `Docker/agents/agent-05-steel/` | Active |
 | **agent-05-steel-browser-cdp** | Steel CDP | **50015** | 9222 | `Docker/agents/agent-05-steel/` | Active |
 | **agent-06-skyvern-solver** | Skyvern | **50006** | 8000 | `Docker/agents/agent-06-skyvern/` | Active |
-| **agent-07-stagehand-research** | Stagehand | **50007** | 3000 | `Docker/agents/agent-07-stagehand/` | Planned |
-| **agent-08-playwright-tester** | Playwright | **50008** | 8080 | `Docker/agents/agent-08-playwright/` | Planned |
+| **agent-07-vnc-browser** | VNC Browser | **50007** | 5900 | `Docker/agents/agent-07-vnc-browser/` | Active |
+| **agent-07-vnc-browser-web** | VNC Web | **50017** | 6901 | `Docker/agents/agent-07-vnc-browser/` | Active |
+| **agent-07-vnc-browser-cdp** | VNC CDP | **50027** | 9222 | `Docker/agents/agent-07-vnc-browser/` | Active |
+| **agent-08-stagehand-research** | Stagehand | **50008** | 3000 | `Docker/agents/agent-08-stagehand/` | Planned |
+| **agent-09-playwright-tester** | Playwright | **50009** | 8080 | `Docker/agents/agent-09-playwright/` | Planned |
 | **agent-09-clawdbot-social** | Clawdbot | **50009** | 8080 | `Docker/agents/agent-09-clawdbot-messenger/` | Planned |
 | **agent-10-surfsense-knowledge** | Surfsense | **50010** | 6333 | `Docker/agents/agent-10-surfsense/` | Planned |
 
