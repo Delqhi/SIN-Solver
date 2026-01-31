@@ -1,5 +1,6 @@
 import { chromium, Browser } from 'playwright';
 import { EventEmitter } from 'events';
+import { BrowserlessRegionManager, Region, RegionManagerOptions } from './browserless-region-manager';
 
 export interface ConnectionPoolOptions {
   minIdle?: number;
@@ -8,6 +9,12 @@ export interface ConnectionPoolOptions {
   maxLifetimeMs?: number;
   acquireTimeoutMs?: number;
   healthCheckIntervalMs?: number;
+  /** Enable multi-region support with automatic failover */
+  enableRegionManager?: boolean;
+  /** Initial regions for region manager */
+  regions?: Region[];
+  /** Region manager configuration */
+  regionManagerOptions?: RegionManagerOptions;
 }
 
 export interface PooledConnection {
@@ -32,9 +39,10 @@ export interface PoolMetrics {
 export class BrowserlessConnectionPool extends EventEmitter {
   private connections: Map<string, PooledConnection> = new Map();
   private pendingAcquires: Array<{ resolve: (conn: PooledConnection) => void; reject: (err: Error) => void; timeout: NodeJS.Timeout }> = [];
-  private options: Required<ConnectionPoolOptions>;
+  private options: Required<ConnectionPoolOptions> & { enableRegionManager?: boolean; regions?: Region[]; regionManagerOptions?: RegionManagerOptions };
   private endpoint: string;
   private maintenanceTimer: NodeJS.Timeout | null = null;
+  private regionManager: BrowserlessRegionManager | null = null;
   
   private metrics = {
     totalAcquires: 0,
@@ -52,10 +60,90 @@ export class BrowserlessConnectionPool extends EventEmitter {
       maxLifetimeMs: options.maxLifetimeMs ?? 1800000,
       acquireTimeoutMs: options.acquireTimeoutMs ?? 30000,
       healthCheckIntervalMs: options.healthCheckIntervalMs ?? 60000,
+      enableRegionManager: options.enableRegionManager,
+      regions: options.regions,
+      regionManagerOptions: options.regionManagerOptions,
     };
+
+    if (options.enableRegionManager && options.regions && options.regions.length > 0) {
+      this.regionManager = new BrowserlessRegionManager(options.regions, options.regionManagerOptions);
+      this.regionManager.startPeriodicUpdates();
+      this.setupRegionEventHandlers();
+    }
 
     this.startMaintenance();
     this.ensureMinIdle();
+  }
+
+  private setupRegionEventHandlers(): void {
+    if (!this.regionManager) return;
+
+    this.regionManager.on('regionDown', (data: { regionId: string }) => {
+      this.emit('regionDown', data);
+      this.destroyConnectionsToRegion(data.regionId);
+    });
+
+    this.regionManager.on('regionUp', (data: { regionId: string }) => {
+      this.emit('regionUp', data);
+    });
+
+    this.regionManager.on('regionChanged', (data: { oldRegion: string | null; newRegion: string }) => {
+      this.emit('regionChanged', data);
+    });
+
+    this.regionManager.on('allRegionsDown', () => {
+      this.emit('allRegionsDown');
+    });
+  }
+
+  private async destroyConnectionsToRegion(regionId: string): Promise<void> {
+    const region = this.options.regions?.find(r => r.id === regionId);
+    if (!region) return;
+
+    for (const [id, conn] of this.connections.entries()) {
+      if (!conn.inUse && !(await this.isConnectionHealthy(conn))) {
+        await this.destroyConnection(id);
+      }
+    }
+  }
+
+  private getBestEndpoint(): string {
+    if (this.regionManager) {
+      const bestRegion = this.regionManager.getBestRegion();
+      if (bestRegion) {
+        return bestRegion.endpoint;
+      }
+      const healthyRegion = this.regionManager.getHealthyRegion();
+      if (healthyRegion) {
+        return healthyRegion.endpoint;
+      }
+    }
+    return this.endpoint;
+  }
+
+  /**
+   * Get status of all regions (if RegionManager is enabled)
+   */
+  getRegionStatus(): Array<{ regionId: string; latencyMs: number; healthy: boolean; consecutiveFailures: number }> {
+    if (!this.regionManager) {
+      return [];
+    }
+    return this.regionManager.getRegionStatus();
+  }
+
+  /**
+   * Check if RegionManager is enabled
+   */
+  isRegionManagerEnabled(): boolean {
+    return this.regionManager !== null;
+  }
+
+  /**
+   * Get the current best region info (if RegionManager is enabled)
+   */
+  getCurrentRegion(): Region | null {
+    if (!this.regionManager) return null;
+    return this.regionManager.getBestRegion();
   }
 
   async acquire(): Promise<PooledConnection> {
@@ -140,6 +228,10 @@ export class BrowserlessConnectionPool extends EventEmitter {
       this.maintenanceTimer = null;
     }
 
+    if (this.regionManager) {
+      this.regionManager.stop();
+    }
+
     const destroyPromises = Array.from(this.connections.keys()).map(id => this.destroyConnection(id));
     await Promise.all(destroyPromises);
 
@@ -154,7 +246,7 @@ export class BrowserlessConnectionPool extends EventEmitter {
     const id = `conn-${Math.random().toString(36).substr(2, 9)}`;
     
     try {
-      const browser = await chromium.connectOverCDP(this.endpoint);
+      const browser = await chromium.connectOverCDP(this.getBestEndpoint());
       
       const conn: PooledConnection = {
         id,
