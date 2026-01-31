@@ -1,0 +1,49 @@
+services:
+  solver-1.4-2captcha-worker:
+    build:
+      context: ../../../workers/2captcha-worker
+      dockerfile: Dockerfile
+    container_name: solver-1.4-2captcha-worker
+    ports:
+      - "52004:3000"
+    environment:
+      - NODE_ENV=production
+      - ACCOUNT_ID=account-4
+      - ACCOUNT_NAME=Mako
+      - ACCOUNT_EMAIL=${ACCOUNT_4_EMAIL}
+      - ACCOUNT_PASSWORD=${ACCOUNT_4_PASSWORD}
+      - DAILY_LIMIT=1000
+      - MAX_CONCURRENT=1
+      - STEEL_CDP_URL=ws://agent-05-steel-browser:9222
+      - STEEL_HTTP_URL=http://agent-05-steel-browser:3000
+      - SKYVERN_URL=http://agent-06-skyvern-solver:8000
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY_4}
+      - REDIS_URL=redis://room-04-redis-cache:6379/4
+    networks:
+      - sin-solver-network
+    volumes:
+      - solver-1.4-data:/app/data
+      - solver-1.4-screenshots:/app/screenshots
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.sin-solver.service=solver"
+      - "com.sin-solver.solver-number=1.4"
+      - "com.sin-solver.account=Mako"
+
+volumes:
+  solver-1.4-data:
+    driver: local
+  solver-1.4-screenshots:
+    driver: local
+
+networks:
+  sin-solver-network:
+    external: true
+    name: sin-solver-network
