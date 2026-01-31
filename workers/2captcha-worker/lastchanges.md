@@ -7,6 +7,37 @@
 
 ---
 
+## [2026-01-31 15:35] Task 124: Browserless Health Check Endpoint - COMPLETED ✅
+
+**Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
+**Agent:** sisyphus-junior (via Atlas orchestration)  
+**Status:** COMPLETED ✅  
+
+### Changes Made
+- ✅ Created `src/browserless-health-check.ts` (BrowserlessHealthCheck class)
+  - Health monitoring for Browserless CDP service
+  - CDP endpoint check (port 50072)
+  - Debugger UI check (port 50070)
+  - WebSocket connectivity test
+  - Response time measurement
+  - Health status history tracking
+  - Comprehensive health report generation
+- ✅ Created `test-browserless-health-check.ts` (test suite)
+  - 5 test cases covering all health check functionality
+  - All tests passing (5/5 = 100%)
+
+### New Files
+- src/browserless-health-check.ts (8,139 bytes)
+- test-browserless-health-check.ts (4,200+ bytes)
+
+### Verification
+- ✅ All 5 tests passed
+- ✅ CDP endpoint check working
+- ✅ Debugger UI check working
+- ✅ Health report generation working
+
+---
+
 ## [2026-01-31 15:30] Task 123: CAPTCHA Type Auto-Detection - COMPLETED ✅
 
 **Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
