@@ -7,6 +7,36 @@
 
 ---
 
+## [2026-01-31 16:20] Task 129: Browserless Cost Monitoring - COMPLETED ✅
+
+**Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
+**Agent:** sisyphus-junior (via Atlas orchestration)  
+**Status:** COMPLETED ✅  
+
+### Changes Made
+- ✅ Created `src/browserless-cost-monitor.ts` (BrowserlessCostMonitor class)
+  - Cost tracking for Browserless CDP operations
+  - Configurable rates for connections, screenshots, navigation, CPU, and memory
+  - Daily/weekly/monthly cost aggregation
+  - Cost projections and budgeting functionality
+  - Budget alerts at 80% threshold
+  - Detailed cost report generation
+- ✅ Created `test-browserless-cost-monitor.ts` (test suite)
+  - 6 test cases covering all cost monitoring functionality
+  - All tests passing (6/6 = 100%)
+
+### New Files
+- src/browserless-cost-monitor.ts (9,616 bytes)
+- test-browserless-cost-monitor.ts (4,500+ bytes)
+
+### Verification
+- ✅ All 6 tests passed
+- ✅ Cost calculation verified
+- ✅ Budget overrun detection working
+- ✅ Report generation working
+
+---
+
 ## [2026-01-31 16:05] Task 128: Browserless Alert System - COMPLETED ✅
 
 **Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
