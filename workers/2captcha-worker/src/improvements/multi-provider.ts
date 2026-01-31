@@ -17,6 +17,7 @@ export interface ProviderSolveRequest {
 export interface ProviderSolveResult {
   solution: string;
   confidence: number;
+  provider?: string;
   raw?: unknown;
 }
 
@@ -61,7 +62,10 @@ export class MultiProvider {
         const result = this.circuitBreaker
           ? await this.circuitBreaker.execute(execute)
           : await this.retryManager.execute(execute);
-        return result;
+        return {
+          ...result,
+          provider: provider.name,
+        };
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
       }

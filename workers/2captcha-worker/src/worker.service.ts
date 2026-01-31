@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { TwoCaptchaDetector, CaptchaDetectionResult, CaptchaType as DetectorCaptchaType } from './detector';
 import { ErrorHandler, JobTimeoutError, JobNotFoundError, InvalidJobStateError, CancellationError, WorkerPoolExhaustedError } from './errors';
 import { AntiBanWorkerIntegration } from './anti-ban-integration';
-import { AlertSystemEventBus } from './alerts';
+import { AlertSystem } from './alerts';
 import type { CaptchaJob, JobStatus, WorkerJobRequest, WorkerJobResponse, DetectionResult, SolvingResult } from './types';
 import { CaptchaType } from './types';
 
@@ -78,7 +78,7 @@ export class WorkerService extends EventEmitter {
   private processingPromise?: Promise<void>;
   private isRunning = false;
   private antiBan: AntiBanWorkerIntegration;
-  private alertSystem: AlertSystemEventBus;
+  private alertSystem: AlertSystem;
 
   constructor(detector: TwoCaptchaDetector, config: WorkerServiceConfig = {}) {
     super();
@@ -105,7 +105,7 @@ export class WorkerService extends EventEmitter {
     };
 
     // Initialize Alert System
-    this.alertSystem = new AlertSystemEventBus({
+    this.alertSystem = new AlertSystem({
       telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
       telegramChatId: process.env.TELEGRAM_CHAT_ID,
       slackWebhookUrl: process.env.SLACK_WEBHOOK_URL,
@@ -633,7 +633,9 @@ export class WorkerService extends EventEmitter {
     job: QueuedJob,
     abortController: AbortController
   ): Promise<WorkerJobResponse> {
-    const request = job.request as any; // Type assertion for detect-specific fields
+    if (abortController.signal.aborted) {
+      throw new CancellationError(job.id, 'Detection job aborted before start');
+    }
     const startTime = job.startedAt?.getTime() || Date.now();
     const durationMs = Date.now() - startTime;
     
@@ -659,6 +661,9 @@ export class WorkerService extends EventEmitter {
     job: QueuedJob,
     abortController: AbortController
   ): Promise<WorkerJobResponse> {
+    if (abortController.signal.aborted) {
+      throw new CancellationError(job.id, 'Solving job aborted before start');
+    }
     const request = job.request as any; // Type assertion for solve-specific fields
     const startTime = job.startedAt?.getTime() || Date.now();
     const durationMs = Date.now() - startTime;

@@ -33,8 +33,18 @@ export interface RotationTriggerContext {
  */
 export interface BrowserSessionSnapshot {
   sessionId: string;
-  capturedAt: number;
-  cookies: Record<string, string>;
+  capturedAt: string;
+  url: string;
+  cookies: Array<{
+    name: string;
+    value: string;
+    domain?: string;
+    path?: string;
+    expires?: number;
+    httpOnly?: boolean;
+    secure?: boolean;
+    sameSite?: string;
+  }>;
   localStorage: Record<string, string>;
   metadata?: Record<string, unknown>;
 }
@@ -570,10 +580,14 @@ export class SyncCoordinator {
         { rotationId }
       );
       if (this.sessionController) {
-        this.sessionController.saveSessionData(
-          sessionSnapshot.cookies,
-          sessionSnapshot.localStorage
+        const cookieMap = sessionSnapshot.cookies.reduce<Record<string, string>>(
+          (acc, cookie) => {
+            acc[cookie.name] = cookie.value;
+            return acc;
+          },
+          {}
         );
+        this.sessionController.saveSessionData(cookieMap, sessionSnapshot.localStorage);
       }
 
       ipRotation = await this.runPhase(
@@ -695,7 +709,7 @@ export class SyncCoordinator {
     return {
       ...snapshot,
       sessionId: snapshot.sessionId || uuidv4(),
-      capturedAt: snapshot.capturedAt || Date.now(),
+      capturedAt: snapshot.capturedAt || new Date().toISOString(),
     };
   }
 

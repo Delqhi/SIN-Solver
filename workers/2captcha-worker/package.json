@@ -16,7 +16,8 @@
     "test:e2e:debug": "playwright test --debug",
     "detector:test": "jest src/detector.test.ts",
     "browser:test": "jest src/browser.test.ts",
-    "test:demo": "ts-node src/demo-test.ts"
+    "test:demo": "ts-node src/demo-test.ts",
+    "test:opencode": "ts-node test-opencode.ts"
   },
   "dependencies": {
     "@types/multer": "^2.0.0",
