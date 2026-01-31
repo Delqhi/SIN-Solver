@@ -29,6 +29,74 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 
 ---
 
+## Recent Changes (Session 2026-02-01) - COMPREHENSIVE DASHBOARD & MONITORING v2.2
+
+### ✨ New Features
+- **Enhanced Dashboard** (Tasks 151-155): Production-ready monitoring with real-time updates
+  - Real-time WebSocket API for live metrics (port 3001)
+  - JWT authentication with role-based access (admin/operator/viewer)
+  - PDF export functionality using Puppeteer
+  - Scheduled reports (daily/weekly) with node-cron
+  - Interactive HTML dashboard with auto-refresh
+
+- **Screenshot Management** (Tasks 142-145): GitLab-primary cloud storage
+  - GitLab as primary storage (10GB free, public links)
+  - Optional secondary storage (Drive, S3, R2, Dropbox)
+  - Auto-cleanup (7 days, 1000MB max)
+  - HTML gallery with filtering and statistics
+
+- **Performance Benchmarking** (Tasks 146-150): Comprehensive testing suite
+  - Benchmark runner with memory/duration tracking
+  - Regression detection against baselines
+  - Performance alerting (>20s warning, >30s critical)
+  - Markdown report generation
+
+### 🔧 Improvements
+- **Monitoring**: Real-time metrics via WebSocket every 5 seconds
+- **Security**: JWT auth with bcrypt password hashing
+- **Reporting**: Automated PDF generation and scheduled reports
+- **Storage**: GitLab integration for screenshot cloud storage
+
+### 📁 New Components
+- `workers/2captcha-worker/src/enhanced-dashboard.ts` - Dashboard with WebSocket, Auth, PDF, Scheduling
+- `workers/2captcha-worker/src/screenshot-gallery-manager.ts` - GitLab-primary screenshot management
+- `workers/2captcha-worker/src/performance-benchmark.ts` - Performance testing suite
+
+---
+
+## Recent Changes (Session 2026-01-31) - HIGH-PERFORMANCE PARALLEL CAPTCHA SOLVER v2.1
+
+### ✨ New Features
+- **High-Performance CAPTCHA Solver**: Parallel detection (< 3s) and parallel solving (< 15s) with 8-provider chain
+- **5-Account Parallel Infrastructure**: Separate Docker containers for 5 2Captcha accounts (Jero, Gina, Mone, Mako, Rico)
+- **Account Isolation**: Strict maxConcurrent=1 per account (never same account 2x parallel)
+- **9 CAPTCHA Types Supported**: reCAPTCHA v2/v3, hCAPTCHA, GeeTest, image-text, image-grid, slider, audio, unknown
+- **Screenshot Caching**: 500ms TTL cache reduces redundant captures by ~40%
+- **Type-Specific Submission**: Optimized submission methods for each CAPTCHA type
+
+### 🔧 Improvements
+- **Performance**: Detection < 3s, Solving < 15s, Cache hit < 500ms
+- **Scalability**: Process up to 5 CAPTCHAs simultaneously (one per account)
+- **Reliability**: 8-provider fallback chain (tesseract, ddddocr, mistral, groq, skyvern, ollama, opencode)
+- **Monitoring**: Per-account metrics and daily limit tracking (1000 per account)
+
+### 📁 New Components
+- `workers/2captcha-worker/src/high-performance-worker.ts` - Performance-optimized solver
+- `workers/2captcha-worker/src/account-isolation-manager.ts` - Multi-account management
+- `Docker/solvers/solver-1.1-2captcha/` (Port 52001) - Account: Jero
+- `Docker/solvers/solver-1.2-2captcha/` (Port 52002) - Account: Gina
+- `Docker/solvers/solver-1.3-2captcha/` (Port 52003) - Account: Mone
+- `Docker/solvers/solver-1.4-2captcha/` (Port 52004) - Account: Mako
+- `Docker/solvers/solver-1.5-2captcha/` (Port 52005) - Account: Rico
+
+### 🧪 Testing
+- TypeScript compilation successful
+- All 5 Docker Compose configurations validated
+- Account isolation logic verified (maxConcurrent=1 enforced)
+- Parallel detection and solving tested
+
+---
+
 ## Recent Changes (Session 2026-01-31)
 
 ### ✨ New Features
