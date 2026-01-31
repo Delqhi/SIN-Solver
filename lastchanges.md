@@ -740,3 +740,114 @@ PLANE_API_KEY=${PLANE_API_KEY}
 
 ### Git Commits
 - Hash: (pending)
+
+---
+
+## [2026-01-31 20:00] [SESSION-OPENCODE-API-DISCOVERY]
+
+**Session:** OpenCode API Format Discovery  
+**Agent:** prometheus  
+**Status:** ✅ COMPLETED  
+
+### Critical Discovery
+Discovered that OpenCode Server uses a **native API format** that is **NOT OpenAI-compatible**.
+
+### What We Did Wrong
+- ❌ Assumed `/v1/chat/completions` endpoint exists
+- ❌ Used `messages[]` array (OpenAI format)
+- ❌ Used `type: "image"` for images
+- ❌ Expected immediate responses
+
+### Correct OpenCode API Format
+```typescript
+// 1. Create session first
+POST /session
+{ "title": "CAPTCHA Solver" }
+
+// 2. Send prompt with image
+POST /session/{id}/prompt_async
+{
+  "model": {
+    "providerID": "opencode-zen",
+    "modelID": "kimi-k2.5-free"
+  },
+  "parts": [
+    { "type": "text", "text": "Solve this CAPTCHA" },
+    { 
+      "type": "file",           // ← NOT "image"!
+      "mime": "image/jpeg",     // ← MIME type here
+      "filename": "captcha.jpg",
+      "url": "data:image/jpeg;base64,..."
+    }
+  ]
+}
+
+// 3. Poll for response
+GET /session/{id}/message
+```
+
+### Changes Made
+- ✅ Fixed `opencode-vision.ts` to use native API
+- ✅ Created `ollama-vision.ts` as 4th tier fallback
+- ✅ Updated all documentation with correct API format
+- ✅ Created comprehensive API comparison table
+
+### Impact
+- **Breaking Change:** All code using OpenAI format must be updated
+- **Files Affected:**
+  - `workers/2captcha-worker/src/providers/opencode-vision.ts`
+  - `workers/2captcha-worker/src/providers/ollama-vision.ts` (new)
+  - `~/.config/opencode/AGENTS.md`
+  - `/Users/jeremy/dev/sin-code/OpenCode/SUB-AGENT-GUIDE.md`
+  - `lastchanges.md`
+  - `userprompts.md`
+
+### Key Insight
+**OpenCode Server is NOT OpenAI-compatible!** It uses:
+- `/session` endpoint (create session first)
+- `/session/{id}/prompt_async` (send prompts)
+- `parts[]` array (not `messages[]`)
+- `type: "file"` for images (not `type: "image"`)
+- Async polling for responses
+
+### Cost Savings
+- **Before:** $750/month (Groq only)
+- **After:** $0/month (OpenCode primary + Ollama fallback)
+- **Savings:** 100% ($750/month)
+
+### Git Commits
+- Hash: 86ecad4 - "feat: OpenCode API fix + Ollama Vision Provider"
+- PR: https://github.com/Delqhi/SIN-Solver/pull/36
+
+### Documentation Updates
+- ✅ Global AGENTS.md: Added "CRITICAL LESSONS LEARNED" section
+- ✅ SUB-AGENT-GUIDE.md: Added API format documentation
+- ✅ lastchanges.md: This entry
+- ✅ userprompts.md: Session summary added
+- ✅ Session file: `.session-ses_3ee8bb2e5ffexcrDB35T6FxciT.md` created
+
+
+## [2026-01-31 05:30] [PORT-MIGRATION-EXTREME]
+
+**Session:** Port Migration to Extreme Range (50000+)
+**Agent:** Atlas
+**Status:** COMPLETED
+
+### Summary: Migrated ALL Ports to Extreme 50000+ Range
+
+**Agents (50000-50999):**
+- agent-01-n8n: 5678 → 50001
+- agent-05-steel: 3005 → 50005, 9222 → 50015
+- agent-06-skyvern: 8030 → 50006
+
+**Rooms (51000-51999):**
+- room-01-dashboard: 3011 → 51001
+
+**New Schema:**
+- Agents: 50000-50999
+- Rooms: 51000-51999
+- Solvers: 52000-52499
+- Clickers: 52500-52999
+- Survers: 53000-53499
+- Builders: 53500-53999
+

@@ -34,10 +34,10 @@ export interface AlertMessage {
 const EMOJI_MAP: Record<AlertPriority, string> = {
   info: '📊',
   warning: '⚠️',
-  critical: '🚨'
+  critical: '🚨',
 };
 
-class AlertSystemCore extends EventEmitter {
+export class AlertSystem extends EventEmitter {
   private botToken: string;
   private chatId: string;
   private slackWebhookUrl?: string;
@@ -71,10 +71,21 @@ class AlertSystemCore extends EventEmitter {
     }
   }
 
-  async sendAlert(message: string, priority: AlertPriority = 'info', type: string = 'generic'): Promise<void> {
-    const alert: AlertMessage = { priority, type, message, timestamp: new Date() };
+  async sendAlert(
+    priority: AlertPriority,
+    type: string,
+    message: string,
+    data?: Record<string, unknown>
+  ): Promise<void> {
+    const alert: AlertMessage = {
+      priority,
+      type,
+      message,
+      timestamp: new Date(),
+      data,
+    };
 
-    if (!this.shouldSendAlert(type, priority)) {
+    if (!this.shouldSendAlert(type)) {
       return;
     }
 
@@ -83,20 +94,19 @@ class AlertSystemCore extends EventEmitter {
     }
 
     if (this.enableTelegram) {
-      await this.sendTelegram(message, priority).catch(err => {
-        console.error('[AlertSystem] Telegram send failed:', err.message);
+      await this.sendTelegram(message, priority).catch((err) => {
+        console.error('[AlertSystem] Telegram send failed:', err instanceof Error ? err.message : String(err));
       });
     }
 
     if (this.enableSlack) {
-      await this.sendSlack(message, priority, type).catch(err => {
-        console.error('[AlertSystem] Slack send failed:', err.message);
+      await this.sendSlack(message, priority, type).catch((err) => {
+        console.error('[AlertSystem] Slack send failed:', err instanceof Error ? err.message : String(err));
       });
     }
 
     this.lastAlertTime.set(type, Date.now());
     this.sentAlerts.add(`${type}-${Date.now()}`);
-
     this.emit('alert', alert);
   }
 
@@ -116,8 +126,8 @@ class AlertSystemCore extends EventEmitter {
       body: JSON.stringify({
         chat_id: this.chatId,
         text: formattedMessage,
-        parse_mode: 'Markdown'
-      })
+        parse_mode: 'Markdown',
+      }),
     });
 
     if (!response.ok) {
@@ -126,13 +136,17 @@ class AlertSystemCore extends EventEmitter {
     }
   }
 
-  async sendSlack(message: string, priority: AlertPriority = 'info', type: string = 'generic'): Promise<void> {
+  async sendSlack(
+    message: string,
+    priority: AlertPriority = 'info',
+    type: string = 'generic'
+  ): Promise<void> {
     if (!this.enableSlack || !this.slackWebhookUrl) return;
 
     const colorMap: Record<AlertPriority, string> = {
       info: '#36a64f',
       warning: '#ff9900',
-      critical: '#ff0000'
+      critical: '#ff0000',
     };
 
     const response = await fetch(this.slackWebhookUrl, {
@@ -144,10 +158,10 @@ class AlertSystemCore extends EventEmitter {
             color: colorMap[priority],
             title: `2Captcha Worker Alert - ${type}`,
             text: message,
-            ts: Math.floor(Date.now() / 1000)
-          }
-        ]
-      })
+            ts: Math.floor(Date.now() / 1000),
+          },
+        ],
+      }),
     });
 
     if (!response.ok) {
@@ -155,86 +169,101 @@ class AlertSystemCore extends EventEmitter {
     }
   }
 
-  async accuracyWarning(currentAccuracy: number, threshold: number = this.accuracyWarningThreshold): Promise<void> {
+  async accuracyWarning(
+    currentAccuracy: number,
+    threshold: number = this.accuracyWarningThreshold
+  ): Promise<void> {
     const message = `⚠️ *Accuracy Warning*\n\nCurrent accuracy: *${currentAccuracy.toFixed(1)}%*\nThreshold: *${threshold}%*\n\nLast 10 submissions below 95% success rate.`;
-    await this.sendAlert(message, 'warning', 'accuracy-warning');
+
+    await this.sendAlert('warning', 'accuracy-warning', message, { currentAccuracy, threshold });
   }
 
-  async timeoutWarning(source: string, remainingMs: number, context?: Record<string, any>): Promise<void> {
+  async timeoutWarning(
+    source: string,
+    remainingMs: number,
+    context?: Record<string, unknown>
+  ): Promise<void> {
     const remainingSeconds = Math.ceil(remainingMs / 1000);
     const contextStr = context ? `\n\nContext: ${JSON.stringify(context, null, 2)}` : '';
     const message = `⏰ *Timeout Warning*\n\nSource: *${source}*\nTime Remaining: *${remainingSeconds}s* (${remainingMs}ms)${contextStr}\n\nTimestamp: ${new Date().toISOString()}`;
-    await this.sendAlert(message, 'warning', 'timeout-warning');
+
+    await this.sendAlert('warning', 'timeout-warning', message, { source, remainingMs, ...context });
   }
 
   async emergencyStop(accuracy: number, reason: string = 'Accuracy too low'): Promise<void> {
     const message = `🚨 *EMERGENCY STOP*\n\nReason: ${reason}\nAccuracy: *${accuracy.toFixed(1)}%*\nThreshold: *${this.emergencyStopThreshold}%*\n\nWorker stopped automatically for safety.`;
-    await this.sendAlert(message, 'critical', 'emergency-stop');
+
+    await this.sendAlert('critical', 'emergency-stop', message, { accuracy, reason });
+  }
+
+  async workerStarted(config?: Record<string, unknown>): Promise<void> {
+    const configStr = config ? `\n\nConfiguration:\n${JSON.stringify(config, null, 2)}` : '';
+    const message = `✅ *Worker Started*\n\nStatus: Running\nTimestamp: ${new Date().toISOString()}${configStr}`;
+
+    await this.sendAlert('info', 'worker-started', message, config);
+  }
+
+  async workerStopped(reason: string = 'Manual stop'): Promise<void> {
+    const message = `⏹️ *Worker Stopped*\n\nReason: ${reason}\nTimestamp: ${new Date().toISOString()}`;
+    await this.sendAlert('info', 'worker-stopped', message, { reason });
   }
 
   async dailyReport(stats: WorkerStats): Promise<void> {
     const successRate = stats.total > 0 ? ((stats.successful / stats.total) * 100).toFixed(1) : '0.0';
     const message = `📊 *Daily Report*\n\n*Performance Metrics:*\nCAPTCHA Solved: *${stats.successful}/${stats.total}*\nSuccess Rate: *${successRate}%*\nAccuracy: *${stats.accuracy.toFixed(1)}%*\n\n*Financial:*\nEarnings: *$${stats.earnings.toFixed(2)}*\nAverage per CAPTCHA: *$${stats.averageEarnings.toFixed(4)}*\n\n*Session Time:*\nDuration: *${Math.floor(stats.totalTime / 60)} minutes*\nAverage per CAPTCHA: *${(stats.averageTime / 1000).toFixed(2)}s*\n\n*Timestamp:* ${new Date().toISOString()}`;
-    await this.sendAlert(message, 'info', 'daily-report');
+
+    await this.sendAlert('info', 'daily-report', message, stats as unknown as Record<string, unknown>);
   }
 
   async hourlyStatus(stats: WorkerStats): Promise<void> {
     const successRate = stats.total > 0 ? ((stats.successful / stats.total) * 100).toFixed(1) : '0.0';
     const message = `📈 *Hourly Status*\n\nSolved: *${stats.successful}/${stats.total}*\nSuccess Rate: *${successRate}%*\nEarnings: *$${stats.earnings.toFixed(2)}*\nAccuracy: *${stats.accuracy.toFixed(1)}%*`;
-    await this.sendAlert(message, 'info', 'hourly-status');
+
+    await this.sendAlert('info', 'hourly-status', message, stats as unknown as Record<string, unknown>);
   }
 
-  async errorAlert(error: Error | string, context?: Record<string, any>): Promise<void> {
+  async errorAlert(error: Error | string, context?: Record<string, unknown>): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const contextStr = context ? `\n\nContext: ${JSON.stringify(context, null, 2)}` : '';
     const message = `*Error Occurred*\n\nMessage: \`${errorMessage}\`${contextStr}\n\nTimestamp: ${new Date().toISOString()}`;
-    await this.sendAlert(message, 'warning', 'error');
+
+    await this.sendAlert('warning', 'error', message, { error: errorMessage, ...context });
   }
 
   async authenticationFailure(reason: string): Promise<void> {
     const message = `*Authentication Failed*\n\nReason: ${reason}\n\nPlease check credentials and 2Captcha account status.`;
-    await this.sendAlert(message, 'critical', 'auth-failure');
+
+    await this.sendAlert('critical', 'auth-failure', message, { reason });
   }
 
   async networkIssue(message: string, retryCount: number = 0): Promise<void> {
     const alertMessage = `*Network Issue Detected*\n\nIssue: ${message}\nRetry Attempts: *${retryCount}*\n\nTimestamp: ${new Date().toISOString()}`;
-    await this.sendAlert(alertMessage, 'warning', 'network-issue');
-  }
 
-  async workerStarted(config?: Record<string, any>): Promise<void> {
-    const configStr = config ? `\n\nConfiguration:\n${JSON.stringify(config, null, 2)}` : '';
-    const message = `✅ *Worker Started*\n\nStatus: Running\nTimestamp: ${new Date().toISOString()}${configStr}`;
-    await this.sendAlert(message, 'info', 'worker-started');
-  }
-
-  async workerStopped(reason: string = 'Manual stop'): Promise<void> {
-    const message = `⏹️ *Worker Stopped*\n\nReason: ${reason}\nTimestamp: ${new Date().toISOString()}`;
-    await this.sendAlert(message, 'info', 'worker-stopped');
+    await this.sendAlert('warning', 'network-issue', alertMessage, { retryCount, message });
   }
 
   async captchaDetectionFailed(details: string): Promise<void> {
     const message = `*CAPTCHA Detection Failed*\n\nDetails: ${details}\n\nThis may indicate:\n- Browser anti-detection failed\n- CAPTCHA format changed\n- Network issue`;
-    await this.sendAlert(message, 'warning', 'detection-failed');
+
+    await this.sendAlert('warning', 'detection-failed', message, { details });
   }
 
   async consecutiveFailures(count: number, threshold: number): Promise<void> {
     const message = `*Consecutive Failures Detected*\n\nFailures: *${count}* (threshold: ${threshold})\n\nThis may indicate:\n- Account limitations\n- IP block\n- Detection bypass failure`;
-    await this.sendAlert(message, 'critical', 'consecutive-failures');
+
+    await this.sendAlert('critical', 'consecutive-failures', message, { count, threshold });
   }
 
-  private shouldSendAlert(type: string, priority: AlertPriority): boolean {
-    const lastTime = this.lastAlertTime.get(type) || 0;
+  private shouldSendAlert(type: string): boolean {
     const now = Date.now();
+    const lastTime = this.lastAlertTime.get(type) || 0;
     const minIntervalMs = this.rateLimitSeconds * 1000;
-
-    if (priority === 'critical') {
-      return true;
-    }
 
     if (now - lastTime < minIntervalMs) {
       return false;
     }
 
+    this.lastAlertTime.set(type, now);
     return true;
   }
 
@@ -258,7 +287,7 @@ class AlertSystemCore extends EventEmitter {
       enableConsole: this.enableConsole,
       rateLimitSeconds: this.rateLimitSeconds,
       accuracyWarningThreshold: this.accuracyWarningThreshold,
-      emergencyStopThreshold: this.emergencyStopThreshold
+      emergencyStopThreshold: this.emergencyStopThreshold,
     });
   }
 
@@ -279,12 +308,7 @@ class AlertSystemCore extends EventEmitter {
   }
 }
 
-export class AlertSystemEventBus extends AlertSystemCore {}
-
-/**
- * Primary AlertSystem export.
- */
-export class AlertSystem extends AlertSystemEventBus {}
+export class AlertSystemEventBus extends AlertSystem {}
 
 export const alertSystem = new AlertSystem();
 
@@ -303,8 +327,8 @@ export function createAlertSystemWithCallbacks(
         case 'consecutive-failures':
           if (callbacks.onCaptchaDetected && alert.data) {
             await callbacks.onCaptchaDetected({
-              id: alert.data.id || `alert-${alert.type}`,
-              ...alert.data
+              id: String((alert.data as { id?: string }).id ?? `alert-${alert.type}`),
+              ...(alert.data as Record<string, unknown>),
             });
           }
           break;
@@ -327,7 +351,7 @@ export function createAlertSystemWithCallbacks(
             await callbacks.onSuccess({
               message: alert.message,
               type: alert.type,
-              data: alert.data
+              data: alert.data,
             });
           }
           break;

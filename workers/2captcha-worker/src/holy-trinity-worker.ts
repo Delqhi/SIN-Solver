@@ -29,8 +29,6 @@ import CircuitBreaker from './improvements/circuit-breaker';
 import HealthChecker from './improvements/health-checker';
 import IPRotationManager from './improvements/ip-rotation-manager';
 import type { BrowserSessionSnapshot } from './improvements/sync-coordinator';
-import type { BrowserSessionSnapshot } from './improvements/sync-coordinator';
-
 dotenv.config();
 
 // Configuration
@@ -111,8 +109,6 @@ interface CaptchaInfo {
   description: string;
 }
 
-
-
 interface SolutionResult {
   success: boolean;
   solution?: string;
@@ -136,8 +132,6 @@ interface ImprovedSolveResult {
   success: boolean;
   error?: string;
 }
-
-
 
 type VisionProviderName = 'groq' | 'mistral';
 
@@ -802,12 +796,10 @@ class SkyvernOrchestrator {
     }
   }
 
-  async executeWorkflow(task: string, steelBrowser: SteelBrowserCDP): Promise<any> {
+  async executeWorkflow(task: string, _steelBrowser: SteelBrowserCDP): Promise<any> {
     if (!this.enabled) {
       throw new Error('Skyvern not enabled');
     }
-
-    void steelBrowser;
 
     console.log(`🎬 Skyvern executing workflow: ${task}`);
     
@@ -840,7 +832,8 @@ class StagehandFallback {
     }
 
     void steelBrowser;
-    void this.apiKey;
+    const apiKeyConfigured = Boolean(this.apiKey);
+    void apiKeyConfigured;
 
     console.log(`🎭 Stagehand executing task: ${task}`);
     
@@ -1012,9 +1005,9 @@ export class HolyTrinityWorker {
       stateFilePath: './data/ip-rotation-state.json',
       bindingsFilePath: './data/ip-bindings.json',
       sessionFilePath: './data/browser-sessions.json',
-      sessionRestoreHandler: async (snapshot) => {
+      sessionRestoreHandler: async (_snapshot) => {
         console.log('🔄 Restoring browser session after IP rotation...');
-        void snapshot;
+        void _snapshot;
         // Session restoration logic here
       },
       sessionSnapshotProvider: async (): Promise<BrowserSessionSnapshot> => {
@@ -1022,10 +1015,11 @@ export class HolyTrinityWorker {
         return {
           sessionId: uuidv4(),
           capturedAt: Date.now(),
-          cookies: {},
+          cookies: [],
           localStorage: {},
           metadata: {
             url: '',
+            capturedAtMs: Date.now(),
           },
         };
       },

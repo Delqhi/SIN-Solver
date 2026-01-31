@@ -49,6 +49,17 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 
 ---
 
+## Recent Changes (Session 2026-01-31 - Rotation Suite + Build Fixes)
+
+### 🔧 Improvements
+- Normalized AlertSystem exports and callback factory wiring
+- Restored explicit IPRotationManager config typing in HolyTrinityWorker
+
+### 🧪 Testing
+- Pending: LSP diagnostics, build, and rotation-suite verification
+
+---
+
 ## Recent Changes (Session 2026-01-31 - Sync Coordinator Redis Persistence)
 
 ### ✨ New Features

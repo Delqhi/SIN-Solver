@@ -7,6 +7,28 @@
 
 ---
 
+## [2026-01-31 02:15] Rotation Test Suite Consolidation + Build Fixes (IN PROGRESS)
+
+**Session:** ses_3f9bc1908ffeVibfrKEY3Kybu5  
+**Agent:** sisyphus-junior  
+**Status:** IN PROGRESS ⏳  
+
+### Changes Made
+- ✅ Restored explicit IPRotationManager config typing in holy-trinity-worker
+- ✅ Normalized AlertSystem exports and callbacks factory wiring
+
+### Modified Files
+- src/holy-trinity-worker.ts
+- src/alerts.ts
+- userprompts.md
+
+### Pending Verification
+- LSP diagnostics (alerts.ts, holy-trinity-worker.ts)
+- npm run build
+- npm test -- tests/rotation-system.test.ts
+
+---
+
 ## [2026-01-31 01:30] OpenCode Integration v2.0 - Production Ready
 
 **Session:** ses_3f9bc1908ffeVibfrKEY3Kybu5  

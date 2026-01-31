@@ -4,8 +4,8 @@ services:
     image: ghcr.io/steel-dev/steel-browser:latest
     container_name: agent-05-steel-browser
     ports:
-      - "3005:3000"
-      - "9222:9222"  # Chrome DevTools Protocol
+      - "50005:3000"   # Steel Browser API (extreme: 50005)
+      - "50015:9222"   # Chrome DevTools Protocol (extreme: 50015)
     environment:
       - NODE_ENV=production
       - BROWSER_TYPE=chrome

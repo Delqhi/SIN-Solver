@@ -763,7 +763,7 @@ export class WorkerService extends EventEmitter {
       if (this.isRunning) {
         const metrics = this.getMetrics();
         const message = `Hourly Status - Total: ${metrics.totalJobs}, Completed: ${metrics.completedJobs}, Failed: ${metrics.failedJobs}, Success Rate: ${metrics.successRate}%`;
-        await this.alertSystem.sendAlert(message, 'info');
+        await this.alertSystem.sendAlert('info', 'hourly-status', message);
       }
     }, 60 * 60 * 1000); // 60 minutes
 
@@ -777,7 +777,7 @@ export class WorkerService extends EventEmitter {
         const metrics = this.getMetrics();
         const dateStr = new Date().toISOString().split('T')[0];
         const message = `Daily Report [${dateStr}] - Total: ${metrics.totalJobs}, Completed: ${metrics.completedJobs}, Failed: ${metrics.failedJobs}, Success Rate: ${metrics.successRate}%`;
-        await this.alertSystem.sendAlert(message, 'info');
+        await this.alertSystem.sendAlert('info', 'daily-report', message);
 
         // Re-schedule for next day
         const nextDailyInterval = setInterval(async () => {
@@ -785,7 +785,7 @@ export class WorkerService extends EventEmitter {
             const updatedMetrics = this.getMetrics();
             const date = new Date().toISOString().split('T')[0];
             const dailyMsg = `Daily Report [${date}] - Total: ${updatedMetrics.totalJobs}, Completed: ${updatedMetrics.completedJobs}, Failed: ${updatedMetrics.failedJobs}, Success Rate: ${updatedMetrics.successRate}%`;
-            await this.alertSystem.sendAlert(dailyMsg, 'info');
+            await this.alertSystem.sendAlert('info', 'daily-report', dailyMsg);
           }
         }, 24 * 60 * 60 * 1000); // 24 hours
 

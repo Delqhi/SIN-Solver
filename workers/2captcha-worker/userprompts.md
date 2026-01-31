@@ -26,6 +26,8 @@ Build an AI-powered CAPTCHA solving worker that can:
 
 **{OpenCode Integration v2.0 - Production Deployment};STATUS-COMPLETED**
 
+**{Rotation Test Suite Consolidation + Build Fixes};STATUS-IN_PROGRESS**
+
 ---
 
 ## SESSION [2026-01-31] [OpenCode Integration v2.0] - MAJOR UPGRADE
@@ -54,6 +56,28 @@ Deploy production-ready CAPTCHA worker with three-tier provider system (OpenCode
 - ⏳ Set up delqhi-platform monitoring integration
 
 **Reference:** .session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md (DETAILS)
+
+---
+
+## SESSION [2026-01-31] [Rotation Test Suite Consolidation + Build Fixes] - IN PROGRESS
+
+**Collective Analysis:**  
+Consolidated rotation-related tests and restored legacy KeyPoolManager API compatibility while addressing build regressions in HolyTrinityWorker and AlertSystem.
+
+**Resulting Mission:**  
+Finish build fixes, verify diagnostics/tests, and append documentation updates without overwriting prior entries.
+
+**Key Decisions:**
+- ✅ Use explicit IPRotationManagerConfig typing to resolve TS build issues
+- ✅ Normalize AlertSystem exports (single class + event bus alias)
+- ✅ Keep test suite runnable via Jest while excluding tests from production build
+
+**Next Steps:**
+- ⏳ Run LSP diagnostics on changed files
+- ⏳ Run `npm run build` and rotation test suite
+- ⏳ Append updates to session/lastchanges/README
+
+**Reference:** .session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md (append updates)
 
 ---
 

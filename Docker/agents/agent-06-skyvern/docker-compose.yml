@@ -4,7 +4,7 @@ services:
     image: skyvern/skyvern:latest
     container_name: agent-06-skyvern-solver
     ports:
-      - "8030:8000"
+      - "50006:8000"   # Skyvern API (extreme: 50006)
     environment:
       - PYTHONUNBUFFERED=1
       - SKYVERN_LOG_LEVEL=${LOG_LEVEL:-INFO}
