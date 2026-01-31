@@ -19,6 +19,7 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 - **Intelligent Workflow Orchestration** - n8n-powered automation engine
 - **AI Code Generation** - Agent Zero for autonomous programming
 - **Stealth Web Automation** - Steel Browser for anti-detection browsing
+- **Anti-Ban IP Rotation** - Router reconnects, SOCKS5 proxy binding, session persistence
 - **Visual AI Automation** - Skyvern for intelligent UI interaction
 - **Search & Knowledge** - Scira AI for enterprise search
 - **Secrets Management** - Vault for secure credential storage
@@ -27,6 +28,47 @@ Built with a **26-room architecture** (Docker containers), SIN-Solver provides:
 - **Task Execution** - Survey automation and CAPTCHA solving workers
 
 ---
+
+## Recent Changes (Session 2026-01-31)
+
+### ✨ New Features
+- Sync Coordinator for 2Captcha Worker (key/IP rotation, session persistence, pause/resume)
+- KeyPoolManager for Groq key rotation with Mistral fallback
+
+### 🔧 Improvements
+- Rotation scheduling safeguards (5–10 minute intervals, 429-triggered, 1000-request threshold)
+- Per-key request metrics, health checks, and rate-limit backoff for Groq rotations
+- Vault client now supports per-account key structure with env fallback when Vault is unavailable
+
+### 📚 Documentation
+- Updated 2Captcha Worker README with Sync Coordinator feature
+- Documented KeyPoolManager usage in worker README
+
+### 🧪 Testing
+- Added Groq rotation test suite for key pool, IP rotation, sync coordination, vault failover, and full rotation cycle
+
+---
+
+## Recent Changes (Session 2026-01-31 - Sync Coordinator Redis Persistence)
+
+### ✨ New Features
+- Redis-backed session persistence for Sync Coordinator rotations (save/restore across key/IP changes).
+
+### 🔧 Improvements
+- Rotation cooldown (60s) and restore timeout (30s) enforced with phase-level error handling.
+
+### 📚 Documentation
+- Updated 2Captcha Worker README with Redis session storage notes.
+
+---
+
+## Recent Changes (Session 20 - 2026-01-31)
+
+### ✨ New Features
+- Vault-backed secrets management for Groq/Mistral keys with encrypted local fallback.
+- Rotation state + usage metrics persisted in Vault (auto key reloading enabled).
+
+[Details: workers/2captcha-worker/.session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md]
 
 ## 🏗️ Architecture Overview
 
@@ -379,6 +421,66 @@ curl -X POST http://localhost:8093/webhook \
 
 **Complete Setup & Production Guide:** 
 📖 See [Rocket.Chat Alertmanager Integration Guide](./Docker/builders/builder-1.1-captcha-worker/monitoring/README.md) and [Production Deployment Guide](./Docker/builders/builder-1.1-captcha-worker/monitoring/PRODUCTION-DEPLOYMENT.md)
+
+---
+
+## 🤖 MCP Wrappers (OpenCode Integration)
+
+SIN-Solver provides MCP (Model Context Protocol) wrappers that bridge Docker container HTTP APIs to OpenCode's stdio-based MCP protocol.
+
+### Available MCP Wrappers
+
+| Wrapper | File | Container | Tools | Status |
+|---------|------|-----------|-------|--------|
+| **Skyvern** | `mcp-wrappers/skyvern-mcp-wrapper.js` | agent-06:8030 | 8 tools | ✅ Active |
+| **Scira** | `mcp-wrappers/scira-mcp-wrapper.js` | room-30:7890 | 11 tools | ✅ Active |
+| **Captcha** | `mcp-wrappers/captcha-mcp-wrapper.js` | solver-1.1:8019 | 10 tools | ✅ Active |
+| **Plane** | `mcp-wrappers/plane-mcp-wrapper.js` | plane.delqhi.com | 30 tools | ✅ Active |
+
+### Skyvern MCP Tools
+
+Visual AI-powered web automation:
+
+- `analyze_screenshot` - Analyze screenshots for UI elements
+- `navigate_and_solve` - Autonomous navigation with AI
+- `solve_captcha` - Visual CAPTCHA solving
+- `generate_totp` - TOTP code generation for 2FA
+- `extract_coordinates` - Get click coordinates
+- `detect_login_form` - Login form detection
+- `detect_2fa` - 2FA/MFA detection
+- `health_check` - Service health check
+
+### OpenCode Configuration
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "skyvern": {
+      "type": "local",
+      "command": ["node", "/path/to/SIN-Solver/mcp-wrappers/skyvern-mcp-wrapper.js"],
+      "enabled": true,
+      "environment": {
+        "SKYVERN_API_URL": "http://localhost:8030",
+        "SKYVERN_API_KEY": "dev-key"
+      }
+    }
+  }
+}
+```
+
+### Testing MCP Wrappers
+
+```bash
+# List available tools
+opencode mcp list-tools skyvern
+
+# Use a tool
+opencode mcp call skyvern health_check
+```
+
+For detailed wrapper documentation, see [mcp-wrappers/README.md](mcp-wrappers/README.md).
 
 ---
 
@@ -910,3 +1012,5 @@ SIN-Solver is built on the shoulders of amazing open-source projects:
 [GitHub](https://github.com/YOUR_ORG/SIN-Solver) · [Documentation](./docs/) · [Report Issue](https://github.com/YOUR_ORG/SIN-Solver/issues) · [GitHub Discussions](https://github.com/YOUR_ORG/SIN-Solver/discussions)
 
 </div>
+
+<!-- CI/CD Pipeline Test Verification - 2026-01-30 10:37:50 UTC -->

@@ -1,0 +1,18 @@
+{
+  "name": "opencode-cli-proxy",
+  "version": "1.0.0",
+  "description": "HTTP Proxy for OpenCode CLI with CORS support",
+  "main": "server.py",
+  "scripts": {
+    "start": "python3 server.py",
+    "dev": "python3 server.py --debug",
+    "test": "pytest tests/"
+  },
+  "dependencies": {
+    "flask": "^3.0.0",
+    "flask-cors": "^4.0.0"
+  },
+  "keywords": ["opencode", "cli", "proxy", "cors", "api"],
+  "author": "Delqhi-Platform",
+  "license": "MIT"
+}

@@ -20,7 +20,6 @@ Date: 2026-01-29
 import asyncio
 import logging
 import time
-import os
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
@@ -673,30 +672,7 @@ class ConsensusEngine:
             # All 3 agents available
             avg_similarity = np.mean(similarities) if similarities else 0.0
 
-            # Check if 2+ agents have 100% agreement (exact match)
-            perfect_pairs = sum(1 for s in similarities if s >= 1.0)
-
-            if perfect_pairs >= 1:
-                # 2+ agents agree exactly on same solution
-                # Find which solution has perfect agreement
-                for i in range(len(valid_responses)):
-                    for j in range(i + 1, len(valid_responses)):
-                        similarity = self._levenshtein_ratio(
-                            valid_responses[i].solution, valid_responses[j].solution
-                        )
-                        if similarity >= 1.0:
-                            # Found perfect match - use this solution
-                            consensus_reached = True
-                            final_solution = valid_responses[i].solution
-                            consensus_strength = 1.0
-                            self.logger.info(
-                                f"✅ CONSENSUS REACHED (3 agents, 2+ exact match): {final_solution}"
-                            )
-                            break
-                    if consensus_reached:
-                        break
-
-            elif avg_similarity >= self.CONSENSUS_THRESHOLD:
+            if avg_similarity >= self.CONSENSUS_THRESHOLD:
                 # All pairs have >95% similarity
                 consensus_reached = True
                 final_solution = valid_responses[0].solution  # Use first agent's solution
@@ -829,37 +805,6 @@ class ConsensusCaptchaSolver:
                     consensus_decision=None,
                     timing_metrics=metrics,
                     error_message="Image path is empty",
-                )
-
-            # Validate file exists (if not base64)
-            if (
-                not image_path.startswith("data:")
-                and not image_path.startswith("/")
-                and "," not in image_path
-            ):
-                # Treat as file path - check if it exists
-                if not os.path.exists(image_path) and not image_path.startswith("http"):
-                    return SolverResult(
-                        status=SolutionStatus.INVALID_INPUT,
-                        solution=None,
-                        confidence=0.0,
-                        consensus_reached=False,
-                        agent_responses=[],
-                        consensus_decision=None,
-                        timing_metrics=metrics,
-                        error_message=f"Image file not found: {image_path}",
-                    )
-            elif image_path.startswith("/") and not os.path.exists(image_path):
-                # Absolute path doesn't exist
-                return SolverResult(
-                    status=SolutionStatus.INVALID_INPUT,
-                    solution=None,
-                    confidence=0.0,
-                    consensus_reached=False,
-                    agent_responses=[],
-                    consensus_decision=None,
-                    timing_metrics=metrics,
-                    error_message=f"Image file not found: {image_path}",
                 )
 
             # Create async tasks for all 3 agents

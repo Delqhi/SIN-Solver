@@ -270,13 +270,12 @@ services:
       start_period: 40s   # Allow 40 seconds for dashboard startup
     depends_on:
       # ⚠️ CRITICAL: Wait for ALL services to be HEALTHY
+      # Note: agent-05-steel-browser removed (not in simplified 5-service setup)
       room-03-postgres-master:
         condition: service_healthy
       room-04-redis-cache:
         condition: service_healthy
       agent-01-n8n-orchestrator:
-        condition: service_healthy
-      agent-05-steel-browser:
         condition: service_healthy
     networks:
       - sin-solver-network

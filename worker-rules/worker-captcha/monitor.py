@@ -21,11 +21,14 @@ import socket
 import os
 from typing import Optional, Dict, List
 import logging
+import requests
 
 try:
     from flask import Flask, jsonify, render_template_string
 except ImportError:
     Flask = None
+    jsonify = None
+    render_template_string = None
 
 # ============================================================================
 # CONFIGURATION
@@ -65,7 +68,7 @@ class SessionStats:
     captchas_solved: int = 0
     total_solve_time: float = 0.0
     current_ip: str = ""
-    ip_changes: List[Dict] = None
+    ip_changes: Optional[List[Dict]] = None
 
     def __post_init__(self):
         if self.ip_changes is None:
@@ -101,7 +104,7 @@ class WorkerMonitor:
     - Emergency stop mechanism
     """
 
-    def __init__(self, stats_dir: str = None, worker_name: str = "captcha-worker"):
+    def __init__(self, stats_dir: Optional[str] = None, worker_name: str = "captcha-worker"):
         """
         Initialize monitor
 
@@ -307,7 +310,7 @@ class WorkerMonitor:
     # STATISTICS & QUERIES
     # ========================================================================
 
-    def get_success_rate(self, captcha_type: str = None) -> float:
+    def get_success_rate(self, captcha_type: Optional[str] = None) -> float:
         """Get success rate (0-100)"""
         if captcha_type:
             attempts = self.type_attempts.get(captcha_type, deque())
@@ -320,7 +323,7 @@ class WorkerMonitor:
         successful = sum(1 for a in attempts if a.success)
         return (successful / len(attempts)) * 100
 
-    def get_average_solve_time(self, captcha_type: str = None) -> float:
+    def get_average_solve_time(self, captcha_type: Optional[str] = None) -> float:
         """Get average solve time in seconds"""
         if captcha_type:
             attempts = self.type_attempts.get(captcha_type, deque())
@@ -422,20 +425,28 @@ class WorkerMonitor:
 
         @self.app.route("/api/stats")
         def api_stats():
+            if jsonify is None:
+                return {"error": "Flask not installed"}, 500
             return jsonify(self.get_dashboard_data())
 
         @self.app.route("/api/pause", methods=["POST"])
         def api_pause():
+            if jsonify is None:
+                return {"error": "Flask not installed"}, 500
             self.is_paused = True
             return jsonify({"status": "paused"})
 
         @self.app.route("/api/resume", methods=["POST"])
         def api_resume():
+            if jsonify is None:
+                return {"error": "Flask not installed"}, 500
             self.is_paused = False
             return jsonify({"status": "resumed"})
 
         @self.app.route("/api/reconnect", methods=["POST"])
         def api_reconnect():
+            if jsonify is None:
+                return {"error": "Flask not installed"}, 500
             # Callback for reconnect (to be implemented by user)
             for callback in self.health_check_callbacks:
                 try:
@@ -446,12 +457,16 @@ class WorkerMonitor:
 
         @self.app.route("/api/emergency-stop", methods=["POST"])
         def api_emergency_stop():
+            if jsonify is None:
+                return {"error": "Flask not installed"}, 500
             self.is_healthy = False
             self.critical_alert_triggered = True
             return jsonify({"status": "emergency_stop"})
 
         @self.app.route("/")
         def dashboard():
+            if render_template_string is None:
+                return "Flask not installed", 500
             return render_template_string(self._get_html_template())
 
     def _get_html_template(self) -> str:
@@ -873,9 +888,10 @@ class WorkerMonitor:
         def run_dashboard():
             try:
                 self.logger.info(f"Dashboard starting on http://localhost:{port}")
-                self.app.run(
-                    host="127.0.0.1", port=port, debug=False, use_reloader=False, threaded=True
-                )
+                if self.app is not None:
+                    self.app.run(
+                        host="127.0.0.1", port=port, debug=False, use_reloader=False, threaded=True
+                    )
             except Exception as e:
                 self.logger.error(f"Dashboard error: {e}")
 

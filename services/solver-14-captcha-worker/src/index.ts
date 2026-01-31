@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { BrowserCaptchaWorker } from './browser-captcha-worker';
+import { createAPI, startAPIServer } from './api';
 import pino from 'pino';
 
 const logger = pino();
@@ -30,9 +31,17 @@ const worker = new BrowserCaptchaWorker(config);
 
 const startWorker = async () => {
   try {
-    await worker.start();
+    const app = createAPI(worker);
+    
+    logger.info('🚀 Starting worker and API server...');
+    
+    // Run both worker and API server in parallel
+    await Promise.all([
+      worker.start(),                  // Worker loop (infinite)
+      startAPIServer(app, 8080)        // Express server on port 8080
+    ]);
   } catch (error) {
-    logger.error(error, '❌ Worker crashed');
+    logger.error(error, '❌ Worker or API crashed');
     process.exit(1);
   }
 };

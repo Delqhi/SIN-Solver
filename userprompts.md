@@ -2,7 +2,7 @@
 
 **Project:** Delqhi-Platform - Enterprise CAPTCHA Solving Engine  
 **Created:** 2026-01-25  
-**Last Updated:** 2026-01-29 11:48 UTC  
+**Last Updated:** 2026-01-31 14:30 UTC  
 **Total Sessions:** 15+  
 **Current Phase:** Production-Ready / Swarm Active  
 **Current Session:** https://opncd.ai/share/IL2zRiBc  
@@ -83,6 +83,88 @@ Execute the "10-Phase Ultimate Rescue Plan" to transform `room-01-dashboard-cock
 - Alignment: 100% aligned with user's "Autonomously finish everything" directive.
 
 ## AKTUELLER ARBEITSBEREICH
+
+**{Architecture Decision};SESSION-19-ARCHITECTURE-DECISION-COMPLETED**  
+**{Next};WORKER-REFACTOR-TO-STEEL-SKYVERN-MISTRAL-IN-PROGRESS**
+**{IP Rotation Manager};WORKER-IP-ROTATION-MANAGER-COMPLETED**
+
+---
+
+## SESSION [2026-01-30 21:30] [SESSION-19-ARCHITECTURE-DECISION] - The Holy Trinity
+
+**Collective Analysis:**
+After extensive testing and research, discovered that OpenCode ZEN API endpoint doesn't work (returns "Not Found"). Tested multiple endpoints and API keys - all failed. Meanwhile, Mistral API works perfectly. Also realized that Steel Browser (CDP) provides real-time DOM updates while Playwright uses slow polling. This led to a revolutionary architecture decision.
+
+**Resulting Mission:**
+Document and implement the "Holy Trinity" architecture: Steel Browser (CDP) + Skyvern + Mistral AI.
+
+**Key Decisions:**
+1. **Browser Engine:** agent-05-steel-browser (CDP) - Real-time DOM, no polling
+2. **Orchestrator:** Skyvern - AI-driven decisions, self-healing
+3. **Vision AI:** Mistral (pixtral-12b) - 10x cheaper than OpenAI
+4. **Fallback:** Stagehand - Alternative orchestrator
+
+**Critical Insight:**
+> "Steel Browser is the Ferrari, Skyvern is the F1 Driver, Mistral is the Navigator"
+
+Without the driver and navigator, the Ferrari won't win the race!
+
+**What We Learned:**
+- Steel Browser alone cannot make decisions (needs Skyvern)
+- Skyvern alone is slow (needs Steel Browser CDP for speed)
+- Mistral is 10x cheaper than OpenAI with same quality
+- OpenCode ZEN API doesn't work (endpoint issue, not key issue)
+- Playwright is outdated for real-time automation (use CDP instead)
+
+**Architecture Rules (MANDATORY):**
+- ❌ NEVER use direct Playwright in production
+- ❌ NEVER use OpenAI GPT-4V (too expensive)
+
+---
+
+## SESSION [2026-01-31] [IP-ROTATION-MANAGER] - Router Reconnect + SOCKS5 Binding
+
+**Collective Analysis:**
+The worker needs IP rotation with router reconnect, shared proxy binding for Browser + AI, and session persistence across IP changes to reduce ban risk.
+
+**Resulting Mission:**
+Implement a dedicated IP Rotation Manager with cooldown enforcement, SOCKS5 proxy support, IP-key binding, and session snapshots.
+
+**Key Decisions:**
+1. Router reconnect uses macOS AppleScript with 15-minute cooldown
+2. SOCKS5 proxy is shared by Steel Browser + Groq API calls
+3. IP bindings persist to disk for consistent IP usage
+4. Session snapshots are stored per IP for restoration
+
+**Next Steps:**
+- Wire IP Rotation Manager into runtime orchestration for Steel/Groq usage
+- Validate proxy connectivity with live IP checks
+- ❌ NEVER use api.opencode.ai (doesn't work)
+- ✅ ALWAYS use Steel Browser (CDP) + Skyvern + Mistral
+
+**Documentation Created:**
+- `.session-19-ses_3f9bc1908ffeVibfrKEY3Kybu5.md` - Complete session log
+- `workers/2captcha-worker/AGENTS.md` - Local project docs
+- `AGENTS_APPENDIX.md` - Updated project rules
+- `lastchanges.md` - Architecture decision entry
+- `environments-jeremy.md` - API keys documented
+
+**Next Steps:**
+1. Refactor worker to use new architecture
+2. Implement Steel Browser CDP connector
+3. Integrate Skyvern orchestration
+4. Connect Mistral vision API
+5. Test end-to-end CAPTCHA solving
+
+**Iteration Check:**
+- Goal: Working CAPTCHA worker with AI
+- Status: Architecture decided, documentation complete
+- Alignment: 100% aligned with "truly intelligent" directive
+- Blocker: None - ready to implement
+
+---
+
+## AKTUELLER ARBEITSBEREICH (PREVIOUS)
 
 **{Rescue Mission};PHASE-1-10-dashboard-COMPLETED**
 
@@ -1101,3 +1183,91 @@ Update Dashboard components (Sidebar.js, DashboardView.js, globals.css) with Jan
 ## AKTUELLER ARBEITSBEREICH
 
 **{Visual Engineering 2026};TASK-004-dashboard-2026-update-COMPLETED**
+
+---
+
+## SESSION [2026-01-31] [KEY-POOL-MANAGER] - Groq Rotation System
+
+**Collective Analysis:**
+Groq API key rotation needed to prevent rate-limit stalls and distribute load; existing worker code lacked a centralized key pool manager.
+
+**Resulting Mission:**
+Implement a KeyPoolManager for Groq key rotation with Mistral fallback, per-key metrics, rate-limit retries, and health checks.
+
+**Key Decisions:**
+- Rotation strategies configurable (round-robin default).
+- Rate-limit handling uses RetryManager backoff.
+- Keys remain externalized (env-only) with safe logging.
+
+**Next Steps:**
+- Run LSP diagnostics and build.
+- Update lastchanges.md and README.
+- Commit and push.
+
+---
+
+## SESSION [2026-01-31] [VAULT-INTEGRATION] - Vault Secrets Management
+
+**Collective Analysis:**
+The worker still relied on in-code and .env-based API keys for Groq/Mistral, which violates the requirement for secure secrets management. Vault must be the single source of truth, with encrypted fallback when Vault is unavailable.
+
+**Resulting Mission:**
+Implement Vault integration with caching, retry logic, encrypted local fallback, usage metrics, rotation state persistence, and automatic key reloading.
+
+**Key Decisions:**
+1. **Vault Paths:** `secret/groq-rotation/keys`, `secret/groq-rotation/state`, `secret/groq-rotation/metrics`
+2. **Fallback Storage:** Encrypted `vault-secrets.json` using AES-256-GCM (requires `VAULT_FALLBACK_KEY`)
+3. **Auto Reload:** Periodic refresh of keys with configurable interval
+
+**Next Steps:**
+- Run LSP diagnostics and build
+- Commit changes
+
+## AKTUELLER ARBEITSBEREICH
+
+**{Vault Integration};TASK-VAULT-2CAPTCHA-IN_PROGRESS**
+**{Sync Coordinator Redis Persistence};TASK-SYNC-ROTATION-REDIS-IN_PROGRESS**
+
+---
+
+## SESSION [2026-01-31] [SYNC-COORDINATOR-REDIS] - Rotation Sync Coordinator
+
+**Collective Analysis:**
+The 2Captcha worker needed rotation synchronization that preserves browser sessions while coordinating key/IP changes. Redis-backed persistence and strict cooldowns are required to prevent session loss and race conditions.
+
+**Resulting Mission:**
+Implement a Sync Coordinator with Redis session storage, rotation cooldown, restore timeout, and phase-level error handling.
+
+**Key Decisions:**
+- Persist session snapshots in Redis (`REDIS_URL`) and keep local state as fallback.
+- Enforce 60s cooldown between rotations and 30s restore timeout.
+- Log each rotation phase to prevent silent failures.
+
+**Next Steps:**
+- Run LSP diagnostics and build for the 2Captcha worker.
+- Commit changes and update lastchanges.md.
+
+---
+
+## SESSION [2026-01-31] [VAULT-INTEGRATION-ENV-FALLBACK] - Vault Client Key API
+
+**Collective Analysis:**
+Vault integration needed to support structured Groq/Mistral secrets with safe runtime key access, rotation state updates, health tracking, and environment fallback when Vault is unavailable.
+
+**Resulting Mission:**
+Implement Vault client methods for single-key access, structured key persistence, rotation state retrieval/update, and env fallback without logging secrets.
+
+**Session Log:**
+- Added Vault client API for `getKey`, `saveKey`, `getRotationState`, `updateRotationState`.
+- Normalized Vault payload to accept structured secrets and legacy flat keys.
+- Enabled `.env` fallback for key reads when Vault is unavailable.
+- Updated worker README and root README to document the structure and fallback behavior.
+
+**Iteration Check:**
+- Goal: Secure Vault-backed secrets with runtime fallback.
+- Status: Implemented in vault client with documentation updated.
+- Alignment: Matches secrets-management requirements and no hardcoded keys rule.
+
+## AKTUELLER ARBEITSBEREICH
+
+**{Vault Integration};TASK-VAULT-CLIENT-ENV-FALLBACK-COMPLETED**

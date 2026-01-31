@@ -1,0 +1,638 @@
+/**
+ * AutoCorrector Adapter for Next.js Dashboard
+ * 
+ * This module provides a JavaScript-compatible version of the AutoCorrector
+ * that can be imported by Next.js API routes.
+ * 
+ * Phase 2: Integrates with 6 real service clients for production execution
+ */
+
+// Import service clients (ES6 modules)
+import { RedisClient } from './services/redis-client.js';
+import { PostgresClient } from './services/postgres-client.js';
+import { ChatNotificationService } from './services/chat-notification-service.js';
+import { ApiBrainClient } from './services/api-brain-client.js';
+import { CaptchaClient } from './services/captcha-client.js';
+import { MonitoringService } from './services/monitoring-service.js';
+
+class AutoCorrectorAdapter {
+  constructor(chatWebSocketUrl = 'ws://localhost:3009/api/chat/notify') {
+    this.chatWebSocketUrl = chatWebSocketUrl;
+    this.maxAttempts = 5;
+    this.auditLog = [];
+    
+    // Initialize all service clients
+    this.redisClient = new RedisClient();
+    this.postgresClient = new PostgresClient();
+    this.chatService = new ChatNotificationService();
+    this.apiBrainClient = new ApiBrainClient();
+    this.captchaClient = new CaptchaClient();
+    this.monitoringService = new MonitoringService();
+    
+    // Flag to track if services are initialized
+    this._servicesInitialized = false;
+  }
+
+  /**
+   * Initialize all services (call once on startup)
+   */
+  async initializeServices() {
+    if (this._servicesInitialized) {
+      console.log('[AutoCorrectorAdapter] Services already initialized');
+      return;
+    }
+    
+    try {
+      console.log('[AutoCorrectorAdapter] Initializing services...');
+      
+      // Initialize PostgreSQL (creates tables if needed)
+      await this.postgresClient.initialize();
+      console.log('✅ PostgreSQL initialized');
+      
+      // Check Redis
+      const redisHealthy = await this.redisClient.healthCheck();
+      console.log(`✅ Redis: ${redisHealthy ? 'HEALTHY' : 'UNHEALTHY'}`);
+      
+      // Check chat service
+      const chatHealthy = await this.chatService.healthCheck();
+      console.log(`✅ Chat Service: ${chatHealthy ? 'HEALTHY' : 'UNAVAILABLE (will use fallbacks)'}`);
+      
+      // Check API Brain
+      const apiBrainHealthy = await this.apiBrainClient.healthCheck();
+      console.log(`✅ API Brain: ${apiBrainHealthy ? 'HEALTHY' : 'UNAVAILABLE'}`);
+      
+      // Check CAPTCHA service
+      const captchaHealthy = await this.captchaClient.healthCheck();
+      console.log(`✅ CAPTCHA Service: ${captchaHealthy ? 'HEALTHY' : 'UNAVAILABLE'}`);
+      
+      // Check monitoring
+      const monitoringHealth = await this.monitoringService.healthCheck();
+      console.log(`✅ Monitoring: ${monitoringHealth.overall ? 'HEALTHY' : 'UNAVAILABLE'}`);
+      
+      this._servicesInitialized = true;
+      
+      return {
+        postgres: true,
+        redis: redisHealthy,
+        chatService: chatHealthy,
+        apiBrain: apiBrainHealthy,
+        captcha: captchaHealthy,
+        monitoring: monitoringHealth.overall
+      };
+    } catch (error) {
+      console.error('[AutoCorrectorAdapter] Service initialization error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Main method: Detect error type and attempt fixes
+   */
+  async detectAndFix(error, jobId = null, context = {}) {
+    const startTime = Date.now();
+    const attemptLog = [];
+
+    try {
+      // Step 1: Analyze error
+      const analysis = this.analyzeError(error);
+      attemptLog.push({
+        step: 'ANALYZE',
+        action: 'Analyzed error type and severity',
+        details: analysis,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Step 2: Determine if fixable
+      if (!analysis.fixable) {
+        return {
+          status: 'UNFIXABLE',
+          fixStrategy: null,
+          attemptCount: 0,
+          successMetrics: {
+            errorResolved: false,
+            performanceImproved: false,
+            dataPreserved: false,
+            timeToFix: Date.now() - startTime,
+          },
+          chatNotification: {
+            sent: false,
+            message: `Cannot fix error: ${error.message}`,
+            timestamp: new Date().toISOString(),
+          },
+          auditLog: attemptLog,
+          processedAt: new Date().toISOString(),
+        };
+      }
+
+      // Step 3: Generate fix strategies in priority order
+      const strategies = this.generateFixStrategies(analysis);
+      attemptLog.push({
+        step: 'GENERATE_STRATEGIES',
+        action: 'Generated fix strategies',
+        details: { strategyCount: strategies.length, strategies: strategies.map(s => s.type) },
+        timestamp: new Date().toISOString(),
+      });
+
+      // Step 4: Attempt fixes in order
+      let fixStatus = 'UNFIXABLE';
+      let successfulStrategy = null;
+      let attemptCount = 0;
+
+      for (const strategy of strategies) {
+        if (attemptCount >= this.maxAttempts) {
+          attemptLog.push({
+            step: 'MAX_ATTEMPTS_REACHED',
+            action: 'Reached maximum fix attempts',
+            details: { attemptCount, maxAttempts: this.maxAttempts },
+            timestamp: new Date().toISOString(),
+          });
+          break;
+        }
+
+        attemptCount++;
+        const attemptResult = await this.executeFixStrategy(strategy, error, context);
+        
+        attemptLog.push({
+          step: `ATTEMPT_${attemptCount}`,
+          action: `Executed strategy: ${strategy.type}`,
+          strategy: strategy.type,
+          success: attemptResult.success,
+          details: attemptResult,
+          timestamp: new Date().toISOString(),
+        });
+
+       // Record the attempt in monitoring service
+        try {
+          await this.monitoringService.recordAttempt(
+            strategy.type,
+            attemptResult.success,
+            attemptResult.duration || 0
+          );
+
+          // Log to audit trail
+          await this.monitoringService.sendAuditLog(jobId, {
+            timestamp: new Date().toISOString(),
+            level: attemptResult.success ? 'INFO' : 'WARN',
+            message: `Strategy ${strategy.type} - ${attemptResult.success ? 'SUCCESS' : 'FAILED'}`,
+            action: strategy.type,
+            result: attemptResult,
+            context: { error: error.code, jobId }
+          });
+        } catch (monitorError) {
+          console.error('[AutoCorrectorAdapter] Monitoring error:', monitorError.message);
+        }
+
+        if (attemptResult.success) {
+           fixStatus = 'FIXED';
+           successfulStrategy = strategy.type;
+           break;
+         }
+       }
+
+      // Step 5: Determine final status
+      if (fixStatus !== 'FIXED' && strategies.length > 0) {
+        // Some strategies available but none fully worked
+        fixStatus = 'PARTIAL_FIX';
+      } else if (fixStatus !== 'FIXED') {
+        // No strategies available or none succeeded
+        fixStatus = analysis.recoverable ? 'MANUAL_REQUIRED' : 'UNFIXABLE';
+      }
+
+      // Step 6: Send chat notification
+      const chatNotification = await this.sendChatNotification(
+        fixStatus,
+        successfulStrategy,
+        error,
+        attemptCount
+      );
+
+      attemptLog.push({
+        step: 'NOTIFY',
+        action: 'Sent chat notification',
+        details: chatNotification,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Step 7: Return result
+      const result = {
+        status: fixStatus,
+        fixStrategy: successfulStrategy,
+        attemptCount,
+        successMetrics: {
+          errorResolved: fixStatus === 'FIXED',
+          performanceImproved: successfulStrategy !== null,
+          dataPreserved: !analysis.dataLoss,
+          timeToFix: Date.now() - startTime,
+        },
+        chatNotification,
+        auditLog: attemptLog,
+        processedAt: new Date().toISOString(),
+      };
+
+       // Log to audit trail
+       this.auditLog.push({
+         jobId,
+         error: error.code || error.message,
+         result: result.status,
+         timestamp: new Date().toISOString(),
+       });
+
+       // Step 8: Persist job to database
+       if (jobId) {
+         const jobRecord = {
+           jobId,
+           initialError: error.code || error.message,
+           fixStatus: result.status,
+           successfulStrategy: result.fixStrategy,
+           attemptCount,
+           totalDuration: Date.now() - startTime,
+           metadata: {
+             strategies: strategies.map(s => s.type),
+             analysis,
+             context
+           }
+         };
+
+         try {
+           await this.postgresClient.saveJob(jobRecord);
+           
+           await this.monitoringService.recordJobMetrics(jobId, {
+             totalAttempts: attemptCount,
+             successfulAttempts: result.status === 'FIXED' ? 1 : 0,
+             totalDuration: Date.now() - startTime,
+             errorType: error.type || error.code,
+             strategies: strategies.map(s => s.type),
+             finalStatus: result.status
+           });
+         } catch (persistError) {
+           console.error('[AutoCorrectorAdapter] Failed to persist job:', persistError.message);
+           // Don't throw - allow result to be returned even if persistence fails
+         }
+       }
+
+       return result;
+    } catch (err) {
+      console.error('[AutoCorrector] Error in detectAndFix:', err);
+      return {
+        status: 'UNFIXABLE',
+        fixStrategy: null,
+        attemptCount: 0,
+        successMetrics: {
+          errorResolved: false,
+          performanceImproved: false,
+          dataPreserved: false,
+          timeToFix: Date.now() - startTime,
+        },
+        chatNotification: {
+          sent: false,
+          message: `Error during correction: ${err.message}`,
+          timestamp: new Date().toISOString(),
+        },
+        auditLog: attemptLog,
+        processedAt: new Date().toISOString(),
+        error: err.message,
+      };
+    }
+  }
+
+  /**
+   * Analyze error to determine type, severity, and fixability
+   */
+  analyzeError(error) {
+    const code = error.code || error.name || 'UNKNOWN_ERROR';
+    let severity = 'medium';
+    let fixable = true;
+    let recoverable = true;
+    let dataLoss = false;
+    let suggestedFixes = [];
+
+    // Categorize error
+    if (code.includes('ELEMENT') || code.includes('SELECTOR')) {
+      severity = 'high';
+      fixable = true;
+      suggestedFixes = ['SELECTOR_UPDATE', 'FALLBACK_XPATH', 'PAGE_RELOAD'];
+    } else if (code.includes('TIMEOUT')) {
+      severity = 'high';
+      fixable = true;
+      suggestedFixes = ['TIMEOUT_INCREASE', 'WAIT_AND_RETRY', 'PAGE_RELOAD'];
+    } else if (code.includes('UNAVAILABLE') || code.includes('CONNECTION')) {
+      severity = 'high';
+      fixable = true;
+      recoverable = true;
+      suggestedFixes = ['FALLBACK_SOLVER', 'WAIT_AND_RETRY', 'QUEUE_PRIORITIZATION'];
+    } else if (code.includes('AUTHENTICATION')) {
+      severity = 'critical';
+      fixable = false;
+      recoverable = false;
+      suggestedFixes = ['MANUAL_REQUIRED'];
+    } else if (code.includes('SUBMISSION')) {
+      severity = 'high';
+      fixable = true;
+      suggestedFixes = ['ALTERNATIVE_SUBMISSION', 'VERIFY_SOLUTION', 'RETRY_WITH_DELAY'];
+    } else {
+      severity = 'medium';
+      fixable = true;
+      suggestedFixes = ['WAIT_AND_RETRY', 'PAGE_RELOAD'];
+    }
+
+    return {
+      errorType: code,
+      errorCode: code,
+      severity,
+      fixable,
+      recoverable,
+      dataLoss,
+      suggestedFixes,
+      rootCause: error.message || 'Unknown error',
+      context: {
+        message: error.message,
+        name: error.name,
+        stack: error.stack ? error.stack.split('\n')[0] : null,
+      },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Generate fix strategies in priority order
+   */
+  generateFixStrategies(analysis) {
+    const strategies = [];
+
+    // Define all available strategies
+    const allStrategies = {
+      SELECTOR_UPDATE: {
+        type: 'SELECTOR_UPDATE',
+        description: 'Try alternate CSS selectors or XPath expressions',
+        priority: 1,
+      },
+      PAGE_RELOAD: {
+        type: 'PAGE_RELOAD',
+        description: 'Reload the page to clear transient state',
+        priority: 2,
+      },
+      FALLBACK_XPATH: {
+        type: 'FALLBACK_XPATH',
+        description: 'Use XPath instead of CSS selector',
+        priority: 3,
+      },
+      TIMEOUT_INCREASE: {
+        type: 'TIMEOUT_INCREASE',
+        description: 'Increase timeout for slow operations',
+        priority: 4,
+      },
+      FALLBACK_SOLVER: {
+        type: 'FALLBACK_SOLVER',
+        description: 'Use alternative CAPTCHA solver service',
+        priority: 5,
+      },
+      QUEUE_PRIORITIZATION: {
+        type: 'QUEUE_PRIORITIZATION',
+        description: 'Prioritize job in processing queue',
+        priority: 6,
+      },
+      WAIT_AND_RETRY: {
+        type: 'WAIT_AND_RETRY',
+        description: 'Wait briefly then retry the operation',
+        priority: 7,
+      },
+      CONSENSUS_SOLVE: {
+        type: 'CONSENSUS_SOLVE',
+        description: 'Get consensus from multiple solvers',
+        priority: 8,
+      },
+      RETRY_WITH_DELAY: {
+        type: 'RETRY_WITH_DELAY',
+        description: 'Retry with exponential backoff',
+        priority: 9,
+      },
+      VERIFY_SOLUTION: {
+        type: 'VERIFY_SOLUTION',
+        description: 'Verify solution format before submission',
+        priority: 10,
+      },
+      ALTERNATIVE_SUBMISSION: {
+        type: 'ALTERNATIVE_SUBMISSION',
+        description: 'Try alternative submission method',
+        priority: 11,
+      },
+    };
+
+    // Add suggested fixes first (highest priority)
+    for (const fixType of analysis.suggestedFixes) {
+      if (allStrategies[fixType]) {
+        strategies.push(allStrategies[fixType]);
+      }
+    }
+
+    // Add remaining strategies sorted by priority
+    const remaining = Object.values(allStrategies)
+      .filter(s => !analysis.suggestedFixes.includes(s.type))
+      .sort((a, b) => a.priority - b.priority);
+
+    strategies.push(...remaining);
+
+    return strategies;
+  }
+
+  async executeFixStrategy(strategy, error, context = {}) {
+    const startTime = Date.now();
+    
+    try {
+      let result;
+      
+      switch(strategy.type) {
+        case 'SELECTOR_UPDATE':
+          result = await this.apiBrainClient.suggestSelectorFix({
+            failedSelector: context.selector,
+            pageContent: context.pageContent,
+            elementDescription: context.elementDescription,
+            currentXPath: context.xpath
+          });
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.suggestion || 'Selector fix attempted',
+            details: result
+          };
+
+        case 'FALLBACK_XPATH':
+          result = await this.apiBrainClient.findAlternativeElements(
+            context.selector,
+            context
+          );
+          return {
+            success: result.success && result.alternatives.length > 0,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.recommendedSelector ? 'Found alternative selector' : 'No alternatives found',
+            details: result
+          };
+
+        case 'PAGE_RELOAD':
+          result = await this.apiBrainClient.triggerPageReload(context.jobId, context);
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.success ? 'Page reloaded successfully' : 'Page reload failed',
+            details: result
+          };
+
+        case 'FALLBACK_SOLVER':
+          const captchaDetection = await this.captchaClient.detectCaptcha(
+            context.screenshot,
+            context
+          );
+          
+          if (captchaDetection.detected) {
+            const solution = await this.captchaClient.solveCaptcha(
+              captchaDetection.captchaType,
+              context
+            );
+            return {
+              success: solution.success,
+              strategy: strategy.type,
+              duration: Date.now() - startTime,
+              message: solution.success ? 'CAPTCHA solved' : 'CAPTCHA solving failed',
+              details: solution
+            };
+          } else {
+            return {
+              success: false,
+              strategy: strategy.type,
+              duration: Date.now() - startTime,
+              message: 'No CAPTCHA detected',
+              details: { detected: false }
+            };
+          }
+
+        case 'TIMEOUT_INCREASE':
+        case 'WAIT_AND_RETRY':
+          result = await this.redisClient.queueForRetry(
+            context.jobId,
+            { strategy: strategy.type, error, context },
+            2000
+          );
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: 'Queued for retry',
+            details: result
+          };
+
+        case 'CONSENSUS_SOLVE':
+        case 'RETRY_WITH_DELAY':
+        case 'VERIFY_SOLUTION':
+          result = await this.apiBrainClient.orchestrateComplexFix(
+            context.jobId,
+            error.type || error.code,
+            context
+          );
+          return {
+            success: result.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: result.success ? 'Complex fix succeeded' : 'Complex fix failed',
+            details: result
+          };
+
+        case 'QUEUE_PRIORITIZATION':
+        case 'ALTERNATIVE_SUBMISSION':
+        default:
+          const formResult = await this.apiBrainClient.suggestFormFix(
+            context,
+            error.message
+          );
+          return {
+            success: formResult.success,
+            strategy: strategy.type,
+            duration: Date.now() - startTime,
+            message: formResult.strategy || 'Fix attempted',
+            details: formResult
+          };
+      }
+    } catch (strategyError) {
+      console.error(`[AutoCorrectorAdapter] Strategy ${strategy.type} error:`, strategyError.message);
+      
+      try {
+        await this.monitoringService.recordAttempt(
+          strategy.type,
+          false,
+          Date.now() - startTime
+        );
+      } catch (monitorError) {
+        console.error('[AutoCorrectorAdapter] Failed to record monitoring:', monitorError.message);
+      }
+
+      return {
+        success: false,
+        strategy: strategy.type,
+        duration: Date.now() - startTime,
+        message: `Strategy ${strategy.type} encountered error: ${strategyError.message}`,
+        details: { error: strategyError.message }
+      };
+    }
+  }
+
+  async sendChatNotification(status, strategy, error, attemptCount) {
+    const messages = {
+      FIXED: `✅ Error fixed! Used strategy: ${strategy || 'Unknown'}`,
+      PARTIAL_FIX: `⚠️ Partially fixed error after ${attemptCount} attempts. May need manual review.`,
+      MANUAL_REQUIRED: `👤 Error requires manual intervention. ${error?.message || 'Unknown error'}`,
+      UNFIXABLE: `❌ Unable to fix error automatically: ${error?.message || 'Unknown error'}`,
+    };
+
+    const message = messages[status] || `Status: ${status}`;
+
+    try {
+      const result = await this.chatService.sendNotification({
+        status,
+        strategy,
+        error,
+        attemptCount,
+        message,
+        timestamp: new Date().toISOString()
+      });
+
+      return {
+        sent: result.sent !== false,
+        message,
+        status,
+        attemptCount,
+        timestamp: new Date().toISOString(),
+        channel: 'workflow-errors'
+      };
+    } catch (notificationError) {
+      console.error('[AutoCorrectorAdapter] Chat notification error:', notificationError.message);
+      
+      return {
+        sent: false,
+        message,
+        status,
+        attemptCount,
+        timestamp: new Date().toISOString(),
+        channel: 'workflow-errors',
+        error: notificationError.message
+      };
+    }
+  }
+
+  /**
+   * Get audit log of all corrections
+   */
+  getAuditLog() {
+    return this.auditLog;
+  }
+
+  /**
+   * Clear audit log
+   */
+  clearAuditLog() {
+    this.auditLog = [];
+  }
+}
+
+export { AutoCorrectorAdapter };

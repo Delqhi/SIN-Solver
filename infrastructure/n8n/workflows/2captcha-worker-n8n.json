@@ -1,0 +1,852 @@
+{
+  "name": "2captcha.com Worker - Play & Earn",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerType": "manually"
+      },
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        50,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": "everyInterval",
+        "interval": [
+          150,
+          "minutes"
+        ]
+      },
+      "name": "Schedule Trigger (2.5h)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        50,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Initialize worker session\nreturn {\n  sessionId: $('Merge').first().json.sessionId || 'new_session',\n  iterationCount: 0,\n  successCount: 0,\n  skipCount: 0,\n  errorCount: 0,\n  startTime: new Date().toISOString(),\n  breakScheduled: false,\n  lastBreakTime: null,\n  credentials: {\n    email: process.env.TWOCAPTCHA_EMAIL,\n    password: process.env.TWOCAPTCHA_PASSWORD,\n    steelBrowserUrl: process.env.STEEL_BROWSER_URL || 'http://localhost:3000'\n  }\n};"
+      },
+      "name": "Initialize Session",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        250,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/session/create",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "headless",
+            "value": "true"
+          },
+          {
+            "name": "stealth",
+            "value": "true"
+          }
+        ]
+      },
+      "name": "Steel: Create Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        450,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/navigate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "url",
+            "value": "https://2captcha.com/play-and-earn/play"
+          }
+        ]
+      },
+      "name": "Steel: Navigate to 2captcha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        650,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/fill_login",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "email_selector",
+            "value": "input[type='email'], input[name='email'], input[id*='email']"
+          },
+          {
+            "name": "email_value",
+            "value": "{{ $env.TWOCAPTCHA_EMAIL }}"
+          },
+          {
+            "name": "password_selector",
+            "value": "input[type='password'], input[name='password']"
+          },
+          {
+            "name": "password_value",
+            "value": "{{ $env.TWOCAPTCHA_PASSWORD }}"
+          },
+          {
+            "name": "submit_selector",
+            "value": "button[type='submit'], button:contains('Login'), button:contains('Sign In')"
+          }
+        ]
+      },
+      "name": "Steel: Login 2captcha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        850,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Wait for login to complete\nreturn {\n  ...($json),\n  loggingIn: true,\n  loginAttempt: 1\n};"
+      },
+      "name": "Wait: Login Processing",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1050,
+        350
+      ],
+      "waitType": "time",
+      "waitTime": 3
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/screenshot",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "full_page",
+            "value": "false"
+          }
+        ]
+      },
+      "name": "Steel: Screenshot Captcha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1250,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.CONSENSUS_SOLVER_WEBHOOK_URL }}",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersUiExpression": "json",
+        "bodyParameters": {
+          "json": {
+            "image": "{{ $json.screenshot.base64 }}",
+            "captchaType": "image_classification",
+            "language": "en"
+          }
+        }
+      },
+      "name": "Webhook: Consensus Solver",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1450,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "numberOperator": "greaterEqual",
+          "number": 95,
+          "type": "number",
+          "value1": "={{ $json.response.confidence }}",
+          "value2": "95"
+        }
+      },
+      "name": "If: Confidence >= 95%",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1650,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/type",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "selector",
+            "value": "input[class*='answer'], input[id*='answer'], input[placeholder*='answer' i]"
+          },
+          {
+            "name": "text",
+            "value": "{{ $json.response.solution }}"
+          }
+        ]
+      },
+      "name": "Steel: Type Solution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/click",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "selector",
+            "value": "button:contains('Submit'), button[type='submit'], button[class*='submit']"
+          }
+        ]
+      },
+      "name": "Steel: Submit Answer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/click",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "selector",
+            "value": "button:contains('Cannot solve'), button:contains('Skip'), button[class*='skip' i], button[class*='skip']"
+          }
+        ]
+      },
+      "name": "Steel: Click Cannot Solve",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1850,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Track iteration statistics\nreturn {\n  ...($json),\n  iterationCount: ($json.iterationCount || 0) + 1,\n  successCount: ($json.successCount || 0) + (this.first().json.stepType === 'success' ? 1 : 0),\n  skipCount: ($json.skipCount || 0) + (this.first().json.stepType === 'skip' ? 1 : 0),\n  lastIterationTime: new Date().toISOString(),\n  elapsedMinutes: Math.floor((new Date() - new Date($json.startTime)) / 60000)\n};"
+      },
+      "name": "Track Statistics",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2250,
+        350
+      ]
+    },
+    {
+       "parameters": {
+         "conditions": {
+           "numberOperator": "lessThan",
+           "number": 100,
+           "type": "number",
+           "value1": "={{ $json.iterationCount }}",
+           "value2": "100"
+         }
+      },
+      "name": "If: Iterations < 100",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2450,
+        350
+      ]
+    },
+    {
+       "parameters": {
+         "conditions": {
+           "numberOperator": "greaterEqual",
+           "number": 150,
+           "type": "number",
+           "value1": "={{ $json.elapsedMinutes }}",
+           "value2": "150"
+         }
+      },
+      "name": "If: Time >= 2.5 hours",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2650,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/click",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "selector",
+            "value": "a[href*='logout'], button:contains('Logout'), button:contains('Sign out'), button[class*='logout']"
+          }
+        ]
+      },
+      "name": "Steel: Logout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2850,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "waitTime": {
+          "mode": "randomWait",
+          "amount": 10
+        },
+        "randomizationRange": "5:15"
+      },
+      "name": "Wait: Break (5-15 min)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/navigate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "url",
+            "value": "https://2captcha.com/play-and-earn/play"
+          }
+        ]
+      },
+      "name": "Steel: Re-navigate After Break",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        3250,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Check if re-login needed\nreturn {\n  ...($json),\n  needsRelogin: true,\n  breakScheduled: true,\n  lastBreakTime: new Date().toISOString(),\n  iterationCount: 0  // Reset iteration counter after break\n};"
+      },
+      "name": "Function: Check Relogin",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3450,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/session/status",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "name": "Steel: Check Session Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        400,
+        600
+      ]
+    },
+    {
+       "parameters": {
+         "conditions": {
+           "stringOperator": "equals",
+           "value1": "={{ $json.status }}",
+           "value2": "expired"
+         }
+      },
+      "name": "If: Session Expired",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        600,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/session/create",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParametersUiExpression": "keyvaluepairs",
+        "bodyParameters": [
+          {
+            "name": "headless",
+            "value": "true"
+          },
+          {
+            "name": "stealth",
+            "value": "true"
+          }
+        ]
+      },
+      "name": "Steel: Create New Session (Recovery)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        800,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.TELEGRAM_WEBHOOK_URL }}",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersUiExpression": "json",
+        "bodyParameters": {
+          "json": {
+            "text": "🤖 2captcha Worker - Session Expired\\n\\nSession ID: {{ $json.sessionId }}\\nError: Auto-relogin initiated\\n\\nTime: {{ now.toISOString() }}",
+            "chat_id": "{{ $env.TELEGRAM_CHAT_ID }}"
+          }
+        }
+      },
+      "name": "Telegram: Notify Session Expiry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1000,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $env.TELEGRAM_WEBHOOK_URL }}",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParametersUiExpression": "json",
+        "bodyParameters": {
+          "json": {
+            "text": "✅ 2captcha Worker - Session Complete\\n\\n📊 Statistics:\\nIterations: {{ $json.iterationCount }}\\nSuccessful: {{ $json.successCount }}\\nSkipped: {{ $json.skipCount }}\\nErrors: {{ $json.errorCount }}\\nElapsed: {{ $json.elapsedMinutes }} minutes\\nStart: {{ $json.startTime }}\\n\\n⏸ Break scheduled. Next iteration in 5-15 minutes.",
+            "chat_id": "{{ $env.TELEGRAM_CHAT_ID }}"
+          }
+        }
+      },
+      "name": "Telegram: Notify Session Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2850,
+        450
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        150,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "{{ $env.STEEL_BROWSER_URL }}/api/{{ $json.sessionId }}/close",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "name": "Steel: Close Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        3050,
+        500
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (2.5h)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "branch": 0,
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Initialize Session",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Session": {
+      "main": [
+        [
+          {
+            "node": "Steel: Create Session",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Create Session": {
+      "main": [
+        [
+          {
+            "node": "Steel: Navigate to 2captcha",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Navigate to 2captcha": {
+      "main": [
+        [
+          {
+            "node": "Steel: Login 2captcha",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Login 2captcha": {
+      "main": [
+        [
+          {
+            "node": "Wait: Login Processing",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Login Processing": {
+      "main": [
+        [
+          {
+            "node": "Steel: Screenshot Captcha",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Screenshot Captcha": {
+      "main": [
+        [
+          {
+            "node": "Webhook: Consensus Solver",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Consensus Solver": {
+      "main": [
+        [
+          {
+            "node": "If: Confidence >= 95%",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Confidence >= 95%": {
+      "main": [
+        [
+          {
+            "node": "Steel: Type Solution",
+            "branch": 0,
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Steel: Click Cannot Solve",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Type Solution": {
+      "main": [
+        [
+          {
+            "node": "Steel: Submit Answer",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Submit Answer": {
+      "main": [
+        [
+          {
+            "node": "Track Statistics",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Click Cannot Solve": {
+      "main": [
+        [
+          {
+            "node": "Track Statistics",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Track Statistics": {
+      "main": [
+        [
+          {
+            "node": "If: Iterations < 100",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Iterations < 100": {
+      "main": [
+        [
+          {
+            "node": "Steel: Screenshot Captcha",
+            "branch": 0,
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If: Time >= 2.5 hours",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Time >= 2.5 hours": {
+      "main": [
+        [
+          {
+            "node": "Steel: Logout",
+            "branch": 0,
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram: Notify Session Summary",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Logout": {
+      "main": [
+        [
+          {
+            "node": "Wait: Break (5-15 min)",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait: Break (5-15 min)": {
+      "main": [
+        [
+          {
+            "node": "Steel: Re-navigate After Break",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Re-navigate After Break": {
+      "main": [
+        [
+          {
+            "node": "Function: Check Relogin",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function: Check Relogin": {
+      "main": [
+        [
+          {
+            "node": "Steel: Login 2captcha",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Check Session Status": {
+      "main": [
+        [
+          {
+            "node": "If: Session Expired",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: Session Expired": {
+      "main": [
+        [
+          {
+            "node": "Steel: Create New Session (Recovery)",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Steel: Create New Session (Recovery)": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Notify Session Expiry",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: Notify Session Expiry": {
+      "main": [
+        [
+          {
+            "node": "Steel: Login 2captcha",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram: Notify Session Summary": {
+      "main": [
+        [
+          {
+            "node": "Steel: Close Session",
+            "branch": 0,
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "UTC",
+    "executionOrder": "v1",
+    "errorHandler": "error",
+    "saveManualExecutions": true
+  },
+  "versionId": "1.0.0",
+  "description": "Automated 2captcha.com Play & Earn worker with Steel Browser integration, consensus solver, break scheduling, and error handling. Runs 100 captcha iterations per session with 2.5-hour break cycles."
+}

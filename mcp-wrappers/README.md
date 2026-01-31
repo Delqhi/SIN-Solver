@@ -18,10 +18,45 @@ Docker Container (HTTP API) → MCP Wrapper (stdio) → OpenCode
 **File:** `plane-mcp-wrapper.js`  
 **Purpose:** Project management integration with Plane  
 **API URL:** `https://plane.delqhi.com`  
-**Tools:**
-- `list_projects` - List all projects
-- `create_issue` - Create new issue
-- `list_issues` - List issues in project
+**Version:** 2.0.0  
+**Tools (30 total):**
+
+**Project Tools:**
+- `plane_list_projects` - List all projects
+- `plane_get_project` - Get project details
+
+**Issue Tools:**
+- `plane_list_issues` - List issues with filters (state, priority, assignee)
+- `plane_create_issue` - Create new issue with priority, assignees, labels
+- `plane_get_issue` - Get issue details
+- `plane_update_issue` - Update issue fields
+- `plane_delete_issue` - Delete an issue
+- `plane_search_issues` - Search issues by query
+
+**Comment Tools:**
+- `plane_list_comments` - List comments on an issue
+- `plane_add_comment` - Add comment to issue
+
+**Cycle Tools:**
+- `plane_list_cycles` - List cycles/sprints
+- `plane_create_cycle` - Create new cycle
+- `plane_get_cycle` - Get cycle details
+
+**Module Tools:**
+- `plane_list_modules` - List modules
+- `plane_create_module` - Create module
+- `plane_get_module` - Get module details
+
+**Member & Metadata Tools:**
+- `plane_list_members` - List workspace members
+- `plane_list_states` - List issue states
+- `plane_list_labels` - List labels
+
+**AI Agent Tools:**
+- `plane_list_agents` - List available AI agents
+- `plane_get_agent` - Get agent details
+- `plane_mention_agent` - Mention/assign agent to task
+- `plane_agent_suggestion` - Submit agent suggestion
 
 ### 2. Captcha Solver MCP Wrapper
 **File:** `captcha-mcp-wrapper.js`  
@@ -39,6 +74,37 @@ Docker Container (HTTP API) → MCP Wrapper (stdio) → OpenCode
 - `get_solver_stats` - Get performance metrics
 - `get_solve_task_info` - Get task details
 
+### 3. Scira AI Search MCP Wrapper
+**File:** `scira-mcp-wrapper.js`  
+**Purpose:** Advanced AI-powered web search with multiple providers  
+**API URL:** `https://scira.delqhi.com` (or `http://localhost:8230` locally)  
+**Tools:**
+- `web_search` - AI-powered web search (Tavily, Exa)
+- `academic_search` - Search academic papers and research
+- `reddit_search` - Search Reddit discussions
+- `youtube_search` - Search YouTube videos with captions
+- `extract_url_content` - Extract content from any URL
+- `movie_search` - Search movies/TV shows via TMDB
+- `weather_search` - Get weather and forecasts
+- `stock_chart` - Generate stock charts with news
+- `ai_chat` - Chat with AI models (Grok, Claude, Gemini, GPT)
+- `code_interpreter` - Execute Python code
+- `health_check` - Check Scira service health
+
+### 4. Skyvern Visual AI MCP Wrapper
+**File:** `skyvern-mcp-wrapper.js`  
+**Purpose:** Visual AI-powered web automation and element detection  
+**Container:** `agent-06-skyvern-solver:8030`  
+**Tools:**
+- `analyze_screenshot` - Analyze screenshots for UI elements
+- `navigate_and_solve` - Autonomous navigation with AI goal completion
+- `solve_captcha` - Visual CAPTCHA solving
+- `generate_totp` - Generate TOTP codes for 2FA
+- `extract_coordinates` - Get click coordinates for elements
+- `detect_login_form` - Detect login form elements
+- `detect_2fa` - Detect 2FA/MFA challenges
+- `health_check` - Check Skyvern service health
+
 ## 🔧 Installation
 
 ### Prerequisites
@@ -53,7 +119,7 @@ npm install @modelcontextprotocol/sdk axios
   "mcp": {
     "captcha-solver": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/captcha-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/captcha-mcp-wrapper.js"],
       "enabled": true,
       "environment": {
         "CAPTCHA_API_URL": "https://captcha.delqhi.com",
@@ -62,11 +128,31 @@ npm install @modelcontextprotocol/sdk axios
     },
     "plane": {
       "type": "local",
-      "command": ["node", "/Users/jeremy/dev/Delqhi-Platform/mcp-wrappers/plane-mcp-wrapper.js"],
+      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/plane-mcp-wrapper.js"],
       "enabled": true,
       "environment": {
         "PLANE_API_URL": "https://plane.delqhi.com",
         "PLANE_API_KEY": "${PLANE_API_KEY}"
+      }
+    },
+    "scira": {
+      "type": "local",
+      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/scira-mcp-wrapper.js"],
+      "enabled": true,
+      "environment": {
+        "SCIRA_API_URL": "https://scira.delqhi.com",
+        "SCIRA_API_KEY": "${SCIRA_API_KEY}",
+        "REQUEST_TIMEOUT": "30000"
+      }
+    },
+    "skyvern": {
+      "type": "local",
+      "command": ["node", "/Users/jeremy/dev/SIN-Solver/mcp-wrappers/skyvern-mcp-wrapper.js"],
+      "enabled": true,
+      "environment": {
+        "SKYVERN_API_URL": "http://localhost:8030",
+        "SKYVERN_API_KEY": "dev-key",
+        "REQUEST_TIMEOUT": "60000"
       }
     }
   }
@@ -313,6 +399,12 @@ opencode mcp list-tools captcha-solver
 
 ## 📝 Changelog
 
+### v1.1.0 (2026-01-30)
+- Added Skyvern Visual AI MCP wrapper
+- Added Scira AI Search MCP wrapper documentation
+- Fixed path references from Delqhi-Platform to SIN-Solver
+- Updated all wrapper configurations
+
 ### v1.0.0 (2026-01-29)
 - Initial release
 - Plane MCP wrapper
@@ -321,6 +413,6 @@ opencode mcp list-tools captcha-solver
 
 ---
 
-**Maintained by:** Delqhi-Platform Team  
-**Last Updated:** 2026-01-29  
+**Maintained by:** SIN-Solver Team  
+**Last Updated:** 2026-01-30  
 **Status:** Production Ready ✅
