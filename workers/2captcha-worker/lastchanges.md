@@ -7,6 +7,39 @@
 
 ---
 
+## [2026-01-31 15:55] Task 127: Browserless Load Balancing - COMPLETED ✅
+
+**Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
+**Agent:** sisyphus-junior (via Atlas orchestration)  
+**Status:** COMPLETED ✅  
+
+### Changes Made
+- ✅ Created `src/browserless-load-balancer.ts` (BrowserlessLoadBalancer class)
+  - Load distribution across multiple Browserless endpoints
+  - 3 load balancing strategies: round-robin, least-connections, weighted
+  - Health checking of endpoints every 30 seconds
+  - Automatic failover to healthy endpoints
+  - Connection pooling per endpoint (max 100 connections)
+  - Request queueing when all endpoints busy
+  - Metrics collection per endpoint
+  - Dynamic endpoint management (add/remove)
+- ✅ Created `test-browserless-load-balancer.ts` (test suite)
+  - 6 test cases covering all load balancing functionality
+  - All tests passing (6/6 = 100%)
+
+### New Files
+- src/browserless-load-balancer.ts (12,440 bytes)
+- test-browserless-load-balancer.ts (4,600+ bytes)
+
+### Verification
+- ✅ All 6 tests passed
+- ✅ Round-robin distribution working
+- ✅ Health checking working
+- ✅ Failover mechanism working
+- ✅ Metrics collection working
+
+---
+
 ## [2026-01-31 15:50] Task 126: Browserless Metrics Collection - COMPLETED ✅
 
 **Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
