@@ -1390,3 +1390,111 @@ await benchmark.runBenchmarks();
 - Task 120: Create Success Rate Dashboard
 - Task 121: Add Browserless Session Persistence
 
+
+## [2026-01-31 08:00] [TASK-119-PROXY-ROTATION] - ✅ COMPLETED
+
+**Session:** Task 119 - Implement Proxy Rotation for VNC Browser  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All 6 Tests Passed
+
+### Summary
+Created a comprehensive proxy rotation system for Browserless that manages proxy pools with health checks and multiple rotation strategies.
+
+### Features Implemented
+
+#### 1. ProxyRotator Class (`proxy-rotator.ts`)
+**File:** `workers/2captcha-worker/src/proxy-rotator.ts`
+
+**Core Features:**
+- ✅ **Proxy Pool Management** - Add, remove, manage multiple proxies
+- ✅ **4 Rotation Strategies:**
+  - **Round-robin** - Cycle through proxies sequentially
+  - **Random** - Random selection from healthy proxies
+  - **Least-used** - Select proxy with lowest usage count
+  - **Weighted** - Select based on configured weights
+- ✅ **Health Tracking** - Mark proxies unhealthy after 3 failures
+- ✅ **Usage Statistics** - Track usage count, response times, failures
+- ✅ **Health Checks** - Async health check all proxies
+
+**Configuration:**
+```typescript
+interface ProxyConfig {
+  host: string;
+  port: number;
+  type: 'socks5' | 'http';
+  weight?: number;  // For weighted rotation
+}
+```
+
+**Public Methods:**
+- `getNextProxy()` - Get next proxy based on strategy
+- `recordFailure(proxy)` - Record proxy failure
+- `recordSuccess(proxy, responseTime)` - Record successful use
+- `healthCheck()` - Check all proxy health
+- `addProxy(config)` - Add new proxy to pool
+- `removeProxy(config)` - Remove proxy from pool
+- `getStats()` - Get usage statistics
+- `setStrategy(strategy)` - Change rotation strategy
+- `resetStats()` - Reset all statistics
+
+#### 2. Test Suite (`test-proxy-rotation.ts`)
+**File:** `workers/2captcha-worker/test-proxy-rotation.ts`
+
+**Tests:**
+1. ✅ Round-robin strategy - Cycles through all proxies
+2. ✅ Random strategy - Provides variety in selection
+3. ✅ Least-used strategy - Distributes load evenly
+4. ✅ Weighted strategy - Respects configured weights (76/24 split)
+5. ✅ Health check & failure tracking - Marks unhealthy after 3 failures
+6. ✅ Add/remove proxies - Dynamic pool management
+
+### Test Results
+```
+Test 1: Round-robin - ✅ PASS
+Test 2: Random - ✅ PASS
+Test 3: Least-used - ✅ PASS
+Test 4: Weighted - ✅ PASS (76 heavy / 24 light)
+Test 5: Health check - ✅ PASS
+Test 6: Add/remove - ✅ PASS
+─────────────────────────────
+Overall: ✅ ALL TESTS PASSED
+```
+
+### Usage Example
+```typescript
+import { ProxyRotator } from './src/proxy-rotator';
+
+const rotator = new ProxyRotator([
+  { host: 'proxy1.example.com', port: 1080, type: 'socks5', weight: 2 },
+  { host: 'proxy2.example.com', port: 8080, type: 'http', weight: 1 }
+], 'round-robin');
+
+// Get next proxy
+const proxy = rotator.getNextProxy();
+
+// Use with AutoHealingCDPManager
+const manager = new AutoHealingCDPManager({
+  httpUrl: 'http://localhost:50072',
+  token: 'delqhi-admin'
+});
+
+// Record success/failure
+rotator.recordSuccess(proxy, 150);
+rotator.recordFailure(proxy);
+
+// Health check
+await rotator.healthCheck();
+```
+
+### Benefits
+- 🔄 **Load Distribution** - Evenly distribute traffic across proxies
+- 🛡️ **Fault Tolerance** - Automatic failover on proxy failure
+- 📊 **Observability** - Track proxy performance and health
+- ⚙️ **Flexible** - Multiple rotation strategies for different use cases
+- 🚀 **Scalable** - Easy to add/remove proxies dynamically
+
+### Next Steps
+- Task 120: Create Success Rate Dashboard
+- Task 121: Add Browserless Session Persistence
+- Task 122: Implement Concurrent CAPTCHA Solving
+
