@@ -1,23 +1,31 @@
-# Agent 07: VNC Browser (Headfull Mode)
+# Agent 07: VNC Browser (Browserless - Headfull Mode)
 
 **Alternative to:** Steel Browser (Headless)  
-**Purpose:** Visual browser automation with GUI access  
+**Purpose:** Visual browser automation with GUI access via Browserless  
 **Container:** `agent-07-vnc-browser`  
-**Image:** `siomiz/chrome:latest`
+**Image:** `ghcr.io/browserless/chromium:latest` (ARM64 native)
 
 ---
 
 ## 🎯 Overview
 
-This agent provides a **HEADFULL** Chrome browser with VNC access, allowing you to:
-- See the browser GUI in real-time
+This agent provides a **HEADFULL** Chrome browser using [Browserless](https://www.browserless.io/), allowing you to:
+- See the browser GUI in real-time via Debugger UI
 - Debug automation visually
 - Interact manually if needed
 - Record screencasts
+- Use Chrome DevTools Protocol (CDP) for automation
 
 **Difference to Steel Browser:**
 - Steel = Headless (no GUI, faster, production)
-- VNC Browser = Headfull (with GUI, debugging, development)
+- VNC Browser = Headfull (with GUI via Browserless debugger, debugging, development)
+
+**Why Browserless?**
+- ✅ ARM64 native (no emulation on Apple Silicon)
+- ✅ Built-in debugger UI (no VNC client needed)
+- ✅ Production-ready (used by major companies)
+- ✅ Session management and pooling
+- ✅ Token-based authentication
 
 ---
 
@@ -29,36 +37,34 @@ cd Docker/agents/agent-07-vnc-browser
 docker-compose up -d
 ```
 
-### 2. Connect via VNC
+### 2. Access Debugger UI
 
-**Option A: VNC Viewer (Recommended)**
-```bash
-# macOS: Open Screen Sharing
-open vnc://localhost:50070
-
-# Password: delqhi-admin (or your VNC_PASSWORD)
+**Web Browser (Recommended)**
+```
+http://localhost:50070/debugger?token=delqhi-admin
 ```
 
-**Option B: Web Browser (noVNC)**
-```
-http://localhost:50071
-```
+**Features:**
+- Code editor with TypeScript/JavaScript support
+- Session viewer to monitor active browser sessions
+- Real-time browser interaction
+- Screenshot capture
 
 ### 3. Verify CDP Access
 ```bash
-curl http://localhost:50072/json/version
+curl "http://localhost:50072/json/version?token=delqhi-admin"
 ```
 
 ---
 
 ## 📊 Ports
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| VNC | 50070 | Remote Desktop (VNC Viewer) |
-| noVNC | 50071 | Web-based VNC (Browser) |
-| CDP | 50072 | Chrome DevTools Protocol |
-| API | 50073 | HTTP API (if available) |
+| Service | Port | Purpose | URL |
+|---------|------|---------|-----|
+| Debugger UI | 50070 | Visual browser interface | http://localhost:50070/debugger |
+| Documentation | 50070 | API docs (Redoc) | http://localhost:50070/docs |
+| CDP API | 50072 | Chrome DevTools Protocol | http://localhost:50072/json/version |
+| Sessions API | 50070 | Active sessions monitor | http://localhost:50070/sessions |
 
 ---
 
@@ -72,60 +78,79 @@ Copy `.env.example` to `.env` and adjust:
 # Browser Mode
 BROWSER_MODE=vnc  # or 'steel' for headless
 
-# VNC Settings
-VNC_BROWSER_PORT=50070
-VNC_WEB_PORT=50071
-VNC_CDP_PORT=50072
-VNC_PASSWORD=your-secure-password
-VNC_RESOLUTION=1920x1080
+# VNC Browser Settings
+VNC_BROWSER_PORT=50070    # Debugger UI port
+VNC_CDP_PORT=50072        # CDP API port
+VNC_PASSWORD=delqhi-admin # Authentication token
 ```
 
-### Switch Between Headless and Headfull
+### Docker Compose Configuration
 
-**Headfull (VNC):**
-```bash
-# Start VNC Browser
-docker-compose -f docker-compose.yml up -d
+Key settings in `docker-compose.yml`:
 
-# Stop Steel Browser
-docker stop agent-05-steel-browser
-```
-
-**Headless (Steel):**
-```bash
-# Start Steel Browser
-cd ../agent-05-steel
-docker-compose up -d
-
-# Stop VNC Browser
-docker stop agent-07-vnc-browser
+```yaml
+environment:
+  - TOKEN=delqhi-admin              # Authentication token
+  - MAX_CONCURRENT_SESSIONS=10      # Parallel sessions
+  - PREBOOT_CHROME=true             # Faster startup
+  - ENABLE_DEBUGGER=true            # Debugger UI
+  - DEFAULT_HEADLESS=false          # Headfull mode
 ```
 
 ---
 
 ## 🖥️ Usage Examples
 
-### Connect with CDP (TypeScript)
-```typescript
-const CDP = require('chrome-remote-interface');
+### Connect with CDP (Two-Level WebSocket)
 
-const client = await CDP({
-  host: 'localhost',
-  port: 50072  // VNC Browser CDP Port
+Browserless uses a two-level WebSocket system:
+
+```typescript
+import WebSocket from 'ws';
+
+const TOKEN = 'delqhi-admin';
+const BROWSER_WS = 'ws://localhost:50072?token=' + TOKEN;
+
+// Step 1: Connect to browser-level WebSocket
+const browserWs = new WebSocket(BROWSER_WS);
+
+browserWs.on('open', () => {
+  // Step 2: Create a new target (page)
+  browserWs.send(JSON.stringify({
+    id: 1,
+    method: 'Target.createTarget',
+    params: { url: 'about:blank' }
+  }));
 });
 
-// Navigate
-await client.Page.navigate({ url: 'https://example.com' });
-
-// Take screenshot
-const { data } = await client.Page.captureScreenshot();
+browserWs.on('message', (data) => {
+  const msg = JSON.parse(data.toString());
+  
+  if (msg.id === 1 && msg.result?.targetId) {
+    const targetId = msg.result.targetId;
+    
+    // Step 3: Connect to target-level WebSocket
+    const targetWsUrl = `ws://localhost:50072/devtools/page/${targetId}?token=${TOKEN}`;
+    const targetWs = new WebSocket(targetWsUrl);
+    
+    targetWs.on('open', () => {
+      // Now you can use CDP commands
+      targetWs.send(JSON.stringify({
+        id: 1,
+        method: 'Page.navigate',
+        params: { url: 'https://example.com' }
+      }));
+    });
+  }
+});
 ```
 
 ### Connect with Puppeteer
+
 ```typescript
 const browser = await puppeteer.connect({
-  browserWSEndpoint: 'ws://localhost:50072/devtools/browser',
-  defaultViewport: null  // Use actual window size
+  browserWSEndpoint: 'ws://localhost:50072?token=delqhi-admin',
+  defaultViewport: null
 });
 
 const page = await browser.newPage();
@@ -133,54 +158,64 @@ await page.goto('https://example.com');
 ```
 
 ### Connect with Playwright
+
 ```typescript
 const browser = await chromium.connectOverCDP(
-  'http://localhost:50072'
+  'http://localhost:50072?token=delqhi-admin'
 );
 
 const context = await browser.newContext();
 const page = await context.newPage();
+await page.goto('https://example.com');
 ```
 
 ---
 
-## 🎨 VNC Clients
+## 🎨 Browserless Debugger UI
 
-### macOS
-- **Screen Sharing** (built-in): `open vnc://localhost:50070`
-- **VNC Viewer** (RealVNC): Download from realvnc.com
+The debugger UI provides a complete development environment:
 
-### Windows
-- **RealVNC Viewer**: https://www.realvnc.com/en/connect/download/viewer/
-- **TightVNC**: https://www.tightvnc.com/
+### Features
+- **Code Editor**: Write and execute TypeScript/JavaScript
+- **Session Viewer**: Monitor active browser sessions
+- **Live Preview**: See browser actions in real-time
+- **Download Code**: Save your automation scripts
 
-### Linux
-- **Remmina**: `sudo apt install remmina`
-- **TigerVNC**: `sudo apt install tigervnc-viewer`
+### Access
+```
+http://localhost:50070/debugger?token=delqhi-admin
+```
+
+### Screenshot
+The debugger shows:
+- Left sidebar: Code editor and session list
+- Right panel: Live browser preview
+- Top bar: Run button and download options
 
 ---
 
 ## 🔒 Security
 
-### Default Password
-- **VNC Password:** `delqhi-admin`
-- **Change in:** `.env` file → `VNC_PASSWORD`
+### Authentication
+- **Token:** `delqhi-admin` (configurable via `TOKEN` env var)
+- **Required for:** All API endpoints and WebSocket connections
+- **Format:** `?token=delqhi-admin` appended to URLs
 
 ### Network Security
-- VNC port (50070) should NOT be exposed publicly
+- Port 50070/50072 should NOT be exposed publicly
 - Use SSH tunnel for remote access:
   ```bash
-  ssh -L 50070:localhost:50070 user@server
+  ssh -L 50070:localhost:50070 -L 50072:localhost:50072 user@server
   ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### VNC Connection Refused
+### Container Not Starting
 ```bash
-# Check if container is running
-docker ps | grep vnc-browser
+# Check container status
+docker ps | grep agent-07
 
 # Check logs
 docker logs agent-07-vnc-browser
@@ -189,18 +224,30 @@ docker logs agent-07-vnc-browser
 docker-compose restart
 ```
 
-### Black Screen
+### CDP Connection Fails
 ```bash
-# Increase resources
-docker-compose down
-docker-compose up -d --memory=4g
+# Verify token is correct
+curl "http://localhost:50072/json/version?token=delqhi-admin"
+
+# Check if Browserless is healthy
+docker ps | grep agent-07-vnc-browser
+# Should show (healthy)
 ```
 
-### Slow Performance
+### Debugger UI Not Loading
 ```bash
-# Reduce resolution
-VNC_RESOLUTION=1280x720
+# Check if debugger is enabled
+docker exec agent-07-vnc-browser env | grep ENABLE_DEBUGGER
+# Should show: ENABLE_DEBUGGER=true
+
+# Check port mapping
+docker port agent-07-vnc-browser
 ```
+
+### Two-Level WebSocket Issues
+If you get errors like `'Page.enable' wasn't found`:
+- You're connected to browser-level WS instead of target-level
+- Create a target first, then connect to `devtools/page/<targetId>`
 
 ---
 
@@ -208,26 +255,29 @@ VNC_RESOLUTION=1280x720
 
 ```
 agent-07-vnc-browser/
-├── docker-compose.yml      # Service definition
-├── .env.example            # Configuration template
-├── README.md               # This file
-└── scripts/                # Custom automation scripts
-    └── example.js
+├── docker-compose.yml          # Service definition (Browserless)
+├── .env.example                # Configuration template
+├── README.md                   # This file
+└── ../../workers/2captcha-worker/
+    ├── test-cdp-debug.ts       # CDP connection test
+    └── test-web-vnc.ts         # Web VNC verification test
 ```
 
 ---
 
-## 🔄 Comparison: Steel vs VNC Browser
+## 🔄 Comparison: Steel vs VNC Browser (Browserless)
 
-| Feature | Steel (Headless) | VNC Browser (Headfull) |
-|---------|------------------|------------------------|
-| **GUI** | ❌ None | ✅ Full Desktop |
-| **Speed** | ✅ Fast | ⚠️ Slower (VNC overhead) |
+| Feature | Steel (Headless) | VNC Browser (Browserless) |
+|---------|------------------|---------------------------|
+| **GUI** | ❌ None | ✅ Debugger UI (Web-based) |
+| **Speed** | ✅ Fast | ⚠️ Moderate (session overhead) |
 | **Memory** | ✅ Low (~500MB) | ⚠️ Higher (~1-2GB) |
-| **Debugging** | ❌ Hard | ✅ Easy (see what's happening) |
-| **Production** | ✅ Recommended | ❌ Development only |
-| **VNC Access** | ❌ No | ✅ Yes |
-| **Manual Control** | ❌ No | ✅ Yes (take over anytime) |
+| **Debugging** | ❌ Hard | ✅ Easy (visual debugger) |
+| **Production** | ✅ Recommended | ⚠️ Development/debugging |
+| **Architecture** | AMD64/ARM64 | ✅ ARM64 native |
+| **VNC Client** | ❌ Not needed | ❌ Not needed (web UI) |
+| **Manual Control** | ❌ No | ✅ Yes (via debugger) |
+| **CDP Support** | ✅ Yes | ✅ Yes (two-level WS) |
 
 ---
 
@@ -239,23 +289,43 @@ agent-07-vnc-browser/
 - No human intervention required
 - Running 24/7 automation
 
-**Use VNC Browser (Headfull) when:**
+**Use VNC Browser (Browserless) when:**
 - Developing/debugging scripts
-- Learning browser automation
-- Need to see what's happening
+- Need visual feedback
 - Manual intervention might be needed
 - Recording demos/tutorials
+- Running on ARM64 (Apple Silicon)
 
 ---
 
 ## 📚 References
 
-- **VNC Browser Image:** https://hub.docker.com/r/siomiz/chrome
-- **Steel Browser:** https://docs.steel.dev
+- **Browserless Docs:** https://www.browserless.io/
+- **Browserless GitHub:** https://github.com/browserless/browserless
 - **Chrome DevTools Protocol:** https://chromedevtools.github.io/devtools-protocol/
+- **Steel Browser:** https://docs.steel.dev
 
 ---
 
-**Document Version:** 1.1  
+## ✅ Testing
+
+Run the verification tests:
+
+```bash
+cd workers/2captcha-worker
+
+# Test CDP connection
+npx ts-node test-cdp-debug.ts
+
+# Test Web VNC connection
+npx ts-node test-web-vnc.ts
+
+# Test autonomous worker
+npx ts-node test-autonomous.ts
+```
+
+---
+
+**Document Version:** 2.0  
 **Last Updated:** 2026-01-31  
-**Status:** Active
+**Status:** Active - Browserless Migration Complete

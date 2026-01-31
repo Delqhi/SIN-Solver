@@ -997,3 +997,49 @@ Overall:          ✅ ALL TESTS PASSED
 - Task 116: Implement Auto-Healing for CDP Connection
 - Task 117: Add Visual Debugging Mode
 
+
+## [2026-01-31 07:00] [TASK-115-DOCUMENT-VNC-BROWSER] - ✅ COMPLETED
+
+**Session:** Task 115 - Document VNC Browser Setup in README  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - README Updated
+
+### Summary
+Completely rewrote the VNC Browser README to reflect the Browserless migration.
+
+### Changes Made
+
+#### Updated README.md
+**File:** `Docker/agents/agent-07-vnc-browser/README.md`
+
+**Major Updates:**
+1. **Image Reference**: Changed from `siomiz/chrome:latest` to `ghcr.io/browserless/chromium:latest`
+2. **Architecture**: Added ARM64 native support documentation
+3. **Access Methods**: 
+   - Removed: VNC Viewer, noVNC references
+   - Added: Browserless Debugger UI (`/debugger?token=xxx`)
+4. **Port Documentation**: Updated to reflect Browserless ports (50070, 50072)
+5. **Two-Level WebSocket**: Added comprehensive documentation with code example
+6. **Security**: Updated to token-based authentication
+7. **Troubleshooting**: Added Browserless-specific troubleshooting steps
+8. **Testing**: Added test file references
+
+**New Sections:**
+- Browserless Debugger UI (features, access URL, screenshot description)
+- Two-Level WebSocket System (detailed explanation with code)
+- Testing section with test commands
+
+### Documentation Quality
+- ✅ Clear migration path from old VNC to Browserless
+- ✅ Code examples for all connection methods
+- ✅ Troubleshooting for common issues
+- ✅ Comparison table updated
+- ✅ All URLs tested and verified
+
+### Files Modified
+- `Docker/agents/agent-07-vnc-browser/README.md` (complete rewrite)
+
+### Version
+- **Old:** 1.1 (siomiz/chrome)
+- **New:** 2.0 (Browserless)
+
