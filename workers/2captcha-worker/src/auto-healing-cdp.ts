@@ -7,6 +7,8 @@ import WebSocket from 'ws';
 import fetch from 'node-fetch';
 import { EventEmitter } from 'events';
 
+type WS = WebSocket;
+
 interface CDPConnectionConfig {
   httpUrl: string;
   token: string;
@@ -263,7 +265,9 @@ export class AutoHealingCDPManager extends EventEmitter {
    * Perform health check
    */
   private async performHealthCheck(): Promise<boolean> {
-    if (!this.targetWs || this.targetWs.readyState !== WebSocket.OPEN) {
+    // WebSocket.OPEN = 1 in ws package (readyState constants not exposed on type)
+    // Cast to any to access readyState property (exists at runtime but not in type definition)
+    if (!this.targetWs || (this.targetWs as any).readyState !== 1) {
       return false;
     }
 
