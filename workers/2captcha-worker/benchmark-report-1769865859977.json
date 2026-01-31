@@ -1,0 +1,377 @@
+{
+  "timestamp": "2026-01-31T13:24:19.977Z",
+  "config": {
+    "httpUrl": "http://localhost:50072",
+    "token": "delqhi-admin",
+    "iterations": 5,
+    "warmupRuns": 1
+  },
+  "results": [
+    {
+      "name": "Connection Establishment",
+      "results": [
+        {
+          "testName": "Connection #1",
+          "durationMs": 689,
+          "success": true
+        },
+        {
+          "testName": "Connection #2",
+          "durationMs": 486,
+          "success": true
+        },
+        {
+          "testName": "Connection #3",
+          "durationMs": 1113,
+          "success": true
+        },
+        {
+          "testName": "Connection #4",
+          "durationMs": 2167,
+          "success": true
+        },
+        {
+          "testName": "Connection #5",
+          "durationMs": 2471,
+          "success": true
+        }
+      ],
+      "totalDuration": 6926,
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "name": "Page Navigation",
+      "results": [
+        {
+          "testName": "https://example.com - Run #1",
+          "durationMs": 202,
+          "success": true,
+          "metadata": {
+            "url": "https://example.com"
+          }
+        },
+        {
+          "testName": "https://example.com - Run #2",
+          "durationMs": 114,
+          "success": true,
+          "metadata": {
+            "url": "https://example.com"
+          }
+        },
+        {
+          "testName": "https://example.com - Run #3",
+          "durationMs": 77,
+          "success": true,
+          "metadata": {
+            "url": "https://example.com"
+          }
+        },
+        {
+          "testName": "https://example.com - Run #4",
+          "durationMs": 86,
+          "success": true,
+          "metadata": {
+            "url": "https://example.com"
+          }
+        },
+        {
+          "testName": "https://example.com - Run #5",
+          "durationMs": 89,
+          "success": true,
+          "metadata": {
+            "url": "https://example.com"
+          }
+        },
+        {
+          "testName": "https://httpbin.org/html - Run #1",
+          "durationMs": 622,
+          "success": true,
+          "metadata": {
+            "url": "https://httpbin.org/html"
+          }
+        },
+        {
+          "testName": "https://httpbin.org/html - Run #2",
+          "durationMs": 301,
+          "success": true,
+          "metadata": {
+            "url": "https://httpbin.org/html"
+          }
+        },
+        {
+          "testName": "https://httpbin.org/html - Run #3",
+          "durationMs": 319,
+          "success": true,
+          "metadata": {
+            "url": "https://httpbin.org/html"
+          }
+        },
+        {
+          "testName": "https://httpbin.org/html - Run #4",
+          "durationMs": 177,
+          "success": true,
+          "metadata": {
+            "url": "https://httpbin.org/html"
+          }
+        },
+        {
+          "testName": "https://httpbin.org/html - Run #5",
+          "durationMs": 894,
+          "success": true,
+          "metadata": {
+            "url": "https://httpbin.org/html"
+          }
+        },
+        {
+          "testName": "https://www.wikipedia.org - Run #1",
+          "durationMs": 3406,
+          "success": true,
+          "metadata": {
+            "url": "https://www.wikipedia.org"
+          }
+        },
+        {
+          "testName": "https://www.wikipedia.org - Run #2",
+          "durationMs": 771,
+          "success": true,
+          "metadata": {
+            "url": "https://www.wikipedia.org"
+          }
+        },
+        {
+          "testName": "https://www.wikipedia.org - Run #3",
+          "durationMs": 260,
+          "success": true,
+          "metadata": {
+            "url": "https://www.wikipedia.org"
+          }
+        },
+        {
+          "testName": "https://www.wikipedia.org - Run #4",
+          "durationMs": 159,
+          "success": true,
+          "metadata": {
+            "url": "https://www.wikipedia.org"
+          }
+        },
+        {
+          "testName": "https://www.wikipedia.org - Run #5",
+          "durationMs": 136,
+          "success": true,
+          "metadata": {
+            "url": "https://www.wikipedia.org"
+          }
+        }
+      ],
+      "totalDuration": 7613,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "name": "Screenshot Capture",
+      "results": [
+        {
+          "testName": "Screenshot #1",
+          "durationMs": 177,
+          "success": true,
+          "metadata": {
+            "hasData": true,
+            "dataLength": 23448
+          }
+        },
+        {
+          "testName": "Screenshot #2",
+          "durationMs": 107,
+          "success": true,
+          "metadata": {
+            "hasData": true,
+            "dataLength": 23448
+          }
+        },
+        {
+          "testName": "Screenshot #3",
+          "durationMs": 46,
+          "success": true,
+          "metadata": {
+            "hasData": true,
+            "dataLength": 23448
+          }
+        },
+        {
+          "testName": "Screenshot #4",
+          "durationMs": 56,
+          "success": true,
+          "metadata": {
+            "hasData": true,
+            "dataLength": 23448
+          }
+        },
+        {
+          "testName": "Screenshot #5",
+          "durationMs": 42,
+          "success": true,
+          "metadata": {
+            "hasData": true,
+            "dataLength": 23448
+          }
+        }
+      ],
+      "totalDuration": 428,
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "name": "CDP Command Execution",
+      "results": [
+        {
+          "testName": "Runtime.evaluate - Run #1",
+          "durationMs": 12,
+          "success": true,
+          "metadata": {
+            "method": "Runtime.evaluate"
+          }
+        },
+        {
+          "testName": "Runtime.evaluate - Run #2",
+          "durationMs": 6,
+          "success": true,
+          "metadata": {
+            "method": "Runtime.evaluate"
+          }
+        },
+        {
+          "testName": "Runtime.evaluate - Run #3",
+          "durationMs": 12,
+          "success": true,
+          "metadata": {
+            "method": "Runtime.evaluate"
+          }
+        },
+        {
+          "testName": "Runtime.evaluate - Run #4",
+          "durationMs": 21,
+          "success": true,
+          "metadata": {
+            "method": "Runtime.evaluate"
+          }
+        },
+        {
+          "testName": "Runtime.evaluate - Run #5",
+          "durationMs": 9,
+          "success": true,
+          "metadata": {
+            "method": "Runtime.evaluate"
+          }
+        },
+        {
+          "testName": "DOM.getDocument - Run #1",
+          "durationMs": 9,
+          "success": true,
+          "metadata": {
+            "method": "DOM.getDocument"
+          }
+        },
+        {
+          "testName": "DOM.getDocument - Run #2",
+          "durationMs": 8,
+          "success": true,
+          "metadata": {
+            "method": "DOM.getDocument"
+          }
+        },
+        {
+          "testName": "DOM.getDocument - Run #3",
+          "durationMs": 7,
+          "success": true,
+          "metadata": {
+            "method": "DOM.getDocument"
+          }
+        },
+        {
+          "testName": "DOM.getDocument - Run #4",
+          "durationMs": 3,
+          "success": true,
+          "metadata": {
+            "method": "DOM.getDocument"
+          }
+        },
+        {
+          "testName": "DOM.getDocument - Run #5",
+          "durationMs": 3,
+          "success": true,
+          "metadata": {
+            "method": "DOM.getDocument"
+          }
+        },
+        {
+          "testName": "Page.getNavigationHistory - Run #1",
+          "durationMs": 4,
+          "success": true,
+          "metadata": {
+            "method": "Page.getNavigationHistory"
+          }
+        },
+        {
+          "testName": "Page.getNavigationHistory - Run #2",
+          "durationMs": 7,
+          "success": true,
+          "metadata": {
+            "method": "Page.getNavigationHistory"
+          }
+        },
+        {
+          "testName": "Page.getNavigationHistory - Run #3",
+          "durationMs": 8,
+          "success": true,
+          "metadata": {
+            "method": "Page.getNavigationHistory"
+          }
+        },
+        {
+          "testName": "Page.getNavigationHistory - Run #4",
+          "durationMs": 4,
+          "success": true,
+          "metadata": {
+            "method": "Page.getNavigationHistory"
+          }
+        },
+        {
+          "testName": "Page.getNavigationHistory - Run #5",
+          "durationMs": 5,
+          "success": true,
+          "metadata": {
+            "method": "Page.getNavigationHistory"
+          }
+        }
+      ],
+      "totalDuration": 118,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "name": "Concurrent Sessions",
+      "results": [
+        {
+          "testName": "3 Concurrent Sessions",
+          "durationMs": 6270,
+          "success": true,
+          "metadata": {
+            "concurrentCount": 3,
+            "avgSessionTime": 5972.666666666667
+          }
+        }
+      ],
+      "totalDuration": 6270,
+      "passed": 1,
+      "failed": 0
+    }
+  ],
+  "summary": {
+    "totalTests": 41,
+    "totalPassed": 41,
+    "totalFailed": 0,
+    "totalDuration": 21355,
+    "passRate": "100.0"
+  }
+}

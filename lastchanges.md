@@ -1290,3 +1290,103 @@ const htmlPath = debugger.generateHTMLTimeline();
 - Task 119: Implement Proxy Rotation for VNC Browser
 - Task 120: Create Success Rate Dashboard
 
+
+## [2026-01-31 07:45] [TASK-118-PERFORMANCE-BENCHMARK] - ✅ COMPLETED
+
+**Session:** Task 118 - Create Performance Benchmark for Browserless  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All 41 Tests Passed (100%)
+
+### Summary
+Created comprehensive performance benchmark suite for Browserless that measures connection time, navigation speed, screenshot performance, and concurrent session handling.
+
+### Benchmark Suite (`browserless-benchmark.ts`)
+**File:** `workers/2captcha-worker/src/browserless-benchmark.ts`
+
+**Benchmark Categories:**
+
+#### 1. Connection Establishment
+- **Tests:** 5 iterations
+- **Average:** 1,385ms
+- **Range:** 486ms - 2,471ms
+- **Status:** ✅ 5/5 passed
+
+#### 2. Page Navigation
+- **Tests:** 15 iterations (3 URLs × 5 runs)
+- **Average:** 508ms
+- **Range:** 77ms - 3,406ms
+- **URLs tested:** example.com, httpbin.org/html, wikipedia.org
+- **Status:** ✅ 15/15 passed
+
+#### 3. Screenshot Capture
+- **Tests:** 5 iterations
+- **Average:** 86ms
+- **Range:** 42ms - 177ms
+- **Status:** ✅ 5/5 passed
+
+#### 4. CDP Command Execution
+- **Tests:** 15 iterations (3 commands × 5 runs)
+- **Average:** 8ms
+- **Range:** 3ms - 21ms
+- **Commands:** Runtime.evaluate, DOM.getDocument, Page.getNavigationHistory
+- **Status:** ✅ 15/15 passed
+
+#### 5. Concurrent Sessions
+- **Tests:** 3 concurrent sessions
+- **Total Time:** 6,270ms
+- **Average per session:** ~2,090ms
+- **Status:** ✅ 1/1 passed
+
+### Performance Summary
+```
+Total Tests: 41
+Total Passed: 41 (100.0%)
+Total Duration: 21,355ms
+
+Fastest Operation: CDP Commands (8ms avg)
+Slowest Operation: Concurrent Sessions (6,270ms total)
+Most Variable: Navigation (77ms - 3,406ms range)
+```
+
+### Key Findings
+
+**Performance Characteristics:**
+- ⚡ **CDP Commands:** Extremely fast (8ms avg) - suitable for real-time automation
+- 📸 **Screenshots:** Fast (86ms avg) - good for visual debugging
+- 🌐 **Navigation:** Moderate (508ms avg) - depends on website complexity
+- 🔌 **Connection:** Reasonable (1,385ms avg) - one-time cost per session
+- 🔄 **Concurrent:** Scales well - 3 sessions in ~6s total
+
+**Recommendations:**
+1. **Reuse connections** - Connection establishment is expensive (1.4s)
+2. **Batch CDP commands** - They're very fast (8ms), batch for efficiency
+3. **Screenshot wisely** - 86ms is fast but adds up in loops
+4. **Concurrent sessions work** - Can run 3+ sessions simultaneously
+
+### Files Created
+- `src/browserless-benchmark.ts` - Benchmark suite (450+ lines)
+- `test-benchmark.ts` - Test runner
+- `benchmark-report-*.json` - JSON report with detailed results
+
+### Usage
+```typescript
+import { BrowserlessBenchmark } from './src/browserless-benchmark';
+
+const benchmark = new BrowserlessBenchmark();
+await benchmark.runBenchmarks();
+// Generates console output + JSON report
+```
+
+### Features
+- ✅ Warmup runs for stable results
+- ✅ Multiple iterations per test
+- ✅ Statistical analysis (avg, min, max)
+- ✅ JSON report generation
+- ✅ Concurrent session testing
+- ✅ Error handling and reporting
+
+### Next Steps
+- Task 119: Implement Proxy Rotation for VNC Browser
+- Task 120: Create Success Rate Dashboard
+- Task 121: Add Browserless Session Persistence
+
