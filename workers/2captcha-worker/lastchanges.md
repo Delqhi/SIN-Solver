@@ -7,6 +7,41 @@
 
 ---
 
+## [2026-01-31 15:50] Task 126: Browserless Metrics Collection - COMPLETED ✅
+
+**Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
+**Agent:** sisyphus-junior (via Atlas orchestration)  
+**Status:** COMPLETED ✅  
+
+### Changes Made
+- ✅ Created `src/browserless-metrics.ts` (BrowserlessMetrics class)
+  - Comprehensive metrics collection for Browserless CDP operations
+  - Connection metrics (total, active, failed)
+  - Request duration tracking (min, max, avg, percentiles)
+  - CDP command counts by type
+  - Error rates and types tracking
+  - Page load time metrics
+  - Screenshot capture time metrics
+  - WebSocket message counts
+  - Percentile calculations (p50, p95, p99)
+  - JSON export functionality
+- ✅ Created `test-browserless-metrics.ts` (test suite)
+  - 6 test cases covering all metrics functionality
+  - All tests passing (6/6 = 100%)
+
+### New Files
+- src/browserless-metrics.ts (12,822 bytes)
+- test-browserless-metrics.ts (4,800+ bytes)
+
+### Verification
+- ✅ All 6 tests passed
+- ✅ Connection metrics working
+- ✅ Request duration tracking working
+- ✅ Percentile calculations verified
+- ✅ JSON export working
+
+---
+
 ## [2026-01-31 15:45] Task 125: Document Two-Level WebSocket Architecture - COMPLETED ✅
 
 **Session:** ses_3ebb310d4ffeCyuzd2jIK9mkee  
