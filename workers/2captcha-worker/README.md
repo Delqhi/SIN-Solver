@@ -80,6 +80,30 @@
 ### 🧪 Testing
 - Pending: LSP diagnostics, build, and rotation test suite verification.
 
+## Recent Changes (Session 34 - 2026-01-31)
+
+### 🔧 Improvements
+- Reconstructed holy-trinity-worker.ts to remove corrupted tail and restore clean class structure.
+- Restarted TypeScript language server to clear stale diagnostics.
+
+### 🧪 Testing
+- LSP diagnostics clean for holy-trinity-worker.ts and alerts.ts.
+- `npm run build` succeeded.
+- `npm test -- tests/rotation-system.test.ts` passed.
+
+
+## Recent Changes (Session 35 - 2026-01-31)
+
+### ✨ New Features
+- Added Agent-07 VNC browser configuration (ports 50070/50071/50072) for headfull CDP debugging.
+
+### 🔧 Improvements
+- Autonomous worker now targets Agent-07 VNC CDP/HTTP URLs for reliable headfull debugging.
+
+### 🧪 Testing
+- LSP diagnostics clean for autonomous-worker.ts.
+
+
 ## 🏗️ Architecture
 
 ```
