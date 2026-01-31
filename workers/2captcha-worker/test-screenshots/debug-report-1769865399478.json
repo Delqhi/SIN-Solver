@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-01-31T13:16:39.478Z",
+  "totalScreenshots": 1,
+  "events": [
+    {
+      "timestamp": 1769865399340,
+      "step": "error-test-context",
+      "error": "Test error for screenshot",
+      "screenshotPath": "test-screenshots/1769865399340-error-test-context.png"
+    }
+  ],
+  "config": {
+    "enabled": true,
+    "screenshotDir": "./test-screenshots",
+    "captureOnError": true,
+    "captureOnSteps": true,
+    "stepsToCapture": [
+      "navigation",
+      "captcha-detected",
+      "before-submit",
+      "after-submit",
+      "error"
+    ],
+    "maxScreenshots": 100
+  }
+}

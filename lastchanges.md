@@ -1158,3 +1158,135 @@ const result = await manager.sendCommand('Runtime.evaluate', {
 - Task 131: Implement CDP Connection Retry Logic (✅ DONE - part of this task)
 - Task 132: Add Browserless Session Timeout Handling (✅ DONE - part of this task)
 
+
+## [2026-01-31 07:30] [TASK-117-VISUAL-DEBUGGER] - ✅ COMPLETED
+
+**Session:** Task 117 - Add Visual Debugging Mode (screenshots on error)  
+**Agent:** Atlas (Orchestrator)  
+**Status:** ✅ COMPLETED - All Tests Passed
+
+### Summary
+Created a comprehensive visual debugging system that captures screenshots at key automation steps and on errors.
+
+### Features Implemented
+
+#### 1. VisualDebugger Class (`visual-debugger.ts`)
+**File:** `workers/2captcha-worker/src/visual-debugger.ts`
+
+**Core Features:**
+- ✅ **Screenshot Capture** - Via CDP Page.captureScreenshot
+- ✅ **Step-Based Capture** - Configurable steps to capture
+- ✅ **Error Capture** - Automatic screenshots on errors
+- ✅ **Event Tracking** - Records all screenshot events with metadata
+- ✅ **Configurable** - Enable/disable, max screenshots, directory
+
+**Configuration Options:**
+```typescript
+{
+  enabled: boolean;              // Enable/disable debugger
+  screenshotDir: string;         // Directory for screenshots
+  captureOnError: boolean;       // Capture on errors
+  captureOnSteps: boolean;       // Capture on specific steps
+  stepsToCapture: string[];      // Which steps to capture
+  maxScreenshots: number;        // Limit to prevent disk fill
+}
+```
+
+**Public Methods:**
+- `captureScreenshot(step, metadata)` - Capture at any point
+- `captureStepScreenshot(step, url)` - Capture specific step
+- `captureErrorScreenshot(error, context)` - Capture on error
+- `generateReport()` - Generate JSON debug report
+- `generateHTMLTimeline()` - Generate visual HTML timeline
+- `getEvents()` - Get all screenshot events
+- `clear()` - Clear all screenshots and events
+
+**Events Tracked:**
+- Timestamp
+- Step name
+- URL (if available)
+- Error message (if error screenshot)
+- Screenshot file path
+
+#### 2. HTML Timeline Generation
+**Features:**
+- Visual timeline of all screenshots
+- Error highlighting (red border)
+- Success highlighting (green border)
+- Timestamp display
+- URL display
+- Error message display
+- Responsive design
+
+#### 3. Test Suite (`test-visual-debugger.ts`)
+**File:** `workers/2captcha-worker/test-visual-debugger.ts`
+
+**Tests:**
+1. ✅ Initial connection screenshot
+2. ✅ Navigation screenshot
+3. ✅ Error screenshot capture
+4. ✅ Debug report generation
+5. ✅ HTML timeline generation
+
+### Test Results
+```
+Test 1: Initial screenshot - ✅ PASS
+Test 2: Navigation screenshot - ✅ PASS
+Test 3: Error screenshot - ✅ PASS
+Test 4: Report generation - ✅ PASS
+Test 5: HTML timeline - ✅ PASS
+─────────────────────────────
+Overall: ✅ ALL TESTS PASSED
+```
+
+### Files Created
+- `src/visual-debugger.ts` - Main VisualDebugger class
+- `test-visual-debugger.ts` - Test suite
+- `test-screenshots/` - Screenshot output directory
+
+### Usage Example
+```typescript
+import { AutoHealingCDPManager } from './auto-healing-cdp';
+import { VisualDebugger } from './visual-debugger';
+
+const manager = new AutoHealingCDPManager({
+  httpUrl: 'http://localhost:50072',
+  token: 'delqhi-admin'
+});
+
+const debugger = new VisualDebugger(manager, {
+  enabled: true,
+  screenshotDir: './screenshots',
+  captureOnError: true,
+  captureOnSteps: true,
+  stepsToCapture: ['navigation', 'captcha-detected', 'error']
+});
+
+// Connect and capture
+await manager.connect();
+await debugger.captureStepScreenshot('initial');
+
+// Navigate and capture
+await manager.navigate('https://example.com');
+await debugger.captureStepScreenshot('after-navigation', 'https://example.com');
+
+// On error
+await debugger.captureErrorScreenshot(error, 'solve-captcha');
+
+// Generate reports
+const reportPath = debugger.generateReport();
+const htmlPath = debugger.generateHTMLTimeline();
+```
+
+### Benefits
+- 🐛 **Debuggable** - See what the browser sees
+- 📸 **Evidence** - Screenshots for troubleshooting
+- 📊 **Timeline** - Visual history of automation
+- 🎯 **Focused** - Capture only important steps
+- 💾 **Safe** - Max screenshot limit prevents disk fill
+
+### Next Steps
+- Task 118: Create Performance Benchmark for Browserless
+- Task 119: Implement Proxy Rotation for VNC Browser
+- Task 120: Create Success Rate Dashboard
+
