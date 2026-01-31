@@ -13,7 +13,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     networks:
       - sin-solver-network
     healthcheck:
@@ -30,7 +31,7 @@ services:
 
 networks:
   sin-solver-network:
-    driver: bridge
+    external: true
     name: sin-solver-network
 
 volumes:
