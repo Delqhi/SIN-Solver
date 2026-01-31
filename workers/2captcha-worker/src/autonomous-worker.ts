@@ -1,7 +1,8 @@
-import WebSocket from 'ws';
 import fetch from 'node-fetch';
 import * as fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { AutoHealingCDPManager } from './auto-healing-cdp';
+import { VisualDebugger } from './visual-debugger';
 
 interface SolverResult {
   success: boolean;
@@ -11,16 +12,14 @@ interface SolverResult {
   method: string;
   durationMs: number;
   error?: string;
+  debugTimeline?: string;
 }
 
-type WebSocketWithEvents = WebSocket & { on: (...args: any[]) => void; off: (...args: any[]) => void };
-
 export class AutonomousCaptchaWorker {
-  private browserWs: WebSocketWithEvents | null = null;
-  private cdpWs: WebSocketWithEvents | null = null;
+  private cdpManager: AutoHealingCDPManager | null = null;
+  private debugger: VisualDebugger | null = null;
   private config = {
     // Using Agent-07 VNC Browser (Browserless - reliable CDP with GUI)
-    steelCdpUrl: process.env.STEEL_CDP_URL || 'ws://localhost:50072/devtools/browser',
     steelHttpUrl: process.env.STEEL_HTTP_URL || 'http://localhost:50072',
     steelToken: process.env.STEEL_TOKEN || 'delqhi-admin',
     skyvernUrl: process.env.SKYVERN_URL || 'http://localhost:50006',
@@ -28,6 +27,9 @@ export class AutonomousCaptchaWorker {
     opencodeUrl: process.env.OPENCODE_URL || 'http://localhost:50004',
     mistralKey: process.env.MISTRAL_API_KEY || '',
     groqKey: process.env.GROQ_API_KEY || '',
+    // Visual Debugger config
+    debugEnabled: process.env.DEBUG_SCREENSHOTS !== 'false',
+    screenshotDir: process.env.SCREENSHOT_DIR || './screenshots/autonomous',
   };
 
   async solve(url: string, instructions?: string): Promise<SolverResult> {
@@ -38,126 +40,59 @@ export class AutonomousCaptchaWorker {
     console.log('');
 
     try {
-      await this.connectCDP();
+      // Initialize CDP Manager
+      this.cdpManager = new AutoHealingCDPManager({
+        httpUrl: this.config.steelHttpUrl,
+        token: this.config.steelToken
+      });
+      await this.cdpManager.connect();
+
+      // Initialize Visual Debugger
+      this.debugger = new VisualDebugger(this.cdpManager, {
+        enabled: this.config.debugEnabled,
+        screenshotDir: this.config.screenshotDir
+      });
+
       await this.navigate(url);
+      await this.debugger?.captureScreenshot('after-navigation', { url });
       
       const captchaInfo = await this.detectCaptcha();
       if (!captchaInfo.found) {
-        return { success: false, confidence: 0, provider: 'none', method: 'detection', durationMs: Date.now() - start, error: 'No CAPTCHA found' };
+        await this.debugger?.captureScreenshot('no-captcha-found');
+        const timelinePath = this.debugger?.generateHTMLTimeline();
+        await this.disconnect();
+        return { success: false, confidence: 0, provider: 'none', method: 'detection', durationMs: Date.now() - start, error: 'No CAPTCHA found', debugTimeline: timelinePath };
       }
 
       console.log(`✅ CAPTCHA detected: ${captchaInfo.type}`);
+      await this.debugger?.captureScreenshot('captcha-detected', { url });
       
       const screenshot = await this.captureScreenshot();
       const solution = await this.solveWithChain(screenshot, captchaInfo.type);
       
       if (solution.success && solution.solution) {
+        await this.debugger?.captureScreenshot('before-submit', { url });
         await this.submitSolution(solution.solution, captchaInfo);
+        await this.debugger?.captureScreenshot('after-submit', { url });
       }
 
+      // Generate debug timeline before disconnecting
+      const timelinePath = this.debugger?.generateHTMLTimeline();
       await this.disconnect();
-      return { ...solution, durationMs: Date.now() - start };
+      return { ...solution, durationMs: Date.now() - start, debugTimeline: timelinePath };
 
     } catch (error) {
+      await this.debugger?.captureScreenshot('error', { error: error instanceof Error ? error.message : String(error) });
+      const timelinePath = this.debugger?.generateHTMLTimeline();
       await this.disconnect();
-      return { success: false, confidence: 0, provider: 'none', method: 'error', durationMs: Date.now() - start, error: error instanceof Error ? error.message : String(error) };
+      return { success: false, confidence: 0, provider: 'none', method: 'error', durationMs: Date.now() - start, error: error instanceof Error ? error.message : String(error), debugTimeline: timelinePath };
     }
-  }
-
-  private async connectCDP(): Promise<void> {
-    console.log('🔌 Connecting to Browserless VNC Browser CDP...');
-    
-    const token = this.config.steelToken;
-    const httpUrl = this.config.steelHttpUrl;
-    
-    // Step 1: Get browser version (with auth)
-    const versionRes = await fetch(`${httpUrl}/json/version?token=${token}`);
-    if (!versionRes.ok) throw new Error(`Failed to get version: ${versionRes.status}`);
-    const version = await versionRes.json() as any;
-    console.log(`✅ Browser: ${version.Browser}`);
-    console.log(`✅ Protocol: ${version['Protocol-Version']}`);
-
-    // Step 2: Connect to browser-level WebSocket to create a target
-    const browserWsUrl = version.webSocketDebuggerUrl
-      .replace('0.0.0.0:3000', '127.0.0.1:50072')
-      + `?token=${token}`;
-    
-    console.log(`🔌 Connecting to browser WebSocket...`);
-    this.browserWs = new WebSocket(browserWsUrl) as WebSocketWithEvents;
-
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Browser connection timeout')), 15000);
-      
-      (this.browserWs as WebSocketWithEvents).on('open', () => {
-        clearTimeout(timeout);
-        console.log('✅ Connected to browser');
-        
-        // Create a new target (page)
-        this.browserWs!.send(JSON.stringify({
-          id: 1,
-          method: 'Target.createTarget',
-          params: { url: 'about:blank' }
-        }));
-      });
-      
-      (this.browserWs as WebSocketWithEvents).on('message', (data: any) => {
-        const msg = JSON.parse(data.toString());
-        
-        if (msg.id === 1 && msg.result?.targetId) {
-          const targetId = msg.result.targetId;
-          console.log(`✅ Target created: ${targetId}`);
-          
-          // Step 3: Connect to target-level WebSocket
-          const targetWsUrl = `ws://127.0.0.1:50072/devtools/page/${targetId}?token=${token}`;
-          console.log(`🔌 Connecting to target WebSocket...`);
-          
-          this.cdpWs = new WebSocket(targetWsUrl) as WebSocketWithEvents;
-          
-          this.cdpWs.on('open', () => {
-            console.log('✅ Connected to target');
-            
-            // Enable CDP domains on target
-            this.cdpWs!.send(JSON.stringify({ id: 1, method: 'Runtime.enable' }));
-            this.cdpWs!.send(JSON.stringify({ id: 2, method: 'Page.enable' }));
-            this.cdpWs!.send(JSON.stringify({ id: 3, method: 'DOM.enable' }));
-            resolve();
-          });
-          
-          this.cdpWs.on('error', (err: any) => reject(err));
-        }
-      });
-      
-      (this.browserWs as WebSocketWithEvents).on('error', (err: any) => {
-        clearTimeout(timeout);
-        reject(err);
-      });
-    });
   }
 
   private async navigate(url: string): Promise<void> {
     console.log(`🌐 Navigating to: ${url}`);
-    
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Navigation timeout')), 30000);
-      
-      this.cdpWs!.send(JSON.stringify({
-        id: 4,
-        method: 'Page.navigate',
-        params: { url }
-      }));
-
-      const handler = (data: any) => {
-        const msg = JSON.parse(data.toString());
-        if (msg.method === 'Page.loadEventFired') {
-          clearTimeout(timeout);
-          (this.cdpWs as WebSocketWithEvents).off('message', handler);
-          console.log('✅ Page loaded');
-          resolve();
-        }
-      };
-
-      (this.cdpWs as WebSocketWithEvents).on('message', handler);
-    });
+    await this.cdpManager!.navigate(url);
+    console.log('✅ Page loaded');
   }
 
   private async detectCaptcha(): Promise<{ found: boolean; type?: string; selector?: string }> {
@@ -182,27 +117,8 @@ export class AutonomousCaptchaWorker {
 
   private async captureScreenshot(): Promise<Buffer> {
     console.log('📸 Capturing screenshot...');
-
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Screenshot timeout')), 10000);
-
-      this.cdpWs!.send(JSON.stringify({
-        id: 5,
-        method: 'Page.captureScreenshot',
-        params: { format: 'png', fullPage: false }
-      }));
-
-      const handler = (data: any) => {
-        const msg = JSON.parse(data.toString());
-        if (msg.id === 5 && msg.result?.data) {
-          clearTimeout(timeout);
-          (this.cdpWs as WebSocketWithEvents).off('message', handler);
-          resolve(Buffer.from(msg.result.data, 'base64'));
-        }
-      };
-
-      (this.cdpWs as WebSocketWithEvents).on('message', handler);
-    });
+    const result = await this.cdpManager!.sendCommand('Page.captureScreenshot', { format: 'png', fullPage: false });
+    return Buffer.from(result.data, 'base64');
   }
 
   private async solveWithChain(image: Buffer, captchaType: string): Promise<SolverResult> {
@@ -343,37 +259,14 @@ export class AutonomousCaptchaWorker {
   }
 
   private async evaluate(expression: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Eval timeout')), 5000);
-      
-      this.cdpWs!.send(JSON.stringify({
-        id: 6,
-        method: 'Runtime.evaluate',
-        params: { expression, returnByValue: true }
-      }));
-
-      const handler = (data: any) => {
-        const msg = JSON.parse(data.toString());
-        if (msg.id === 6) {
-          clearTimeout(timeout);
-          (this.cdpWs as WebSocketWithEvents).off('message', handler);
-          resolve(msg.result?.result?.value);
-        }
-      };
-
-      (this.cdpWs as WebSocketWithEvents).on('message', handler);
-    });
+    const result = await this.cdpManager!.sendCommand('Runtime.evaluate', { expression, returnByValue: true });
+    return result.result?.value;
   }
 
   private async disconnect(): Promise<void> {
-    if (this.cdpWs) {
-      this.cdpWs.close();
-      this.cdpWs = null;
-    }
-    if (this.browserWs) {
-      this.browserWs.close();
-      this.browserWs = null;
-    }
+    await this.cdpManager?.disconnect();
+    this.cdpManager = null;
+    this.debugger = null;
     console.log('🔌 Disconnected');
   }
 }
